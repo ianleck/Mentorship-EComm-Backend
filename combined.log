@@ -1,0 +1,42 @@
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:29:08.361Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:29:08.361Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:32:16.185Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:32:16.185Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:33:18.434Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:33:18.434Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:40:24.036Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:40:24.036Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:40:39.280Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:40:39.280Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:42:06.282Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:42:06.282Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:42:40.863Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:42:40.863Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:45:31.901Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:45:31.901Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:45:50.862Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:45:50.862Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:47:27.854Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:47:27.854Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:48:22.830Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:48:22.830Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:48:36.591Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:48:36.591Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T09:57:57.190Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T09:57:57.190Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T10:06:48.716Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T10:06:48.716Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T10:07:47.916Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T10:07:47.916Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T10:08:08.905Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T10:08:08.905Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T10:08:59.400Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T10:08:59.400Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T10:10:08.702Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T10:10:08.702Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-14T10:13:05.462Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-14T10:13:05.462Z"}
+{"message":"Database connection failed with error SequelizeConnectionRefusedError: connect ECONNREFUSED 127.0.0.1:3306","level":"info","timestamp":"2021-01-15T13:17:16.143Z"}
+{"message":"Database connection failed with error SequelizeConnectionRefusedError: connect ECONNREFUSED 127.0.0.1:3306","level":"info","timestamp":"2021-01-15T13:17:40.807Z"}
+{"message":"Database connection failed with error SequelizeConnectionRefusedError: connect ECONNREFUSED 127.0.0.1:3306","level":"info","timestamp":"2021-01-15T13:18:23.103Z"}
+{"message":"Database connection failed with error SequelizeConnectionRefusedError: connect ECONNREFUSED 127.0.0.1:3306","level":"info","timestamp":"2021-01-15T13:18:36.335Z"}
