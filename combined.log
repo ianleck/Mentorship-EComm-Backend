@@ -40,3 +40,143 @@
 {"message":"Database connection failed with error SequelizeConnectionRefusedError: connect ECONNREFUSED 127.0.0.1:3306","level":"info","timestamp":"2021-01-15T13:17:40.807Z"}
 {"message":"Database connection failed with error SequelizeConnectionRefusedError: connect ECONNREFUSED 127.0.0.1:3306","level":"info","timestamp":"2021-01-15T13:18:23.103Z"}
 {"message":"Database connection failed with error SequelizeConnectionRefusedError: connect ECONNREFUSED 127.0.0.1:3306","level":"info","timestamp":"2021-01-15T13:18:36.335Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T07:50:55.830Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T07:50:55.830Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T08:00:07.498Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T08:00:07.498Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T08:01:27.339Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T08:01:27.339Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T08:02:09.126Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T08:02:09.126Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T08:03:08.994Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T08:03:08.994Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T08:03:51.030Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T08:03:51.030Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T08:04:32.944Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T08:04:32.944Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T08:09:01.690Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T08:09:01.690Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T08:09:18.054Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T08:09:18.054Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T08:10:07.550Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T08:10:07.550Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T08:20:40.764Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T08:20:40.764Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T08:22:25.767Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T08:22:25.767Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T09:22:31.578Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T09:22:31.578Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T09:23:09.640Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T09:23:09.640Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T09:25:27.424Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-25T09:25:27.424Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T09:25:27.424Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-25T09:27:56.846Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-25T09:27:56.846Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-25T09:27:56.846Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:10:11.026Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:10:11.026Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:10:11.026Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:10:55.504Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:10:55.504Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:10:55.504Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:11:57.227Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:11:57.227Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:11:57.227Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:13:30.310Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:13:30.310Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:13:30.310Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:16:14.864Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:16:14.864Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:16:14.864Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:17:58.294Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:17:58.294Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:17:58.294Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:18:03.520Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:18:03.520Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:18:03.520Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:20:36.856Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:20:36.856Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:21:23.225Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:21:23.225Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:24:15.900Z"}
+{"message":"Database connection failed with error TypeError: http.createServer is not a function","level":"info","timestamp":"2021-01-26T03:24:15.900Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:24:57.140Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:24:57.140Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:24:57.140Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:25:12.222Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:25:12.222Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:25:12.222Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:25:20.834Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:25:20.834Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:25:20.834Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:25:29.656Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:25:29.656Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:25:29.656Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:25:43.353Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:25:43.353Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:26:30.641Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:26:30.641Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:27:17.941Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:27:17.941Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:31:31.592Z"}
+{"message":"Database connection failed with error TypeError: http.createServer is not a function","level":"info","timestamp":"2021-01-26T03:31:31.592Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:32:07.474Z"}
+{"message":"Database connection failed with error TypeError: http.createServer is not a function","level":"info","timestamp":"2021-01-26T03:32:07.474Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:32:16.580Z"}
+{"message":"Database connection failed with error TypeError: io.listen is not a function","level":"info","timestamp":"2021-01-26T03:32:16.580Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:32:16.580Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:32:45.005Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:32:45.005Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:34:58.546Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:34:58.546Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:37:37.668Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:37:37.668Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:38:09.589Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:38:09.589Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:38:44.669Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:38:44.669Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:39:00.667Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:39:00.667Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:39:28.579Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:39:28.579Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:40:34.533Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:40:34.533Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:41:18.500Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:41:18.500Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:41:45.632Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:41:45.632Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:42:47.174Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:42:47.174Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:43:17.586Z"}
+{"message":"Database connection failed with error TypeError: socketIo.listen is not a function","level":"info","timestamp":"2021-01-26T03:43:17.586Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:43:17.586Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:44:29.487Z"}
+{"message":"Database connection failed with error TypeError: require(...).listen is not a function","level":"info","timestamp":"2021-01-26T03:44:29.487Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:44:29.487Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:44:46.463Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:44:46.463Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:45:27.064Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:45:27.064Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:45:51.976Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:45:51.976Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:47:06.575Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:47:06.575Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:51:17.583Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:51:17.583Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:52:31.626Z"}
+{"message":"Database connection failed with error TypeError: io.on is not a function","level":"info","timestamp":"2021-01-26T03:52:31.626Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:52:31.626Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T03:58:32.243Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T03:58:32.243Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T04:02:35.493Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T04:02:35.493Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T04:02:51.832Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T04:02:51.832Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T04:34:11.676Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T04:34:11.676Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-01-26T12:06:12.605Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T12:06:12.605Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T12:55:23.358Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-26T12:55:53.484Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-01-27T07:39:35.827Z"}

@@ -13,4 +13,10 @@ router.get(
     UserController.self,
 );
 
+router.post(
+    '/login',
+    schemaValidator.query(user.login),
+    UserController.login
+)
+
 export default router;
