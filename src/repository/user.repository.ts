@@ -1,7 +1,7 @@
 import { User} from "../models/User";
 
-export class UserService {
-    public static async helloWorld() {
+export class UserRepository {
+    public static async getComplexJoins() {
         return User.findAll();
     }
 }

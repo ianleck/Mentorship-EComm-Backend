@@ -1,5 +1,5 @@
 import {Sequelize} from "sequelize-typescript";
-import { User} from "../../models/user";
+import { User} from "../../models/User";
 import dbConfig from './db-config';
 
 // export const sequelize =  new Sequelize({
@@ -26,5 +26,5 @@ export const sequelize =  new Sequelize({
         idle: 10000
     },
     // models: ['../../models/*.ts'], // or [Player, Team],
-    models: [User]
+    models: [__dirname + '/../../models/*.ts']
 });
