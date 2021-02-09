@@ -1,0 +1,48 @@
+[
+	{
+		"createdAt" : "2020-12-15 09:08:30.221227",
+		"updatedAt" : "2020-12-15 09:08:30.221227",
+		"email" : "teacherkeng@gmail.com",
+		"isActive" : true,
+		"students" : [
+			{
+				"createdAt" : "2020-12-15 09:08:30.248251",
+				"updatedAt" : "2020-12-15 09:08:30.248251",
+				"email" : "studentjon@gmail.com",
+				"isActive" : true
+			},
+			{
+				"createdAt" : "2020-12-15 09:08:30.248251",
+				"updatedAt" : "2020-12-15 09:08:30.248251",
+				"email" : "common@gmail.com",
+				"isActive" : true
+			},
+			{
+				"createdAt" : "2020-12-15 09:08:30.248251",
+				"updatedAt" : "2020-12-15 09:08:30.248251",
+				"email" : "suspended@gmail.com",
+				"isActive" : false
+			}
+		]
+	},
+	{
+		"createdAt" : "2020-12-15 09:08:30.221227",
+		"updatedAt" : "2020-12-15 09:08:30.221227",
+		"email" : "secondteacher@gmail.com",
+		"isActive" : true,
+		"students" : [
+			{
+				"createdAt" : "2020-12-15 09:08:30.248251",
+				"updatedAt" : "2020-12-15 09:08:30.248251",
+				"email" : "teststudent@gmail.com",
+				"isActive" : true
+			},
+			{
+				"createdAt" : "2020-12-15 09:08:30.248251",
+				"updatedAt" : "2020-12-15 09:08:30.248251",
+				"email" : "studentheaan@gmail.com",
+				"isActive" : true
+			}
+		]
+	}
+]
