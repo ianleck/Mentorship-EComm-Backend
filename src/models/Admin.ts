@@ -5,22 +5,16 @@ import {ADMIN_PERMISSION_ENUM, ADMIN_PERMISSION_ENUM_OPTIONS} from "../constants
 @Table
 export class Admin extends User {
 
+    @ForeignKey(() => Admin)
+    @Column({field: 'admin_id', type: DataType.INTEGER, autoIncrement: true, unique: true})
+    adminId: number;
+
     @Column({field: 'permission', type: DataType.ENUM(...ADMIN_PERMISSION_ENUM_OPTIONS)})
     permission: ADMIN_PERMISSION_ENUM;
-
-    @ForeignKey(() => Admin)
-    @Column
-    accountId: string;
 
     @HasOne(() => Admin)
     updatedBy: Admin;
 
-    @HasOne(() => Admin)
+    @HasOne(() => Admin, 'admin_id')
     createdBy: Admin;
-
-    // @HasMany(() => CourseContract)
-    // courses: CourseContract;
-    //
-    // @HasMany(() => MentorshipContract)
-    // mentorships: MentorshipContract;
 }

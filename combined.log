@@ -125,3 +125,21 @@
 {"message":"Server running at 5000","level":"info","timestamp":"2021-02-09T03:35:11.695Z"}
 {"message":"database connection created","level":"info","timestamp":"2021-02-09T03:35:17.751Z"}
 {"message":"Server running at 5000","level":"info","timestamp":"2021-02-09T03:35:17.751Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-02-09T08:38:42.329Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-02-09T08:38:42.329Z"}
+{"message":"Database connection failed with error SequelizeDatabaseError: Referencing column 'accountId' and referenced column 'id' in foreign key constraint 'Admin_ibfk_1' are incompatible.","level":"info","timestamp":"2021-02-09T08:40:17.230Z"}
+{"message":"Database connection failed with error SequelizeDatabaseError: Referencing column 'accountId' and referenced column 'id' in foreign key constraint 'Admin_ibfk_1' are incompatible.","level":"info","timestamp":"2021-02-09T08:44:29.149Z"}
+{"message":"Database connection failed with error SequelizeDatabaseError: Referencing column 'id' and referenced column 'account_id' in foreign key constraint 'Admin_ibfk_1' are incompatible.","level":"info","timestamp":"2021-02-09T08:47:17.800Z"}
+{"message":"Database connection failed with error SequelizeDatabaseError: Referencing column 'accountId' and referenced column 'id' in foreign key constraint 'Admin_ibfk_1' are incompatible.","level":"info","timestamp":"2021-02-09T08:47:28.688Z"}
+{"message":"Database connection failed with error SequelizeDatabaseError: Referencing column 'accountId' and referenced column 'id' in foreign key constraint 'Admin_ibfk_1' are incompatible.","level":"info","timestamp":"2021-02-10T03:01:53.220Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-02-10T03:03:34.595Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-02-10T03:03:34.595Z"}
+{"message":"Database connection failed with error SequelizeDatabaseError: Referencing column 'admin_id' and referenced column 'account_id' in foreign key constraint 'Admin_ibfk_1' are incompatible.","level":"info","timestamp":"2021-02-10T03:19:35.363Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-02-10T03:20:33.702Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-02-10T03:20:33.702Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-02-10T03:21:03.534Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-02-10T03:21:03.534Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-02-10T03:21:11.815Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-02-10T03:21:11.815Z"}
+{"message":"database connection created","level":"info","timestamp":"2021-02-10T03:21:18.711Z"}
+{"message":"Server running at 5000","level":"info","timestamp":"2021-02-10T03:21:18.711Z"}
