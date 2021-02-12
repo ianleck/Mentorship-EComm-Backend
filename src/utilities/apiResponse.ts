@@ -33,14 +33,15 @@ export default class ApiResponse {
   static error = (
     res: Response,
     status: number = 400,
-    error: string = HttpStatus.getStatusText(status),
+    error: any = {
+      message: HttpStatus.getStatusText(status),
+      errors: []
+    },
     override: IOverrideRequest = null,
   ) => {
     res.status(status).json({
       override,
-      error: {
-        message: error,
-      },
+      error,
       success: false,
     });
   };

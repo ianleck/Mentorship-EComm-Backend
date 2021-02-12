@@ -1,5 +1,5 @@
 import {Sequelize} from "sequelize-typescript";
-import { User} from "../../models/User";
+import { User} from "../../models/abstract/User";
 import dbConfig from './db-config';
 
 // export const sequelize =  new Sequelize({

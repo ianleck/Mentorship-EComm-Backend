@@ -1,7 +1,6 @@
 import {Column, CreatedAt, Model, Table, UpdatedAt} from 'sequelize-typescript';
 
-@Table
-export class BaseEntity extends Model<BaseEntity> {
+export abstract class BaseEntity extends Model<BaseEntity> {
 
     @CreatedAt
     @Column({ field: 'created_at' })

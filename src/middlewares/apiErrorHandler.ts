@@ -27,3 +27,27 @@ export function notFoundErrorHandler(
     },
   });
 }
+
+/**
+ * Generic error response middleware
+ *
+ * @param  {object}   err
+ * @param  {object}   req
+ * @param  {object}   res
+ * @param  {function} next
+ */
+export function internalServerError(
+    err: IError,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+) {
+  res.status(err.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
+    success: false,
+    error: {
+      code: err.code || HttpStatus.INTERNAL_SERVER_ERROR,
+      message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR),
+    },
+  });
+}
+
