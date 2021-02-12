@@ -1,12 +1,12 @@
 import {BelongsToMany, Column, DataType, Table} from 'sequelize-typescript';
-import {User} from "./User";
+import {User} from "./abstract/User";
 import {Student} from "./Student";
 import {StudentSensei} from "./StudentSensei";
 
 @Table
 export class Sensei extends User {
 
-    @Column({field: 'admin_verified', type: DataType.BOOLEAN})
+    @Column({field: 'admin_verified', type: DataType.BOOLEAN, defaultValue: false})
     adminVerified: boolean;
 
     @BelongsToMany(() => Student, () => StudentSensei)

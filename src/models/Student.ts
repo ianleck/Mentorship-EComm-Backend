@@ -1,5 +1,5 @@
 import {BelongsToMany, Table} from 'sequelize-typescript';
-import {User} from "./User";
+import {User} from "./abstract/User";
 import {Sensei} from "./Sensei";
 import {StudentSensei} from "./StudentSensei";
 

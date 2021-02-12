@@ -1,7 +1,8 @@
-import { User} from "../models/User";
+import { User} from "../models/abstract/User";
 
 export class UserService {
     public static async helloWorld() {
-        return User.findAll();
+        return null;
+        // return User.findAll();
     }
 }

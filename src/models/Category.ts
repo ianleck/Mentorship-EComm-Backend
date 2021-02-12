@@ -1,5 +1,5 @@
 import {Column, DataType, Table} from 'sequelize-typescript';
-import {BaseEntity} from "./BaseEntity";
+import {BaseEntity} from "./abstract/BaseEntity";
 
 @Table
 export class Category extends BaseEntity {
