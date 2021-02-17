@@ -21,9 +21,9 @@ router.post(
 );
 
 router.get(
-  '/profile',
-  schemaValidator.body(user.viewProfile),
-  Utility.asyncHandler(UserController.viewProfile)
+  '/getUser/:accountId',
+  schemaValidator.query(user.getUser),
+  Utility.asyncHandler(UserController.getUser)
 );
 
 export default router;

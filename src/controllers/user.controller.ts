@@ -62,13 +62,13 @@ export class UserController {
       return apiResponse.error(res, 400, { message: e.toString() });
     }
   }
-  public static async viewProfile(req, res) {
+  public static async getUser(req, res) {
     const { userId, status } = req.body;
     try {
       const user = await UserService.findUserById(userId, status);
       return apiResponse.result(res, user, httpStatusCodes.OK);
     } catch (e) {
-      logger.error('[userController.viewProfile]:' + e.toString());
+      logger.error('[userController.getUser]:' + e.toString());
       return apiResponse.error(res, 400, { message: e.toString() });
     }
   }

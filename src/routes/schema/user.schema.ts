@@ -15,7 +15,7 @@ export default {
       isStudent: joi.boolean().required(),
     }),
   }),
-  viewProfile: joi.object({
+  getUser: joi.object({
     accountId: joi.string().required(),
     userType: joi.string().valid('STUDENT', 'SENSEI', 'ADMIN'),
   }),
