@@ -18,7 +18,7 @@ export default class ApiResponse {
     res: Response,
     data: object | string | null,
     status: number = 200,
-    cookie: ICookie = null,
+    cookie: ICookie = null
   ) => {
     res.status(status);
     if (cookie) {
@@ -35,9 +35,9 @@ export default class ApiResponse {
     status: number = 400,
     error: any = {
       message: HttpStatus.getStatusText(status),
-      errors: []
+      errors: [],
     },
-    override: IOverrideRequest = null,
+    override: IOverrideRequest = null
   ) => {
     res.status(status).json({
       override,

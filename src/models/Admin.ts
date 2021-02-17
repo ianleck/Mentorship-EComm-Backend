@@ -4,18 +4,18 @@ import {
   ForeignKey,
   HasOne,
   Table,
-} from "sequelize-typescript";
-import { User } from "./abstract/User";
+} from 'sequelize-typescript';
+import { User } from './abstract/User';
 import {
   ADMIN_PERMISSION_ENUM,
   ADMIN_PERMISSION_ENUM_OPTIONS,
-} from "../constants/enum";
+} from '../constants/enum';
 
 @Table
 export class Admin extends User {
   @ForeignKey(() => Admin)
   @Column({
-    field: "admin_id",
+    field: 'admin_id',
     type: DataType.INTEGER,
     autoIncrement: true,
     unique: true,
@@ -23,7 +23,7 @@ export class Admin extends User {
   adminId: number;
 
   @Column({
-    field: "permission",
+    field: 'permission',
     type: DataType.ENUM(...Object.values(ADMIN_PERMISSION_ENUM_OPTIONS)),
     defaultValue: ADMIN_PERMISSION_ENUM_OPTIONS.ADMIN,
   })
@@ -32,6 +32,6 @@ export class Admin extends User {
   @HasOne(() => Admin)
   updatedBy: Admin;
 
-  @HasOne(() => Admin, "admin_id")
+  @HasOne(() => Admin, 'admin_id')
   createdBy: Admin;
 }

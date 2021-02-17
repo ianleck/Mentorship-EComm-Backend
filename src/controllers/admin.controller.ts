@@ -1,7 +1,7 @@
-import AdminService from "../services/admin.service";
-import httpStatusCodes from "http-status-codes";
-import apiResponse from "../utilities/apiResponse";
-import logger from "../config/logger";
+import AdminService from '../services/admin.service';
+import httpStatusCodes from 'http-status-codes';
+import apiResponse from '../utilities/apiResponse';
+import logger from '../config/logger';
 
 export class AdminController {
   public static async registerAdmin(req, res) {
@@ -10,11 +10,11 @@ export class AdminController {
       await AdminService.registerAdmin(newAdmin);
       return apiResponse.result(
         res,
-        { message: "Successfully Registered" },
+        { message: 'Successfully Registered' },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error("[adminController.registerAdmin]:" + e.toString());
+      logger.error('[adminController.registerAdmin]:' + e.toString());
       return apiResponse.error(res, 400, { message: e.toString() });
     }
   }
@@ -23,9 +23,9 @@ export class AdminController {
     const { admin } = req.body;
     try {
       await AdminService.updateAdmin(admin);
-      apiResponse.result(res, { message: "success" }, httpStatusCodes.OK);
+      apiResponse.result(res, { message: 'success' }, httpStatusCodes.OK);
     } catch (e) {
-      logger.error("[adminController.updateAdmin]" + e.toString());
+      logger.error('[adminController.updateAdmin]' + e.toString());
       return apiResponse.error(res, 400, { message: e.toString() });
     }
   }

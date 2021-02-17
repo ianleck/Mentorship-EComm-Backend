@@ -24,7 +24,7 @@ export default (
   err: IJoiError,
   req: express.Request,
   res: express.Response,
-  next: express.NextFunction,
+  next: express.NextFunction
 ) => {
   if (err.isBoom) {
     const error = {
@@ -32,11 +32,11 @@ export default (
       message: HttpStatus.getStatusText(HttpStatus.BAD_REQUEST),
       details:
         err.data &&
-        err.data.map(err => ({
+        err.data.map((err) => ({
           message: err.message,
           param: err.path,
         })),
-    }
+    };
     return res.status(HttpStatus.BAD_REQUEST).json(error);
   }
   // If this isn't a Joi error, send it to the next error handler

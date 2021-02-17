@@ -18,34 +18,34 @@ The type of the file being returned (as the content type)
 
 */
 
-import express from "express";
+import express from 'express';
 
-import { AdminController } from "../controllers/admin.controller";
-import admin from "./schema/admin.schema";
-import Utility from "../constants/utility";
+import { AdminController } from '../controllers/admin.controller';
+import admin from './schema/admin.schema';
+import Utility from '../constants/utility';
 
 const router = express.Router();
 
-const schemaValidator = require("express-joi-validation").createValidator({});
+const schemaValidator = require('express-joi-validation').createValidator({});
 
 router.post(
-  "/register-admin",
+  '/register-admin',
   schemaValidator.body(admin.registerAdmin),
   Utility.asyncHandler(AdminController.registerAdmin)
 );
 
 router.post(
-  "/update-admin",
+  '/update-admin',
   schemaValidator.body(admin.updateAdmin),
   Utility.asyncHandler(AdminController.updateAdmin)
 );
 
 //get all admins
-router.get("/view-admins", Utility.asyncHandler(AdminController.viewAdmins));
+router.get('/view-admins', Utility.asyncHandler(AdminController.viewAdmins));
 
 //get admin details by admin ID
 router.get(
-  "/view-admin/:id",
+  '/view-admin/:id',
   Utility.asyncHandler(AdminController.viewAdminDetails)
 );
 
