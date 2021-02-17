@@ -32,4 +32,6 @@ export class Sensei extends User {
   //
   // @HasOne(() => Wallet)
   // wallet: Wallet;
+
+  // achievements
 }
