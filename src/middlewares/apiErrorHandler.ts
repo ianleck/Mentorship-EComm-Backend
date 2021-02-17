@@ -1,6 +1,6 @@
 import HttpStatus from 'http-status-codes';
 import express from 'express';
-import logger from "../config/logger";
+import logger from '../config/logger';
 
 export interface IError {
   status?: number;
@@ -17,7 +17,7 @@ export interface IError {
 export function notFoundErrorHandler(
   req: express.Request,
   res: express.Response,
-  next: express.NextFunction,
+  next: express.NextFunction
 ) {
   res.status(HttpStatus.NOT_FOUND).json({
     success: false,
@@ -37,10 +37,10 @@ export function notFoundErrorHandler(
  * @param  {function} next
  */
 export function internalServerError(
-    err: IError,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction,
+  err: IError,
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
 ) {
   res.status(err.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
     success: false,
@@ -50,4 +50,3 @@ export function internalServerError(
     },
   });
 }
-

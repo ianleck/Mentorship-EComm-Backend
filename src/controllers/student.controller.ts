@@ -1,7 +1,7 @@
-import StudentService from "../services/student.service";
+import StudentService from '../services/student.service';
 import httpStatusCodes from 'http-status-codes';
-import apiResponse from "../utilities/apiResponse";
-import logger from "../config/logger";
+import apiResponse from '../utilities/apiResponse';
+import logger from '../config/logger';
 
 export class StudentController {
     // public static async createStudent(req, res) {
@@ -26,4 +26,5 @@ export class StudentController {
             return apiResponse.error(res, 400, {message: e.toString()});
         }
     }
+  }
 }

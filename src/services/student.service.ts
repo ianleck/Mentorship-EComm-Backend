@@ -19,4 +19,5 @@ export default class StudentService {
             throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
         }
     }
+  }
 }

@@ -19,4 +19,5 @@ export default {
             status: joi.string().valid(...Object.values(STATUS_ENUM_OPTIONS))
         })
     }),
+  }),
 };
