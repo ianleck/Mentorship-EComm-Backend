@@ -1,4 +1,4 @@
-import {Student} from "../models/Student";
+import { Student } from "../models/Student";
 import bcrypt from "bcrypt";
 import Utility from "../constants/utility";
 import {ADMIN_PERMISSION_ENUM_OPTIONS, USER_TYPE_ENUM_OPTIONS} from "../constants/enum";
@@ -55,22 +55,21 @@ export default class UserService {
         const {username, email, password, confirmPassword, isStudent} = registerBody;
         let errors = [];
 
-        if (!username || !email || !password || !confirmPassword) {
-            errors.push({msg: 'Please enter all fields'});
-        }
+    if (!username || !email || !password || !confirmPassword) {
+      errors.push({ msg: "Please enter all fields" });
+    }
 
-        if (password != confirmPassword) {
-            errors.push({msg: 'Passwords do not match'});
-        }
+    if (password != confirmPassword) {
+      errors.push({ msg: "Passwords do not match" });
+    }
 
-        if (password.length < 8) {
-            errors.push({msg: 'Password must be at least 8 characters'});
-        }
+    if (password.length < 8) {
+      errors.push({ msg: "Password must be at least 8 characters" });
+    }
 
-        if (errors.length > 0) {
-            throw new Error(errors.join('. '));
-        }
-
+    if (errors.length > 0) {
+      throw new Error(errors.join(". "));
+    }
         let user, newUser;
 
         // check if user exist as a student or sensei
