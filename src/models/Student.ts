@@ -13,4 +13,6 @@ export class Student extends User {
   //
   // @HasMany(() => MentorshipContract)
   // mentorships: MentorshipContract;
+
+  // achievements
 }
