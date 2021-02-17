@@ -1,9 +1,14 @@
 import {Student} from "../models/Student";
 import {ERRORS} from "../constants/errors";
+import {STATUS_ENUM_OPTIONS} from "../constants/enum";
 
 export default class StudentService {
-    public static async updateStudent(studentDto) {
-        const student = await Student.findByPk(studentDto.accountId);
+    // public static async createStudent(newStudent) {
+    //     const student = new Student()
+    // }
+
+    public static async updateStudent(accountId: string, studentDto) {
+        const student = await Student.findByPk(accountId);
         if(student) {
             await student.update({
                 firstName: studentDto.firstName,

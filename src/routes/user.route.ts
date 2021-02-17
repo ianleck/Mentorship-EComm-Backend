@@ -26,4 +26,11 @@ router.get(
   Utility.asyncHandler(UserController.getUser)
 );
 
+// authentication: check that req.user == accountId
+router.post(
+    '/change-password',
+    schemaValidator.body(user.changePassword),
+    Utility.asyncHandler(UserController.changePassword)
+);
+
 export default router;
