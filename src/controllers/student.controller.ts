@@ -19,8 +19,8 @@ export class StudentController {
         const { accountId } = req.query;
         const { student } = req.body;
         try {
-            await StudentService.updateStudent(accountId, student);
-            apiResponse.result(res, {message: 'success'}, httpStatusCodes.OK);
+            const user = await StudentService.updateStudent(accountId, student);
+            apiResponse.result(res, {message: 'success', student: user}, httpStatusCodes.OK);
         } catch(e) {
             logger.error('[studentController.updateStudent]' + e.toString());
             return apiResponse.error(res, 400, {message: e.toString()});

@@ -12,9 +12,10 @@ const schemaValidator = require("express-joi-validation").createValidator({});
 
 
 // UPDATE STUDENT
+// params: accountId: string
 router.post(
-    '/:accountId',
-    schemaValidator.query(user.accountIdQ),
+    '/',
+    // schemaValidator.query(user.accountIdQ),
     schemaValidator.body(student.updateStudentB),
     Utility.asyncHandler(StudentController.updateStudent)
 )

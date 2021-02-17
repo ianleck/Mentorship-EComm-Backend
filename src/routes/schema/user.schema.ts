@@ -15,7 +15,9 @@ export default {
       isStudent: joi.boolean().required()
     })
   }),
-  accountIdQ: joi.string().required(),
+  accountIdQ: joi.object({
+    accountId: joi.string().required()
+  }),
   changePassword: joi.object({
     accountId: joi.string(), // attribute will be extracted from cookie instead in future releases
     userType: joi.string(), // attribute will be extracted from cookie instead in future releases
