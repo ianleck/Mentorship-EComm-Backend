@@ -1,12 +1,52 @@
 import {Student} from "../models/Student";
 import bcrypt from "bcrypt";
 import Utility from "../constants/utility";
-import {USER_TYPE_ENUM_OPTIONS} from "../constants/enum";
+import {ADMIN_PERMISSION_ENUM_OPTIONS, USER_TYPE_ENUM_OPTIONS} from "../constants/enum";
 import {Sensei} from "../models/Sensei";
+import {Admin} from "../models/Admin";
+import {ERRORS} from "../constants/errors";
 
 export default class UserService {
+
+    public static async changePassword(accountId: string, userType: USER_TYPE_ENUM_OPTIONS, oldPassword: string, newPassword: string, confirmPassword: string) {
+        try {
+            const user = await this.findUser(accountId, userType);
+            const correctOldPassword = await bcrypt.compare(oldPassword, user.password);
+
+            // throw error if old password is incorrect
+            if (!correctOldPassword) throw new Error('Old password is incorrect');
+
+            // throw error if newPassword != confirmPassword
+            if (newPassword != confirmPassword) throw new Error('New password does not match');
+
+            // change pass
+            const salt = await bcrypt.genSalt(10);
+            const hash = await bcrypt.hash(newPassword, salt);
+            user.password = hash;
+            user.save();
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    public static async findUser(accountId: string, userType: USER_TYPE_ENUM_OPTIONS): Promise<Student | Sensei | Admin> {
+        let user: Student | Sensei | Admin;
+        try {
+            if (userType == USER_TYPE_ENUM_OPTIONS.STUDENT) {
+                user = await Student.findByPk(accountId);
+            } else if (userType == USER_TYPE_ENUM_OPTIONS.SENSEI) {
+                user = await Sensei.findByPk(accountId);
+            } else if (userType == USER_TYPE_ENUM_OPTIONS.ADMIN) {
+                user = await Admin.findByPk(accountId);
+            }
+            return user;
+        } catch (e) {
+            throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+        }
+    }
+
     public static async register(registerBody: {
-        username:string,
+        username: string,
         email: string,
         password: string,
         confirmPassword: string,
@@ -35,7 +75,7 @@ export default class UserService {
 
         // check if user exist as a student or sensei
         try {
-            if(isStudent) {
+            if (isStudent) {
                 user = await Student.findOne({where: {email}});
                 newUser = new Student({
                     accountId: Utility.generateUUID(),
@@ -56,7 +96,7 @@ export default class UserService {
             }
 
             // if user exist, return error
-            if(user) {
+            if (user) {
                 throw new Error('Email already exists');
             }
 
@@ -66,9 +106,8 @@ export default class UserService {
             newUser.password = hash;
             newUser.save();
             return user;
-        } catch(e) {
+        } catch (e) {
             throw e;
         }
-
     }
 }

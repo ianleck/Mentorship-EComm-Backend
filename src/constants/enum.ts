@@ -1,7 +1,8 @@
-export type STATUS_ENUM = 'ACTIVE' | 'DEACTIVE';
+export type STATUS_ENUM = 'ACTIVE' | 'INACTIVE' | 'BANNED';
 export enum STATUS_ENUM_OPTIONS {
     ACTIVE = 'ACTIVE',
-    DEACTIVE = 'DEACTIVE'
+    INACTIVE = 'INACTIVE',
+    BANNED = 'BANNED'
 };
 
 export type ADMIN_PERMISSION_ENUM = 'SUPERADMIN' | 'ADMIN';

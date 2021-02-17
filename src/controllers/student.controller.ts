@@ -4,15 +4,37 @@ import apiResponse from "../utilities/apiResponse";
 import logger from "../config/logger";
 
 export class StudentController {
+    // public static async createStudent(req, res) {
+    //     const { newStudent } = req.body;
+    //     try {
+    //         await StudentService.createStudent(newStudent);
+    //         apiResponse.result(res, {message: 'success'}, httpStatusCodes.OK);
+    //     } catch(e) {
+    //         logger.error('[studentController.updateStudent]' + e.toString());
+    //         return apiResponse.error(res, 400, {message: e.toString()});
+    //     }
+    // }
+
     public static async updateStudent(req, res) {
+        const { accountId } = req.query;
         const { student } = req.body;
         try {
-            await StudentService.updateStudent(student);
+            await StudentService.updateStudent(accountId, student);
             apiResponse.result(res, {message: 'success'}, httpStatusCodes.OK);
         } catch(e) {
             logger.error('[studentController.updateStudent]' + e.toString());
             return apiResponse.error(res, 400, {message: e.toString()});
         }
+    }
 
+    public static async deactivateStudent(req, res) {
+        const { accountId } = req.query;
+        try {
+            await StudentService.deactivateStudent(accountId);
+            apiResponse.result(res, {message: 'success'}, httpStatusCodes.OK);
+        } catch(e) {
+            logger.error('[studentController.deactivateStudent]' + e.toString());
+            return apiResponse.error(res, 400, {message: e.toString()});
+        }
     }
 }

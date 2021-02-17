@@ -5,6 +5,18 @@ import logger from "../config/logger";
 const passport = require('passport');
 
 export class UserController {
+
+    public static async changePassword(req, res) {
+        const { accountId, userType, oldPassword, newPassword, confirmPassword } = req.body;
+        try {
+            await UserService.changePassword(accountId, userType, oldPassword, newPassword, confirmPassword);
+            return apiResponse.result(res, {message: 'Successfully Changed Password'}, httpStatusCodes.OK);
+        } catch (e) {
+            logger.error('[userController.changePassword]:' + e.toString());
+            return apiResponse.error(res, 400, {message: e.toString()})
+        }
+    }
+
     public static async login(req, res, next) {
         const {isStudent} = req.body;
         if(isStudent){
@@ -16,6 +28,7 @@ export class UserController {
                     const user = passportUser;
                     return apiResponse.result(res, { user: user.toAuthJSON() }, httpStatusCodes.OK);
                 }
+
                 return apiResponse.error(res, 400, info);
             })(req, res, next);
         } else {
@@ -41,6 +54,5 @@ export class UserController {
             logger.error('[userController.register]:' + e.toString());
             return apiResponse.error(res, 400, {message: e.toString()})
         }
-
     }
 }
