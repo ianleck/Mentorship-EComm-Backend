@@ -1,3 +1,4 @@
+
 import { Student } from "../models/Student";
 import bcrypt from "bcrypt";
 import Utility from "../constants/utility";
@@ -55,21 +56,21 @@ export default class UserService {
         const {username, email, password, confirmPassword, isStudent} = registerBody;
         let errors = [];
 
-    if (!username || !email || !password || !confirmPassword) {
-      errors.push({ msg: "Please enter all fields" });
-    }
+        if (!username || !email || !password || !confirmPassword) {
+          errors.push({ msg: 'Please enter all fields' });
+        }
 
-    if (password != confirmPassword) {
-      errors.push({ msg: "Passwords do not match" });
-    }
+        if (password != confirmPassword) {
+          errors.push({ msg: 'Passwords do not match' });
+        }
 
-    if (password.length < 8) {
-      errors.push({ msg: "Password must be at least 8 characters" });
-    }
+        if (password.length < 8) {
+          errors.push({ msg: 'Password must be at least 8 characters' });
+        }
 
-    if (errors.length > 0) {
-      throw new Error(errors.join(". "));
-    }
+        if (errors.length > 0) {
+          throw new Error(errors.join('. '));
+        }
         let user, newUser;
 
         // check if user exist as a student or sensei
@@ -94,10 +95,10 @@ export default class UserService {
                 });
             }
 
-            // if user exist, return error
-            if (user) {
+              // if user exist, return error
+              if (user) {
                 throw new Error('Email already exists');
-            }
+              }
 
             // hash password
             const salt = await bcrypt.genSalt(10);
@@ -109,4 +110,24 @@ export default class UserService {
             throw e;
         }
     }
+
+
+  public static async findUserById(
+    accountId: string,
+    userType: USER_TYPE_ENUM_OPTIONS
+  ): Promise<Student | Sensei | Admin> {
+    try {
+      if (userType == USER_TYPE_ENUM_OPTIONS.STUDENT) {
+        return Student.findByPk(accountId);
+      }
+      if (userType == USER_TYPE_ENUM_OPTIONS.SENSEI) {
+        return Sensei.findByPk(accountId);
+      }
+      if (userType == USER_TYPE_ENUM_OPTIONS.ADMIN) {
+        return Admin.findByPk(accountId);
+      }
+    } catch (e) {
+      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    }
+  }
 }
