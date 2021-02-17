@@ -22,10 +22,4 @@ router.post(
     Utility.asyncHandler(StudentController.updateStudent),
 );
 
-router.delete(
-    '/:accountId',
-    schemaValidator.query(user.accountIdQ),
-    Utility.asyncHandler(StudentController.deactivateStudent)
-)
-
 export default router;

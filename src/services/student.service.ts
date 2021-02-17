@@ -19,15 +19,4 @@ export default class StudentService {
             throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
         }
     }
-
-    public static async deactivateStudent(accountId: string) {
-        const student = await Student.findByPk(accountId);
-        if(student) {
-            await student.update({
-                status: STATUS_ENUM_OPTIONS.INACTIVE
-            })
-        } else {
-            throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
-        }
-    }
 }

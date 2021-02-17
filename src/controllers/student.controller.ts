@@ -26,15 +26,4 @@ export class StudentController {
             return apiResponse.error(res, 400, {message: e.toString()});
         }
     }
-
-    public static async deactivateStudent(req, res) {
-        const { accountId } = req.query;
-        try {
-            await StudentService.deactivateStudent(accountId);
-            apiResponse.result(res, {message: 'success'}, httpStatusCodes.OK);
-        } catch(e) {
-            logger.error('[studentController.deactivateStudent]' + e.toString());
-            return apiResponse.error(res, 400, {message: e.toString()});
-        }
-    }
 }
