@@ -21,7 +21,7 @@ router.post(
 );
 
 router.get(
-  '/getUser/:accountId',
+  '/getUser/:accountId/:userType',
   schemaValidator.query(user.getUser),
   Utility.asyncHandler(UserController.getUser)
 );
