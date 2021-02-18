@@ -1,5 +1,4 @@
 import express from 'express';
-
 import { UserController } from '../controllers/user.controller';
 import user from './schema/user.schema';
 import Utility from '../constants/utility';
@@ -28,9 +27,9 @@ router.get(
 
 // authentication: check that req.user == accountId
 router.post(
-    '/change-password',
-    schemaValidator.body(user.changePassword),
-    Utility.asyncHandler(UserController.changePassword)
+  '/change-password',
+  schemaValidator.body(user.changePassword),
+  Utility.asyncHandler(UserController.changePassword)
 );
 
 export default router;
