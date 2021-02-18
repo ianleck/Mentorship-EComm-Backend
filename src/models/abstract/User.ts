@@ -7,7 +7,7 @@ import {
   USER_TYPE_ENUM_OPTIONS,
 } from '../../constants/enum';
 import jwt from 'jsonwebtoken';
-
+import { JWT_SECRET } from '../../constants/constants';
 export abstract class User extends Account {
   @Column({ field: 'username', type: DataType.STRING, unique: true })
   username: string;
@@ -51,21 +51,21 @@ export abstract class User extends Account {
     const today = new Date();
     const expirationDate = new Date(today);
     expirationDate.setDate(today.getDate() + 60);
-
+    let user: any = Object.assign({}, this.get());
+    delete user.password;
     return jwt.sign(
       {
-        username: this.username,
-        email: this.email,
+        ...user,
         exp: expirationDate.getTime() / 1000,
       },
-      'secret'
+      JWT_SECRET
     );
   }
 
   toAuthJSON() {
     return {
       user: this.toJSON(),
-      token: this.generateJWT(),
+      accessToken: this.generateJWT(),
     };
   }
 
