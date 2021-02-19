@@ -106,7 +106,7 @@ export class UserController {
   public static async deactivateUser(req, res) {
     const { userId, status } = req.params;
     try {
-      const user = await UserService.deactivateUser(userId, status);
+      await UserService.deactivateUser(userId, status);
       return apiResponse.result(
         res,
         { message: 'Account successfully deactivated' },
