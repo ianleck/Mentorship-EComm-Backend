@@ -13,9 +13,9 @@ const schemaValidator = require('express-joi-validation').createValidator({});
 // UPDATE STUDENT
 // params: accountId: string
 router.put(
-  '/',
+  '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.query(user.accountIdQ),
+  schemaValidator.params(user.accountIdQ),
   schemaValidator.body(student.updateStudentB),
   Utility.asyncHandler(StudentController.updateStudent)
 );
