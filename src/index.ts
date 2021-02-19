@@ -11,6 +11,7 @@ import logger from './config/logger';
 const PORT = process.env.PORT || 5000;
 const passport = require('passport');
 require('./config/auth/passport')(passport);
+const cors = require('cors');
 
 const app = express();
 
@@ -22,6 +23,22 @@ sequelize
   .sync()
   .then(() => {
     logger.info('database connection created');
+
+    const corsOptions = {
+      origin: ['http://localhost:3000'],
+      optionsSuccessStatus: 200, // For legacy browser support
+    };
+    app.use(function (req, res, next) {
+      // res.header('Access-Control-Allow-Origin', yourExactHostname);
+      res.header('Access-Control-Allow-Credentials', 'true');
+      res.header(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept'
+      );
+      next();
+    });
+    app.use(cors(corsOptions));
+
     // Passport
     app.use(passport.initialize());
     // app.use(passport.session());

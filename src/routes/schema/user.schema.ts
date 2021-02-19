@@ -23,8 +23,6 @@ export default {
   }),
 
   changePassword: joi.object({
-    accountId: joi.string(), // attribute will be extracted from cookie instead in future releases
-    userType: joi.string(), // attribute will be extracted from cookie instead in future releases
     oldPassword: joi.string().required(),
     newPassword: joi.string().required(),
     confirmPassword: joi.string().required(),
