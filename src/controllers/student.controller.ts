@@ -18,7 +18,7 @@ export class StudentController {
 
   public static async updateStudent(req, res) {
     const { user } = req;
-    const { accountId } = req.query;
+    const { accountId } = req.params;
     const { student } = req.body;
 
     // check if user is updating his/her own account or if it is an admin who is updating the account
