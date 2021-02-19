@@ -7,13 +7,8 @@ const passport = require('passport');
 
 export class UserController {
   public static async changePassword(req, res) {
-    const {
-      accountId,
-      userType,
-      oldPassword,
-      newPassword,
-      confirmPassword,
-    } = req.body;
+    const { accountId, userType } = req.user;
+    const { oldPassword, newPassword, confirmPassword } = req.body;
     try {
       await UserService.changePassword(
         accountId,
