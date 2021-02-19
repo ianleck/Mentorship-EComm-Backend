@@ -21,9 +21,6 @@ export class StudentController {
     const { accountId } = req.query;
     const { student } = req.body;
 
-    console.log('user =', user);
-    console.log('accountId =', accountId);
-    console.log('user.accountId == accountId =', user.accountId == accountId);
     // check if user is updating his/her own account or if it is an admin who is updating the account
     if (
       user.accountId != accountId ||

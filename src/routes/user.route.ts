@@ -27,7 +27,7 @@ router.get(
 );
 
 // authentication: check that req.user == accountId
-router.post(
+router.put(
   '/change-password',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.body(user.changePassword),
