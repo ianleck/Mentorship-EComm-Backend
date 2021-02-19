@@ -16,7 +16,7 @@ export class StudentController {
     // }
 
     public static async updateStudent(req, res) {
-        const { accountId } = req.query;
+        const { accountId } = req.params;
         const { student } = req.body;
         try {
             const user = await StudentService.updateStudent(accountId, student);

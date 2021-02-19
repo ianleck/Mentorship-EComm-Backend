@@ -1,6 +1,7 @@
 import {
   Column,
   CreatedAt,
+  DeletedAt,
   Model,
   Table,
   UpdatedAt,
@@ -14,4 +15,9 @@ export abstract class BaseEntity extends Model<BaseEntity> {
   @UpdatedAt
   @Column({ field: 'updated_at' })
   updatedAt: Date;
+
+  @DeletedAt
+  deletedAt: 'destroyTime';
+  timestamps = true;
+  paranoid = true;
 }

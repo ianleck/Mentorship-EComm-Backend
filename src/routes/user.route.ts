@@ -21,16 +21,22 @@ router.post(
 );
 
 router.get(
-  '/getUser/:accountId/:userType',
-  schemaValidator.query(user.getUser),
+  '/:accountId/:userType',
+  schemaValidator.params(user.getUser),
   Utility.asyncHandler(UserController.getUser)
 );
 
 // authentication: check that req.user == accountId
-router.post(
-    '/change-password',
-    schemaValidator.body(user.changePassword),
-    Utility.asyncHandler(UserController.changePassword)
+router.put(
+  '/change-password',
+  schemaValidator.body(user.changePassword),
+  Utility.asyncHandler(UserController.changePassword)
+);
+
+router.delete(
+  '/:accountId/:userType',
+  schemaValidator.params(user.accountIdQ),
+  Utility.asyncHandler(UserController.deactivateUser)
 );
 
 export default router;
