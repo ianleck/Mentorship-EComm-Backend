@@ -31,6 +31,8 @@ export default class UserService {
       if (newPassword != confirmPassword)
         throw new Error("New password does not match");
 
+      if (newPassword == oldPassword)
+        throw new Error("New Password cannot be the same as the Old Password");
       // change pass
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(newPassword, salt);

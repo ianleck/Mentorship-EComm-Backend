@@ -7,14 +7,15 @@ import user from "./schema/user.schema";
 import Utility from "../constants/utility";
 
 const router = express.Router();
-
+const passport = require("passport");
 const schemaValidator = require("express-joi-validation").createValidator({});
 
 // UPDATE STUDENT
 // params: accountId: string
-router.post(
-  "/",
-  schemaValidator.query(user.accountIdQ),
+router.put(
+  "/:accountId",
+  passport.authenticate("isAuthenticated", { session: false }),
+  schemaValidator.params(user.accountIdQ),
   schemaValidator.body(student.updateStudentB),
   Utility.asyncHandler(StudentController.updateStudent)
 );

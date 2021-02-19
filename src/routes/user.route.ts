@@ -1,8 +1,8 @@
 import express from 'express';
-
 import { UserController } from '../controllers/user.controller';
 import user from './schema/user.schema';
 import Utility from '../constants/utility';
+const passport = require('passport');
 
 const router = express.Router();
 
@@ -27,10 +27,11 @@ router.get(
 );
 
 // authentication: check that req.user == accountId
-router.post(
-    '/change-password',
-    schemaValidator.body(user.changePassword),
-    Utility.asyncHandler(UserController.changePassword)
+router.put(
+  '/change-password',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.body(user.changePassword),
+  Utility.asyncHandler(UserController.changePassword)
 );
 
 export default router;

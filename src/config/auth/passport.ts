@@ -4,8 +4,26 @@ import { Admin } from "../../models/Admin";
 const LocalStrategy = require("passport-local").Strategy;
 import bcrypt from "bcrypt";
 import { Sensei } from "../../models/Sensei";
+import { JWT_SECRET } from "../../constants/constants";
+const passportJWT = require("passport-jwt");
+
+const JWTStrategy = passportJWT.Strategy;
+const ExtractJWT = passportJWT.ExtractJwt;
 
 module.exports = function (passport) {
+  passport.use(
+    "isAuthenticated",
+    new JWTStrategy(
+      {
+        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+        secretOrKey: JWT_SECRET,
+      },
+      (jwtPayload, done) => {
+        done(null, jwtPayload);
+      }
+    )
+  );
+
   passport.use(
     "sensei-local",
     new LocalStrategy({ usernameField: "email" }, (email, password, done) => {

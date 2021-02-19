@@ -6,8 +6,6 @@ import {
   USER_TYPE_ENUM,
   USER_TYPE_ENUM_OPTIONS,
 } from '../../constants/enum';
-import jwt from 'jsonwebtoken';
-
 export abstract class User extends Account {
   @Column({ field: 'username', type: DataType.STRING, unique: true })
   username: string;
@@ -46,35 +44,6 @@ export abstract class User extends Account {
     type: DataType.ENUM(...Object.values(USER_TYPE_ENUM_OPTIONS)),
   })
   userType: USER_TYPE_ENUM;
-
-  generateJWT() {
-    const today = new Date();
-    const expirationDate = new Date(today);
-    expirationDate.setDate(today.getDate() + 60);
-
-    return jwt.sign(
-      {
-        username: this.username,
-        email: this.email,
-        exp: expirationDate.getTime() / 1000,
-      },
-      'secret'
-    );
-  }
-
-  toAuthJSON() {
-    return {
-      user: this.toJSON(),
-      token: this.generateJWT(),
-    };
-  }
-
-  toJSON() {
-    let user: any = Object.assign({}, this.get());
-
-    delete user.password;
-    return user;
-  }
   // @Column
   // achievements: Achievement;
 }

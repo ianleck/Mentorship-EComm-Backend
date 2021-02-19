@@ -10,7 +10,8 @@ import {
   ADMIN_PERMISSION_ENUM,
   ADMIN_PERMISSION_ENUM_OPTIONS,
 } from '../constants/enum';
-
+import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from '../constants/constants';
 @Table
 export class Admin extends User {
   @ForeignKey(() => Admin)
@@ -34,4 +35,33 @@ export class Admin extends User {
 
   @HasOne(() => Admin, 'admin_id')
   createdBy: Admin;
+
+  generateJWT() {
+    const today = new Date();
+    const expirationDate = new Date(today);
+    expirationDate.setDate(today.getDate() + 60);
+    let user: any = Object.assign({}, this.get());
+    delete user.password;
+    return jwt.sign(
+      {
+        ...user,
+        exp: expirationDate.getTime() / 1000,
+      },
+      JWT_SECRET
+    );
+  }
+
+  toAuthJSON() {
+    return {
+      user: this.toJSON(),
+      accessToken: this.generateJWT(),
+    };
+  }
+
+  toJSON() {
+    let user: any = Object.assign({}, this.get());
+
+    delete user.password;
+    return user;
+  }
 }
