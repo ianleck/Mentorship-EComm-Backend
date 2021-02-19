@@ -18,35 +18,49 @@ The type of the file being returned (as the content type)
 
 */
 
-import express from 'express';
+import express from "express";
 
-import { AdminController } from '../controllers/admin.controller';
-import admin from './schema/admin.schema';
-import Utility from '../constants/utility';
+import { AdminController } from "../controllers/admin.controller";
+import admin from "./schema/admin.schema";
+import Utility from "../constants/utility";
 
 const router = express.Router();
+const passport = require("passport");
+const schemaValidator = require("express-joi-validation").createValidator({});
 
-const schemaValidator = require('express-joi-validation').createValidator({});
-
+//create admin account
+//the schema must have details needed to register an admin
 router.post(
-  '/register-admin',
+  "/register-admin",
   schemaValidator.body(admin.registerAdmin),
   Utility.asyncHandler(AdminController.registerAdmin)
 );
 
-router.post(
-  '/update-admin',
+//update an admin account
+router.put(
+  "/",
+  passport.authenticate("isAuthenticated", { session: false }),
+  schemaValidator.params(admin.adminIdQ),
   schemaValidator.body(admin.updateAdmin),
   Utility.asyncHandler(AdminController.updateAdmin)
+); //body are details of admin to be updated without accountId inside, adminIdQ is the id of the USER requesting this
+
+//get admin
+router.get(
+  "/get-admin/:id",
+  schemaValidator.params(admin.getAdmin),
+  Utility.asyncHandler(AdminController.getAdmin)
 );
 
-//get all admins
-router.get('/view-admins', Utility.asyncHandler(AdminController.viewAdmins));
+//get list of students
+router.get("/students", Utility.asyncHandler(AdminController.getStudents));
 
-//get admin details by admin ID
-router.get(
-  '/view-admin/:id',
-  Utility.asyncHandler(AdminController.viewAdminDetails)
+//get list of senseis
+router.get("/senseis", Utility.asyncHandler(AdminController.getSenseis));
+
+router.delete(
+  "/delete-admin/:id",
+  Utility.asyncHandler(AdminController.deleteAdmin)
 );
 
 export default router;
