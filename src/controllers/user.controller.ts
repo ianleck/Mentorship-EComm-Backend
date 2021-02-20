@@ -95,21 +95,4 @@ export class UserController {
       });
     }
   }
-
-  public static async deactivateUser(req, res) {
-    const { userId, status } = req.params;
-    try {
-      await UserService.deactivateUser(userId, status);
-      return apiResponse.result(
-        res,
-        { message: 'Account successfully deactivated' },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[userController.deactivateUser]:' + e.toString());
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
-      });
-    }
-  }
 }
