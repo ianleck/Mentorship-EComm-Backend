@@ -10,11 +10,8 @@ export class SenseiController {
     const { accountId } = req.params;
     const { sensei } = req.body;
 
-    // check if user is updating his/her own account or if it is an admin who is updating the account
-    if (
-      user.accountId != accountId ||
-      user.userType == USER_TYPE_ENUM_OPTIONS.ADMIN
-    ) {
+    // check if user is updating his/her own account
+    if (user.accountId != accountId) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
       });
@@ -39,17 +36,7 @@ export class SenseiController {
   }
 
   public static async getSensei(req, res) {
-    const { user } = req;
     const { accountId } = req.params;
-
-    if (
-      user.accountId != accountId ||
-      user.userType == USER_TYPE_ENUM_OPTIONS.ADMIN
-    ) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
 
     try {
       const user = await SenseiService.findSenseiById(accountId);
@@ -68,7 +55,7 @@ export class SenseiController {
 
     if (
       user.accountId != accountId ||
-      user.userType == USER_TYPE_ENUM_OPTIONS.ADMIN
+      user.userType != USER_TYPE_ENUM_OPTIONS.ADMIN
     ) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
