@@ -1,5 +1,6 @@
 import { Column, DataType, Table } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
+import { MentorshipListing } from './MentorshipListing';
 
 @Table
 export class Category extends BaseEntity {
@@ -7,8 +8,10 @@ export class Category extends BaseEntity {
   categoryId: number;
 
   @Column({ field: 'name', type: DataType.STRING })
-  name: number;
+  name: string;
 
   @Column({ field: 'description', type: DataType.STRING })
   description: string;
 }
+
+Category.belongsToMany(MentorshipListing, { through: 'categoryId' });
