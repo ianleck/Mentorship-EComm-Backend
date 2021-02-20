@@ -4,6 +4,17 @@ import {
   USER_TYPE_ENUM_OPTIONS,
 } from '../../constants/enum';
 
+interface studentObj {
+  accountId: string;
+  firstName: string;
+  lastName: string;
+  contactNumber: number;
+}
+
+interface studentProfile {
+  studentObj: studentObj;
+}
+
 export default {
   // createStudentB: joi.object({
   //     newStudent: joi.object({
@@ -19,7 +30,15 @@ export default {
       firstName: joi.string(),
       lastName: joi.string(),
       contactNumber: joi.number(),
-      status: joi.string().valid(...Object.values(STATUS_ENUM_OPTIONS)),
+    }),
+  }),
+
+  studentProfile: joi.object({
+    student: joi.object({
+      accountId: joi.string().required(),
+      firstName: joi.string(),
+      lastName: joi.string(),
+      contactNumber: joi.number(),
     }),
   }),
 };

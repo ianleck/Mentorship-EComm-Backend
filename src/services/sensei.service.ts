@@ -14,4 +14,25 @@ export default class SenseiService {
       throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
     }
   }
+
+  public static async findSenseiById(accountId: string): Promise<Sensei> {
+    try {
+      return Sensei.findByPk(accountId);
+    } catch (e) {
+      throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+    }
+  }
+
+  public static async deactivateSensei(accountId: string): Promise<void> {
+    try {
+      await Sensei.destroy({
+        where: {
+          accountId,
+        },
+      });
+      return;
+    } catch (e) {
+      throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+    }
+  }
 }
