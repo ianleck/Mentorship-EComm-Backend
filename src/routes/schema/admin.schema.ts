@@ -1,5 +1,5 @@
-import joi from "joi";
-import { ADMIN_PERMISSION_ENUM_OPTIONS } from "../../constants/enum";
+import joi from 'joi';
+import { ADMIN_PERMISSION_ENUM_OPTIONS } from '../../constants/enum';
 
 export default {
   registerAdmin: joi.object({

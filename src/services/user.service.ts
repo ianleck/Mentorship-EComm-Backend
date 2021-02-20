@@ -1,13 +1,13 @@
-import { Student } from "../models/Student";
-import bcrypt from "bcrypt";
-import Utility from "../constants/utility";
+import { Student } from '../models/Student';
+import bcrypt from 'bcrypt';
+import Utility from '../constants/utility';
 import {
   ADMIN_PERMISSION_ENUM_OPTIONS,
   USER_TYPE_ENUM_OPTIONS,
-} from "../constants/enum";
-import { Sensei } from "../models/Sensei";
-import { Admin } from "../models/Admin";
-import { ERRORS } from "../constants/errors";
+} from '../constants/enum';
+import { Sensei } from '../models/Sensei';
+import { Admin } from '../models/Admin';
+import { ERRORS } from '../constants/errors';
 
 export default class UserService {
   public static async changePassword(
@@ -25,14 +25,14 @@ export default class UserService {
       );
 
       // throw error if old password is incorrect
-      if (!correctOldPassword) throw new Error("Old password is incorrect");
+      if (!correctOldPassword) throw new Error('Old password is incorrect');
 
       // throw error if newPassword != confirmPassword
       if (newPassword != confirmPassword)
-        throw new Error("New password does not match");
+        throw new Error('New password does not match');
 
       if (newPassword == oldPassword)
-        throw new Error("New Password cannot be the same as the Old Password");
+        throw new Error('New Password cannot be the same as the Old Password');
       // change pass
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(newPassword, salt);
@@ -79,19 +79,19 @@ export default class UserService {
     let errors = [];
 
     if (!username || !email || !password || !confirmPassword) {
-      errors.push({ msg: "Please enter all fields" });
+      errors.push({ msg: 'Please enter all fields' });
     }
 
     if (password != confirmPassword) {
-      errors.push({ msg: "Passwords do not match" });
+      errors.push({ msg: 'Passwords do not match' });
     }
 
     if (password.length < 8) {
-      errors.push({ msg: "Password must be at least 8 characters" });
+      errors.push({ msg: 'Password must be at least 8 characters' });
     }
 
     if (errors.length > 0) {
-      throw new Error(errors.join(". "));
+      throw new Error(errors.join('. '));
     }
     let user, newUser;
 
@@ -119,7 +119,7 @@ export default class UserService {
 
       // if user exist, return error
       if (user) {
-        throw new Error("Email already exists");
+        throw new Error('Email already exists');
       }
 
       // hash password

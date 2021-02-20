@@ -1,20 +1,20 @@
-import express from "express";
+import express from 'express';
 
-import { StudentController } from "../controllers/student.controller";
-import student from "./schema/student.schema";
-import user from "./schema/user.schema";
+import { StudentController } from '../controllers/student.controller';
+import student from './schema/student.schema';
+import user from './schema/user.schema';
 
-import Utility from "../constants/utility";
+import Utility from '../constants/utility';
 
 const router = express.Router();
-const passport = require("passport");
-const schemaValidator = require("express-joi-validation").createValidator({});
+const passport = require('passport');
+const schemaValidator = require('express-joi-validation').createValidator({});
 
 // UPDATE STUDENT
 // params: accountId: string
 router.put(
-  "/:accountId",
-  passport.authenticate("isAuthenticated", { session: false }),
+  '/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdQ),
   schemaValidator.body(student.updateStudentB),
   Utility.asyncHandler(StudentController.updateStudent)

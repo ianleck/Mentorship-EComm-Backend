@@ -1,18 +1,18 @@
-import { Student } from "../../models/Student";
-import { Admin } from "../../models/Admin";
+import { Student } from '../../models/Student';
+import { Admin } from '../../models/Admin';
 
-const LocalStrategy = require("passport-local").Strategy;
-import bcrypt from "bcrypt";
-import { Sensei } from "../../models/Sensei";
-import { JWT_SECRET } from "../../constants/constants";
-const passportJWT = require("passport-jwt");
+const LocalStrategy = require('passport-local').Strategy;
+import bcrypt from 'bcrypt';
+import { Sensei } from '../../models/Sensei';
+import { JWT_SECRET } from '../../constants/constants';
+const passportJWT = require('passport-jwt');
 
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
 module.exports = function (passport) {
   passport.use(
-    "isAuthenticated",
+    'isAuthenticated',
     new JWTStrategy(
       {
         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
@@ -25,14 +25,14 @@ module.exports = function (passport) {
   );
 
   passport.use(
-    "sensei-local",
-    new LocalStrategy({ usernameField: "email" }, (email, password, done) => {
+    'sensei-local',
+    new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
       // Match user
       Sensei.findOne({
         where: { email },
       }).then((user) => {
         if (!user) {
-          return done(null, false, { message: "Invalid email or password" });
+          return done(null, false, { message: 'Invalid email or password' });
         }
 
         // Match password
@@ -41,7 +41,7 @@ module.exports = function (passport) {
           if (isMatch) {
             return done(null, user);
           } else {
-            return done(null, false, { message: "Invalid email or password" });
+            return done(null, false, { message: 'Invalid email or password' });
           }
         });
       });
@@ -49,14 +49,14 @@ module.exports = function (passport) {
   );
 
   passport.use(
-    "student-local",
-    new LocalStrategy({ usernameField: "email" }, (email, password, done) => {
+    'student-local',
+    new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
       // Match user
       Student.findOne({
         where: { email },
       }).then((student) => {
         if (!student) {
-          return done(null, false, { message: "Invalid email or password" });
+          return done(null, false, { message: 'Invalid email or password' });
         }
 
         // Match password
@@ -65,7 +65,7 @@ module.exports = function (passport) {
           if (isMatch) {
             return done(null, student);
           } else {
-            return done(null, false, { message: "Invalid email or password" });
+            return done(null, false, { message: 'Invalid email or password' });
           }
         });
       });
@@ -79,43 +79,43 @@ module.exports = function (passport) {
 
   passport.deserializeUser(function (obj, done) {
     switch (obj.userType) {
-      case "STUDENT":
+      case 'STUDENT':
         Student.findOne({ where: { accountId: obj.accountId } }).then(
           (user) => {
             if (user) {
               done(null, user);
             } else {
-              done(new Error("user id not found:" + obj.accountId));
+              done(new Error('user id not found:' + obj.accountId));
             }
           }
         );
         break;
-      case "SENSEI":
+      case 'SENSEI':
         Sensei.findOne({ where: { accountId: obj.accountId } }).then(
           (device) => {
             if (device) {
               done(null, device);
             } else {
-              done(new Error("device id not found:" + obj.accountId));
+              done(new Error('device id not found:' + obj.accountId));
             }
           }
         );
         break;
       default:
-        done(new Error("no entity type:" + obj.userType));
+        done(new Error('no entity type:' + obj.userType));
         break;
     }
   });
 
   passport.use(
-    "admin-local",
-    new LocalStrategy({ usernameField: "email" }, (email, password, done) => {
+    'admin-local',
+    new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
       // Match user
       Admin.findOne({
         where: { email },
       }).then((student) => {
         if (!student) {
-          return done(null, false, { message: "Invalid email or password" });
+          return done(null, false, { message: 'Invalid email or password' });
         }
 
         // Match password
@@ -124,7 +124,7 @@ module.exports = function (passport) {
           if (isMatch) {
             return done(null, student);
           } else {
-            return done(null, false, { message: "Invalid email or password" });
+            return done(null, false, { message: 'Invalid email or password' });
           }
         });
       });

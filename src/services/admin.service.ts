@@ -1,13 +1,13 @@
-import { Admin } from "../models/Admin";
-import { Student } from "../models/Student";
-import { Sensei } from "../models/Sensei";
-import bcrypt from "bcrypt";
-import { ERRORS } from "../constants/errors";
-import Utility from "../constants/utility";
+import { Admin } from '../models/Admin';
+import { Student } from '../models/Student';
+import { Sensei } from '../models/Sensei';
+import bcrypt from 'bcrypt';
+import { ERRORS } from '../constants/errors';
+import Utility from '../constants/utility';
 import {
   USER_TYPE_ENUM_OPTIONS,
   ADMIN_PERMISSION_ENUM_OPTIONS,
-} from "../constants/enum";
+} from '../constants/enum';
 
 export default class AdminService {
   public static async registerAdmin(
@@ -23,19 +23,19 @@ export default class AdminService {
     let errors = [];
 
     if (!username || !email || !password || !confirmPassword) {
-      errors.push({ msg: "Please enter all fields" });
+      errors.push({ msg: 'Please enter all fields' });
     }
 
     if (password != confirmPassword) {
-      errors.push({ msg: "Passwords do not match" });
+      errors.push({ msg: 'Passwords do not match' });
     }
 
     if (password.length < 8) {
-      errors.push({ msg: "Password must be at least 8 characters" });
+      errors.push({ msg: 'Password must be at least 8 characters' });
     }
 
     if (errors.length > 0) {
-      throw new Error(errors.join(". "));
+      throw new Error(errors.join('. '));
     }
 
     let user, newUser;
@@ -55,7 +55,7 @@ export default class AdminService {
 
       // if user exist, return error
       if (user) {
-        throw new Error("Email already exists");
+        throw new Error('Email already exists');
       }
 
       // hash password
