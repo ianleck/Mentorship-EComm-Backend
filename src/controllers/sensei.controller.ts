@@ -54,7 +54,7 @@ export class SenseiController {
     const { accountId } = req.params;
 
     if (
-      user.accountId != accountId ||
+      user.accountId != accountId &&
       user.userType != USER_TYPE_ENUM_OPTIONS.ADMIN
     ) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
