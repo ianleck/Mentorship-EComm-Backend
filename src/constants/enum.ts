@@ -1,7 +1,6 @@
-export type STATUS_ENUM = 'ACTIVE' | 'INACTIVE' | 'BANNED';
+export type STATUS_ENUM = 'ACTIVE' | 'BANNED';
 export enum STATUS_ENUM_OPTIONS {
   ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
   BANNED = 'BANNED',
 }
 

@@ -27,9 +27,4 @@ export default {
     newPassword: joi.string().required(),
     confirmPassword: joi.string().required(),
   }),
-
-  getUser: joi.object({
-    accountId: joi.string().required(),
-    userType: joi.string().valid(...Object.values(USER_TYPE_ENUM_OPTIONS)),
-  }),
 };

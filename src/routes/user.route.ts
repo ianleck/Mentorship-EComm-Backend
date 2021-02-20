@@ -20,12 +20,6 @@ router.post(
   Utility.asyncHandler(UserController.register)
 );
 
-router.get(
-  '/:accountId/:userType',
-  schemaValidator.params(user.getUser),
-  Utility.asyncHandler(UserController.getUser)
-);
-
 // authentication: check that req.user == accountId
 router.put(
   '/change-password',

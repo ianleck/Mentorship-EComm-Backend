@@ -24,7 +24,9 @@ export class UserController {
       );
     } catch (e) {
       logger.error('[userController.changePassword]:' + e.toString());
-      return apiResponse.error(res, 400, { message: e.toString() });
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
     }
   }
 
@@ -52,7 +54,7 @@ export class UserController {
             });
           }
 
-          return apiResponse.error(res, 400, info);
+          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, info);
         }
       )(req, res, next);
     } else {
@@ -71,7 +73,7 @@ export class UserController {
               httpStatusCodes.OK
             );
           }
-          return apiResponse.error(res, 400, info);
+          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, info);
         }
       )(req, res, next);
     }
@@ -88,18 +90,9 @@ export class UserController {
       );
     } catch (e) {
       logger.error('[userController.register]:' + e.toString());
-      return apiResponse.error(res, 400, { message: e.toString() });
-    }
-  }
-
-  public static async getUser(req, res) {
-    const { userId, status } = req.params;
-    try {
-      const user = await UserService.findUserById(userId, status);
-      return apiResponse.result(res, user, httpStatusCodes.OK);
-    } catch (e) {
-      logger.error('[userController.getUser]:' + e.toString());
-      return apiResponse.error(res, 400, { message: e.toString() });
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
     }
   }
 
@@ -114,7 +107,9 @@ export class UserController {
       );
     } catch (e) {
       logger.error('[userController.deactivateUser]:' + e.toString());
-      return apiResponse.error(res, 400, { message: e.toString() });
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
     }
   }
 }

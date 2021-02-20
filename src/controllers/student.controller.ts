@@ -45,4 +45,55 @@ export class StudentController {
       });
     }
   }
+
+  public static async getStudent(req, res) {
+    const { user } = req;
+    const { accountId } = req.params;
+
+    if (
+      user.accountId != accountId ||
+      user.userType == USER_TYPE_ENUM_OPTIONS.ADMIN
+    ) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
+
+    try {
+      const user = await StudentService.findStudentById(accountId);
+      return apiResponse.result(res, user, httpStatusCodes.OK);
+    } catch (e) {
+      logger.error('[studentController.getStudent]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
+  public static async deactivateStudent(req, res) {
+    const { user } = req;
+    const { accountId } = req.params;
+
+    if (
+      user.accountId != accountId ||
+      user.userType == USER_TYPE_ENUM_OPTIONS.ADMIN
+    ) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
+    try {
+      await StudentService.deactivateStudent(accountId);
+      return apiResponse.result(
+        res,
+        { message: 'Account successfully deactivated' },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[studentController.deactivateUser]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
 }

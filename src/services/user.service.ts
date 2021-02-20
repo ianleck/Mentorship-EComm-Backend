@@ -132,38 +132,4 @@ export default class UserService {
       throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     }
   }
-
-  public static async deactivateUser(
-    accountId: string,
-    userType: USER_TYPE_ENUM_OPTIONS
-  ): Promise<void> {
-    try {
-      if (userType == USER_TYPE_ENUM_OPTIONS.STUDENT) {
-        await Student.destroy({
-          where: {
-            accountId,
-          },
-        });
-        return;
-      }
-      if (userType == USER_TYPE_ENUM_OPTIONS.SENSEI) {
-        await Sensei.destroy({
-          where: {
-            accountId,
-          },
-        });
-        return;
-      }
-      if (userType == USER_TYPE_ENUM_OPTIONS.ADMIN) {
-        await Admin.destroy({
-          where: {
-            accountId,
-          },
-        });
-        return;
-      }
-    } catch (e) {
-      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-    }
-  }
 }

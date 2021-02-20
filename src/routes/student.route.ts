@@ -10,6 +10,13 @@ const router = express.Router();
 const passport = require('passport');
 const schemaValidator = require('express-joi-validation').createValidator({});
 
+router.get(
+  '/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdQ),
+  Utility.asyncHandler(StudentController.getStudent)
+);
+
 // UPDATE STUDENT
 // params: accountId: string
 router.put(
@@ -18,6 +25,13 @@ router.put(
   schemaValidator.query(user.accountIdQ),
   schemaValidator.body(student.updateStudentB),
   Utility.asyncHandler(StudentController.updateStudent)
+);
+
+router.delete(
+  '/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdQ),
+  Utility.asyncHandler(StudentController.deactivateStudent)
 );
 
 export default router;
