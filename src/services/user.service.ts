@@ -18,7 +18,7 @@ export default class UserService {
     confirmPassword: string
   ) {
     try {
-      const user = await this.findUser(accountId, userType);
+      const user = await this.findUserById(accountId, userType);
       const correctOldPassword = await bcrypt.compare(
         oldPassword,
         user.password
@@ -40,25 +40,6 @@ export default class UserService {
       user.save();
     } catch (e) {
       throw e;
-    }
-  }
-
-  public static async findUser(
-    accountId: string,
-    userType: USER_TYPE_ENUM_OPTIONS
-  ): Promise<Student | Sensei | Admin> {
-    let user: Student | Sensei | Admin;
-    try {
-      if (userType == USER_TYPE_ENUM_OPTIONS.STUDENT) {
-        user = await Student.findByPk(accountId);
-      } else if (userType == USER_TYPE_ENUM_OPTIONS.SENSEI) {
-        user = await Sensei.findByPk(accountId);
-      } else if (userType == USER_TYPE_ENUM_OPTIONS.ADMIN) {
-        user = await Admin.findByPk(accountId);
-      }
-      return user;
-    } catch (e) {
-      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     }
   }
 

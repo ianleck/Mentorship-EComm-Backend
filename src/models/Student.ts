@@ -20,7 +20,7 @@ export class Student extends User {
   generateJWT() {
     const today = new Date();
     const expirationDate = new Date(today);
-    expirationDate.setDate(today.getDate() + 60);
+    expirationDate.setDate(today.getDate() + 1);
     let user: any = Object.assign({}, this.get());
     delete user.password;
     return jwt.sign(
