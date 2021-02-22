@@ -32,8 +32,25 @@ const schemaValidator = require('express-joi-validation').createValidator({});
 //the schema must have details needed to register an admin
 router.post(
   '/register-admin',
+  passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.body(admin.registerAdmin),
   Utility.asyncHandler(AdminController.registerAdmin)
+);
+
+//admin changes own password
+router.put(
+  '/change-password',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.body(admin.changePassword),
+  Utility.asyncHandler(AdminController.changePassword)
+);
+
+//suepradmin changes admin password
+router.put(
+  '/reset-admin-password',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.body(admin.changePassword),
+  Utility.asyncHandler(AdminController.resetPassword)
 );
 
 //update an admin account
@@ -43,72 +60,43 @@ router.put(
   schemaValidator.params(admin.adminIdQ),
   schemaValidator.body(admin.updateAdmin),
   Utility.asyncHandler(AdminController.updateAdmin)
-); //body are details of admin to be updated without accountId inside, adminIdQ is the id of the USER requesting this
+);
+
+router.put(
+  '/update-permission',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(admin.adminIdQ),
+  schemaValidator.body(admin.updateAdminPermission),
+  Utility.asyncHandler(AdminController.updateAdminPermission)
+);
 
 //get admin
 router.get(
-  '/get-admin/:id',
-  schemaValidator.params(admin.getAdmin),
+  '/:id',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(admin.adminIdQ),
   Utility.asyncHandler(AdminController.getAdmin)
 );
 
-//get list of students
-router.get('/students', Utility.asyncHandler(AdminController.getStudents));
+//get list of active students
+router.get(
+  '/students',
+  passport.authenticate('isAuthenticated', { session: false }),
+  Utility.asyncHandler(AdminController.getActiveStudents)
+);
 
-//get list of senseis
-router.get('/senseis', Utility.asyncHandler(AdminController.getSenseis));
+//get list of active senseis
+router.get(
+  '/senseis',
+  passport.authenticate('isAuthenticated', { session: false }),
+  Utility.asyncHandler(AdminController.getActiveSenseis)
+);
 
 router.delete(
-  '/delete-admin/:id',
-  Utility.asyncHandler(AdminController.deleteAdmin)
+  '/:id',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(admin.adminIdQ),
+  Utility.asyncHandler(AdminController.deactivateAdmin)
 );
 
 export default router;
-
-/*
-show: (req, res, next) => {
-    var subscriberId = req.params.id;
-    Subscriber.findById(subscriberId)
-    .then(subscriber => {
-    res.locals.subscriber = subscriber;
-    next();
-    })
-    .catch(error => {
-    console.log(`Error fetching subscriber by ID:
-    ➥ ${error.message}`)
-    next(error);
-    });
-    },
-    showView: (req, res) => {
-    res.render("subscribers/show");
-    }
-
-    router.get("/:id", usersController.show,
-
-    //get all courses
-router.get('/getAllCourse', (req, res) => {
-    controller.getAllCourses().then(response => {
-        res.status(response.status).send(response);
-    }).catch(err => {
-        res.status(err.status).send(err.message);
-    })
-    });
-    
-    //add new course
-    router.post('/addNewCourse', (req, res) => {
-    controller.addCourse(req.body).then(response => {
-        res.status(response.status).send(response.message);
-    }).catch(err => {
-        res.status(err.status).send(err.message);
-    })
-    });
-    
-    //get course details by course code
-    router.get('/get_specific_course/:id', (req, res) => {
-    controller.getSpecificCourse(req.params.id).then(response => {
-        res.status(response.status).send(response.data);
-    }).catch(err => {
-        res.status(err.status).send(err.message);
-    })
-    });
-    */

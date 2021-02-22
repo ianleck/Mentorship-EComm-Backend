@@ -113,16 +113,16 @@ module.exports = function (passport) {
       // Match user
       Admin.findOne({
         where: { email },
-      }).then((student) => {
-        if (!student) {
+      }).then((admin) => {
+        if (!admin) {
           return done(null, false, { message: 'Invalid email or password' });
         }
 
         // Match password
-        bcrypt.compare(password, student.password, (err, isMatch) => {
+        bcrypt.compare(password, admin.password, (err, isMatch) => {
           if (err) throw err;
           if (isMatch) {
-            return done(null, student);
+            return done(null, admin);
           } else {
             return done(null, false, { message: 'Invalid email or password' });
           }

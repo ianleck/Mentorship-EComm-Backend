@@ -1,6 +1,17 @@
 import joi from 'joi';
 import { ADMIN_PERMISSION_ENUM_OPTIONS } from '../../constants/enum';
 
+interface adminObj {
+  accountId: string;
+  firstName: string;
+  lastName: string;
+  contactNumber: number;
+}
+
+interface adminProfile {
+  adminObj: adminObj;
+}
+
 export default {
   registerAdmin: joi.object({
     newAdmin: joi.object({
@@ -11,8 +22,14 @@ export default {
     }),
   }),
 
+  changePassword: joi.object({
+    oldPassword: joi.string().required(),
+    newPassword: joi.string().required(),
+    confirmPassword: joi.string().required(),
+  }),
+
   adminIdQ: joi.object({
-    adminId: joi.string().required(),
+    accountId: joi.string().required(),
   }),
 
   updateAdmin: joi.object({
@@ -20,13 +37,14 @@ export default {
       firstName: joi.string(),
       lastName: joi.string(),
       contactNumber: joi.number(),
+    }),
+  }),
+
+  updateAdminPermission: joi.object({
+    admin: joi.object({
       permission: joi
         .string()
         .valid(...Object.values(ADMIN_PERMISSION_ENUM_OPTIONS)),
     }),
-  }),
-
-  getAdmin: joi.object({
-    accountId: joi.string().required(),
   }),
 };
