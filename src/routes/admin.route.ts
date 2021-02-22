@@ -90,16 +90,16 @@ router.get(
 //get list of banned students
 router.get(
   '/banned-students',
-  requireAdmin,
   passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
   Utility.asyncHandler(AdminController.getBannedStudents)
 );
 
 //get list of banned senseis
 router.get(
   '/banned-senseis',
-  requireAdmin,
   passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
   Utility.asyncHandler(AdminController.getBannedSenseis)
 );
 
