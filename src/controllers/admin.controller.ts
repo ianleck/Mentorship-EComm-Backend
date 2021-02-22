@@ -181,12 +181,12 @@ export class AdminController {
 
   public static async getBannedSenseis(req, res) {
     try {
-      const students = await AdminService.getAllBannedSenseis();
+      const senseis = await AdminService.getAllBannedSenseis();
       return apiResponse.result(
         res,
         {
           message: 'success',
-          students,
+          senseis,
         },
         httpStatusCodes.OK
       );

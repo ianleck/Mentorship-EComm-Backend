@@ -11,11 +11,11 @@ import {
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Category } from './Category';
-import { Sensei } from './Sensei';
+import { User } from './User';
 
 export interface MentorshipListingInterface {
   name: string;
-  sensei: Sensei;
+  sensei: User;
   categories: Category[];
   description: string;
   // reviews?: string; // Should be Review object but this will be changed later
@@ -24,7 +24,7 @@ export interface MentorshipListingInterface {
 
 export interface AddMentorshipListingInterface {
   name: string;
-  senseiId: string;
+  accountId: string;
   categories: string[];
   description: string;
   // reviews?: string; // Should be Review object but this will be changed later
@@ -62,8 +62,8 @@ export class MentorshipListing extends BaseEntity {
   })
   description: string;
 
-  @BelongsTo(() => Sensei, 'accountId')
-  sensei: Sensei;
+  @BelongsTo(() => User, 'accountId')
+  sensei: User;
 
   @HasMany(() => Category, 'categoryId')
   categories: Category[];
