@@ -1,5 +1,6 @@
-import { Column, DataType, Table } from 'sequelize-typescript';
+import { BelongsToMany, Column, DataType, Table } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
+import { MentorshipCategory } from './MentorshipCategory';
 import { MentorshipListing } from './MentorshipListing';
 
 @Table
@@ -12,6 +13,7 @@ export class Category extends BaseEntity {
 
   @Column({ field: 'description', type: DataType.STRING })
   description: string;
-}
 
-Category.belongsToMany(MentorshipListing, { through: 'categoryId' });
+  @BelongsToMany(() => MentorshipListing, () => MentorshipCategory)
+  mentorshipListings: MentorshipListing[];
+}
