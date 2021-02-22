@@ -84,15 +84,6 @@ export class AdminController {
     const { user } = req; //user is the super admin who is making the request
     const { accountId } = req.params; //accountId of the admin who is being updated
     const { admin } = req.body;
-
-    /*
-    if you are not superadmin, will send error
-    */
-    if (user.permission != ADMIN_PERMISSION_ENUM_OPTIONS.SUPERADMIN) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    } //end of check
     try {
       const adminUpdated = await AdminService.updateAdminPermission(
         accountId,
@@ -151,14 +142,6 @@ export class AdminController {
   }
 
   public static async getAllAdmins(req, res) {
-    const { user } = req; //user is the user who is making the request
-
-    //have to be superadmin to view list of admins
-    if (user.permission != ADMIN_PERMISSION_ENUM_OPTIONS.SUPERADMIN) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
     try {
       const admins = await AdminService.getAllAdmins();
       return apiResponse.result(
@@ -171,25 +154,6 @@ export class AdminController {
       );
     } catch (e) {
       logger.error('[adminController.getAllAdmins]:' + e.toString());
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
-      });
-    }
-  }
-
-  public static async getActiveStudents(req, res) {
-    try {
-      const students = await AdminService.getAllActiveStudents();
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          students,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[adminController.getActiveStudents]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });
@@ -284,7 +248,7 @@ export class AdminController {
 
     if (
       user.accountId != accountId &&
-      user.userType != USER_TYPE_ENUM_OPTIONS.ADMIN
+      user.permission != ADMIN_PERMISSION_ENUM_OPTIONS.SUPERADMIN
     ) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),

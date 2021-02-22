@@ -23,6 +23,7 @@ import express from 'express';
 import { AdminController } from '../controllers/admin.controller';
 import admin from './schema/admin.schema';
 import Utility from '../constants/utility';
+import { requireSuperAdmin } from '../middlewares/userTypeHandler';
 
 const router = express.Router();
 const passport = require('passport');
@@ -33,6 +34,7 @@ const schemaValidator = require('express-joi-validation').createValidator({});
 router.post(
   '/register-admin',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
   schemaValidator.body(admin.registerAdmin),
   Utility.asyncHandler(AdminController.registerAdmin)
 );
@@ -41,6 +43,7 @@ router.post(
 router.put(
   '/reset-admin-password/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
   schemaValidator.params(admin.adminIdQ), // adminId to be changed
   schemaValidator.body(admin.resetPassword),
   Utility.asyncHandler(AdminController.resetPassword)
@@ -59,6 +62,7 @@ router.put(
 router.put(
   '/update-permission/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
   schemaValidator.params(admin.adminIdQ), //adminId to be changed
   schemaValidator.body(admin.updateAdminPermission),
   Utility.asyncHandler(AdminController.updateAdminPermission)
@@ -76,14 +80,8 @@ router.get(
 router.get(
   '/admins',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
   Utility.asyncHandler(AdminController.getAllAdmins)
-);
-
-//get list of active students
-router.get(
-  '/students',
-  passport.authenticate('isAuthenticated', { session: false }),
-  Utility.asyncHandler(AdminController.getActiveStudents)
 );
 
 //get list of banned students
@@ -116,14 +114,6 @@ router.get(
   Utility.asyncHandler(AdminController.getSenseiMentorshipListings)
 );
 */
-
-router.put(
-  '/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(admin.adminIdQ),
-  schemaValidator.body(admin.updateAdmin),
-  Utility.asyncHandler(AdminController.updateAdmin)
-);
 
 router.delete(
   '/:accountId',

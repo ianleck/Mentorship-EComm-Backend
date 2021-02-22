@@ -135,26 +135,22 @@ export default class AdminService {
     return admins;
   }
 
-  public static async getAllActiveStudents() {
+  public static async getAllBannedStudents() {
     const students = User.findAll({
       where: {
-        status: { [Op.eq]: STATUS_ENUM_OPTIONS.ACTIVE },
-        userType: USER_TYPE_ENUM_OPTIONS.STUDENT,
+        status: { [Op.eq]: STATUS_ENUM_OPTIONS.BANNED },
+        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
       },
     });
     return students;
   }
 
-  public static async getAllBannedStudents() {
-    const students = Student.findAll({
-      where: { status: { [Op.eq]: STATUS_ENUM_OPTIONS.BANNED } },
-    });
-    return students;
-  }
-
   public static async getAllBannedSenseis() {
-    const senseis = Sensei.findAll({
-      where: { status: { [Op.eq]: STATUS_ENUM_OPTIONS.BANNED } },
+    const senseis = User.findAll({
+      where: {
+        status: { [Op.eq]: STATUS_ENUM_OPTIONS.BANNED },
+        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
+      },
     });
     return senseis;
   }
