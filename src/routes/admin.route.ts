@@ -42,7 +42,7 @@ router.put(
   '/reset-admin-password/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(admin.adminIdQ), // adminId to be changed
-  schemaValidator.body(admin.changePassword),
+  schemaValidator.body(admin.resetPassword),
   Utility.asyncHandler(AdminController.resetPassword)
 );
 
@@ -55,10 +55,11 @@ router.put(
   Utility.asyncHandler(AdminController.updateAdmin)
 );
 
+//update permission of admin (done by superdmin)
 router.put(
   '/update-permission/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(admin.adminIdQ),
+  schemaValidator.params(admin.adminIdQ), //adminId to be changed
   schemaValidator.body(admin.updateAdminPermission),
   Utility.asyncHandler(AdminController.updateAdminPermission)
 );
@@ -71,11 +72,57 @@ router.get(
   Utility.asyncHandler(AdminController.getAdmin)
 );
 
+//get list of admins
+router.get(
+  '/admins',
+  passport.authenticate('isAuthenticated', { session: false }),
+  Utility.asyncHandler(AdminController.getAllAdmins)
+);
+
 //get list of active students
 router.get(
   '/students',
   passport.authenticate('isAuthenticated', { session: false }),
   Utility.asyncHandler(AdminController.getActiveStudents)
+);
+
+//get list of banned students
+router.get(
+  '/banned-students',
+  passport.authenticate('isAuthenticated', { session: false }),
+  Utility.asyncHandler(AdminController.getBannedStudents)
+);
+
+//get list of banned senseis
+router.get(
+  '/banned-senseis',
+  passport.authenticate('isAuthenticated', { session: false }),
+  Utility.asyncHandler(AdminController.getBannedSenseis)
+);
+
+/*
+//get list of all mentorship listings
+router.get(
+  '/mentorship-listings',
+  passport.authenticate('isAuthenticated', { session: false }),
+  Utility.asyncHandler(AdminController.getMentorshipListings)
+);
+
+//get single sensei mentorship listings
+router.get(
+  '/mentorship-listings/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(admin.senseiIdQ),
+  Utility.asyncHandler(AdminController.getSenseiMentorshipListings)
+);
+*/
+
+router.put(
+  '/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(admin.adminIdQ),
+  schemaValidator.body(admin.updateAdmin),
+  Utility.asyncHandler(AdminController.updateAdmin)
 );
 
 router.delete(
