@@ -29,12 +29,11 @@ export class AdminController {
   }
 
   public static async resetPassword(req, res) {
-    const { accountId, userType } = req.user;
+    const { accountId } = req.user;
     const { oldPassword, newPassword, confirmPassword } = req.body;
     try {
       await AdminService.resetPassword(
         accountId,
-        userType,
         oldPassword,
         newPassword,
         confirmPassword
