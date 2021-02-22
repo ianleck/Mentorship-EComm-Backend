@@ -28,16 +28,12 @@ export class AdminController {
     }
   }
 
+  //done by super admin A for admin B
   public static async resetPassword(req, res) {
-    const { accountId } = req.user;
-    const { oldPassword, newPassword, confirmPassword } = req.body;
+    const { accountId } = req.params; //accountId of the admin who is changing password
+    const { newPassword, confirmPassword } = req.body;
     try {
-      await AdminService.resetPassword(
-        accountId,
-        oldPassword,
-        newPassword,
-        confirmPassword
-      );
+      await AdminService.resetPassword(accountId, newPassword, confirmPassword);
       return apiResponse.result(
         res,
         { message: 'Successfully Changed Password' },
@@ -85,23 +81,18 @@ export class AdminController {
   }
 
   public static async updateAdminPermission(req, res) {
-    const { user } = req; //user is the user who is making the request
-    const { accountId } = req.params; //accountId of the admin who is being updatred
+    const { user } = req; //user is the super admin who is making the request
+    const { accountId } = req.params; //accountId of the admin who is being updated
     const { admin } = req.body;
-
-    /*
-    if you are not superadmin, will send error
-    */
-    if (user.permission != ADMIN_PERMISSION_ENUM_OPTIONS.SUPERADMIN) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    } //end of check
     try {
-      const user = await AdminService.updateAdminPermission(accountId, admin);
+      const adminUpdated = await AdminService.updateAdminPermission(
+        accountId,
+        admin,
+        user.accountId
+      );
       apiResponse.result(
         res,
-        { message: 'success', admin: user },
+        { message: 'success', admin: adminUpdated },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -150,9 +141,28 @@ export class AdminController {
     }
   }
 
-  public static async getActiveStudents(req, res) {
+  public static async getAllAdmins(req, res) {
     try {
-      const students = await AdminService.getAllActiveStudents();
+      const admins = await AdminService.getAllAdmins();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          admins,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.getAllAdmins]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
+  public static async getBannedStudents(req, res) {
+    try {
+      const students = await AdminService.getAllBannedStudents();
       return apiResponse.result(
         res,
         {
@@ -162,12 +172,75 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.getActiveStudents]:' + e.toString());
+      logger.error('[adminController.getBannedStudents]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });
     }
   }
+
+  public static async getBannedSenseis(req, res) {
+    try {
+      const students = await AdminService.getAllBannedSenseis();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          students,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.getBannedSenseis]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
+  /*
+  public static async getSenseiMentorshipListings(req, res) {
+    const { accountId } = req.params; //accountId of the sensei who is being looked at
+
+    try {
+      const mentorshipListings = await AdminService.getSenseiMentorshipListings(
+        accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          mentorshipListings,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.getMentorshipListings]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+  
+  public static async getMentorshipListings(req, res) {
+    try {
+      const mentorshipListings = await AdminService.getAllMentorshipListings();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          mentorshipListings,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.getMentorshipListings]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+  */
 
   public static async deactivateAdmin(req, res) {
     const { user } = req; // superadmin who requested to deactive account
@@ -175,7 +248,7 @@ export class AdminController {
 
     if (
       user.accountId != accountId &&
-      user.userType != USER_TYPE_ENUM_OPTIONS.ADMIN
+      user.permission != ADMIN_PERMISSION_ENUM_OPTIONS.SUPERADMIN
     ) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),

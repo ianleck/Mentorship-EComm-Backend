@@ -22,13 +22,16 @@ export default {
     }),
   }),
 
-  changePassword: joi.object({
-    oldPassword: joi.string().required(),
+  resetPassword: joi.object({
     newPassword: joi.string().required(),
     confirmPassword: joi.string().required(),
   }),
 
   adminIdQ: joi.object({
+    accountId: joi.string().required(),
+  }),
+
+  senseiIdQ: joi.object({
     accountId: joi.string().required(),
   }),
 

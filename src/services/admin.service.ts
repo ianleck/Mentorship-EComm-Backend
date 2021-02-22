@@ -9,7 +9,6 @@ import {
 } from '../constants/enum';
 import { Op } from 'sequelize';
 import { User } from '../models/User';
-
 export default class AdminService {
   public static async registerAdmin(
     registerBody: {
@@ -73,27 +72,16 @@ export default class AdminService {
 
   public static async resetPassword(
     accountId: string,
-    userType: USER_TYPE_ENUM_OPTIONS,
-    oldPassword: string,
     newPassword: string,
     confirmPassword: string
   ) {
     try {
       const user = await this.findAdminById(accountId);
-      const correctOldPassword = await bcrypt.compare(
-        oldPassword,
-        user.password
-      );
-
-      // throw error if old password is incorrect
-      if (!correctOldPassword) throw new Error('Old password is incorrect');
 
       // throw error if newPassword != confirmPassword
       if (newPassword != confirmPassword)
         throw new Error('New password does not match');
 
-      if (newPassword == oldPassword)
-        throw new Error('New Password cannot be the same as the Old Password');
       // change pass
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(newPassword, salt);
@@ -117,11 +105,18 @@ export default class AdminService {
     }
   }
 
-  public static async updateAdminPermission(accountId, adminAccount) {
+  public static async updateAdminPermission(
+    accountId,
+    adminAccount,
+    superAdminId
+  ) {
     const admin = await Admin.findByPk(accountId);
+    const superAdmin = await Admin.findByPk(superAdminId);
+
     if (admin) {
       return await admin.update({
         permission: adminAccount.permission,
+        updatedBy: superAdmin,
       });
     } else {
       throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
@@ -134,15 +129,47 @@ export default class AdminService {
     return admin;
   }
 
-  public static async getAllActiveStudents() {
+  public static async getAllAdmins() {
+    const admins = Admin.findAll();
+    return admins;
+  }
+
+  public static async getAllBannedStudents() {
     const students = User.findAll({
       where: {
-        status: { [Op.eq]: STATUS_ENUM_OPTIONS.ACTIVE },
-        userType: USER_TYPE_ENUM_OPTIONS.STUDENT,
+        status: { [Op.eq]: STATUS_ENUM_OPTIONS.BANNED },
+        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
       },
     });
     return students;
   }
+
+  public static async getAllBannedSenseis() {
+    const senseis = User.findAll({
+      where: {
+        status: { [Op.eq]: STATUS_ENUM_OPTIONS.BANNED },
+        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
+      },
+    });
+    return senseis;
+  }
+
+  /*
+  public static async getSenseiMentorshipListings(accountId: string) {
+    const sensei = await Sensei.findByPk(accountId);
+    const mentorshipListings = sensei.mentorshipListing ; 
+    if (!sensei) throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
+    return mentorshipListings;
+  }
+
+ 
+
+  public static async getAllMentorshipListings() {
+    const mentorshipListings = MentorshipListing.findAll(); 
+    return mentorshipListings;
+  }
+
+  */
 
   public static async deactivateAdmin(
     accountId: string,

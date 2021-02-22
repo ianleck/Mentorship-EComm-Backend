@@ -23,6 +23,10 @@ import express from 'express';
 import { AdminController } from '../controllers/admin.controller';
 import admin from './schema/admin.schema';
 import Utility from '../constants/utility';
+import {
+  requireSuperAdmin,
+  requireAdmin,
+} from '../middlewares/userTypeHandler';
 
 const router = express.Router();
 const passport = require('passport');
@@ -33,6 +37,7 @@ const schemaValidator = require('express-joi-validation').createValidator({});
 router.post(
   '/register-admin',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
   schemaValidator.body(admin.registerAdmin),
   Utility.asyncHandler(AdminController.registerAdmin)
 );
@@ -41,8 +46,9 @@ router.post(
 router.put(
   '/reset-admin-password/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
   schemaValidator.params(admin.adminIdQ), // adminId to be changed
-  schemaValidator.body(admin.changePassword),
+  schemaValidator.body(admin.resetPassword),
   Utility.asyncHandler(AdminController.resetPassword)
 );
 
@@ -55,10 +61,12 @@ router.put(
   Utility.asyncHandler(AdminController.updateAdmin)
 );
 
+//update permission of admin (done by superdmin)
 router.put(
   '/update-permission/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(admin.adminIdQ),
+  requireSuperAdmin,
+  schemaValidator.params(admin.adminIdQ), //adminId to be changed
   schemaValidator.body(admin.updateAdminPermission),
   Utility.asyncHandler(AdminController.updateAdminPermission)
 );
@@ -71,12 +79,46 @@ router.get(
   Utility.asyncHandler(AdminController.getAdmin)
 );
 
-//get list of active students
+//get list of admins
 router.get(
-  '/students',
+  '/admins',
   passport.authenticate('isAuthenticated', { session: false }),
-  Utility.asyncHandler(AdminController.getActiveStudents)
+  requireSuperAdmin,
+  Utility.asyncHandler(AdminController.getAllAdmins)
 );
+
+//get list of banned students
+router.get(
+  '/banned-students',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  Utility.asyncHandler(AdminController.getBannedStudents)
+);
+
+//get list of banned senseis
+router.get(
+  '/banned-senseis',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  Utility.asyncHandler(AdminController.getBannedSenseis)
+);
+
+/*
+//get list of all mentorship listings
+router.get(
+  '/mentorship-listings',
+  passport.authenticate('isAuthenticated', { session: false }),
+  Utility.asyncHandler(AdminController.getMentorshipListings)
+);
+
+//get single sensei mentorship listings
+router.get(
+  '/mentorship-listings/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(admin.senseiIdQ),
+  Utility.asyncHandler(AdminController.getSenseiMentorshipListings)
+);
+*/
 
 router.delete(
   '/:accountId',
