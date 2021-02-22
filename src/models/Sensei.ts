@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 import { BelongsToMany, Column, DataType, Table } from 'sequelize-typescript';
-import { JWT_SECRET } from 'src/constants/constants';
+import { JWT_SECRET } from '../constants/constants';
 import { User } from './abstract/User';
 import { Student } from './Student';
 import { StudentSensei } from './StudentSensei';

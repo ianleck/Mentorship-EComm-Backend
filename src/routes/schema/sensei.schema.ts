@@ -1,5 +1,4 @@
 import joi from 'joi';
-import { STATUS_ENUM_OPTIONS } from 'src/constants/enum';
 
 interface senseiObj {
   accountId: string;

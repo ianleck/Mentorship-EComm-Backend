@@ -87,7 +87,7 @@ export class StudentController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[studentController.deactivateUser]:' + e.toString());
+      logger.error('[studentController.deactivateStudent]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });

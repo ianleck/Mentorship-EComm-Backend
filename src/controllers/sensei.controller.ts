@@ -2,7 +2,7 @@ import SenseiService from '../services/sensei.service';
 import httpStatusCodes from 'http-status-codes';
 import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
-import { USER_TYPE_ENUM_OPTIONS } from 'src/constants/enum';
+import { USER_TYPE_ENUM_OPTIONS } from '../constants/enum';
 
 export class SenseiController {
   public static async updateSensei(req, res) {
@@ -69,7 +69,7 @@ export class SenseiController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[senseiController.deactivateUser]:' + e.toString());
+      logger.error('[senseiController.deactivateSensei]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });
