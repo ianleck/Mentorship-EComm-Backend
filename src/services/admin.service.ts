@@ -9,7 +9,6 @@ import {
 } from '../constants/enum';
 import { Op } from 'sequelize';
 import { User } from '../models/User';
-
 export default class AdminService {
   public static async registerAdmin(
     registerBody: {

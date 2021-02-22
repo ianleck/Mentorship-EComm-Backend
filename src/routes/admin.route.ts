@@ -23,7 +23,10 @@ import express from 'express';
 import { AdminController } from '../controllers/admin.controller';
 import admin from './schema/admin.schema';
 import Utility from '../constants/utility';
-import { requireSuperAdmin } from '../middlewares/userTypeHandler';
+import {
+  requireSuperAdmin,
+  requireAdmin,
+} from '../middlewares/userTypeHandler';
 
 const router = express.Router();
 const passport = require('passport');
@@ -87,6 +90,7 @@ router.get(
 //get list of banned students
 router.get(
   '/banned-students',
+  requireAdmin,
   passport.authenticate('isAuthenticated', { session: false }),
   Utility.asyncHandler(AdminController.getBannedStudents)
 );
@@ -94,6 +98,7 @@ router.get(
 //get list of banned senseis
 router.get(
   '/banned-senseis',
+  requireAdmin,
   passport.authenticate('isAuthenticated', { session: false }),
   Utility.asyncHandler(AdminController.getBannedSenseis)
 );
