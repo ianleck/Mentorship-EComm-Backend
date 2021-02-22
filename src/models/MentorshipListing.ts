@@ -62,7 +62,7 @@ export class MentorshipListing extends BaseEntity {
   })
   description: string;
 
-  @BelongsTo(() => Sensei, 'senseiId')
+  @BelongsTo(() => Sensei, 'accountId')
   sensei: Sensei;
 
   @HasMany(() => Category, 'categoryId')
