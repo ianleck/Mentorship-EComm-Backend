@@ -5,7 +5,6 @@ export default {
   login: joi.object({
     email: joi.string().email().required(),
     password: joi.string().required(),
-    isStudent: joi.boolean().required(),
   }),
 
   register: joi.object({
@@ -26,5 +25,14 @@ export default {
     oldPassword: joi.string().required(),
     newPassword: joi.string().required(),
     confirmPassword: joi.string().required(),
+  }),
+
+  updateUserB: joi.object({
+    user: joi.object({
+      firstName: joi.string(),
+      lastName: joi.string(),
+      contactNumber: joi.number(),
+      status: joi.string(),
+    }),
   }),
 };

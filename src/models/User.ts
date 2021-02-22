@@ -1,23 +1,17 @@
-import {
-  Column,
-  DataType,
-  ForeignKey,
-  HasOne,
-  Table,
-} from 'sequelize-typescript';
+import { Column, DataType, Table, BelongsToMany } from 'sequelize-typescript';
 import { Account } from './abstract/Account';
 import {
-  ADMIN_PERMISSION_ENUM,
-  ADMIN_PERMISSION_ENUM_OPTIONS,
-  USER_TYPE_ENUM_OPTIONS,
-  STATUS_ENUM_OPTIONS,
   STATUS_ENUM,
+  STATUS_ENUM_OPTIONS,
   USER_TYPE_ENUM,
+  USER_TYPE_ENUM_OPTIONS,
 } from '../constants/enum';
+import { UserFollowership } from './UserFollowership';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../constants/constants';
+
 @Table
-export class Admin extends Account {
+export class User extends Account {
   @Column({ field: 'username', type: DataType.STRING, unique: true })
   username: string;
 
@@ -55,28 +49,41 @@ export class Admin extends Account {
     type: DataType.ENUM(...Object.values(USER_TYPE_ENUM_OPTIONS)),
   })
   userType: USER_TYPE_ENUM;
+  // @Column
+  // achievements: Achievement;
 
-  @ForeignKey(() => Admin)
+  @BelongsToMany(() => User, () => UserFollowership, 'followerId')
+  following: User[];
+
+  @BelongsToMany(() => User, () => UserFollowership, 'followingId')
+  followers: User[];
+
+  // @HasMany(() => CourseContract)
+  // courses: CourseContract;
+  //
+  // @HasMany(() => MentorshipContract)
+  // mentorships: MentorshipContract;
+
+  // achievements
+
   @Column({
-    field: 'admin_id',
-    type: DataType.INTEGER,
-    autoIncrement: true,
-    unique: true,
+    field: 'admin_verified',
+    type: DataType.BOOLEAN,
+    defaultValue: false,
   })
-  adminId: number;
+  adminVerified: boolean;
 
-  @Column({
-    field: 'permission',
-    type: DataType.ENUM(...Object.values(ADMIN_PERMISSION_ENUM_OPTIONS)),
-    defaultValue: ADMIN_PERMISSION_ENUM_OPTIONS.ADMIN,
-  })
-  permission: ADMIN_PERMISSION_ENUM;
-
-  @HasOne(() => Admin)
-  updatedBy: Admin;
-
-  @HasOne(() => Admin, 'admin_id')
-  createdBy: Admin;
+  // @HasMany(() => Course)
+  // coursesTaught: Course[];
+  //
+  // @HasMany(() => MentorshipListing)
+  // mentorshipListing: MentorshipListing[];
+  //
+  // @HasMany(() => Post)
+  // posts: Post[];
+  //
+  // @HasOne(() => Wallet)
+  // wallet: Wallet;
 
   generateJWT() {
     const today = new Date();

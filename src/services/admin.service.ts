@@ -1,6 +1,4 @@
 import { Admin } from '../models/Admin';
-import { Student } from '../models/Student';
-import { Sensei } from '../models/Sensei';
 import bcrypt from 'bcrypt';
 import { ERRORS } from '../constants/errors';
 import Utility from '../constants/utility';
@@ -10,6 +8,7 @@ import {
   STATUS_ENUM_OPTIONS,
 } from '../constants/enum';
 import { Op } from 'sequelize';
+import { User } from '../models/User';
 
 export default class AdminService {
   public static async registerAdmin(
@@ -136,8 +135,11 @@ export default class AdminService {
   }
 
   public static async getAllActiveStudents() {
-    const students = Student.findAll({
-      where: { status: { [Op.eq]: STATUS_ENUM_OPTIONS.ACTIVE } },
+    const students = User.findAll({
+      where: {
+        status: { [Op.eq]: STATUS_ENUM_OPTIONS.ACTIVE },
+        userType: USER_TYPE_ENUM_OPTIONS.STUDENT,
+      },
     });
     return students;
   }

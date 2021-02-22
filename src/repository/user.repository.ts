@@ -1,7 +1,7 @@
-import { User } from '../models/abstract/User';
+// import { User } from '../models/abstract/User';
 
-export class UserRepository {
-  public static async getComplexJoins() {
-    return User.findAll();
-  }
-}
+// export class UserRepository {
+//   public static async getComplexJoins() {
+//     return User.findAll();
+//   }
+// }
