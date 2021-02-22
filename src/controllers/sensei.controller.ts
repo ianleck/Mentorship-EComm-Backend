@@ -2,9 +2,28 @@ import SenseiService from '../services/sensei.service';
 import httpStatusCodes from 'http-status-codes';
 import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
-import { USER_TYPE_ENUM_OPTIONS } from 'src/constants/enum';
+import { USER_TYPE_ENUM_OPTIONS } from '../constants/enum';
 
 export class SenseiController {
+  public static async getAllActiveSenseis(req, res) {
+    try {
+      const senseis = await SenseiService.getAllActiveSenseis();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          senseis,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.getAllActiveSenseis]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
   public static async updateSensei(req, res) {
     const { user } = req;
     const { accountId } = req.params;

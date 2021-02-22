@@ -121,12 +121,12 @@ export default class UserService {
     try {
       if (userType == USER_TYPE_ENUM_OPTIONS.STUDENT) {
         return Student.findByPk(accountId);
-      }
-      if (userType == USER_TYPE_ENUM_OPTIONS.SENSEI) {
+      } else if (userType == USER_TYPE_ENUM_OPTIONS.SENSEI) {
         return Sensei.findByPk(accountId);
-      }
-      if (userType == USER_TYPE_ENUM_OPTIONS.ADMIN) {
+      } else if (userType == USER_TYPE_ENUM_OPTIONS.ADMIN) {
         return Admin.findByPk(accountId);
+      } else {
+        throw new Error(ERRORS.USER_DOES_NOT_EXIST);
       }
     } catch (e) {
       throw new Error(ERRORS.USER_DOES_NOT_EXIST);

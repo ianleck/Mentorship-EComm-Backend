@@ -37,25 +37,18 @@ router.post(
   Utility.asyncHandler(AdminController.registerAdmin)
 );
 
-//admin changes own password
-router.put(
-  '/change-password',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.body(admin.changePassword),
-  Utility.asyncHandler(AdminController.changePassword)
-);
-
 //suepradmin changes admin password
 router.put(
-  '/reset-admin-password',
+  '/reset-admin-password/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(admin.adminIdQ), // adminId to be changed
   schemaValidator.body(admin.changePassword),
   Utility.asyncHandler(AdminController.resetPassword)
 );
 
 //update an admin account
 router.put(
-  '/',
+  '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(admin.adminIdQ),
   schemaValidator.body(admin.updateAdmin),
@@ -63,7 +56,7 @@ router.put(
 );
 
 router.put(
-  '/update-permission',
+  '/update-permission/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(admin.adminIdQ),
   schemaValidator.body(admin.updateAdminPermission),
@@ -72,7 +65,7 @@ router.put(
 
 //get admin
 router.get(
-  '/:id',
+  '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(admin.adminIdQ),
   Utility.asyncHandler(AdminController.getAdmin)
@@ -85,15 +78,8 @@ router.get(
   Utility.asyncHandler(AdminController.getActiveStudents)
 );
 
-//get list of active senseis
-router.get(
-  '/senseis',
-  passport.authenticate('isAuthenticated', { session: false }),
-  Utility.asyncHandler(AdminController.getActiveSenseis)
-);
-
 router.delete(
-  '/:id',
+  '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(admin.adminIdQ),
   Utility.asyncHandler(AdminController.deactivateAdmin)

@@ -10,6 +10,9 @@ const router = express.Router();
 const passport = require('passport');
 const schemaValidator = require('express-joi-validation').createValidator({});
 
+//get list of active senseis
+router.get('/', Utility.asyncHandler(SenseiController.getAllActiveSenseis));
+
 router.get(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),

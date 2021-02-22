@@ -9,7 +9,7 @@ import {
   ADMIN_PERMISSION_ENUM_OPTIONS,
   STATUS_ENUM_OPTIONS,
 } from '../constants/enum';
-import { Op } from 'sequelize/types';
+import { Op } from 'sequelize';
 
 export default class AdminService {
   public static async registerAdmin(
@@ -19,10 +19,11 @@ export default class AdminService {
       password: string;
       confirmPassword: string;
     },
-    adminCreator
+    adminCreatorId: string
   ): Promise<void> {
     const { username, email, password, confirmPassword } = registerBody;
     let errors = [];
+    const adminCreator = await Admin.findByPk(adminCreatorId);
 
     if (!username || !email || !password || !confirmPassword) {
       errors.push({ msg: 'Please enter all fields' });
@@ -71,38 +72,6 @@ export default class AdminService {
     }
   }
 
-  public static async changePassword(
-    accountId: string,
-    oldPassword: string,
-    newPassword: string,
-    confirmPassword: string
-  ) {
-    try {
-      const admin = await this.findAdminById(accountId);
-      const correctOldPassword = await bcrypt.compare(
-        oldPassword,
-        admin.password
-      );
-
-      // throw error if old password is incorrect
-      if (!correctOldPassword) throw new Error('Old password is incorrect');
-
-      // throw error if newPassword != confirmPassword
-      if (newPassword != confirmPassword)
-        throw new Error('New password does not match');
-
-      if (newPassword == oldPassword)
-        throw new Error('New Password cannot be the same as the Old Password');
-      // change pass
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(newPassword, salt);
-      admin.password = hash;
-      admin.save();
-    } catch (e) {
-      throw e;
-    }
-  }
-
   public static async resetPassword(
     accountId: string,
     userType: USER_TYPE_ENUM_OPTIONS,
@@ -111,7 +80,7 @@ export default class AdminService {
     confirmPassword: string
   ) {
     try {
-      const user = await this.findUserById(accountId, userType);
+      const user = await this.findAdminById(accountId);
       const correctOldPassword = await bcrypt.compare(
         oldPassword,
         user.password
@@ -152,7 +121,7 @@ export default class AdminService {
   public static async updateAdminPermission(accountId, adminAccount) {
     const admin = await Admin.findByPk(accountId);
     if (admin) {
-      await admin.update({
+      return await admin.update({
         permission: adminAccount.permission,
       });
     } else {
@@ -161,12 +130,9 @@ export default class AdminService {
   }
 
   public static async findAdminById(accountId: string) {
-    try {
-      const admin = await Admin.findByPk(accountId);
-      return admin;
-    } catch (e) {
-      throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
-    }
+    const admin = await Admin.findByPk(accountId);
+    if (!admin) throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
+    return admin;
   }
 
   public static async getAllActiveStudents() {
@@ -176,23 +142,16 @@ export default class AdminService {
     return students;
   }
 
-  public static async getAllActiveSenseis() {
-    const senseis = Sensei.findAll({
-      where: { status: { [Op.eq]: STATUS_ENUM_OPTIONS.ACTIVE } },
+  public static async deactivateAdmin(
+    accountId: string,
+    superAdminId: string
+  ): Promise<void> {
+    const superAdmin = await Admin.findByPk(superAdminId);
+    const admin = await Admin.findByPk(accountId);
+    if (!admin) throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
+    await admin.update({
+      updatedBy: superAdmin,
     });
-    return senseis;
-  }
-
-  public static async deactivateAdmin(accountId: string): Promise<void> {
-    try {
-      await Admin.destroy({
-        where: {
-          accountId,
-        },
-      });
-      return;
-    } catch (e) {
-      throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
-    }
+    await admin.destroy();
   }
 }

@@ -28,10 +28,4 @@ router.put(
   Utility.asyncHandler(UserController.changePassword)
 );
 
-router.delete(
-  '/:accountId/:userType',
-  schemaValidator.params(user.accountIdQ),
-  Utility.asyncHandler(UserController.deactivateUser)
-);
-
 export default router;
