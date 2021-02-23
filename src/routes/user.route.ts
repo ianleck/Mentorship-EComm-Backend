@@ -66,6 +66,15 @@ router.put(
   Utility.asyncHandler(UserController.updateUser)
 );
 
+// update user about (user.headline & user.bio)
+router.put(
+  '/about/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdQ),
+  schemaValidator.body(user.updateUserAboutB),
+  Utility.asyncHandler(UserController.updateUserAbout)
+);
+
 /*** END OF PUT REQUESTS ***/
 
 /*** DEL REQUESTS ***/
