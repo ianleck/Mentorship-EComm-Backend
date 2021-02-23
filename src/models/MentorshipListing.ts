@@ -1,9 +1,9 @@
 import {
   BelongsTo,
+  BelongsToMany,
   Column,
   DataType,
   Default,
-  HasMany,
   Max,
   Min,
   PrimaryKey,
@@ -11,32 +11,15 @@ import {
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Category } from './Category';
+import { ListingToCategory } from './ListingToCategory';
 import { User } from './User';
-
-export interface MentorshipListingInterface {
-  name: string;
-  sensei: User;
-  categories: Category[];
-  description: string;
-  // reviews?: string; // Should be Review object but this will be changed later
-  rating?: number;
-}
-
-export interface AddMentorshipListingInterface {
-  name: string;
-  accountId: string;
-  categories: string[];
-  description: string;
-  // reviews?: string; // Should be Review object but this will be changed later
-  rating?: number;
-}
 
 @Table
 export class MentorshipListing extends BaseEntity {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  id: string;
+  mentorshipListingId: string;
 
   @Column({
     allowNull: false,
@@ -45,11 +28,6 @@ export class MentorshipListing extends BaseEntity {
 
   @Column({
     allowNull: false,
-  })
-  categoryId: string;
-
-  @Column({
-    allowNull: false,
     type: DataType.STRING,
     defaultValue: DataType.STRING,
   })
@@ -62,12 +40,6 @@ export class MentorshipListing extends BaseEntity {
   })
   description: string;
 
-  @BelongsTo(() => User, 'accountId')
-  sensei: User;
-
-  @HasMany(() => Category, 'categoryId')
-  categories: Category[];
-
   @Min(1)
   @Max(10)
   @Column({
@@ -75,6 +47,15 @@ export class MentorshipListing extends BaseEntity {
     defaultValue: DataType.FLOAT,
   })
   rating: number;
+
+  @BelongsTo(() => User, 'accountId')
+  sensei: User;
+
+  @BelongsToMany(() => Category, {
+    through: () => ListingToCategory,
+    foreignKey: 'mentorshipListingId',
+  })
+  Categories: Category[];
 }
 
 // MentorshipListing.hasMany(Review, { foreignKey: 'reviewId' })

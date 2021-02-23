@@ -15,7 +15,7 @@ export class Category extends BaseEntity {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  id: string;
+  categoryId: string;
 
   @Column({
     allowNull: false,
@@ -33,7 +33,7 @@ export class Category extends BaseEntity {
 
   @BelongsToMany(() => MentorshipListing, {
     through: () => ListingToCategory,
-    foreignKey: 'mentorshipListingId',
+    foreignKey: 'categoryId',
   })
-  mentorshipListings: MentorshipListing[];
+  MentorshipListings: MentorshipListing[];
 }
