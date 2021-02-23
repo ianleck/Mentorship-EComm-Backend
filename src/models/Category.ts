@@ -1,14 +1,39 @@
-import { Column, DataType, Table } from 'sequelize-typescript';
+import {
+  BelongsToMany,
+  Column,
+  DataType,
+  Default,
+  PrimaryKey,
+  Table,
+} from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
+import { ListingToCategory } from './ListingToCategory';
+import { MentorshipListing } from './MentorshipListing';
 
 @Table
 export class Category extends BaseEntity {
-  @Column({ field: 'category_id', type: DataType.UUID, primaryKey: true })
-  categoryId: number;
+  @PrimaryKey
+  @Default(DataType.UUIDV4)
+  @Column(DataType.UUID)
+  id: string;
 
-  @Column({ field: 'name', type: DataType.STRING })
-  name: number;
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+    defaultValue: DataType.STRING,
+  })
+  name: string;
 
-  @Column({ field: 'description', type: DataType.STRING })
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+    defaultValue: DataType.STRING,
+  })
   description: string;
+
+  @BelongsToMany(() => MentorshipListing, {
+    through: () => ListingToCategory,
+    foreignKey: 'mentorshipListingId',
+  })
+  mentorshipListings: MentorshipListing[];
 }

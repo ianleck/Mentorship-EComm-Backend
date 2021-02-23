@@ -1,5 +1,4 @@
 import joi from 'joi';
-import { USER_TYPE_ENUM_OPTIONS } from '../../constants/enum';
 
 export default {
   login: joi.object({
