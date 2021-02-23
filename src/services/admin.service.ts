@@ -20,7 +20,6 @@ export default class AdminService {
     adminCreatorId: string
   ): Promise<Admin> {
     const { username, email, password, confirmPassword } = registerBody;
-    let errors = [];
     const adminCreator = await Admin.findByPk(adminCreatorId);
 
     if (!username || !email || !password || !confirmPassword) {

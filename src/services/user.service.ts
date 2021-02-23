@@ -53,7 +53,6 @@ export default class UserService {
       confirmPassword,
       isStudent,
     } = registerBody;
-    let errors = [];
 
     if (!username || !email || !password || !confirmPassword) {
       throw new Error('Please enter all fields');
