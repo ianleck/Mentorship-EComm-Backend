@@ -45,7 +45,7 @@ export default class UserService {
     password: string;
     confirmPassword: string;
     isStudent: boolean;
-  }): Promise<void> {
+  }): Promise<User> {
     const {
       username,
       email,
@@ -56,12 +56,10 @@ export default class UserService {
     let errors = [];
 
     if (!username || !email || !password || !confirmPassword) {
-      // errors.push({ msg: 'Please enter all fields' });
       throw new Error('Please enter all fields');
     }
 
     if (password != confirmPassword) {
-      // errors.push({ msg: 'Passwords do not match' });
       throw new Error('Passwords do not match');
     }
 
@@ -116,7 +114,7 @@ export default class UserService {
       const hash = await bcrypt.hash(newUser.password, salt);
       newUser.password = hash;
       newUser.save();
-      return user;
+      return newUser;
     } catch (e) {
       throw e;
     }

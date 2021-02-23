@@ -137,12 +137,8 @@ export class UserController {
   public static async register(req, res) {
     const { newUser } = req.body;
     try {
-      await UserService.register(newUser);
-      return apiResponse.result(
-        res,
-        { message: 'Successfully Registered' },
-        httpStatusCodes.OK
-      );
+      const user = await UserService.register(newUser);
+      return apiResponse.result(res, user.toAuthJSON(), httpStatusCodes.OK);
     } catch (e) {
       logger.error('[userController.register]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {

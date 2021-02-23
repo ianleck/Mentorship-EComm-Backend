@@ -18,7 +18,7 @@ export default class AdminService {
       confirmPassword: string;
     },
     adminCreatorId: string
-  ): Promise<void> {
+  ): Promise<Admin> {
     const { username, email, password, confirmPassword } = registerBody;
     let errors = [];
     const adminCreator = await Admin.findByPk(adminCreatorId);
@@ -60,7 +60,7 @@ export default class AdminService {
       const hash = await bcrypt.hash(newUser.password, salt);
       newUser.password = hash;
       newUser.save();
-      return user;
+      return newUser;
     } catch (e) {
       throw e;
     }
