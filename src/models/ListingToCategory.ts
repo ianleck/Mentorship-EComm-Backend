@@ -3,7 +3,7 @@ import { MentorshipListing } from './MentorshipListing';
 import { Category } from './Category';
 
 @Table
-export class ListingToCategory extends Model {
+export class ListingToCategory extends Model<ListingToCategory> {
   @ForeignKey(() => MentorshipListing)
   @Column
   mentorshipListingId: string;

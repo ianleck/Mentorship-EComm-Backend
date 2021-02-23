@@ -41,6 +41,12 @@ export default class MentorshipService {
     });
   }
 
+  public static async deleteListing(
+    mentorshipListingId: string
+  ): Promise<void> {
+    await MentorshipListing.destroy({ where: { mentorshipListingId } });
+  }
+
   public static async updateListing(
     mentorshipListingId: string,
     mentorshipListing: UpdateMentorshipListing
