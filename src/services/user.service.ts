@@ -56,19 +56,17 @@ export default class UserService {
     let errors = [];
 
     if (!username || !email || !password || !confirmPassword) {
-      errors.push({ msg: 'Please enter all fields' });
+      // errors.push({ msg: 'Please enter all fields' });
+      throw new Error('Please enter all fields');
     }
 
     if (password != confirmPassword) {
-      errors.push({ msg: 'Passwords do not match' });
+      // errors.push({ msg: 'Passwords do not match' });
+      throw new Error('Passwords do not match');
     }
 
     if (password.length < 8) {
-      errors.push({ msg: 'Password must be at least 8 characters' });
-    }
-
-    if (errors.length > 0) {
-      throw new Error(errors.join('. '));
+      throw new Error('Password must be at least 8 characters');
     }
     let user, newUser;
 
