@@ -103,11 +103,11 @@ router.get(
   Utility.asyncHandler(AdminController.getBannedSenseis)
 );
 
-/*
 //get list of all mentorship listings
 router.get(
   '/mentorship-listings',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
   Utility.asyncHandler(AdminController.getMentorshipListings)
 );
 
@@ -115,16 +115,23 @@ router.get(
 router.get(
   '/mentorship-listings/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
   schemaValidator.params(admin.senseiIdQ),
   Utility.asyncHandler(AdminController.getSenseiMentorshipListings)
 );
-*/
 
 router.delete(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(admin.adminIdQ),
   Utility.asyncHandler(AdminController.deactivateAdmin)
+);
+
+router.get(
+  'verify-sensei/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(admin.senseiIdQ),
+  Utility.asyncHandler(AdminController.verifySensei)
 );
 
 export default router;

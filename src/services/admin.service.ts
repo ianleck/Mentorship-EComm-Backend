@@ -1,4 +1,5 @@
 import { Admin } from '../models/Admin';
+import { MentorshipListing } from '../models/MentorshipListing';
 import bcrypt from 'bcrypt';
 import { ERRORS } from '../constants/errors';
 import Utility from '../constants/utility';
@@ -149,22 +150,17 @@ export default class AdminService {
     return senseis;
   }
 
-  /*
   public static async getSenseiMentorshipListings(accountId: string) {
-    const sensei = await Sensei.findByPk(accountId);
-    const mentorshipListings = sensei.mentorshipListing ; 
-    if (!sensei) throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
+    const mentorshipListings = MentorshipListing.findAll({
+      where: { senseiId: { [Op.eq]: accountId } },
+    });
     return mentorshipListings;
   }
-
- 
 
   public static async getAllMentorshipListings() {
-    const mentorshipListings = MentorshipListing.findAll(); 
+    const mentorshipListings = MentorshipListing.findAll();
     return mentorshipListings;
   }
-
-  */
 
   public static async deactivateAdmin(
     accountId: string,

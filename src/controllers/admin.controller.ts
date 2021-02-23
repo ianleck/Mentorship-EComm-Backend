@@ -194,7 +194,6 @@ export class AdminController {
     }
   }
 
-  /*
   public static async getSenseiMentorshipListings(req, res) {
     const { accountId } = req.params; //accountId of the sensei who is being looked at
 
@@ -211,13 +210,15 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.getMentorshipListings]:' + e.toString());
+      logger.error(
+        '[adminController.getSenseiMentorshipListings]:' + e.toString()
+      );
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });
     }
   }
-  
+
   public static async getMentorshipListings(req, res) {
     try {
       const mentorshipListings = await AdminService.getAllMentorshipListings();
@@ -236,7 +237,6 @@ export class AdminController {
       });
     }
   }
-  */
 
   public static async deactivateAdmin(req, res) {
     const { user } = req; // superadmin who requested to deactive account
@@ -264,4 +264,6 @@ export class AdminController {
       });
     }
   }
+
+  public static async;
 }
