@@ -4,3 +4,8 @@ export const ERRORS = {
   STUDENT_DOES_NOT_EXIST: 'Student does not exist',
   USER_DOES_NOT_EXIST: 'User does not exist',
 };
+
+export const MENTORSHIP_ERRORS = {
+  UNAUTH_LISTING:
+    'You lack the required permission to create a mentorship listing.',
+};

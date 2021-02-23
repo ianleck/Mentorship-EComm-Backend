@@ -42,6 +42,7 @@ export function internalServerError(
   res: express.Response,
   next: express.NextFunction
 ) {
+  logger.error('[INTERNAL_SERVER_ERROR]:' + err.toString());
   res.status(err.status || HttpStatus.INTERNAL_SERVER_ERROR).json({
     success: false,
     error: {
