@@ -11,7 +11,7 @@ const router = express.Router();
 const schemaValidator = require('express-joi-validation').createValidator({});
 
 router.post(
-  '/createListing/:accountId',
+  '/listing/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(user.accountIdQ),
