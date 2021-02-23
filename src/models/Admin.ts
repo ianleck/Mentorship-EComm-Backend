@@ -18,47 +18,43 @@ import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../constants/constants';
 @Table
 export class Admin extends Account {
-  @Column({ field: 'username', type: DataType.STRING, unique: true })
+  @Column({ type: DataType.STRING, unique: true })
   username: string;
 
-  @Column({ field: 'password', type: DataType.STRING })
+  @Column({ type: DataType.STRING })
   password: string;
 
-  @Column({ field: 'first_name', type: DataType.STRING })
+  @Column({ type: DataType.STRING })
   firstName: string;
 
-  @Column({ field: 'last_name', type: DataType.STRING })
+  @Column({ type: DataType.STRING })
   lastName: string;
 
   @Column({
-    field: 'email_verified',
     type: DataType.BOOLEAN,
     defaultValue: false,
   })
   emailVerified: boolean;
 
-  @Column({ field: 'email', type: DataType.STRING, unique: true })
+  @Column({ type: DataType.STRING, unique: true })
   email: string;
 
-  @Column({ field: 'contact_number', type: DataType.STRING })
+  @Column({ type: DataType.STRING })
   contactNumber: string;
 
   @Column({
-    field: 'status',
     type: DataType.ENUM(...Object.values(STATUS_ENUM_OPTIONS)),
     defaultValue: STATUS_ENUM_OPTIONS.ACTIVE,
   })
   status: STATUS_ENUM;
 
   @Column({
-    field: 'user_type',
     type: DataType.ENUM(...Object.values(USER_TYPE_ENUM_OPTIONS)),
   })
   userType: USER_TYPE_ENUM;
 
   @ForeignKey(() => Admin)
   @Column({
-    field: 'admin_id',
     type: DataType.INTEGER,
     autoIncrement: true,
     unique: true,
@@ -66,16 +62,15 @@ export class Admin extends Account {
   adminId: number;
 
   @Column({
-    field: 'permission',
     type: DataType.ENUM(...Object.values(ADMIN_PERMISSION_ENUM_OPTIONS)),
     defaultValue: ADMIN_PERMISSION_ENUM_OPTIONS.ADMIN,
   })
   permission: ADMIN_PERMISSION_ENUM;
 
-  @HasOne(() => Admin)
+  @HasOne(() => Admin, 'adminId')
   updatedBy: Admin;
 
-  @HasOne(() => Admin, 'admin_id')
+  @HasOne(() => Admin, 'adminId')
   createdBy: Admin;
 
   generateJWT() {
