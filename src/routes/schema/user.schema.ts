@@ -34,4 +34,10 @@ export default {
       status: joi.string(),
     }),
   }),
+  updateUserAboutB: joi.object({
+    about: joi.object({
+      headline: joi.string(),
+      bio: joi.string(),
+    }),
+  }),
 };

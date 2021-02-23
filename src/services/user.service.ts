@@ -39,6 +39,97 @@ export default class UserService {
     }
   }
 
+  public static async deactivateUser(accountId: string): Promise<void> {
+    try {
+      await User.destroy({
+        where: {
+          accountId,
+        },
+      });
+      return;
+    } catch (e) {
+      throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
+    }
+  }
+
+  public static async findUserOrAdminById(
+    accountId: string,
+    userType: USER_TYPE_ENUM_OPTIONS
+  ): Promise<User | Admin> {
+    try {
+      if (
+        userType == USER_TYPE_ENUM_OPTIONS.STUDENT ||
+        userType == USER_TYPE_ENUM_OPTIONS.SENSEI
+      ) {
+        return User.findByPk(accountId);
+      } else if (userType == USER_TYPE_ENUM_OPTIONS.ADMIN) {
+        return Admin.findByPk(accountId);
+      } else {
+        throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+      }
+    } catch (e) {
+      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    }
+  }
+
+  public static async findUserById(accountId: string): Promise<User> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    // let _user: any = Object.assign({}, user);
+    // console.log('user =', user.toJSON());
+    return user.toJSON();
+  }
+
+  // get all users with userType = STUDENT
+  public static async getAllActiveStudents() {
+    const students = User.findAll({
+      where: {
+        status: { [Op.eq]: STATUS_ENUM_OPTIONS.ACTIVE },
+        userType: USER_TYPE_ENUM_OPTIONS.STUDENT,
+      },
+    });
+    return students;
+  }
+
+  // get all users with userType = SENSEI
+  public static async getAllActiveSenseis() {
+    const senseis = User.findAll({
+      where: {
+        status: { [Op.eq]: STATUS_ENUM_OPTIONS.ACTIVE },
+        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
+      },
+    });
+    return senseis;
+  }
+
+  public static async updateUser(accountId: string, userDto) {
+    const user = await User.findByPk(accountId);
+    if (user) {
+      return await user.update({
+        firstName: userDto.firstName,
+        lastName: userDto.lastName,
+        contactNumber: userDto.contactNumber,
+      });
+    } else {
+      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    }
+  }
+
+  public static async updateUserAbout(
+    accountId: string,
+    userAbout: { headline: string; bio: string }
+  ) {
+    const user = await User.findByPk(accountId);
+    if (user) {
+      return await user.update({
+        headline: userAbout.headline,
+        bio: userAbout.bio,
+      });
+    } else {
+      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    }
+  }
+
   public static async register(registerBody: {
     username: string;
     email: string;
@@ -117,81 +208,5 @@ export default class UserService {
     } catch (e) {
       throw e;
     }
-  }
-
-  public static async findUserOrAdminById(
-    accountId: string,
-    userType: USER_TYPE_ENUM_OPTIONS
-  ): Promise<User | Admin> {
-    try {
-      if (
-        userType == USER_TYPE_ENUM_OPTIONS.STUDENT ||
-        userType == USER_TYPE_ENUM_OPTIONS.SENSEI
-      ) {
-        return User.findByPk(accountId);
-      } else if (userType == USER_TYPE_ENUM_OPTIONS.ADMIN) {
-        return Admin.findByPk(accountId);
-      } else {
-        throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-      }
-    } catch (e) {
-      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-    }
-  }
-
-  public static async updateUser(accountId: string, userDto) {
-    const user = await User.findByPk(accountId);
-    if (user) {
-      await user.update({
-        firstName: userDto.firstName,
-        lastName: userDto.lastName,
-        contactNumber: userDto.contactNumber,
-      });
-    } else {
-      throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
-    }
-  }
-
-  public static async findUserById(accountId: string): Promise<User> {
-    const user = await User.findByPk(accountId);
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-    // let _user: any = Object.assign({}, user);
-    // console.log('user =', user.toJSON());
-    return user.toJSON();
-  }
-
-  public static async deactivateUser(accountId: string): Promise<void> {
-    try {
-      await User.destroy({
-        where: {
-          accountId,
-        },
-      });
-      return;
-    } catch (e) {
-      throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
-    }
-  }
-
-  // get all users with userType = STUDENT
-  public static async getAllActiveStudents() {
-    const students = User.findAll({
-      where: {
-        status: { [Op.eq]: STATUS_ENUM_OPTIONS.ACTIVE },
-        userType: USER_TYPE_ENUM_OPTIONS.STUDENT,
-      },
-    });
-    return students;
-  }
-
-  // get all users with userType = SENSEI
-  public static async getAllActiveSenseis() {
-    const senseis = User.findAll({
-      where: {
-        status: { [Op.eq]: STATUS_ENUM_OPTIONS.ACTIVE },
-        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
-      },
-    });
-    return senseis;
   }
 }
