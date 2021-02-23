@@ -1,7 +1,7 @@
 import joi from 'joi';
 
 export default {
-  newMentorshipListingB: joi.object({
+  mentorshipListingB: joi.object({
     name: joi.string().required(),
     categories: joi
       .array()
