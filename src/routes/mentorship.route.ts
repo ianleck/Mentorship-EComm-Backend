@@ -15,8 +15,17 @@ router.post(
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(user.accountIdQ),
-  schemaValidator.body(mentorship.newMentorshipListingB),
+  schemaValidator.body(mentorship.mentorshipListingB),
   Utility.asyncHandler(MentorshipController.createListing)
+);
+
+router.put(
+  '/listing/:mentorshipListing',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.mentorshipListingQ),
+  schemaValidator.body(mentorship.mentorshipListingB),
+  Utility.asyncHandler(MentorshipController.updateListing)
 );
 
 export default router;

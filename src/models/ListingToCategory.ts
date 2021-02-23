@@ -1,15 +1,4 @@
-import {
-  BelongsTo,
-  Column,
-  CreatedAt,
-  DataType,
-  Default,
-  ForeignKey,
-  Model,
-  PrimaryKey,
-  Table,
-  UpdatedAt,
-} from 'sequelize-typescript';
+import { Column, ForeignKey, Model, Table } from 'sequelize-typescript';
 import { MentorshipListing } from './MentorshipListing';
 import { Category } from './Category';
 
@@ -22,10 +11,4 @@ export class ListingToCategory extends Model {
   @ForeignKey(() => Category)
   @Column
   categoryId: string;
-
-  // @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
-  // MentorshipListing: MentorshipListing;
-
-  // @BelongsTo(() => Category, 'categoryId')
-  // Categories: Category[];
 }
