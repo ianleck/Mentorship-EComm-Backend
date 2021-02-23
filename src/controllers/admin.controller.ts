@@ -14,12 +14,8 @@ export class AdminController {
     const { newAdmin } = req.body;
 
     try {
-      await AdminService.registerAdmin(newAdmin, user.accountId);
-      return apiResponse.result(
-        res,
-        { message: 'Successfully Registered' },
-        httpStatusCodes.OK
-      );
+      const admin = await AdminService.registerAdmin(newAdmin, user.accountId);
+      return apiResponse.result(res, admin.toAuthJSON(), httpStatusCodes.OK);
     } catch (e) {
       logger.error('[adminController.registerAdmin]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
