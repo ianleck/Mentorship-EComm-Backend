@@ -15,6 +15,8 @@ import {
   USER_TYPE_ENUM_OPTIONS,
   PRIVACY_PERMISSIONS_ENUM,
   PRIVACY_PERMISSIONS_ENUM_OPTIONS,
+  ADMIN_VERIFIED_ENUM,
+  ADMIN_VERIFIED_ENUM_OPTIONS,
 } from '../constants/enum';
 import { Account } from './abstract/Account';
 import { Company } from './Company';
@@ -103,10 +105,10 @@ export class User extends Account {
   // achievements
 
   @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
+    type: DataType.ENUM(...Object.values(ADMIN_VERIFIED_ENUM_OPTIONS)),
+    defaultValue: ADMIN_VERIFIED_ENUM_OPTIONS.SHELL,
   })
-  adminVerified: boolean;
+  adminVerified: ADMIN_VERIFIED_ENUM;
 
   // @HasMany(() => Course)
   // coursesTaught: Course[];
