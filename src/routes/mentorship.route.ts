@@ -46,5 +46,12 @@ router.put(
 );
 
 /*** END OF PUT REQUESTS ***/
+router.delete(
+  '/listing/:mentorshipListing',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.mentorshipListingQ),
+  Utility.asyncHandler(MentorshipController.deleteListing)
+);
 
 export default router;

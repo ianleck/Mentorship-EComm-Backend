@@ -5,6 +5,7 @@ import MentorshipService from '../services/mentorship.service';
 
 const success_listing = 'Mentorship Listing has been successfully created';
 const success_update = 'Mentorship Listing has been successfully updated';
+const success_delete = 'Mentorship Listing has been successfully deleted';
 export class MentorshipController {
   public static async createListing(req, res) {
     const { accountId } = req.params;
@@ -43,6 +44,21 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.getMentorshipListings]:' + e.toString()
       );
+    }
+  }
+
+  public static async deleteListing(req, res) {
+    const { mentorshipListingId } = req.params;
+
+    try {
+      await MentorshipService.deleteListing(mentorshipListingId);
+      return apiResponse.result(
+        res,
+        { message: success_update },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.deleteListing]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });
