@@ -15,6 +15,7 @@
     "docker-start": "docker-compose -f ./docker/mysql.yml up"
   },
   "dependencies": {
+    "@babel/register": "^7.13.0",
     "@types/bcrypt": "^3.0.0",
     "@types/bluebird": "^3.5.33",
     "@types/jest": "^26.0.20",
