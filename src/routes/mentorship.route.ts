@@ -28,4 +28,12 @@ router.put(
   Utility.asyncHandler(MentorshipController.updateListing)
 );
 
+router.delete(
+  '/listing/:mentorshipListing',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.mentorshipListingQ),
+  Utility.asyncHandler(MentorshipController.deleteListing)
+);
+
 export default router;
