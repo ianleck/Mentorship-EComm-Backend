@@ -1,9 +1,9 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { ADMIN_PERMISSION_ENUM_OPTIONS } from '../constants/enum';
 import AdminService from '../services/admin.service';
 import apiResponse from '../utilities/apiResponse';
 const passport = require('passport');
+import { ADMIN_PERMISSION_ENUM } from '../constants/enum';
 
 export class AdminController {
   public static async deactivateAdmin(req, res) {
@@ -12,7 +12,7 @@ export class AdminController {
 
     if (
       user.accountId !== accountId &&
-      user.permission !== ADMIN_PERMISSION_ENUM_OPTIONS.SUPERADMIN
+      user.permission !== ADMIN_PERMISSION_ENUM.SUPERADMIN
     ) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
@@ -46,7 +46,7 @@ export class AdminController {
 
     if (
       user.accountId !== accountId &&
-      user.permission !== ADMIN_PERMISSION_ENUM_OPTIONS.SUPERADMIN
+      user.permission !== ADMIN_PERMISSION_ENUM.SUPERADMIN
     ) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
@@ -211,7 +211,7 @@ export class AdminController {
     */
     if (
       user.accountId !== accountId &&
-      user.permission !== ADMIN_PERMISSION_ENUM_OPTIONS.SUPERADMIN
+      user.permission !== ADMIN_PERMISSION_ENUM.SUPERADMIN
     ) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),

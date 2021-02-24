@@ -3,25 +3,19 @@ import { MentorshipController } from '../controllers/mentorship.controller';
 import mentorship from './schema/mentorship.schema';
 import user from './schema/user.schema';
 import Utility from '../constants/utility';
-import { requireSensei } from '../middlewares/userTypeHandler';
+import { requireSensei, requireStudent } from '../middlewares/userTypeHandler';
 const passport = require('passport');
 
 const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
-/*** GET REQUESTS ***/
-
-//get list of all mentorship listings
+// ==================== MENTORSHIP LISTINGS ====================
 router.get(
   '/mentorship-listings',
   passport.authenticate('isAuthenticated', { session: false }),
   Utility.asyncHandler(MentorshipController.getMentorshipListings)
 );
-
-/*** END OF GET REQUESTS ***/
-
-/*** POST REQUESTS ***/
 
 router.post(
   '/listing/:accountId',
@@ -32,10 +26,6 @@ router.post(
   Utility.asyncHandler(MentorshipController.createListing)
 );
 
-/*** END OF POST REQUESTS ***/
-
-/*** PUT REQUESTS ***/
-
 router.put(
   '/listing/:mentorshipListing',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -45,7 +35,6 @@ router.put(
   Utility.asyncHandler(MentorshipController.updateListing)
 );
 
-/*** END OF PUT REQUESTS ***/
 router.delete(
   '/listing/:mentorshipListing',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -54,4 +43,13 @@ router.delete(
   Utility.asyncHandler(MentorshipController.deleteListing)
 );
 
+// ==================== MENTORSHIP CONTRACT ====================
+router.post(
+  '/application/:mentorshipListing/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.params(mentorship.mentorshipApplicationQ),
+  // schemaValidator.body(mentorship.mentorshipListingB), // Should be created with subscription here
+  Utility.asyncHandler(MentorshipController.createApplication)
+);
 export default router;

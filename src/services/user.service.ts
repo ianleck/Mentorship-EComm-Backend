@@ -1,14 +1,14 @@
 import { User } from '../models/User';
 import bcrypt from 'bcrypt';
 import Utility from '../constants/utility';
-import { STATUS_ENUM_OPTIONS, USER_TYPE_ENUM_OPTIONS } from '../constants/enum';
+import { STATUS_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import { Admin } from '../models/Admin';
 import { ERRORS } from '../constants/errors';
 import { Op } from 'sequelize';
 export default class UserService {
   public static async changePassword(
     accountId: string,
-    userType: USER_TYPE_ENUM_OPTIONS,
+    userType: USER_TYPE_ENUM,
     oldPassword: string,
     newPassword: string,
     confirmPassword: string
@@ -54,15 +54,15 @@ export default class UserService {
 
   public static async findUserOrAdminById(
     accountId: string,
-    userType: USER_TYPE_ENUM_OPTIONS
+    userType: USER_TYPE_ENUM
   ): Promise<User | Admin> {
     try {
       if (
-        userType == USER_TYPE_ENUM_OPTIONS.STUDENT ||
-        userType == USER_TYPE_ENUM_OPTIONS.SENSEI
+        userType == USER_TYPE_ENUM.STUDENT ||
+        userType == USER_TYPE_ENUM.SENSEI
       ) {
         return User.findByPk(accountId);
-      } else if (userType == USER_TYPE_ENUM_OPTIONS.ADMIN) {
+      } else if (userType == USER_TYPE_ENUM.ADMIN) {
         return Admin.findByPk(accountId);
       } else {
         throw new Error(ERRORS.USER_DOES_NOT_EXIST);
@@ -84,8 +84,8 @@ export default class UserService {
   public static async getAllActiveStudents() {
     const students = User.findAll({
       where: {
-        status: { [Op.eq]: STATUS_ENUM_OPTIONS.ACTIVE },
-        userType: USER_TYPE_ENUM_OPTIONS.STUDENT,
+        status: { [Op.eq]: STATUS_ENUM.ACTIVE },
+        userType: USER_TYPE_ENUM.STUDENT,
       },
     });
     return students;
@@ -95,8 +95,8 @@ export default class UserService {
   public static async getAllActiveSenseis() {
     const senseis = User.findAll({
       where: {
-        status: { [Op.eq]: STATUS_ENUM_OPTIONS.ACTIVE },
-        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
+        status: { [Op.eq]: STATUS_ENUM.ACTIVE },
+        userType: USER_TYPE_ENUM.SENSEI,
       },
     });
     return senseis;
@@ -173,7 +173,7 @@ export default class UserService {
             username,
             email,
             password,
-            userType: USER_TYPE_ENUM_OPTIONS.STUDENT,
+            userType: USER_TYPE_ENUM.STUDENT,
           }
           // {
           //   include: [User],
@@ -186,7 +186,7 @@ export default class UserService {
             username,
             email,
             password,
-            userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
+            userType: USER_TYPE_ENUM.SENSEI,
           }
           // {
           //   include: [User],

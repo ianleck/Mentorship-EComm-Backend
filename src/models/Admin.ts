@@ -8,11 +8,8 @@ import {
 import { Account } from './abstract/Account';
 import {
   ADMIN_PERMISSION_ENUM,
-  ADMIN_PERMISSION_ENUM_OPTIONS,
-  USER_TYPE_ENUM_OPTIONS,
-  STATUS_ENUM_OPTIONS,
-  STATUS_ENUM,
   USER_TYPE_ENUM,
+  STATUS_ENUM,
 } from '../constants/enum';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '../constants/constants';
@@ -43,19 +40,19 @@ export class Admin extends Account {
   contactNumber: string;
 
   @Column({
-    type: DataType.ENUM(...Object.values(STATUS_ENUM_OPTIONS)),
-    defaultValue: STATUS_ENUM_OPTIONS.ACTIVE,
+    type: DataType.ENUM(...Object.values(STATUS_ENUM)),
+    defaultValue: STATUS_ENUM.ACTIVE,
   })
   status: STATUS_ENUM;
 
   @Column({
-    type: DataType.ENUM(...Object.values(USER_TYPE_ENUM_OPTIONS)),
+    type: DataType.ENUM(...Object.values(USER_TYPE_ENUM)),
   })
   userType: USER_TYPE_ENUM;
 
   @Column({
-    type: DataType.ENUM(...Object.values(ADMIN_PERMISSION_ENUM_OPTIONS)),
-    defaultValue: ADMIN_PERMISSION_ENUM_OPTIONS.ADMIN,
+    type: DataType.ENUM(...Object.values(ADMIN_PERMISSION_ENUM)),
+    defaultValue: ADMIN_PERMISSION_ENUM.ADMIN,
   })
   permission: ADMIN_PERMISSION_ENUM;
 
