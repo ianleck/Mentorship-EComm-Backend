@@ -1,0 +1,12 @@
+[
+  {
+    "accountId": "b2749bba-25da-4ec4-a3ea-1fdb3d7778de",
+    "username": "superAdmin1",
+    "password": "password",
+    "emailVerified": true,
+    "email": "superadmin@gmail.com",
+    "status": "ACTIVE",
+    "userType": "ADMIN",
+    "permission": "SUPERADMIN"
+  }
+]

@@ -12,7 +12,12 @@
     "prebuild": "rimraf dist/",
     "start": "NODE_ENV=production && npx ts-node src/index.ts",
     "start-dev": "NODE_ENV=development nodemon src/index.ts",
-    "docker-start": "docker-compose -f ./docker/mysql.yml up"
+    "docker-start": "docker-compose -f ./docker/mysql.yml up",
+    "db:migrate": "npx sequelize-cli db:migrate",
+    "db:seed": "npx sequelize-cli db:seed:all",
+    "setup": "yarn db:migrate && yarn db:seed",
+    "db:rollback": "sequelize-cli db:migrate:undo",
+    "db:reset": "seqquelize-cli db:migrate:reset"
   },
   "dependencies": {
     "@babel/register": "^7.13.0",
