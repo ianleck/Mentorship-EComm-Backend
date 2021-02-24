@@ -10,6 +10,19 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
+/*** GET REQUESTS ***/
+
+//get list of all mentorship listings
+router.get(
+  '/mentorship-listings',
+  passport.authenticate('isAuthenticated', { session: false }),
+  Utility.asyncHandler(MentorshipController.getMentorshipListings)
+);
+
+/*** END OF GET REQUESTS ***/
+
+/*** POST REQUESTS ***/
+
 router.post(
   '/listing/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -19,6 +32,10 @@ router.post(
   Utility.asyncHandler(MentorshipController.createListing)
 );
 
+/*** END OF POST REQUESTS ***/
+
+/*** PUT REQUESTS ***/
+
 router.put(
   '/listing/:mentorshipListing',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -27,5 +44,7 @@ router.put(
   schemaValidator.body(mentorship.mentorshipListingB),
   Utility.asyncHandler(MentorshipController.updateListing)
 );
+
+/*** END OF PUT REQUESTS ***/
 
 export default router;

@@ -28,6 +28,27 @@ export class MentorshipController {
     }
   }
 
+  public static async getMentorshipListings(req, res) {
+    try {
+      const mentorshipListings = await MentorshipService.getAllMentorshipListings();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          mentorshipListings,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.getMentorshipListings]:' + e.toString()
+      );
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
   public static async updateListing(req, res) {
     const { mentorshipListingId } = req.params;
     const { mentorshipListing } = req.body;

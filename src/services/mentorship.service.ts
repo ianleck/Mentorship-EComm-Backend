@@ -41,6 +41,11 @@ export default class MentorshipService {
     });
   }
 
+  public static async getAllMentorshipListings() {
+    const mentorshipListings = MentorshipListing.findAll();
+    return mentorshipListings;
+  }
+
   public static async updateListing(
     mentorshipListingId: string,
     mentorshipListing: UpdateMentorshipListing
