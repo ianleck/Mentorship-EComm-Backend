@@ -21,6 +21,7 @@ import { Occupation } from './Occupation';
 import { UserFollowership } from './UserFollowership';
 @Table
 export class User extends Account {
+  // ========== PERSONAL INFORMATION ==========
   @Column({ type: DataType.STRING, unique: true })
   username: string;
 
@@ -33,35 +34,32 @@ export class User extends Account {
   @Column({ field: 'last_name', type: DataType.STRING })
   lastName: string;
 
-  @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-  })
-  emailVerified: boolean;
-
   @Column({ field: 'email', type: DataType.STRING, unique: true })
   email: string;
 
   @Column({ type: DataType.STRING })
   contactNumber: string;
 
+  // ========== ACCOUNT STATUS ==========
   @Column({
-    type: DataType.ENUM(...Object.values(STATUS_ENUM)),
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  emailVerified: boolean;
+
+  @Column({
+    type: DataType.ENUM,
+    values: Object.values(STATUS_ENUM),
     defaultValue: STATUS_ENUM.ACTIVE,
   })
   status: STATUS_ENUM;
 
-  @Column({ type: DataType.ENUM(...Object.values(USER_TYPE_ENUM)) })
+  @Column({ type: DataType.ENUM, values: Object.values(USER_TYPE_ENUM) })
   userType: USER_TYPE_ENUM;
 
+  // ========== PROFILE INFORMATION ==========
   @Column({ type: DataType.STRING })
   industry: string;
-
-  @HasOne(() => Occupation, 'occupationId')
-  occupation: Occupation;
-
-  @HasOne(() => Company, 'companyId')
-  company: Company;
 
   @Column({ type: DataType.BLOB })
   headline: string;
@@ -72,25 +70,34 @@ export class User extends Account {
   @Column({ type: DataType.STRING })
   personality: string;
 
-  @HasMany(() => Experience, 'experienceId')
-  experience: Experience[];
-
+  // ========== ACCOUNT SETTINGS ==========
   @Column({ type: DataType.BOOLEAN })
   emailNotification: boolean;
 
   @Column({
-    type: DataType.ENUM(...Object.values(PRIVACY_PERMISSIONS_ENUM)),
+    type: DataType.ENUM,
+    values: Object.values(PRIVACY_PERMISSIONS_ENUM),
     defaultValue: PRIVACY_PERMISSIONS_ENUM.ALL,
   })
   privacy: PRIVACY_PERMISSIONS_ENUM;
 
-  // @Column
-  // achievements: Achievement;
+  // ========== RELATIONSHIP MAPPINGS ==========
+
+  @HasOne(() => Occupation, 'occupationId')
+  Occupation: Occupation;
+
+  @HasOne(() => Company, 'companyId')
+  Company: Company;
+
+  @HasMany(() => Experience, 'experienceId')
+  Experience: Experience[];
+
   @BelongsToMany(() => User, () => UserFollowership, 'followerId')
-  following: User[];
+  Following: User[];
 
   @BelongsToMany(() => User, () => UserFollowership, 'followingId')
-  followers: User[];
+  Followers: User[];
+
 
   // @HasMany(() => CourseContract)
   // courses: CourseContract;
@@ -101,7 +108,8 @@ export class User extends Account {
   // achievements
 
   @Column({
-    type: DataType.ENUM(...Object.values(ADMIN_VERIFIED_ENUM)),
+    type: DataType.ENUM,
+    values: Object.values(ADMIN_VERIFIED_ENUM),
     defaultValue: ADMIN_VERIFIED_ENUM.SHELL,
   })
   adminVerified: ADMIN_VERIFIED_ENUM;
@@ -118,6 +126,7 @@ export class User extends Account {
   // @HasOne(() => Wallet)
   // wallet: Wallet;
 
+  // ========== USER FUNCTIONS ==========
   generateJWT() {
     const today = new Date();
     const expirationDate = new Date(today);
