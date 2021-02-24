@@ -24,7 +24,6 @@ export default class MentorshipService {
     const { name, categories, description } = mentorshipListing;
 
     const newListing = new MentorshipListing({
-      mentorshipListingId: Utility.generateUUID(),
       name,
       accountId,
       description,
@@ -138,7 +137,6 @@ export default class MentorshipService {
     mentorshipListingId: string
   ): Promise<MentorshipContract> {
     const newApplication = new MentorshipContract({
-      mentorshipContractId: Utility.generateUUID(),
       mentorshipListingId,
       accountId,
     });
