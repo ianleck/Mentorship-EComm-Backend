@@ -10,7 +10,13 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
-// MentorshipListing
+// ==================== MENTORSHIP LISTINGS ====================
+router.get(
+  '/mentorship-listings',
+  passport.authenticate('isAuthenticated', { session: false }),
+  Utility.asyncHandler(MentorshipController.getMentorshipListings)
+);
+
 router.post(
   '/listing/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -37,7 +43,7 @@ router.delete(
   Utility.asyncHandler(MentorshipController.deleteListing)
 );
 
-// MentorshipContract
+// ==================== MENTORSHIP CONTRACT ====================
 router.post(
   '/application/:mentorshipListing/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
