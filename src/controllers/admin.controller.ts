@@ -264,6 +264,4 @@ export class AdminController {
       });
     }
   }
-
-  public static async;
 }
