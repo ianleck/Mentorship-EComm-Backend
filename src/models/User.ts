@@ -10,13 +10,9 @@ import {
 import { JWT_SECRET } from '../constants/constants';
 import {
   STATUS_ENUM,
-  STATUS_ENUM_OPTIONS,
   USER_TYPE_ENUM,
-  USER_TYPE_ENUM_OPTIONS,
   PRIVACY_PERMISSIONS_ENUM,
-  PRIVACY_PERMISSIONS_ENUM_OPTIONS,
   ADMIN_VERIFIED_ENUM,
-  ADMIN_VERIFIED_ENUM_OPTIONS,
 } from '../constants/enum';
 import { Account } from './abstract/Account';
 import { Company } from './Company';
@@ -50,12 +46,12 @@ export class User extends Account {
   contactNumber: string;
 
   @Column({
-    type: DataType.ENUM(...Object.values(STATUS_ENUM_OPTIONS)),
-    defaultValue: STATUS_ENUM_OPTIONS.ACTIVE,
+    type: DataType.ENUM(...Object.values(STATUS_ENUM)),
+    defaultValue: STATUS_ENUM.ACTIVE,
   })
   status: STATUS_ENUM;
 
-  @Column({ type: DataType.ENUM(...Object.values(USER_TYPE_ENUM_OPTIONS)) })
+  @Column({ type: DataType.ENUM(...Object.values(USER_TYPE_ENUM)) })
   userType: USER_TYPE_ENUM;
 
   @Column({ type: DataType.STRING })
@@ -83,8 +79,8 @@ export class User extends Account {
   emailNotification: boolean;
 
   @Column({
-    type: DataType.ENUM(...Object.values(PRIVACY_PERMISSIONS_ENUM_OPTIONS)),
-    defaultValue: PRIVACY_PERMISSIONS_ENUM_OPTIONS.ALL,
+    type: DataType.ENUM(...Object.values(PRIVACY_PERMISSIONS_ENUM)),
+    defaultValue: PRIVACY_PERMISSIONS_ENUM.ALL,
   })
   privacy: PRIVACY_PERMISSIONS_ENUM;
 
@@ -105,8 +101,8 @@ export class User extends Account {
   // achievements
 
   @Column({
-    type: DataType.ENUM(...Object.values(ADMIN_VERIFIED_ENUM_OPTIONS)),
-    defaultValue: ADMIN_VERIFIED_ENUM_OPTIONS.SHELL,
+    type: DataType.ENUM(...Object.values(ADMIN_VERIFIED_ENUM)),
+    defaultValue: ADMIN_VERIFIED_ENUM.SHELL,
   })
   adminVerified: ADMIN_VERIFIED_ENUM;
 

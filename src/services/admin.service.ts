@@ -3,9 +3,9 @@ import bcrypt from 'bcrypt';
 import { ERRORS } from '../constants/errors';
 import Utility from '../constants/utility';
 import {
-  USER_TYPE_ENUM_OPTIONS,
-  ADMIN_PERMISSION_ENUM_OPTIONS,
-  STATUS_ENUM_OPTIONS,
+  USER_TYPE_ENUM,
+  ADMIN_PERMISSION_ENUM,
+  STATUS_ENUM,
 } from '../constants/enum';
 import { Op } from 'sequelize';
 import { User } from '../models/User';
@@ -43,8 +43,8 @@ export default class AdminService {
         username,
         email,
         password,
-        userType: USER_TYPE_ENUM_OPTIONS.ADMIN,
-        permission: ADMIN_PERMISSION_ENUM_OPTIONS.ADMIN,
+        userType: USER_TYPE_ENUM.ADMIN,
+        permission: ADMIN_PERMISSION_ENUM.ADMIN,
         updatedBy: adminCreator,
         createdBy: adminCreator,
       });
@@ -132,8 +132,8 @@ export default class AdminService {
   public static async getAllBannedStudents() {
     const students = User.findAll({
       where: {
-        status: { [Op.eq]: STATUS_ENUM_OPTIONS.BANNED },
-        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
+        status: { [Op.eq]: STATUS_ENUM.BANNED },
+        userType: USER_TYPE_ENUM.SENSEI,
       },
     });
     return students;
@@ -142,8 +142,8 @@ export default class AdminService {
   public static async getAllBannedSenseis() {
     const senseis = User.findAll({
       where: {
-        status: { [Op.eq]: STATUS_ENUM_OPTIONS.BANNED },
-        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
+        status: { [Op.eq]: STATUS_ENUM.BANNED },
+        userType: USER_TYPE_ENUM.SENSEI,
       },
     });
     return senseis;

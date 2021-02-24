@@ -1,5 +1,5 @@
 import joi from 'joi';
-import { ADMIN_PERMISSION_ENUM_OPTIONS } from '../../constants/enum';
+import { ADMIN_PERMISSION_ENUM } from '../../constants/enum';
 
 interface adminObj {
   accountId: string;
@@ -45,9 +45,7 @@ export default {
 
   updateAdminPermission: joi.object({
     admin: joi.object({
-      permission: joi
-        .string()
-        .valid(...Object.values(ADMIN_PERMISSION_ENUM_OPTIONS)),
+      permission: joi.string().valid(...Object.values(ADMIN_PERMISSION_ENUM)),
     }),
   }),
 };
