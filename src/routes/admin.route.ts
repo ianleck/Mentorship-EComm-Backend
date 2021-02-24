@@ -22,6 +22,8 @@ import express from 'express';
 
 import { AdminController } from '../controllers/admin.controller';
 import admin from './schema/admin.schema';
+import user from './schema/user.schema';
+
 import Utility from '../constants/utility';
 import {
   requireSuperAdmin,
@@ -31,6 +33,12 @@ import {
 const router = express.Router();
 const passport = require('passport');
 const schemaValidator = require('express-joi-validation').createValidator({});
+
+router.post(
+  '/login',
+  schemaValidator.body(user.login),
+  Utility.asyncHandler(AdminController.login)
+);
 
 //create admin account
 //the schema must have details needed to register an admin
