@@ -1,5 +1,8 @@
 import joi from 'joi';
-import { ADMIN_PERMISSION_ENUM_OPTIONS } from '../../constants/enum';
+import {
+  ADMIN_PERMISSION_ENUM_OPTIONS,
+  ADMIN_VERIFIED_ENUM_OPTIONS,
+} from '../../constants/enum';
 
 interface adminObj {
   accountId: string;
@@ -48,6 +51,14 @@ export default {
       permission: joi
         .string()
         .valid(...Object.values(ADMIN_PERMISSION_ENUM_OPTIONS)),
+    }),
+  }),
+
+  verifySensei: joi.object({
+    sensei: joi.object({
+      adminVerified: joi
+        .string()
+        .valid(...Object.values(ADMIN_VERIFIED_ENUM_OPTIONS)),
     }),
   }),
 };

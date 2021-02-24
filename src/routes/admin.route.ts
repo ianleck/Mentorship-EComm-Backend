@@ -32,43 +32,13 @@ const router = express.Router();
 const passport = require('passport');
 const schemaValidator = require('express-joi-validation').createValidator({});
 
-//create admin account
-//the schema must have details needed to register an admin
-router.post(
-  '/register-admin',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireSuperAdmin,
-  schemaValidator.body(admin.registerAdmin),
-  Utility.asyncHandler(AdminController.registerAdmin)
-);
+/*** GET REQUESTS ***/
 
-//suepradmin changes admin password
-router.put(
-  '/reset-admin-password/:accountId',
+router.get(
+  '/verify-senseis',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireSuperAdmin,
-  schemaValidator.params(admin.adminIdQ), // adminId to be changed
-  schemaValidator.body(admin.resetPassword),
-  Utility.asyncHandler(AdminController.resetPassword)
-);
-
-//update an admin account
-router.put(
-  '/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(admin.adminIdQ),
-  schemaValidator.body(admin.updateAdmin),
-  Utility.asyncHandler(AdminController.updateAdmin)
-);
-
-//update permission of admin (done by superdmin)
-router.put(
-  '/update-permission/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireSuperAdmin,
-  schemaValidator.params(admin.adminIdQ), //adminId to be changed
-  schemaValidator.body(admin.updateAdminPermission),
-  Utility.asyncHandler(AdminController.updateAdminPermission)
+  requireAdmin,
+  Utility.asyncHandler(AdminController.getAllPendingSenseis)
 );
 
 //get admin
@@ -103,14 +73,6 @@ router.get(
   Utility.asyncHandler(AdminController.getBannedSenseis)
 );
 
-/*
-//get list of all mentorship listings
-router.get(
-  '/mentorship-listings',
-  passport.authenticate('isAuthenticated', { session: false }),
-  Utility.asyncHandler(AdminController.getMentorshipListings)
-);
-
 //get single sensei mentorship listings
 router.get(
   '/mentorship-listings/:accountId',
@@ -118,7 +80,75 @@ router.get(
   schemaValidator.params(admin.senseiIdQ),
   Utility.asyncHandler(AdminController.getSenseiMentorshipListings)
 );
+
+/*
+
+//get list of mentorship contracts - mentorshipApplication : pending / approved 
+router.get(
+  '/mentorship-contracts',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  Utility.asyncHandler(AdminController.getMentorshipContracts)
+);
 */
+
+/*** END OF GET REQUESTS ***/
+
+/*** POST REQUESTS ***/
+//create admin account
+router.post(
+  '/register-admin',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
+  schemaValidator.body(admin.registerAdmin),
+  Utility.asyncHandler(AdminController.registerAdmin)
+);
+
+/*** END OF POST REQUESTS ***/
+
+/*** PUT REQUESTS ***/
+//suepradmin changes admin password
+router.put(
+  '/reset-admin-password/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
+  schemaValidator.params(admin.adminIdQ), // adminId to be changed
+  schemaValidator.body(admin.resetPassword),
+  Utility.asyncHandler(AdminController.resetPassword)
+);
+
+//update an admin account
+router.put(
+  '/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(admin.adminIdQ),
+  schemaValidator.body(admin.updateAdmin),
+  Utility.asyncHandler(AdminController.updateAdmin)
+);
+
+//update permission of admin (done by superdmin)
+router.put(
+  '/update-permission/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
+  schemaValidator.params(admin.adminIdQ), //adminId to be changed
+  schemaValidator.body(admin.updateAdminPermission),
+  Utility.asyncHandler(AdminController.updateAdminPermission)
+);
+
+//verify sensei profile
+router.put(
+  '/verify-senseis/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  schemaValidator.params(admin.senseiIdQ),
+  schemaValidator.body(admin.verifySensei),
+  Utility.asyncHandler(AdminController.verifySenseiProfile)
+);
+
+/*** END OF PUT REQUESTS ***/
+
+/*** DEL REQUESTS ***/
 
 router.delete(
   '/:accountId',
@@ -126,5 +156,7 @@ router.delete(
   schemaValidator.params(admin.adminIdQ),
   Utility.asyncHandler(AdminController.deactivateAdmin)
 );
+
+/*** END OF DEL REQUESTS ***/
 
 export default router;

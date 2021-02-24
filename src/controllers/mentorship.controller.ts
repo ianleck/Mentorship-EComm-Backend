@@ -29,6 +29,24 @@ export class MentorshipController {
     }
   }
 
+  public static async getMentorshipListings(req, res) {
+    try {
+      const mentorshipListings = await MentorshipService.getAllMentorshipListings();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          mentorshipListings,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.getMentorshipListings]:' + e.toString()
+      );
+    }
+  }
+
   public static async deleteListing(req, res) {
     const { mentorshipListingId } = req.params;
 
