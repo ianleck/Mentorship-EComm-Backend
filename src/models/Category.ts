@@ -24,13 +24,6 @@ export class Category extends BaseEntity {
   })
   name: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.STRING,
-    defaultValue: DataType.STRING,
-  })
-  description: string;
-
   @BelongsToMany(() => MentorshipListing, {
     through: () => ListingToCategory,
     foreignKey: 'categoryId',

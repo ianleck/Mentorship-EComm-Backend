@@ -2,7 +2,7 @@ import httpStatusCodes from 'http-status-codes';
 import apiResponse from '../utilities/apiResponse';
 import UserService from '../services/user.service';
 import logger from '../config/logger';
-import { USER_TYPE_ENUM_OPTIONS } from '../constants/enum';
+import { USER_TYPE_ENUM } from '../constants/enum';
 
 const passport = require('passport');
 
@@ -37,7 +37,7 @@ export class UserController {
 
     if (
       _user.accountId != accountId &&
-      _user.userType != USER_TYPE_ENUM_OPTIONS.ADMIN
+      _user.userType != USER_TYPE_ENUM.ADMIN
     ) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
@@ -138,7 +138,11 @@ export class UserController {
     const { newUser } = req.body;
     try {
       const user = await UserService.register(newUser);
-      return apiResponse.result(res, user.toAuthJSON(), httpStatusCodes.OK);
+      return apiResponse.result(
+        res,
+        user.toAuthJSON(),
+        httpStatusCodes.CREATED
+      );
     } catch (e) {
       logger.error('[userController.register]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
