@@ -2,22 +2,20 @@ import {
   BelongsTo,
   BelongsToMany,
   Column,
-  CreatedAt,
   DataType,
   Default,
   Max,
   Min,
-  Model,
   PrimaryKey,
   Table,
-  UpdatedAt,
 } from 'sequelize-typescript';
+import { BaseEntity } from './abstract/BaseEntity';
 import { Category } from './Category';
 import { ListingToCategory } from './ListingToCategory';
 import { User } from './User';
 
 @Table
-export class MentorshipListing extends Model<MentorshipListing> {
+export class MentorshipListing extends BaseEntity {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
@@ -49,14 +47,6 @@ export class MentorshipListing extends Model<MentorshipListing> {
     defaultValue: DataType.FLOAT,
   })
   rating: number;
-
-  @CreatedAt
-  @Column
-  createdAt: Date;
-
-  @UpdatedAt
-  @Column
-  updatedAt: Date;
 
   @BelongsTo(() => User, 'accountId')
   sensei: User;
