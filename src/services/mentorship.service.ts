@@ -10,6 +10,8 @@ export type UpdateMentorshipListing = MentorshipListing & {
   categories: Category[];
 };
 export default class MentorshipService {
+  // ==================== Mentorship Listings ====================
+
   public static async createListing(
     accountId: string,
     mentorshipListing: {
@@ -39,6 +41,38 @@ export default class MentorshipService {
     return MentorshipListing.findByPk(newListing.mentorshipListingId, {
       include: [ListingToCategory],
     });
+  }
+
+  public static async deleteListing(
+    mentorshipListingId: string
+  ): Promise<void> {
+    const listingCategories = await ListingToCategory.findAll({
+      where: { mentorshipListingId },
+    });
+
+    const existingCategories = listingCategories.map(
+      ({ categoryId }) => categoryId
+    );
+
+    await this.removeListingCategories(mentorshipListingId, existingCategories);
+    await MentorshipListing.destroy({ where: { mentorshipListingId } });
+  }
+
+  public static async removeListingCategories(
+    mentorshipListingId: string,
+    categoriesToRemove: string[]
+  ): Promise<void> {
+    await Promise.all(
+      categoriesToRemove.map(
+        async (categoryId) =>
+          await ListingToCategory.destroy({
+            where: {
+              mentorshipListingId,
+              categoryId,
+            },
+          })
+      )
+    );
   }
 
   public static async updateListing(
@@ -85,16 +119,9 @@ export default class MentorshipService {
       );
 
       // Delete associations to removed categories
-      await Promise.all(
-        categoriesToAdd.map(
-          async (categoryId) =>
-            await ListingToCategory.destroy({
-              where: {
-                mentorshipListingId,
-                categoryId,
-              },
-            })
-        )
+      await this.removeListingCategories(
+        mentorshipListingId,
+        categoriesToRemove
       );
     }
   }
