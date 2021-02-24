@@ -17,11 +17,12 @@ import {
 import { Account } from './abstract/Account';
 import { Company } from './Company';
 import { Experience } from './Experience';
+import { MentorshipContract } from './MentorshipContract';
 import { Occupation } from './Occupation';
 import { UserFollowership } from './UserFollowership';
 @Table
 export class User extends Account {
-  // ========== PERSONAL INFORMATION ==========
+  // ==================== PERSONAL INFORMATION ====================
   @Column({ type: DataType.STRING, unique: true })
   username: string;
 
@@ -40,7 +41,7 @@ export class User extends Account {
   @Column({ type: DataType.STRING })
   contactNumber: string;
 
-  // ========== ACCOUNT STATUS ==========
+  // ==================== ACCOUNT STATUS ====================
   @Column({
     type: DataType.BOOLEAN,
     defaultValue: false,
@@ -57,7 +58,7 @@ export class User extends Account {
   @Column({ type: DataType.ENUM, values: Object.values(USER_TYPE_ENUM) })
   userType: USER_TYPE_ENUM;
 
-  // ========== PROFILE INFORMATION ==========
+  // ==================== PROFILE INFORMATION ====================
   @Column({ type: DataType.STRING })
   industry: string;
 
@@ -70,7 +71,7 @@ export class User extends Account {
   @Column({ type: DataType.STRING })
   personality: string;
 
-  // ========== ACCOUNT SETTINGS ==========
+  // ==================== ACCOUNT SETTINGS ====================
   @Column({ type: DataType.BOOLEAN })
   emailNotification: boolean;
 
@@ -81,7 +82,7 @@ export class User extends Account {
   })
   privacy: PRIVACY_PERMISSIONS_ENUM;
 
-  // ========== RELATIONSHIP MAPPINGS ==========
+  // ==================== RELATIONSHIP MAPPINGS ====================
 
   @HasOne(() => Occupation, 'occupationId')
   Occupation: Occupation;
@@ -98,6 +99,10 @@ export class User extends Account {
   @BelongsToMany(() => User, () => UserFollowership, 'followingId')
   Followers: User[];
 
+  @HasMany(() => MentorshipContract, 'studentId')
+  MentorshipContracts: MentorshipContract[];
+  // @Column
+  // achievements: Achievement;
 
   // @HasMany(() => CourseContract)
   // courses: CourseContract;
@@ -126,7 +131,7 @@ export class User extends Account {
   // @HasOne(() => Wallet)
   // wallet: Wallet;
 
-  // ========== USER FUNCTIONS ==========
+  // ==================== USER FUNCTIONS ====================
   generateJWT() {
     const today = new Date();
     const expirationDate = new Date(today);

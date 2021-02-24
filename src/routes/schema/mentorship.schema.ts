@@ -15,4 +15,9 @@ export default {
   mentorshipListingQ: joi.object({
     mentorshipListingId: joi.string().required(),
   }),
+
+  mentorshipApplicationQ: joi.object({
+    mentorshipListingId: joi.string().required(),
+    accountId: joi.string().required(),
+  }),
 };

@@ -12,7 +12,11 @@ export class AdminController {
 
     try {
       const admin = await AdminService.registerAdmin(newAdmin, user.accountId);
-      return apiResponse.result(res, admin.toAuthJSON(), httpStatusCodes.OK);
+      return apiResponse.result(
+        res,
+        admin.toAuthJSON(),
+        httpStatusCodes.CREATED
+      );
     } catch (e) {
       logger.error('[adminController.registerAdmin]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
