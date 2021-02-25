@@ -57,22 +57,13 @@ router.put(
   Utility.asyncHandler(UserController.changePassword)
 );
 
-// update user (student/sensei)
+// update user (student/sensei) (all fields other than occupation and ?industry? check schema for source of truth)
 router.put(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdQ),
   schemaValidator.body(user.updateUserB),
   Utility.asyncHandler(UserController.updateUser)
-);
-
-// update user about (user.headline & user.bio)
-router.put(
-  '/about/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdQ),
-  schemaValidator.body(user.updateUserAboutB),
-  Utility.asyncHandler(UserController.updateUserAbout)
 );
 
 router.put(
@@ -82,7 +73,6 @@ router.put(
   schemaValidator.body(user.updateUserOccupationB),
   Utility.asyncHandler(UserController.updateUserOccupation)
 );
-
 /*** END OF PUT REQUESTS ***/
 
 /*** DEL REQUESTS ***/

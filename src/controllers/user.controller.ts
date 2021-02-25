@@ -178,33 +178,6 @@ export class UserController {
     }
   }
 
-  public static async updateUserAbout(req, res) {
-    const _user = req.user;
-    const { accountId } = req.params;
-    const { about } = req.body;
-
-    // check if user is updating his/her own account
-    if (_user.accountId != accountId) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
-
-    try {
-      const userEntity = await UserService.updateUserAbout(accountId, about);
-      apiResponse.result(
-        res,
-        { message: 'success', student: userEntity },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[userController.updateUserAbout]' + e.toString());
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
-      });
-    }
-  }
-
   public static async updateUserOccupation(req, res) {
     const _user = req.user;
     const { accountId } = req.params;

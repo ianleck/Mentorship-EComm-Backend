@@ -1,6 +1,5 @@
 import { User } from '../models/User';
 import bcrypt from 'bcrypt';
-import Utility from '../constants/utility';
 import { STATUS_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import { Admin } from '../models/Admin';
 import { ERRORS } from '../constants/errors';
@@ -54,6 +53,20 @@ export default class UserService {
     }
   }
 
+  // single method to get user with relations
+  public static async findCompleteUser(accountId: string) {
+    return await User.findByPk(accountId, {
+      include: [Occupation],
+    });
+  }
+
+  public static async findCompleteUserByEmail(email: string) {
+    return await User.findOne({
+      where: { email },
+      include: [Occupation],
+    });
+  }
+
   public static async findUserOrAdminById(
     accountId: string,
     userType: USER_TYPE_ENUM
@@ -88,6 +101,7 @@ export default class UserService {
         status: { [Op.eq]: STATUS_ENUM.ACTIVE },
         userType: USER_TYPE_ENUM.STUDENT,
       },
+      include: [Occupation],
     });
     return students;
   }
@@ -99,33 +113,19 @@ export default class UserService {
         status: { [Op.eq]: STATUS_ENUM.ACTIVE },
         userType: USER_TYPE_ENUM.SENSEI,
       },
+      include: [Occupation],
     });
     return senseis;
   }
 
-  public static async updateUser(accountId: string, userDto) {
-    const user = await User.findByPk(accountId);
-    if (user) {
-      return await user.update({
-        firstName: userDto.firstName,
-        lastName: userDto.lastName,
-        contactNumber: userDto.contactNumber,
-      });
-    } else {
-      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-    }
-  }
-
-  public static async updateUserAbout(
+  public static async updateUser(
     accountId: string,
-    userAbout: { headline: string; bio: string }
+    fields: { [key: string]: string }
   ) {
     const user = await User.findByPk(accountId);
     if (user) {
-      return await user.update({
-        headline: userAbout.headline,
-        bio: userAbout.bio,
-      });
+      await user.update(fields);
+      return await this.findCompleteUser(accountId);
     } else {
       throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     }
@@ -143,9 +143,7 @@ export default class UserService {
       await user.update({
         occupationId: occ.occupationId,
       });
-      return await User.findByPk(accountId, {
-        include: [Occupation],
-      });
+      return await this.findCompleteUser(accountId);
     } else {
       throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     }
@@ -188,29 +186,19 @@ export default class UserService {
         paranoid: false,
       });
       if (isStudent) {
-        newUser = new User(
-          {
-            username,
-            email,
-            password,
-            userType: USER_TYPE_ENUM.STUDENT,
-          }
-          // {
-          //   include: [User],
-          // }
-        );
+        newUser = new User({
+          username,
+          email,
+          password,
+          userType: USER_TYPE_ENUM.STUDENT,
+        });
       } else {
-        newUser = new User(
-          {
-            username,
-            email,
-            password,
-            userType: USER_TYPE_ENUM.SENSEI,
-          }
-          // {
-          //   include: [User],
-          // }
-        );
+        newUser = new User({
+          username,
+          email,
+          password,
+          userType: USER_TYPE_ENUM.SENSEI,
+        });
       }
 
       // if user exist, return error

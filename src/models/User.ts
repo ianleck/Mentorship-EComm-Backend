@@ -63,10 +63,10 @@ export class User extends Account {
   @Column({ type: DataType.STRING })
   industry: string;
 
-  @Column({ type: DataType.BLOB })
+  @Column({ type: DataType.STRING })
   headline: string;
 
-  @Column({ type: DataType.BLOB })
+  @Column({ type: DataType.TEXT })
   bio: string;
 
   @Column({ type: DataType.STRING })
