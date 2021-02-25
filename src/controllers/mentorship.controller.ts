@@ -2,10 +2,13 @@ import httpStatusCodes from 'http-status-codes';
 import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
 import MentorshipService from '../services/mentorship.service';
+import { MentorshipContract } from '../models/MentorshipContract';
+import { MentorshipListing } from '../models/MentorshipListing';
 
 const LISTING_CREATE = 'Mentorship Listing has been successfully created';
 const LISTING_UPDATE = 'Mentorship Listing has been successfully updated';
 const LISTING_DELETE = 'Mentorship Listing has been successfully deleted';
+const LISTING_MISSING = 'Please create a mentorship application';
 
 const APPLICATION_CREATE =
   'Mentorship Application has been successfully created';
@@ -13,6 +16,11 @@ const APPLICATION_UPDATE =
   'Mentorship Application has been successfully updated';
 const APPLICATION_DELETE =
   'Mentorship Application has been successfully deleted';
+
+const APPLICATION_EXISTS =
+  'A mentorship application has already been made for this mentor. Please edit existing mentorship application.';
+
+const APPLICATION_MISSING = 'Please create a mentorship application';
 export class MentorshipController {
   // ==================== MENTORSHIP LISTINGS ====================
   public static async createListing(req, res) {
@@ -78,9 +86,19 @@ export class MentorshipController {
     const { mentorshipListing } = req.body;
 
     try {
+      const existingListing = await MentorshipListing.findByPk(
+        mentorshipListingId
+      );
+      if (!existingListing) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: LISTING_MISSING,
+        });
+      }
+
       const updatedListing = await MentorshipService.updateListing(
         mentorshipListingId,
-        mentorshipListing
+        mentorshipListing,
+        existingListing
       );
       return apiResponse.result(
         res,
@@ -97,12 +115,27 @@ export class MentorshipController {
 
   // ==================== MENTORSHIP APPLICATIONS ====================
   public static async createApplication(req, res) {
-    const { mentorshipListingId, accountId } = req.params;
+    const { mentorshipListingId } = req.params;
+    const { accountId, statement } = req.body;
 
+    // Check that there is no existing mentorship application
     try {
+      const existingApplication = MentorshipContract.findOne({
+        where: {
+          mentorshipListingId,
+          accountId,
+        },
+      });
+      if (existingApplication) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: APPLICATION_EXISTS,
+        });
+      }
+
       const createdApplication = await MentorshipService.createApplication(
         mentorshipListingId,
-        accountId
+        accountId,
+        statement
       );
       return apiResponse.result(
         res,
@@ -111,6 +144,41 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.createApplication]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
+  public static async updateApplication(req, res) {
+    const { mentorshipListingId, accountId } = req.params;
+    const { statement } = req.body;
+
+    // Check that there is an existing mentorship application
+    try {
+      const existingApplication = await MentorshipContract.findOne({
+        where: {
+          mentorshipListingId,
+          accountId,
+        },
+      });
+      if (!existingApplication) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: APPLICATION_MISSING,
+        });
+      }
+
+      const updatedApplication = await MentorshipService.updateApplication(
+        existingApplication,
+        statement
+      );
+      return apiResponse.result(
+        res,
+        { message: APPLICATION_UPDATE, updatedApplication },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.updateApplication]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });
