@@ -129,11 +129,13 @@ export default class MentorshipService {
   // ==================== MENTORSHIP APPLICATIONS ====================
   public static async createApplication(
     accountId: string,
-    mentorshipListingId: string
+    mentorshipListingId: string,
+    statement: string
   ): Promise<MentorshipContract> {
     const newApplication = new MentorshipContract({
       mentorshipListingId,
       accountId,
+      statement,
     });
 
     newApplication.save();

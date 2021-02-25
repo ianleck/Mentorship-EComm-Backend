@@ -49,7 +49,7 @@ router.post(
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
   schemaValidator.params(mentorship.mentorshipApplicationQ),
-  // schemaValidator.body(mentorship.mentorshipListingB), // Should be created with subscription here
+  schemaValidator.body(mentorship.mentorshipListingB), // Should be created with subscription here
   Utility.asyncHandler(MentorshipController.createApplication)
 );
 

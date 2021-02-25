@@ -115,7 +115,8 @@ export class MentorshipController {
 
   // ==================== MENTORSHIP APPLICATIONS ====================
   public static async createApplication(req, res) {
-    const { mentorshipListingId, accountId } = req.params;
+    const { mentorshipListingId } = req.params;
+    const { accountId, statement } = req.body;
 
     // Check that there is no existing mentorship application
     try {
@@ -133,7 +134,8 @@ export class MentorshipController {
 
       const createdApplication = await MentorshipService.createApplication(
         mentorshipListingId,
-        accountId
+        accountId,
+        statement
       );
       return apiResponse.result(
         res,
