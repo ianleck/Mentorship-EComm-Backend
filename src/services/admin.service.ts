@@ -1,14 +1,17 @@
 import { Admin } from '../models/Admin';
+import { MentorshipListing } from '../models/MentorshipListing';
 import bcrypt from 'bcrypt';
 import { ERRORS } from '../constants/errors';
 import Utility from '../constants/utility';
 import {
-  USER_TYPE_ENUM_OPTIONS,
-  ADMIN_PERMISSION_ENUM_OPTIONS,
-  STATUS_ENUM_OPTIONS,
+  USER_TYPE_ENUM,
+  ADMIN_PERMISSION_ENUM,
+  STATUS_ENUM,
+  ADMIN_VERIFIED_ENUM,
 } from '../constants/enum';
 import { Op } from 'sequelize';
 import { User } from '../models/User';
+import adminSchema from 'src/routes/schema/admin.schema';
 export default class AdminService {
   public static async deactivateAdmin(
     accountId: string,
@@ -37,8 +40,8 @@ export default class AdminService {
   public static async getAllBannedStudents() {
     const students = User.findAll({
       where: {
-        status: { [Op.eq]: STATUS_ENUM_OPTIONS.BANNED },
-        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
+        status: { [Op.eq]: STATUS_ENUM.BANNED },
+        userType: USER_TYPE_ENUM.SENSEI,
       },
     });
     return students;
@@ -47,12 +50,36 @@ export default class AdminService {
   public static async getAllBannedSenseis() {
     const senseis = User.findAll({
       where: {
-        status: { [Op.eq]: STATUS_ENUM_OPTIONS.BANNED },
-        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
+        status: { [Op.eq]: STATUS_ENUM.BANNED },
+        userType: USER_TYPE_ENUM.SENSEI,
       },
     });
     return senseis;
   }
+
+  public static async getAllPendingSenseis() {
+    const senseis = User.findAll({
+      where: {
+        adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
+      },
+    });
+    return senseis;
+  }
+
+  public static async getSenseiMentorshipListings(accountId: string) {
+    const mentorshipListings = MentorshipListing.findAll({
+      where: { senseiId: { [Op.eq]: accountId } },
+    });
+    return mentorshipListings;
+  }
+
+  /*
+
+  public static async getAllMentorshipContracts() {
+    const mentorshipContracts = MentorshipContract.findAll();
+    return mentorshipContracts;
+  }
+  */
 
   public static async registerAdmin(
     registerBody: {
@@ -87,8 +114,8 @@ export default class AdminService {
         username,
         email,
         password,
-        userType: USER_TYPE_ENUM_OPTIONS.ADMIN,
-        permission: ADMIN_PERMISSION_ENUM_OPTIONS.ADMIN,
+        userType: USER_TYPE_ENUM.ADMIN,
+        permission: ADMIN_PERMISSION_ENUM.ADMIN,
         updatedBy: adminCreator,
         createdBy: adminCreator,
       });
@@ -162,20 +189,18 @@ export default class AdminService {
     }
   }
 
-  /*
-  public static async getSenseiMentorshipListings(accountId: string) {
-    const sensei = await Sensei.findByPk(accountId);
-    const mentorshipListings = sensei.mentorshipListing ; 
-    if (!sensei) throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
-    return mentorshipListings;
+  public static async verifySenseiProfile(accountId, senseiAccount) {
+    const sensei = await User.findByPk(accountId);
+    if (sensei) {
+      await sensei.update({
+        adminVerified: senseiAccount.adminVerified,
+      });
+    } else {
+      throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+    }
+
+    //SEND EMAIL TO NOTIFY SENSEI ABOUT ACCEPTANCE / REJECTION
+
+    return sensei;
   }
-
- 
-
-  public static async getAllMentorshipListings() {
-    const mentorshipListings = MentorshipListing.findAll(); 
-    return mentorshipListings;
-  }
-
-  */
 }

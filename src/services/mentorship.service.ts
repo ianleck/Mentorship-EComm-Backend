@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 import Utility from '../constants/utility';
 import { Category } from '../models/Category';
 import { ListingToCategory } from '../models/ListingToCategory';
+import { MentorshipContract } from '../models/MentorshipContract';
 
 import { MentorshipListing } from '../models/MentorshipListing';
 
@@ -41,6 +42,11 @@ export default class MentorshipService {
     return MentorshipListing.findByPk(newListing.mentorshipListingId, {
       include: [ListingToCategory],
     });
+  }
+
+  public static async getAllMentorshipListings() {
+    const mentorshipListings = MentorshipListing.findAll();
+    return mentorshipListings;
   }
 
   public static async deleteListing(
@@ -124,5 +130,21 @@ export default class MentorshipService {
         categoriesToRemove
       );
     }
+  }
+
+  // ==================== MENTORSHIP APPLICATIONS ====================
+  public static async createApplication(
+    accountId: string,
+    mentorshipListingId: string
+  ): Promise<MentorshipContract> {
+    const newApplication = new MentorshipContract({
+      mentorshipContractId: Utility.generateUUID(),
+      mentorshipListingId,
+      accountId,
+    });
+
+    newApplication.save();
+
+    return newApplication;
   }
 }
