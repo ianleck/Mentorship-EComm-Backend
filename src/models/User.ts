@@ -19,7 +19,6 @@ import { Account } from './abstract/Account';
 import { Company } from './Company';
 import { Experience } from './Experience';
 import { MentorshipContract } from './MentorshipContract';
-import { Occupation } from './Occupation';
 import { UserFollowership } from './UserFollowership';
 @Table
 export class User extends Account {
@@ -72,6 +71,9 @@ export class User extends Account {
   @Column({ type: DataType.STRING })
   personality: string;
 
+  @Column({ type: DataType.STRING })
+  occupation: string;
+
   // ==================== ACCOUNT SETTINGS ====================
   @Column({ type: DataType.BOOLEAN })
   emailNotification: boolean;
@@ -83,17 +85,6 @@ export class User extends Account {
   })
   privacy: PRIVACY_PERMISSIONS_ENUM;
   // ==================== RELATIONSHIP MAPPINGS ====================
-
-  @BelongsTo(() => Occupation, {
-    onDelete: 'no action',
-    onUpdate: 'no action',
-    foreignKey: {
-      name: 'occupationId',
-      allowNull: true,
-      defaultValue: null,
-    },
-  })
-  Occupation: Occupation;
 
   @HasOne(() => Company, 'companyId')
   Company: Company;

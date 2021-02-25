@@ -37,6 +37,9 @@ export default {
       bio: joi.string(),
       privacy: joi.string().valid(...Object.values(PRIVACY_PERMISSIONS_ENUM)),
       personality: joi.string(),
+      emailNotification: joi.boolean(),
+      occupation: joi.string(),
+      industry: joi.string(),
     }),
   }),
   updateUserOccupationB: joi.object({

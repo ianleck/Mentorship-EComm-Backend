@@ -4,8 +4,6 @@ import { STATUS_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import { Admin } from '../models/Admin';
 import { ERRORS } from '../constants/errors';
 import { Op } from 'sequelize';
-import OccupationService from '../services/occupation.service';
-import { Occupation } from '../models/Occupation';
 export default class UserService {
   public static async changePassword(
     accountId: string,
@@ -53,20 +51,6 @@ export default class UserService {
     }
   }
 
-  // single method to get user with relations
-  public static async findCompleteUser(accountId: string) {
-    return await User.findByPk(accountId, {
-      include: [Occupation],
-    });
-  }
-
-  public static async findCompleteUserByEmail(email: string) {
-    return await User.findOne({
-      where: { email },
-      include: [Occupation],
-    });
-  }
-
   public static async findUserOrAdminById(
     accountId: string,
     userType: USER_TYPE_ENUM
@@ -87,13 +71,6 @@ export default class UserService {
     }
   }
 
-  public static async findUserById(accountId: string): Promise<User> {
-    const user = await User.findByPk(accountId);
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-    // let _user: any = Object.assign({}, user);
-    return user.toJSON();
-  }
-
   // get all users with userType = STUDENT
   public static async getAllActiveStudents() {
     const students = User.findAll({
@@ -101,7 +78,6 @@ export default class UserService {
         status: { [Op.eq]: STATUS_ENUM.ACTIVE },
         userType: USER_TYPE_ENUM.STUDENT,
       },
-      include: [Occupation],
     });
     return students;
   }
@@ -113,7 +89,6 @@ export default class UserService {
         status: { [Op.eq]: STATUS_ENUM.ACTIVE },
         userType: USER_TYPE_ENUM.SENSEI,
       },
-      include: [Occupation],
     });
     return senseis;
   }
@@ -125,25 +100,7 @@ export default class UserService {
     const user = await User.findByPk(accountId);
     if (user) {
       await user.update(fields);
-      return await this.findCompleteUser(accountId);
-    } else {
-      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-    }
-  }
-
-  public static async updateUserOccupation(
-    accountId: string,
-    occupation: {
-      name: string;
-    }
-  ) {
-    const user = await User.findByPk(accountId);
-    if (user) {
-      const occ = await OccupationService.findOrCreate(occupation.name);
-      await user.update({
-        occupationId: occ.occupationId,
-      });
-      return await this.findCompleteUser(accountId);
+      return await User.findByPk(accountId);
     } else {
       throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     }
