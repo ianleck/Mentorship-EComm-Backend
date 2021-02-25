@@ -3,11 +3,7 @@ import { MentorshipController } from '../controllers/mentorship.controller';
 import mentorship from './schema/mentorship.schema';
 import user from './schema/user.schema';
 import Utility from '../constants/utility';
-import {
-  requireSensei,
-  requireStudent,
-  requireAdmin,
-} from '../middlewares/userTypeHandler';
+import { requireSensei, requireStudent } from '../middlewares/userTypeHandler';
 const passport = require('passport');
 
 const router = express.Router();
@@ -62,7 +58,7 @@ router.post(
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
   schemaValidator.params(mentorship.mentorshipApplicationQ),
-  // schemaValidator.body(mentorship.mentorshipListingB), // Should be created with subscription here
+  schemaValidator.body(mentorship.mentorshipListingB), // Should be created with subscription here
   Utility.asyncHandler(MentorshipController.createApplication)
 );
 
@@ -99,4 +95,20 @@ router.get(
 );
 */
 
+router.put(
+  '/application/:mentorshipListing/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.params(mentorship.mentorshipListingQ),
+  schemaValidator.body(mentorship.mentorshipApplicationB), // Should be created with subscription as well
+  Utility.asyncHandler(MentorshipController.createApplication)
+);
+
+router.delete(
+  '/application/:mentorshipListing/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.params(mentorship.mentorshipListingQ),
+  Utility.asyncHandler(MentorshipController.deleteListing)
+);
 export default router;

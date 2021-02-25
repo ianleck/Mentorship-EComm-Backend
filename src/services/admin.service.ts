@@ -104,7 +104,6 @@ export default class AdminService {
     try {
       user = await Admin.findOne({ where: { email } });
       newUser = new Admin({
-        accountId: Utility.generateUUID(),
         username,
         email,
         password,

@@ -4,16 +4,24 @@ import logger from '../config/logger';
 import MentorshipService from '../services/mentorship.service';
 import { USER_TYPE_ENUM } from '../constants/enum';
 
-const LISTING_CREATE = 'Mentorship Listing has been successfully created';
-const LISTING_UPDATE = 'Mentorship Listing has been successfully updated';
-const LISTING_DELETE = 'Mentorship Listing has been successfully deleted';
+export const LISTING_CREATE =
+  'Mentorship Listing has been successfully created';
+export const LISTING_UPDATE =
+  'Mentorship Listing has been successfully updated';
+export const LISTING_DELETE =
+  'Mentorship Listing has been successfully deleted';
+export const LISTING_MISSING = 'Please create a mentorship application';
 
-const APPLICATION_CREATE =
+export const APPLICATION_CREATE =
   'Mentorship Application has been successfully created';
-const APPLICATION_UPDATE =
+export const APPLICATION_UPDATE =
   'Mentorship Application has been successfully updated';
-const APPLICATION_DELETE =
+export const APPLICATION_DELETE =
   'Mentorship Application has been successfully deleted';
+export const APPLICATION_EXISTS =
+  'A mentorship application has already been made for this mentor. Please edit existing mentorship application.';
+export const APPLICATION_MISSING =
+  'No pending mentorship application found. Please create a mentorship application';
 export class MentorshipController {
   // ==================== MENTORSHIP LISTINGS ====================
   public static async createListing(req, res) {
@@ -124,11 +132,14 @@ export class MentorshipController {
   // ==================== MENTORSHIP APPLICATIONS ====================
   public static async createApplication(req, res) {
     const { mentorshipListingId, accountId } = req.params;
+    const { statement } = req.body;
 
+    // Check that there is no existing mentorship application
     try {
       const createdApplication = await MentorshipService.createApplication(
         mentorshipListingId,
-        accountId
+        accountId,
+        statement
       );
       return apiResponse.result(
         res,
@@ -228,6 +239,27 @@ export class MentorshipController {
         '[mentorshipController.getAllStudentMentorshipApplications]:' +
           e.toString()
       );
+    }
+  }
+
+  public static async updateApplication(req, res) {
+    const { mentorshipListingId, accountId } = req.params;
+    const { statement } = req.body;
+
+    // Check that there is an existing mentorship application
+    try {
+      const updatedApplication = await MentorshipService.updateApplication(
+        mentorshipListingId,
+        accountId,
+        statement
+      );
+      return apiResponse.result(
+        res,
+        { message: APPLICATION_UPDATE, updatedApplication },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.updateApplication]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });
@@ -256,10 +288,25 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.getSenseiMentorshipApplications]:' + e.toString()
       );
+      }
+    }
+
+        */
+  public static async deleteApplication(req, res) {
+    const { mentorshipListingId, accountId } = req.params;
+
+    try {
+      await MentorshipService.deleteApplication(mentorshipListingId, accountId);
+      return apiResponse.result(
+        res,
+        { message: APPLICATION_DELETE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.deleteApplication]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });
     }
   }
-  */
 }

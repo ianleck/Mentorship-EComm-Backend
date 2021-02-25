@@ -28,4 +28,8 @@ export default {
   userIdQ: joi.object({
     accountId: joi.string().required(),
   }),
+
+  mentorshipApplicationB: joi.object({
+    statement: joi.string().required(),
+  }),
 };

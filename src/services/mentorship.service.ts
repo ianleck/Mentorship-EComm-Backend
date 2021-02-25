@@ -1,8 +1,17 @@
 import * as _ from 'lodash';
 
 import Utility from '../constants/utility';
-import { MENTORSHIP_CONTRACT_APPROVAL } from '../constants/enum';
 import { Op } from 'sequelize';
+import {
+  MENTORSHIP_CONTRACT_APPROVAL,
+  MENTORSHIP_PROGRESS_ENUM,
+} from '../constants/enum';
+
+import {
+  APPLICATION_EXISTS,
+  APPLICATION_MISSING,
+  LISTING_MISSING,
+} from '../controllers/mentorship.controller';
 import { Category } from '../models/Category';
 import { ListingToCategory } from '../models/ListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
@@ -26,7 +35,6 @@ export default class MentorshipService {
     const { name, categories, description } = mentorshipListing;
 
     const newListing = new MentorshipListing({
-      mentorshipListingId: Utility.generateUUID(),
       name,
       accountId,
       description,
@@ -93,63 +101,69 @@ export default class MentorshipService {
   public static async updateListing(
     mentorshipListingId: string,
     mentorshipListing: UpdateMentorshipListing
-  ): Promise<void> {
+  ): Promise<MentorshipListing> {
     const currListing = await MentorshipListing.findByPk(mentorshipListingId);
+    if (!currListing) throw new Error(LISTING_MISSING);
 
-    if (currListing) {
-      await currListing.update({
-        name: mentorshipListing.name,
-        description: mentorshipListing.description,
-      });
+    await currListing.update({
+      name: mentorshipListing.name,
+      description: mentorshipListing.description,
+    });
 
-      // Find all category associations with listing
-      const listingCategories: ListingToCategory[] = await ListingToCategory.findAll(
-        {
-          where: { mentorshipListingId },
-        }
-      );
+    // Find all category associations with listing
+    const listingCategories: ListingToCategory[] = await ListingToCategory.findAll(
+      {
+        where: { mentorshipListingId },
+      }
+    );
 
-      const existingCategories = listingCategories.map(
-        ({ categoryId }) => categoryId
-      );
-      const updatedCategories = mentorshipListing.categories.map(
-        ({ categoryId }) => categoryId
-      );
+    const existingCategories = listingCategories.map(
+      ({ categoryId }) => categoryId
+    );
+    const updatedCategories = mentorshipListing.categories.map(
+      ({ categoryId }) => categoryId
+    );
 
-      const categoriesToAdd = _.difference(
-        updatedCategories,
-        existingCategories
-      );
-      const categoriesToRemove = _.difference(
-        existingCategories,
-        updatedCategories
-      );
+    const categoriesToAdd = _.difference(updatedCategories, existingCategories);
+    const categoriesToRemove = _.difference(
+      existingCategories,
+      updatedCategories
+    );
 
-      // Create new associations to new categories
-      await ListingToCategory.bulkCreate(
-        categoriesToAdd.map((categoryId) => ({
-          mentorshipListingId,
-          categoryId,
-        }))
-      );
-
-      // Delete associations to removed categories
-      await this.removeListingCategories(
+    // Create new associations to new categories
+    await ListingToCategory.bulkCreate(
+      categoriesToAdd.map((categoryId) => ({
         mentorshipListingId,
-        categoriesToRemove
-      );
-    }
+        categoryId,
+      }))
+    );
+
+    // Delete associations to removed categories
+    await this.removeListingCategories(mentorshipListingId, categoriesToRemove);
+
+    return MentorshipListing.findByPk(currListing.mentorshipListingId, {
+      include: [ListingToCategory],
+    });
   }
 
   // ==================== MENTORSHIP APPLICATIONS ====================
   public static async createApplication(
     accountId: string,
-    mentorshipListingId: string
+    mentorshipListingId: string,
+    statement: string
   ): Promise<MentorshipContract> {
+    const existingApplication = MentorshipContract.findOne({
+      where: {
+        mentorshipListingId,
+        accountId,
+      },
+    });
+    if (existingApplication) throw new Error(APPLICATION_EXISTS);
+
     const newApplication = new MentorshipContract({
-      mentorshipContractId: Utility.generateUUID(),
       mentorshipListingId,
       accountId,
+      statement,
     });
 
     newApplication.save();
@@ -198,5 +212,51 @@ export default class MentorshipService {
       },
     });
     return mentorshipApplications;
+  }
+
+  public static async updateApplication(
+    mentorshipListingId: string,
+    accountId: string,
+    statement: string
+  ): Promise<MentorshipContract> {
+    const currApplication = await MentorshipContract.findOne({
+      where: {
+        mentorshipListingId,
+        accountId,
+        progress: MENTORSHIP_PROGRESS_ENUM.NOT_STARTED,
+        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+      },
+    });
+    if (!currApplication) throw new Error(APPLICATION_MISSING);
+
+    const updatedApplication = await currApplication.update({
+      statement,
+    });
+
+    return updatedApplication;
+  }
+
+  public static async deleteApplication(
+    mentorshipListingId: string,
+    accountId: string
+  ): Promise<void> {
+    const existingApplication = await MentorshipContract.findOne({
+      where: {
+        mentorshipListingId,
+        accountId,
+        progress: MENTORSHIP_PROGRESS_ENUM.NOT_STARTED,
+        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+      },
+    });
+    if (!existingApplication) throw new Error(APPLICATION_MISSING);
+
+    // Manual cascade deletion of associations - Subscription
+
+    await MentorshipContract.destroy({
+      where: {
+        mentorshipListingId,
+        accountId,
+      },
+    });
   }
 }

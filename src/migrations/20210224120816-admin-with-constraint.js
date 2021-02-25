@@ -43,7 +43,9 @@ module.exports = {
             type: Sequelize.ENUM('ACTIVE', 'BANNED'),
             defaultValue: 'ACTIVE',
           },
-
+          paypalId: {
+            type: Sequelize.STRING,
+          },
           createdAt: {
             allowNull: false,
             type: Sequelize.DATE,
