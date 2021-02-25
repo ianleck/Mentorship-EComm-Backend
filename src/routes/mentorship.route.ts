@@ -54,11 +54,19 @@ router.post(
 );
 
 router.put(
-  '/application/:mentorshipListing',
+  '/application/:mentorshipListing/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.params(mentorship.mentorshipApplicationQ),
+  schemaValidator.params(mentorship.mentorshipListingQ),
   schemaValidator.body(mentorship.mentorshipApplicationB), // Should be created with subscription as well
   Utility.asyncHandler(MentorshipController.createApplication)
+);
+
+router.delete(
+  '/application/:mentorshipListing/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.params(mentorship.mentorshipListingQ),
+  Utility.asyncHandler(MentorshipController.deleteListing)
 );
 export default router;

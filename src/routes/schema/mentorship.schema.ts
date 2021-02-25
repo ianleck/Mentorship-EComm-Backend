@@ -18,10 +18,10 @@ export default {
 
   mentorshipApplicationQ: joi.object({
     mentorshipListingId: joi.string().required(),
+    accountId: joi.string().required(),
   }),
 
   mentorshipApplicationB: joi.object({
-    accountId: joi.string().required(),
     statement: joi.string().required(),
   }),
 };

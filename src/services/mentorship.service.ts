@@ -153,4 +153,18 @@ export default class MentorshipService {
 
     return updatedApplication;
   }
+
+  public static async deleteApplication(
+    mentorshipListingId: string,
+    accountId: string
+  ): Promise<void> {
+    // Manual cascade deletion of associations - Subscription
+
+    await MentorshipContract.destroy({
+      where: {
+        mentorshipListingId,
+        accountId,
+      },
+    });
+  }
 }

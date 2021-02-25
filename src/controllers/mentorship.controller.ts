@@ -115,8 +115,8 @@ export class MentorshipController {
 
   // ==================== MENTORSHIP APPLICATIONS ====================
   public static async createApplication(req, res) {
-    const { mentorshipListingId } = req.params;
-    const { accountId, statement } = req.body;
+    const { mentorshipListingId, accountId } = req.params;
+    const { statement } = req.body;
 
     // Check that there is no existing mentorship application
     try {
@@ -179,6 +179,24 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.updateApplication]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
+  public static async deleteApplication(req, res) {
+    const { mentorshipListingId, accountId } = req.params;
+
+    try {
+      await MentorshipService.deleteApplication(mentorshipListingId, accountId);
+      return apiResponse.result(
+        res,
+        { message: APPLICATION_DELETE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.deleteApplication]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });
