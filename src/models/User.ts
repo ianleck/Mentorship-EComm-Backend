@@ -93,16 +93,6 @@ export class User extends Account {
       defaultValue: null,
     },
   })
-  // @HasOne(() => Occupation, {
-  //   onDelete: 'no action',
-  //   onUpdate: 'no action',
-  //   foreignKey: {
-  //     name: 'occupationId',
-  //     allowNull: true,
-  //     defaultValue: null,
-  //   },
-  //   constraints: false,
-  // })
   Occupation: Occupation;
 
   @HasOne(() => Company, 'companyId')
