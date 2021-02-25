@@ -78,7 +78,6 @@ export default class UserService {
     const user = await User.findByPk(accountId);
     if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     // let _user: any = Object.assign({}, user);
-    // console.log('user =', user.toJSON());
     return user.toJSON();
   }
 

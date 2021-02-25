@@ -82,13 +82,16 @@ export class User extends Account {
     defaultValue: PRIVACY_PERMISSIONS_ENUM.ALL,
   })
   privacy: PRIVACY_PERMISSIONS_ENUM;
-
   // ==================== RELATIONSHIP MAPPINGS ====================
 
   @BelongsTo(() => Occupation, {
     onDelete: 'no action',
     onUpdate: 'no action',
-    foreignKey: 'occupationId',
+    foreignKey: {
+      name: 'occupationId',
+      allowNull: true,
+      defaultValue: null,
+    },
   })
   // @HasOne(() => Occupation, {
   //   onDelete: 'no action',

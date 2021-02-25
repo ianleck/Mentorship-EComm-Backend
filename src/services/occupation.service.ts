@@ -18,11 +18,9 @@ export default class OccupationService {
         name: occupationName,
       },
     });
-    console.log('occ =', occ);
     if (occ) return occ;
 
     const newOcc = new Occupation({
-      occupationId: Utility.generateUUID(),
       name: occupationName,
     });
 
