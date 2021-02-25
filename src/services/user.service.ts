@@ -169,7 +169,6 @@ export default class UserService {
       if (isStudent) {
         newUser = new User(
           {
-            accountId: Utility.generateUUID(),
             username,
             email,
             password,
@@ -182,7 +181,6 @@ export default class UserService {
       } else {
         newUser = new User(
           {
-            accountId: Utility.generateUUID(),
             username,
             email,
             password,

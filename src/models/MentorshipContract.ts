@@ -33,6 +33,9 @@ export class MentorshipContract extends BaseEntity {
   })
   mentorshipListingId: string;
 
+  @Column(DataType.STRING)
+  statement: string;
+
   @Column({
     allowNull: false,
     type: DataType.ENUM,

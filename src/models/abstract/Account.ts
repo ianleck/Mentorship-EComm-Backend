@@ -1,13 +1,17 @@
-import { Column, DataType, Table } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  Default,
+  PrimaryKey,
+  Table,
+} from 'sequelize-typescript';
 import { BaseEntity } from './BaseEntity';
 
 // @Table
 export abstract class Account extends BaseEntity {
-  @Column({
-    type: DataType.UUID,
-    primaryKey: true,
-    allowNull: false,
-  })
+  @PrimaryKey
+  @Default(DataType.UUIDV4)
+  @Column(DataType.UUID)
   accountId: string;
 
   @Column({ type: DataType.STRING })
