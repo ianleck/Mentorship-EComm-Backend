@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {
+  BelongsTo,
   BelongsToMany,
   Column,
   DataType,
@@ -84,7 +85,21 @@ export class User extends Account {
 
   // ==================== RELATIONSHIP MAPPINGS ====================
 
-  @HasOne(() => Occupation, 'occupationId')
+  @BelongsTo(() => Occupation, {
+    onDelete: 'no action',
+    onUpdate: 'no action',
+    foreignKey: 'occupationId',
+  })
+  // @HasOne(() => Occupation, {
+  //   onDelete: 'no action',
+  //   onUpdate: 'no action',
+  //   foreignKey: {
+  //     name: 'occupationId',
+  //     allowNull: true,
+  //     defaultValue: null,
+  //   },
+  //   constraints: false,
+  // })
   Occupation: Occupation;
 
   @HasOne(() => Company, 'companyId')

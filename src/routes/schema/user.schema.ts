@@ -40,4 +40,10 @@ export default {
       bio: joi.string(),
     }),
   }),
+
+  updateUserOccupationB: joi.object({
+    occupation: joi.object({
+      name: joi.string().required(),
+    }),
+  }),
 };

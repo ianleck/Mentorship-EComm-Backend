@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { Occupation } from 'src/models/Occupation';
+import { Occupation } from '../models/Occupation';
 
 import Utility from '../constants/utility';
 
@@ -13,11 +13,12 @@ export default class OccupationService {
   public static async findOrCreate(
     occupationName: string
   ): Promise<Occupation> {
-    const occ = Occupation.findOne({
+    const occ = await Occupation.findOne({
       where: {
         name: occupationName,
       },
     });
+    console.log('occ =', occ);
     if (occ) return occ;
 
     const newOcc = new Occupation({

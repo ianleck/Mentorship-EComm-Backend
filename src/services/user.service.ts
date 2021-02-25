@@ -5,6 +5,8 @@ import { STATUS_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import { Admin } from '../models/Admin';
 import { ERRORS } from '../constants/errors';
 import { Op } from 'sequelize';
+import OccupationService from '../services/occupation.service';
+import { Occupation } from '../models/Occupation';
 export default class UserService {
   public static async changePassword(
     accountId: string,
@@ -124,6 +126,26 @@ export default class UserService {
       return await user.update({
         headline: userAbout.headline,
         bio: userAbout.bio,
+      });
+    } else {
+      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    }
+  }
+
+  public static async updateUserOccupation(
+    accountId: string,
+    occupation: {
+      name: string;
+    }
+  ) {
+    const user = await User.findByPk(accountId);
+    if (user) {
+      const occ = await OccupationService.findOrCreate(occupation.name);
+      await user.update({
+        occupationId: occ.occupationId,
+      });
+      return await User.findByPk(accountId, {
+        include: [Occupation],
       });
     } else {
       throw new Error(ERRORS.USER_DOES_NOT_EXIST);
