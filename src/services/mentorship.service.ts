@@ -24,7 +24,6 @@ export default class MentorshipService {
     const { name, categories, description } = mentorshipListing;
 
     const newListing = new MentorshipListing({
-      mentorshipListingId: Utility.generateUUID(),
       name,
       accountId,
       description,
@@ -83,68 +82,75 @@ export default class MentorshipService {
 
   public static async updateListing(
     mentorshipListingId: string,
-    mentorshipListing: UpdateMentorshipListing
-  ): Promise<void> {
-    const currListing = await MentorshipListing.findByPk(mentorshipListingId);
+    mentorshipListing: UpdateMentorshipListing,
+    currListing: MentorshipListing
+  ): Promise<MentorshipListing> {
+    await currListing.update({
+      name: mentorshipListing.name,
+      description: mentorshipListing.description,
+    });
 
-    if (currListing) {
-      await currListing.update({
-        name: mentorshipListing.name,
-        description: mentorshipListing.description,
-      });
+    // Find all category associations with listing
+    const listingCategories: ListingToCategory[] = await ListingToCategory.findAll(
+      {
+        where: { mentorshipListingId },
+      }
+    );
 
-      // Find all category associations with listing
-      const listingCategories: ListingToCategory[] = await ListingToCategory.findAll(
-        {
-          where: { mentorshipListingId },
-        }
-      );
+    const existingCategories = listingCategories.map(
+      ({ categoryId }) => categoryId
+    );
+    const updatedCategories = mentorshipListing.categories.map(
+      ({ categoryId }) => categoryId
+    );
 
-      const existingCategories = listingCategories.map(
-        ({ categoryId }) => categoryId
-      );
-      const updatedCategories = mentorshipListing.categories.map(
-        ({ categoryId }) => categoryId
-      );
+    const categoriesToAdd = _.difference(updatedCategories, existingCategories);
+    const categoriesToRemove = _.difference(
+      existingCategories,
+      updatedCategories
+    );
 
-      const categoriesToAdd = _.difference(
-        updatedCategories,
-        existingCategories
-      );
-      const categoriesToRemove = _.difference(
-        existingCategories,
-        updatedCategories
-      );
-
-      // Create new associations to new categories
-      await ListingToCategory.bulkCreate(
-        categoriesToAdd.map((categoryId) => ({
-          mentorshipListingId,
-          categoryId,
-        }))
-      );
-
-      // Delete associations to removed categories
-      await this.removeListingCategories(
+    // Create new associations to new categories
+    await ListingToCategory.bulkCreate(
+      categoriesToAdd.map((categoryId) => ({
         mentorshipListingId,
-        categoriesToRemove
-      );
-    }
+        categoryId,
+      }))
+    );
+
+    // Delete associations to removed categories
+    await this.removeListingCategories(mentorshipListingId, categoriesToRemove);
+
+    return MentorshipListing.findByPk(currListing.mentorshipListingId, {
+      include: [ListingToCategory],
+    });
   }
 
   // ==================== MENTORSHIP APPLICATIONS ====================
   public static async createApplication(
     accountId: string,
-    mentorshipListingId: string
+    mentorshipListingId: string,
+    statement: string
   ): Promise<MentorshipContract> {
     const newApplication = new MentorshipContract({
-      mentorshipContractId: Utility.generateUUID(),
       mentorshipListingId,
       accountId,
+      statement,
     });
 
     newApplication.save();
 
     return newApplication;
+  }
+
+  public static async updateApplication(
+    currApplication: MentorshipContract,
+    statement: string
+  ): Promise<MentorshipContract> {
+    const updatedApplication = await currApplication.update({
+      statement,
+    });
+
+    return updatedApplication;
   }
 }
