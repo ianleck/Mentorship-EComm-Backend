@@ -2,29 +2,24 @@ import httpStatusCodes from 'http-status-codes';
 import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
 import MentorshipService from '../services/mentorship.service';
-import { MentorshipContract } from '../models/MentorshipContract';
-import { MentorshipListing } from '../models/MentorshipListing';
-import {
-  MENTORSHIP_CONTRACT_APPROVAL,
-  MENTORSHIP_PROGRESS_ENUM,
-} from '../constants/enum';
 
-const LISTING_CREATE = 'Mentorship Listing has been successfully created';
-const LISTING_UPDATE = 'Mentorship Listing has been successfully updated';
-const LISTING_DELETE = 'Mentorship Listing has been successfully deleted';
-const LISTING_MISSING = 'Please create a mentorship application';
+export const LISTING_CREATE =
+  'Mentorship Listing has been successfully created';
+export const LISTING_UPDATE =
+  'Mentorship Listing has been successfully updated';
+export const LISTING_DELETE =
+  'Mentorship Listing has been successfully deleted';
+export const LISTING_MISSING = 'Please create a mentorship application';
 
-const APPLICATION_CREATE =
+export const APPLICATION_CREATE =
   'Mentorship Application has been successfully created';
-const APPLICATION_UPDATE =
+export const APPLICATION_UPDATE =
   'Mentorship Application has been successfully updated';
-const APPLICATION_DELETE =
+export const APPLICATION_DELETE =
   'Mentorship Application has been successfully deleted';
-
-const APPLICATION_EXISTS =
+export const APPLICATION_EXISTS =
   'A mentorship application has already been made for this mentor. Please edit existing mentorship application.';
-
-const APPLICATION_MISSING =
+export const APPLICATION_MISSING =
   'No pending mentorship application found. Please create a mentorship application';
 export class MentorshipController {
   // ==================== MENTORSHIP LISTINGS ====================
@@ -91,19 +86,9 @@ export class MentorshipController {
     const { mentorshipListing } = req.body;
 
     try {
-      const existingListing = await MentorshipListing.findByPk(
-        mentorshipListingId
-      );
-      if (!existingListing) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: LISTING_MISSING,
-        });
-      }
-
       const updatedListing = await MentorshipService.updateListing(
         mentorshipListingId,
-        mentorshipListing,
-        existingListing
+        mentorshipListing
       );
       return apiResponse.result(
         res,
@@ -125,18 +110,6 @@ export class MentorshipController {
 
     // Check that there is no existing mentorship application
     try {
-      const existingApplication = MentorshipContract.findOne({
-        where: {
-          mentorshipListingId,
-          accountId,
-        },
-      });
-      if (existingApplication) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: APPLICATION_EXISTS,
-        });
-      }
-
       const createdApplication = await MentorshipService.createApplication(
         mentorshipListingId,
         accountId,
@@ -161,22 +134,9 @@ export class MentorshipController {
 
     // Check that there is an existing mentorship application
     try {
-      const existingApplication = await MentorshipContract.findOne({
-        where: {
-          mentorshipListingId,
-          accountId,
-          progress: MENTORSHIP_PROGRESS_ENUM.NOT_STARTED,
-          senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
-        },
-      });
-      if (!existingApplication) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: APPLICATION_MISSING,
-        });
-      }
-
       const updatedApplication = await MentorshipService.updateApplication(
-        existingApplication,
+        mentorshipListingId,
+        accountId,
         statement
       );
       return apiResponse.result(
@@ -196,20 +156,6 @@ export class MentorshipController {
     const { mentorshipListingId, accountId } = req.params;
 
     try {
-      const existingApplication = await MentorshipContract.findOne({
-        where: {
-          mentorshipListingId,
-          accountId,
-          progress: MENTORSHIP_PROGRESS_ENUM.NOT_STARTED,
-          senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
-        },
-      });
-      if (!existingApplication) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: APPLICATION_MISSING,
-        });
-      }
-
       await MentorshipService.deleteApplication(mentorshipListingId, accountId);
       return apiResponse.result(
         res,
