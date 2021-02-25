@@ -89,14 +89,6 @@ router.get(
   Utility.asyncHandler(AdminController.getBannedSenseis)
 );
 
-//get single sensei mentorship listings
-// router.get(
-//   '/mentorship-listings/:accountId',
-//   passport.authenticate('isAuthenticated', { session: false }),
-//   schemaValidator.params(admin.senseiIdQ),
-//   Utility.asyncHandler(AdminController.getSenseiMentorshipListings)
-// );
-
 /*
 
 //get list of mentorship contracts - mentorshipApplication : pending / approved 

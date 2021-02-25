@@ -67,13 +67,6 @@ export default class AdminService {
     return senseis;
   }
 
-  public static async getSenseiMentorshipListings(accountId: string) {
-    const mentorshipListings = MentorshipListing.findAll({
-      where: { senseiId: { [Op.eq]: accountId } },
-    });
-    return mentorshipListings;
-  }
-
   /*
 
   public static async getAllMentorshipContracts() {

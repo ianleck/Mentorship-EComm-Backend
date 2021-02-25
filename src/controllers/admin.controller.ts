@@ -281,32 +281,6 @@ export class AdminController {
   }
 
   /*
-  public static async getSenseiMentorshipListings(req, res) {
-    const { accountId } = req.params; //accountId of the sensei who is being looked at
-
-    try {
-      const mentorshipListings = await AdminService.getSenseiMentorshipListings(
-        accountId
-      );
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          mentorshipListings,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error(
-        '[adminController.getSenseiMentorshipListings]:' + e.toString()
-      );
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
-      });
-    }
-  }
-
-  /*
 
   public static async getMentorshipContracts(req, res) {
     try {
@@ -326,5 +300,6 @@ export class AdminController {
       });
     }
   }
+
   */
 }
