@@ -4,6 +4,10 @@ import logger from '../config/logger';
 import MentorshipService from '../services/mentorship.service';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
+import {
+  MENTORSHIP_CONTRACT_APPROVAL,
+  MENTORSHIP_PROGRESS_ENUM,
+} from '../constants/enum';
 
 const LISTING_CREATE = 'Mentorship Listing has been successfully created';
 const LISTING_UPDATE = 'Mentorship Listing has been successfully updated';
@@ -20,7 +24,8 @@ const APPLICATION_DELETE =
 const APPLICATION_EXISTS =
   'A mentorship application has already been made for this mentor. Please edit existing mentorship application.';
 
-const APPLICATION_MISSING = 'Please create a mentorship application';
+const APPLICATION_MISSING =
+  'No pending mentorship application found. Please create a mentorship application';
 export class MentorshipController {
   // ==================== MENTORSHIP LISTINGS ====================
   public static async createListing(req, res) {
@@ -160,6 +165,8 @@ export class MentorshipController {
         where: {
           mentorshipListingId,
           accountId,
+          progress: MENTORSHIP_PROGRESS_ENUM.NOT_STARTED,
+          senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
         },
       });
       if (!existingApplication) {
@@ -189,6 +196,20 @@ export class MentorshipController {
     const { mentorshipListingId, accountId } = req.params;
 
     try {
+      const existingApplication = await MentorshipContract.findOne({
+        where: {
+          mentorshipListingId,
+          accountId,
+          progress: MENTORSHIP_PROGRESS_ENUM.NOT_STARTED,
+          senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+        },
+      });
+      if (!existingApplication) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: APPLICATION_MISSING,
+        });
+      }
+
       await MentorshipService.deleteApplication(mentorshipListingId, accountId);
       return apiResponse.result(
         res,
