@@ -2,10 +2,12 @@ import httpStatusCodes from 'http-status-codes';
 import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
 import MentorshipService from '../services/mentorship.service';
+import { MentorshipListing } from '../models/MentorshipListing';
 
 const LISTING_CREATE = 'Mentorship Listing has been successfully created';
 const LISTING_UPDATE = 'Mentorship Listing has been successfully updated';
 const LISTING_DELETE = 'Mentorship Listing has been successfully deleted';
+const LISTING_MISSING = 'Please create a mentorship application';
 
 const APPLICATION_CREATE =
   'Mentorship Application has been successfully created';
@@ -78,9 +80,19 @@ export class MentorshipController {
     const { mentorshipListing } = req.body;
 
     try {
+      const existingListing = await MentorshipListing.findByPk(
+        mentorshipListingId
+      );
+      if (!existingListing) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: LISTING_MISSING,
+        });
+      }
+
       const updatedListing = await MentorshipService.updateListing(
         mentorshipListingId,
-        mentorshipListing
+        mentorshipListing,
+        existingListing
       );
       return apiResponse.result(
         res,
