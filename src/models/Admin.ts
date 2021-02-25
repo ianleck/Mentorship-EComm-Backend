@@ -50,24 +50,16 @@ export class Admin extends Account {
   })
   userType: USER_TYPE_ENUM;
 
-  @ForeignKey(() => Admin)
-  @Column({
-    type: DataType.INTEGER,
-    autoIncrement: true,
-    unique: true,
-  })
-  adminId: number;
-
   @Column({
     type: DataType.ENUM(...Object.values(ADMIN_PERMISSION_ENUM)),
     defaultValue: ADMIN_PERMISSION_ENUM.ADMIN,
   })
   permission: ADMIN_PERMISSION_ENUM;
 
-  @HasOne(() => Admin, 'adminId')
+  @HasOne(() => Admin, 'accountId')
   updatedBy: Admin;
 
-  @HasOne(() => Admin, 'adminId')
+  @HasOne(() => Admin, 'accountId')
   createdBy: Admin;
 
   generateJWT() {

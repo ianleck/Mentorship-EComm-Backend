@@ -22,6 +22,8 @@ import express from 'express';
 
 import { AdminController } from '../controllers/admin.controller';
 import admin from './schema/admin.schema';
+import user from './schema/user.schema';
+
 import Utility from '../constants/utility';
 import {
   requireSuperAdmin,
@@ -32,7 +34,21 @@ const router = express.Router();
 const passport = require('passport');
 const schemaValidator = require('express-joi-validation').createValidator({});
 
-/*** GET REQUESTS ***/
+router.post(
+  '/login',
+  schemaValidator.body(user.login),
+  Utility.asyncHandler(AdminController.login)
+);
+
+//create admin account
+//the schema must have details needed to register an admin
+router.post(
+  '/register-admin',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
+  schemaValidator.body(admin.registerAdmin),
+  Utility.asyncHandler(AdminController.registerAdmin)
+);
 
 router.get(
   '/verify-senseis',
@@ -74,12 +90,12 @@ router.get(
 );
 
 //get single sensei mentorship listings
-router.get(
-  '/mentorship-listings/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(admin.senseiIdQ),
-  Utility.asyncHandler(AdminController.getSenseiMentorshipListings)
-);
+// router.get(
+//   '/mentorship-listings/:accountId',
+//   passport.authenticate('isAuthenticated', { session: false }),
+//   schemaValidator.params(admin.senseiIdQ),
+//   Utility.asyncHandler(AdminController.getSenseiMentorshipListings)
+// );
 
 /*
 
