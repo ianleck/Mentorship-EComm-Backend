@@ -52,4 +52,13 @@ router.post(
   // schemaValidator.body(mentorship.mentorshipListingB), // Should be created with subscription here
   Utility.asyncHandler(MentorshipController.createApplication)
 );
+
+router.put(
+  '/application/:mentorshipListing',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.params(mentorship.mentorshipApplicationQ),
+  schemaValidator.body(mentorship.mentorshipApplicationB), // Should be created with subscription as well
+  Utility.asyncHandler(MentorshipController.createApplication)
+);
 export default router;

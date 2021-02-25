@@ -2,6 +2,7 @@ import httpStatusCodes from 'http-status-codes';
 import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
 import MentorshipService from '../services/mentorship.service';
+import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 
 const LISTING_CREATE = 'Mentorship Listing has been successfully created';
@@ -15,6 +16,11 @@ const APPLICATION_UPDATE =
   'Mentorship Application has been successfully updated';
 const APPLICATION_DELETE =
   'Mentorship Application has been successfully deleted';
+
+const APPLICATION_EXISTS =
+  'A mentorship application has already been made for this mentor. Please edit existing mentorship application.';
+
+const APPLICATION_MISSING = 'Please create a mentorship application';
 export class MentorshipController {
   // ==================== MENTORSHIP LISTINGS ====================
   public static async createListing(req, res) {
@@ -111,7 +117,20 @@ export class MentorshipController {
   public static async createApplication(req, res) {
     const { mentorshipListingId, accountId } = req.params;
 
+    // Check that there is no existing mentorship application
     try {
+      const existingApplication = MentorshipContract.findOne({
+        where: {
+          mentorshipListingId,
+          accountId,
+        },
+      });
+      if (existingApplication) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: APPLICATION_EXISTS,
+        });
+      }
+
       const createdApplication = await MentorshipService.createApplication(
         mentorshipListingId,
         accountId
@@ -123,6 +142,41 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.createApplication]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
+  public static async updateApplication(req, res) {
+    const { mentorshipListingId, accountId } = req.params;
+    const { statement } = req.body;
+
+    // Check that there is an existing mentorship application
+    try {
+      const existingApplication = await MentorshipContract.findOne({
+        where: {
+          mentorshipListingId,
+          accountId,
+        },
+      });
+      if (!existingApplication) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: APPLICATION_MISSING,
+        });
+      }
+
+      const updatedApplication = await MentorshipService.updateApplication(
+        existingApplication,
+        statement
+      );
+      return apiResponse.result(
+        res,
+        { message: APPLICATION_UPDATE, updatedApplication },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.updateApplication]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });

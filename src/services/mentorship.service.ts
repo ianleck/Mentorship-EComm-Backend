@@ -140,4 +140,15 @@ export default class MentorshipService {
 
     return newApplication;
   }
+
+  public static async updateApplication(
+    currApplication: MentorshipContract,
+    statement: string
+  ): Promise<MentorshipContract> {
+    const updatedApplication = await currApplication.update({
+      statement,
+    });
+
+    return updatedApplication;
+  }
 }
