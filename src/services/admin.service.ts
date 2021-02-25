@@ -41,7 +41,7 @@ export default class AdminService {
     const students = User.findAll({
       where: {
         status: { [Op.eq]: STATUS_ENUM_OPTIONS.BANNED },
-        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
+        userType: USER_TYPE_ENUM_OPTIONS.STUDENT,
       },
     });
     return students;
@@ -61,6 +61,7 @@ export default class AdminService {
     const senseis = User.findAll({
       where: {
         adminVerified: ADMIN_VERIFIED_ENUM_OPTIONS.PENDING,
+        userType: USER_TYPE_ENUM_OPTIONS.SENSEI,
       },
     });
     return senseis;
