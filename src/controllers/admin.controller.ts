@@ -1,9 +1,9 @@
-import AdminService from '../services/admin.service';
 import httpStatusCodes from 'http-status-codes';
-import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
-import { ADMIN_PERMISSION_ENUM_OPTIONS } from '../constants/enum';
-import { Admin } from 'src/models/Admin';
+import AdminService from '../services/admin.service';
+import apiResponse from '../utilities/apiResponse';
+const passport = require('passport');
+import { ADMIN_PERMISSION_ENUM } from '../constants/enum';
 
 export class AdminController {
   public static async deactivateAdmin(req, res) {
@@ -12,7 +12,7 @@ export class AdminController {
 
     if (
       user.accountId !== accountId &&
-      user.permission !== ADMIN_PERMISSION_ENUM_OPTIONS.SUPERADMIN
+      user.permission !== ADMIN_PERMISSION_ENUM.SUPERADMIN
     ) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
@@ -46,7 +46,7 @@ export class AdminController {
 
     if (
       user.accountId !== accountId &&
-      user.permission !== ADMIN_PERMISSION_ENUM_OPTIONS.SUPERADMIN
+      user.permission !== ADMIN_PERMISSION_ENUM.SUPERADMIN
     ) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
@@ -84,6 +84,25 @@ export class AdminController {
       );
     } catch (e) {
       logger.error('[adminController.getAllAdmins]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
+  public static async getAllPendingSenseis(req, res) {
+    try {
+      const senseis = await AdminService.getAllPendingSenseis();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          senseis,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.getAllPendingSenseis]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });
@@ -128,70 +147,22 @@ export class AdminController {
     }
   }
 
-  public static async getSenseiMentorshipListings(req, res) {
-    const { accountId } = req.params; //accountId of the sensei who is being looked at
+  public static async login(req, res, next) {
+    return passport.authenticate(
+      'admin-local',
+      { session: false },
+      (err, passportUser, info) => {
+        if (err) {
+          return next(err);
+        }
+        if (passportUser) {
+          const user = passportUser;
+          return apiResponse.result(res, user.toAuthJSON(), httpStatusCodes.OK);
+        }
 
-    try {
-      const mentorshipListings = await AdminService.getSenseiMentorshipListings(
-        accountId
-      );
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          mentorshipListings,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error(
-        '[adminController.getSenseiMentorshipListings]:' + e.toString()
-      );
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
-      });
-    }
-  }
-
-  /*
-
-  public static async getMentorshipContracts(req, res) {
-    try {
-      const mentorshipContracts = await AdminService.getAllMentorshipContracts();
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          mentorshipContracts,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[adminController.getMentorshipContracts]:' + e.toString());
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
-      });
-    }
-  }
-  */
-
-  public static async getAllPendingSenseis(req, res) {
-    try {
-      const senseis = await AdminService.getAllPendingSenseis();
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          senseis,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[adminController.getAllPendingSenseis]:' + e.toString());
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
-      });
-    }
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, info);
+      }
+    )(req, res, next);
   }
 
   public static async registerAdmin(req, res) {
@@ -240,7 +211,7 @@ export class AdminController {
     */
     if (
       user.accountId !== accountId &&
-      user.permission !== ADMIN_PERMISSION_ENUM_OPTIONS.SUPERADMIN
+      user.permission !== ADMIN_PERMISSION_ENUM.SUPERADMIN
     ) {
       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
@@ -308,4 +279,52 @@ export class AdminController {
       });
     }
   }
+
+  /*
+  public static async getSenseiMentorshipListings(req, res) {
+    const { accountId } = req.params; //accountId of the sensei who is being looked at
+
+    try {
+      const mentorshipListings = await AdminService.getSenseiMentorshipListings(
+        accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          mentorshipListings,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[adminController.getSenseiMentorshipListings]:' + e.toString()
+      );
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
+  /*
+
+  public static async getMentorshipContracts(req, res) {
+    try {
+      const mentorshipContracts = await AdminService.getAllMentorshipContracts();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          mentorshipContracts,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.getMentorshipContracts]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+  */
 }

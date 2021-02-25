@@ -4,6 +4,7 @@ import {
   Column,
   DataType,
   Default,
+  HasMany,
   Max,
   Min,
   PrimaryKey,
@@ -12,6 +13,7 @@ import {
 import { BaseEntity } from './abstract/BaseEntity';
 import { Category } from './Category';
 import { ListingToCategory } from './ListingToCategory';
+import { MentorshipContract } from './MentorshipContract';
 import { User } from './User';
 
 @Table
@@ -23,6 +25,7 @@ export class MentorshipListing extends BaseEntity {
 
   @Column({
     allowNull: false,
+    type: DataType.UUID,
   })
   senseiId: string;
 
@@ -49,13 +52,16 @@ export class MentorshipListing extends BaseEntity {
   rating: number;
 
   @BelongsTo(() => User, 'accountId')
-  sensei: User;
+  Sensei: User;
 
   @BelongsToMany(() => Category, {
     through: () => ListingToCategory,
     foreignKey: 'mentorshipListingId',
   })
   Categories: Category[];
+
+  @HasMany(() => MentorshipContract, 'mentorshipContractId')
+  MentorshipContracts: MentorshipContract[];
 }
 
 // MentorshipListing.hasMany(Review, { foreignKey: 'reviewId' })
