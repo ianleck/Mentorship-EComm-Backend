@@ -1,6 +1,6 @@
 'use strict';
 const adminJson = require('./json/admin.json');
-
+const bcrypt = require('bcrypt');
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     /**
@@ -12,8 +12,18 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
      */
+    const salt = await bcrypt.genSalt(10);
+    let adminJson_ = await Promise.all(
+      adminJson.map(async (admin) => {
+        const hash = await bcrypt.hash(admin.password, salt);
+        return {
+          ...admin,
+          password: hash,
+        };
+      })
+    );
     return queryInterface.sequelize.transaction(async (t) => {
-      return await queryInterface.bulkInsert('Admin', adminJson, {
+      return await queryInterface.bulkInsert('Admin', adminJson_, {
         transaction: t,
       });
     });
