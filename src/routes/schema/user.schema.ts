@@ -1,4 +1,5 @@
-import joi from 'joi';
+import joi, { string } from 'joi';
+import { PRIVACY_PERMISSIONS_ENUM } from '../../constants/enum';
 
 export default {
   login: joi.object({
@@ -25,19 +26,45 @@ export default {
     newPassword: joi.string().required(),
     confirmPassword: joi.string().required(),
   }),
-
+  createExperienceB: joi.object({
+    experience: joi.object({
+      role: joi.string().required(),
+      dateStart: joi.date().required(),
+      dateEnd: joi.date().required(),
+      description: joi.string().required(),
+    }),
+  }),
+  deleteExperienceParams: joi.object({
+    accountId: joi.string().required(),
+    experienceId: joi.string().required(),
+  }),
+  updateExperienceB: joi.object({
+    experience: joi.object({
+      experienceId: joi.string().required(),
+      role: joi.string().required(),
+      dateStart: joi.date().required(),
+      dateEnd: joi.date().required(),
+      description: joi.string().required(),
+    }),
+  }),
   updateUserB: joi.object({
     user: joi.object({
       firstName: joi.string(),
       lastName: joi.string(),
       contactNumber: joi.number(),
       status: joi.string(),
-    }),
-  }),
-  updateUserAboutB: joi.object({
-    about: joi.object({
       headline: joi.string(),
       bio: joi.string(),
+      privacy: joi.string().valid(...Object.values(PRIVACY_PERMISSIONS_ENUM)),
+      personality: joi.string(),
+      emailNotification: joi.boolean(),
+      occupation: joi.string(),
+      industry: joi.string(),
+    }),
+  }),
+  updateUserOccupationB: joi.object({
+    occupation: joi.object({
+      name: joi.string().required(),
     }),
   }),
 };

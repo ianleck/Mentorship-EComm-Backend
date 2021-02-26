@@ -1,11 +1,11 @@
 // import { Student } from '../../models/Student';
+import bcrypt from 'bcrypt';
+import { User } from '../../models/User';
+import { JWT_SECRET } from '../../constants/constants';
 import { Admin } from '../../models/Admin';
 
 const LocalStrategy = require('passport-local').Strategy;
-import bcrypt from 'bcrypt';
-// import { Sensei } from '../../models/Sensei';
-import { JWT_SECRET } from '../../constants/constants';
-import { User } from '../../models/User';
+
 const passportJWT = require('passport-jwt');
 
 const JWTStrategy = passportJWT.Strategy;
@@ -30,7 +30,9 @@ module.exports = function (passport) {
     new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
       // Match user
       User.findOne({
-        where: { email },
+        where: {
+          email,
+        },
       }).then((user) => {
         if (!user) {
           return done(null, false, { message: 'Invalid email or password' });

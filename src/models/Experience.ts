@@ -6,6 +6,7 @@ import {
   Table,
   HasOne,
   BelongsTo,
+  Model,
   ForeignKey,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
@@ -13,9 +14,8 @@ import { Company } from './Company';
 import { User } from './User';
 
 @Table
-export class Experience extends BaseEntity {
+export class Experience extends Model<Experience> {
   @PrimaryKey
-  @ForeignKey(() => User)
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
   experienceId: string;
@@ -28,19 +28,19 @@ export class Experience extends BaseEntity {
 
   @Column({
     allowNull: false,
-    type: DataType.STRING,
+    type: DataType.DATE,
   })
-  dateStart: string;
+  dateStart: Date;
 
   @Column({
     allowNull: false,
-    type: DataType.STRING,
+    type: DataType.DATE,
   })
-  dateEnd: string;
+  dateEnd: Date;
 
   @Column({
     allowNull: false,
-    type: DataType.BLOB,
+    type: DataType.TEXT,
   })
   description: string;
 
@@ -48,7 +48,12 @@ export class Experience extends BaseEntity {
   company: Company;
 
   @BelongsTo(() => User, {
-    foreignKey: 'accountId',
+    onDelete: 'CASCADE',
+    onUpdate: 'no action',
+    foreignKey: {
+      name: 'accountId',
+      allowNull: false,
+    },
   })
   user: User;
 }

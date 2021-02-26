@@ -11,7 +11,6 @@ import {
 } from '../constants/enum';
 import { Op } from 'sequelize';
 import { User } from '../models/User';
-import adminSchema from 'src/routes/schema/admin.schema';
 export default class AdminService {
   public static async deactivateAdmin(
     accountId: string,
