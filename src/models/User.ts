@@ -16,7 +16,6 @@ import {
   ADMIN_VERIFIED_ENUM,
 } from '../constants/enum';
 import { Account } from './abstract/Account';
-import { Company } from './Company';
 import { Experience } from './Experience';
 import { MentorshipContract } from './MentorshipContract';
 import { UserFollowership } from './UserFollowership';
@@ -85,9 +84,6 @@ export class User extends Account {
   })
   privacy: PRIVACY_PERMISSIONS_ENUM;
   // ==================== RELATIONSHIP MAPPINGS ====================
-
-  @HasOne(() => Company, 'companyId')
-  Company: Company;
 
   @HasMany(() => Experience, 'accountId')
   Experience: Experience[];

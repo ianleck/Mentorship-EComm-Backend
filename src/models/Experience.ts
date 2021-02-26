@@ -10,7 +10,6 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
-import { Company } from './Company';
 import { User } from './User';
 
 @Table
@@ -44,8 +43,17 @@ export class Experience extends Model<Experience> {
   })
   description: string;
 
-  @HasOne(() => Company, 'id')
-  company: Company;
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+  })
+  companyName: string;
+
+  @Column({
+    allowNull: true,
+    type: DataType.TEXT,
+  })
+  companyUrl: string;
 
   @BelongsTo(() => User, {
     onDelete: 'CASCADE',
