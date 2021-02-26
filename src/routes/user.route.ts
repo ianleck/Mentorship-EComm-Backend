@@ -10,7 +10,7 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
-// ==================== USER AUTH ====================
+// ================================ USER AUTH ================================
 router.post(
   '/login',
   schemaValidator.body(user.login),
@@ -31,7 +31,7 @@ router.put(
   Utility.asyncHandler(UserController.changePassword)
 );
 
-// ==================== USER ====================
+// ================================ USER ================================
 
 // get user (student/sensei)
 router.get(
@@ -68,7 +68,7 @@ router.delete(
   Utility.asyncHandler(UserController.deactivateUser)
 );
 
-// ==================== USER EXPERIENCE ====================
+// ================================ USER EXPERIENCE ================================
 router.post(
   '/experience/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
