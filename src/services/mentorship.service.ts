@@ -180,7 +180,6 @@ export default class MentorshipService {
   //get ALL mentorship applications of ONE sensei
   public static async getSenseiMentorshipApplications(senseiId) {
     const mentorshipApplications = MentorshipContract.findAll({
-      where: { senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING },
       include: [{ model: MentorshipListing, where: { senseiId } }],
     });
 
@@ -193,7 +192,6 @@ export default class MentorshipService {
     mentorshipListingId
   ) {
     const mentorshipApplications = MentorshipContract.findAll({
-      where: { senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING },
       include: [
         { model: MentorshipListing, where: { senseiId, mentorshipListingId } },
       ],
@@ -202,6 +200,7 @@ export default class MentorshipService {
     return mentorshipApplications;
   }
 
+  //get ONE mentorship application of ONE student
   public static async getStudentMentorshipApplication(mentorshipContractId) {
     const mentorshipApplication = MentorshipContract.findByPk(
       mentorshipContractId
