@@ -89,7 +89,7 @@ export class User extends Account {
   @HasOne(() => Company, 'companyId')
   Company: Company;
 
-  @HasMany(() => Experience, 'experienceId')
+  @HasMany(() => Experience, 'accountId')
   Experience: Experience[];
 
   @BelongsToMany(() => User, () => UserFollowership, 'followerId')

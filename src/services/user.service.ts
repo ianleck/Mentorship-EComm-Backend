@@ -4,7 +4,31 @@ import { STATUS_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import { Admin } from '../models/Admin';
 import { ERRORS } from '../constants/errors';
 import { Op } from 'sequelize';
+import { Experience } from '../models/Experience';
 export default class UserService {
+  public static async createExperience(
+    accountId: string,
+    experience: {
+      role: string;
+      dateStart: Date;
+      dateEnd: Date;
+      description: string;
+    }
+  ): Promise<Experience> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    try {
+      const newExp = new Experience({
+        ...experience,
+        accountId: user.accountId,
+      });
+      newExp.save();
+      return newExp;
+    } catch (e) {
+      throw e;
+    }
+  }
+
   public static async changePassword(
     accountId: string,
     userType: USER_TYPE_ENUM,
@@ -51,8 +75,23 @@ export default class UserService {
     }
   }
 
+  public static async deleteExperience(experienceId: string): Promise<void> {
+    try {
+      await Experience.destroy({
+        where: {
+          experienceId,
+        },
+      });
+      return;
+    } catch (e) {
+      throw new Error(ERRORS.EXPERIENCE_DOES_NOT_EXIST);
+    }
+  }
+
   public static async findUserById(accountId: string): Promise<User> {
-    const user = await User.findByPk(accountId);
+    const user = await User.findByPk(accountId, {
+      include: [Experience],
+    });
     if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     return user;
   }
@@ -97,6 +136,32 @@ export default class UserService {
       },
     });
     return senseis;
+  }
+
+  // update one user experience by experienceId
+  public static async updateExperience(
+    accountId: string,
+    experience: {
+      experienceId: string;
+      role: string;
+      dateStart: Date;
+      dateEnd: Date;
+      description: string;
+    }
+  ): Promise<Experience> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    try {
+      const exp = await Experience.findByPk(experience.experienceId);
+      if (!exp) throw new Error(ERRORS.EXPERIENCE_DOES_NOT_EXIST);
+      await exp.update({
+        ...experience,
+      });
+      exp.save();
+      return exp;
+    } catch (e) {
+      throw e;
+    }
   }
 
   public static async updateUser(

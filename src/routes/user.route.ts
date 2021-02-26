@@ -34,6 +34,14 @@ router.get(
 
 /*** POST REQUESTS ***/
 router.post(
+  '/experience/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdQ),
+  schemaValidator.body(user.createExperienceB),
+  Utility.asyncHandler(UserController.createExperience)
+);
+
+router.post(
   '/login',
   schemaValidator.body(user.login),
   Utility.asyncHandler(UserController.login)
@@ -66,6 +74,15 @@ router.put(
   Utility.asyncHandler(UserController.updateUser)
 );
 
+// update experience
+router.put(
+  '/experience/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdQ),
+  schemaValidator.body(user.updateExperienceB),
+  Utility.asyncHandler(UserController.updateExperience)
+);
+
 // router.put(
 //   '/occupation/:accountId',
 //   passport.authenticate('isAuthenticated', { session: false }),
@@ -83,6 +100,14 @@ router.delete(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdQ),
   Utility.asyncHandler(UserController.deactivateUser)
+);
+
+// delete user experience
+router.delete(
+  '/experience/:accountId/:experienceId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.deleteExperienceParams),
+  Utility.asyncHandler(UserController.deleteExperience)
 );
 
 /*** END OF DEL REQUESTS ***/
