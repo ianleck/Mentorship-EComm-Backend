@@ -38,9 +38,9 @@ export class MentorshipController {
         httpStatusCodes.CREATED
       );
     } catch (e) {
-      logger.error('[mentorshipController.createListing]:' + e.toString());
+      logger.error('[mentorshipController.createListing]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -57,9 +57,7 @@ export class MentorshipController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error(
-        '[mentorshipController.getMentorshipListings]:' + e.toString()
-      );
+      logger.error('[mentorshipController.getMentorshipListings]:' + e.message);
     }
   }
 
@@ -74,9 +72,9 @@ export class MentorshipController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[mentorshipController.deleteListing]:' + e.toString());
+      logger.error('[mentorshipController.deleteListing]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -96,9 +94,9 @@ export class MentorshipController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[mentorshipController.updateListing]:' + e.toString());
+      logger.error('[mentorshipController.updateListing]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -121,9 +119,9 @@ export class MentorshipController {
         httpStatusCodes.CREATED
       );
     } catch (e) {
-      logger.error('[mentorshipController.createApplication]:' + e.toString());
+      logger.error('[mentorshipController.createApplication]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -145,9 +143,9 @@ export class MentorshipController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[mentorshipController.updateApplication]:' + e.toString());
+      logger.error('[mentorshipController.updateApplication]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -163,9 +161,9 @@ export class MentorshipController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[mentorshipController.deleteApplication]:' + e.toString());
+      logger.error('[mentorshipController.deleteApplication]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }

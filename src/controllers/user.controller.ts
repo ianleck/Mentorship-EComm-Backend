@@ -26,9 +26,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.changePassword]:' + e.toString());
+      logger.error('[userController.changePassword]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -61,9 +61,9 @@ export class UserController {
         httpStatusCodes.CREATED
       );
     } catch (e) {
-      logger.error('[userController.register]:' + e.toString());
+      logger.error('[userController.register]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -90,9 +90,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.deactivateUser]:' + e.toString());
+      logger.error('[userController.deactivateUser]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -110,9 +110,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.getUser]:' + e.toString());
+      logger.error('[userController.getUser]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -129,9 +129,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.getAllActiveStudents]:' + e.toString());
+      logger.error('[userController.getAllActiveStudents]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -148,9 +148,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.getAllActiveSenseis]:' + e.toString());
+      logger.error('[userController.getAllActiveSenseis]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -175,9 +175,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.updateUser]' + e.toString());
+      logger.error('[userController.updateUser]' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -204,10 +204,10 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.addExperience]:' + e.toString());
+      logger.error('[userController.createExperience]:' + e.message);
       const errorMsg =
-        e.toString() === ERRORS.USER_DOES_NOT_EXIST
-          ? e.toString()
+        e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST
+          ? e.message
           : 'Unable to create new experience';
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: errorMsg,
@@ -234,10 +234,10 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.deleteExperience]:' + e.toString());
-      const errorMsg: Error =
-        e.toString() === ERRORS.EXPERIENCE_DOES_NOT_EXIST
-          ? e.toString()
+      logger.error('[userController.deleteExperience]:' + e.message);
+      const errorMsg =
+        e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST
+          ? e.message
           : 'Unable to delete experience';
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: errorMsg,
@@ -265,7 +265,7 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.updateExperience]:' + e.toString());
+      logger.error('[userController.updateExperience]:' + e.message);
       const errorMsg =
         e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST
           ? e.message
