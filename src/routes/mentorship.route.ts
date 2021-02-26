@@ -3,7 +3,11 @@ import { MentorshipController } from '../controllers/mentorship.controller';
 import mentorship from './schema/mentorship.schema';
 import user from './schema/user.schema';
 import Utility from '../constants/utility';
-import { requireSensei, requireStudent } from '../middlewares/userTypeHandler';
+import {
+  requireSensei,
+  requireStudent,
+  requireAdmin,
+} from '../middlewares/userTypeHandler';
 const passport = require('passport');
 
 const router = express.Router();
@@ -66,6 +70,7 @@ router.post(
 router.get(
   '/mentorship-applications',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
   Utility.asyncHandler(MentorshipController.getAllMentorshipApplications)
 );
 

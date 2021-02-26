@@ -240,7 +240,7 @@ export class MentorshipController {
         res,
         {
           message: 'success',
-          applications,2
+          applications,
         },
         httpStatusCodes.OK
       );
@@ -276,8 +276,6 @@ export class MentorshipController {
     }
   }
 
-  
-
   //get ALL mentorship applications of ONE sensei
   public static async getSenseiMentorshipApplications(req, res) {
     const { accountId } = req.params;
@@ -308,10 +306,10 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.getSenseiMentorshipApplications]:' + e.toString()
       );
-      }
     }
+  }
 
-    //get ALL mentorship applications of ONE sensei for ONE listing 
+  //get ALL mentorship applications of ONE sensei for ONE listing
   public static async getSenseiListingMentorshipApplications(req, res) {
     const { accountId, mentorshipListingId } = req.params;
     const { user } = req; //user is the user who is making the request
@@ -327,7 +325,8 @@ export class MentorshipController {
 
     try {
       const applications = await MentorshipService.getSenseiListingMentorshipApplications(
-        accountId, mentorshipListingId
+        accountId,
+        mentorshipListingId
       );
       return apiResponse.result(
         res,
@@ -339,12 +338,12 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error(
-        '[mentorshipController.getSenseiListingMentorshipApplications]:' + e.toString()
+        '[mentorshipController.getSenseiListingMentorshipApplications]:' +
+          e.toString()
       );
-      }
     }
+  }
 
-        
   public static async deleteApplication(req, res) {
     const { mentorshipListingId, accountId } = req.params;
 
