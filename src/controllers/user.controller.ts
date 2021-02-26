@@ -3,6 +3,7 @@ import apiResponse from '../utilities/apiResponse';
 import UserService from '../services/user.service';
 import logger from '../config/logger';
 import { USER_TYPE_ENUM } from '../constants/enum';
+import { ERRORS } from '../constants/errors';
 
 const passport = require('passport');
 
@@ -204,8 +205,12 @@ export class UserController {
       );
     } catch (e) {
       logger.error('[userController.addExperience]:' + e.toString());
+      const errorMsg =
+        e.toString() === ERRORS.USER_DOES_NOT_EXIST
+          ? e.toString()
+          : 'Unable to create new experience';
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: 'Unable to create new experience',
+        message: errorMsg,
       });
     }
   }
@@ -230,8 +235,12 @@ export class UserController {
       );
     } catch (e) {
       logger.error('[userController.deleteExperience]:' + e.toString());
+      const errorMsg: Error =
+        e.toString() === ERRORS.EXPERIENCE_DOES_NOT_EXIST
+          ? e.toString()
+          : 'Unable to delete experience';
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: 'Unable to delete experience',
+        message: errorMsg,
       });
     }
   }
@@ -257,8 +266,12 @@ export class UserController {
       );
     } catch (e) {
       logger.error('[userController.updateExperience]:' + e.toString());
+      const errorMsg =
+        e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST
+          ? e.message
+          : 'Unable to update experience';
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: 'Unable to update experience',
+        message: errorMsg,
       });
     }
   }
