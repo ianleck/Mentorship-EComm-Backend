@@ -240,7 +240,7 @@ export class MentorshipController {
         res,
         {
           message: 'success',
-          applications,
+          applications,2
         },
         httpStatusCodes.OK
       );
@@ -276,11 +276,21 @@ export class MentorshipController {
     }
   }
 
-  /*
+  
 
   //get ALL mentorship applications of ONE sensei
   public static async getSenseiMentorshipApplications(req, res) {
     const { accountId } = req.params;
+    const { user } = req; //user is the user who is making the request
+
+    if (
+      user.accountId !== accountId &&
+      user.userType !== USER_TYPE_ENUM.ADMIN
+    ) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
 
     try {
       const applications = await MentorshipService.getSenseiMentorshipApplications(
@@ -301,7 +311,40 @@ export class MentorshipController {
       }
     }
 
-        */
+    //get ALL mentorship applications of ONE sensei for ONE listing 
+  public static async getSenseiListingMentorshipApplications(req, res) {
+    const { accountId, mentorshipListingId } = req.params;
+    const { user } = req; //user is the user who is making the request
+
+    if (
+      user.accountId !== accountId &&
+      user.userType !== USER_TYPE_ENUM.ADMIN
+    ) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
+
+    try {
+      const applications = await MentorshipService.getSenseiListingMentorshipApplications(
+        accountId, mentorshipListingId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          applications,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.getSenseiListingMentorshipApplications]:' + e.toString()
+      );
+      }
+    }
+
+        
   public static async deleteApplication(req, res) {
     const { mentorshipListingId, accountId } = req.params;
 

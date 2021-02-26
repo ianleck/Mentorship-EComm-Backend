@@ -177,25 +177,30 @@ export default class MentorshipService {
     return mentorshipApplications;
   }
 
-  /*
-
-  //retrieve mentorshipContracts which are PENDING -> retrieve mentorshipListingIds of these contracts -> retrieve SenseiId
-  public static async getSenseiMentorshipApplications(accountId) {
-    const mentorshipContracts = MentorshipContract.findAll({
+  //get ALL mentorship applications of ONE sensei
+  public static async getSenseiMentorshipApplications(senseiId) {
+    const mentorshipApplications = MentorshipContract.findAll({
       where: { senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING },
+      include: [{ model: MentorshipListing, where: { senseiId } }],
     });
-
-    //Loop through mentorshipContracts to retrieve mentorshipListingsIds
-
-    const mentorshipApplications = MentorshipListing.findAll({
-      where: { senseiId: { [Op.eq]: accountId } },
-    });
-
-    //Get mentorshipListing and match to senseiId
 
     return mentorshipApplications;
   }
-  */
+
+  //get ALL mentorship applications of ONE sensei for ONE listing
+  public static async getSenseiListingMentorshipApplications(
+    senseiId,
+    mentorshipListingId
+  ) {
+    const mentorshipApplications = MentorshipContract.findAll({
+      where: { senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING },
+      include: [
+        { model: MentorshipListing, where: { senseiId, mentorshipListingId } },
+      ],
+    });
+
+    return mentorshipApplications;
+  }
 
   public static async getStudentMentorshipApplication(mentorshipContractId) {
     const mentorshipApplication = MentorshipContract.findByPk(
