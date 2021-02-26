@@ -47,7 +47,17 @@ export class MentorshipController {
   }
 
   public static async getSenseiMentorshipListings(req, res) {
+    const { user } = req; //user is the user who is making the request
     const { accountId } = req.params; //accountId of the sensei who is being looked at
+
+    if (
+      user.accountId !== accountId &&
+      user.userType !== USER_TYPE_ENUM.ADMIN
+    ) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
 
     try {
       const mentorshipListings = await MentorshipService.getSenseiMentorshipListings(
