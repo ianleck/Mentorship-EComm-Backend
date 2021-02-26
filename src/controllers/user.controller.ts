@@ -7,6 +7,7 @@ import { USER_TYPE_ENUM } from '../constants/enum';
 const passport = require('passport');
 
 export class UserController {
+  // ================================ USER AUTH ================================
   public static async changePassword(req, res) {
     const { accountId, userType } = req.user;
     const { oldPassword, newPassword, confirmPassword } = req.body;
@@ -31,6 +32,43 @@ export class UserController {
     }
   }
 
+  public static async login(req, res, next) {
+    return passport.authenticate(
+      'jwt-local',
+      { session: false },
+      (err, passportUser, info) => {
+        if (err) {
+          return next(err);
+        }
+        if (passportUser) {
+          const user = passportUser;
+          return apiResponse.result(res, user.toAuthJSON(), httpStatusCodes.OK);
+        }
+
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, info);
+      }
+    )(req, res, next);
+  }
+
+  public static async register(req, res) {
+    const { newUser } = req.body;
+    try {
+      const user = await UserService.register(newUser);
+      return apiResponse.result(
+        res,
+        user.toAuthJSON(),
+        httpStatusCodes.CREATED
+      );
+    } catch (e) {
+      logger.error('[userController.register]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
+  // ================================ USER ================================
+
   public static async deactivateUser(req, res) {
     const _user = req.user;
     const { accountId } = req.params;
@@ -52,6 +90,26 @@ export class UserController {
       );
     } catch (e) {
       logger.error('[userController.deactivateUser]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.toString(),
+      });
+    }
+  }
+
+  public static async getUser(req, res) {
+    const { accountId } = req.params;
+    try {
+      const user = await UserService.findUserById(accountId);
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          user,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[userController.getUser]:' + e.toString());
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
       });
@@ -96,61 +154,6 @@ export class UserController {
     }
   }
 
-  public static async getUser(req, res) {
-    const { accountId } = req.params;
-    try {
-      const user = await UserService.findUserById(accountId);
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          user,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[userController.getUser]:' + e.toString());
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
-      });
-    }
-  }
-
-  public static async login(req, res, next) {
-    return passport.authenticate(
-      'jwt-local',
-      { session: false },
-      (err, passportUser, info) => {
-        if (err) {
-          return next(err);
-        }
-        if (passportUser) {
-          const user = passportUser;
-          return apiResponse.result(res, user.toAuthJSON(), httpStatusCodes.OK);
-        }
-
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, info);
-      }
-    )(req, res, next);
-  }
-
-  public static async register(req, res) {
-    const { newUser } = req.body;
-    try {
-      const user = await UserService.register(newUser);
-      return apiResponse.result(
-        res,
-        user.toAuthJSON(),
-        httpStatusCodes.CREATED
-      );
-    } catch (e) {
-      logger.error('[userController.register]:' + e.toString());
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
-      });
-    }
-  }
-
   public static async updateUser(req, res) {
     const _user = req.user;
     const { accountId } = req.params;
@@ -178,33 +181,85 @@ export class UserController {
     }
   }
 
-  //   public static async updateUserOccupation(req, res) {
-  //     const _user = req.user;
-  //     const { accountId } = req.params;
-  //     const { occupation } = req.body;
+  // ================================ USER EXPERIENCE ================================
 
-  //     // check if user is updating his/her own account
-  //     if (_user.accountId != accountId) {
-  //       return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-  //         message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-  //       });
-  //     }
+  public static async createExperience(req, res) {
+    const _user = req.user;
+    const { accountId } = req.params;
+    const { experience } = req.body;
 
-  //     try {
-  //       const userEntity = await UserService.updateUserOccupation(
-  //         accountId,
-  //         occupation
-  //       );
-  //       apiResponse.result(
-  //         res,
-  //         { message: 'success', student: userEntity },
-  //         httpStatusCodes.OK
-  //       );
-  //     } catch (e) {
-  //       logger.error('[userController.updateUserAbout]' + e.toString());
-  //       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-  //         message: e.toString(),
-  //       });
-  //     }
-  //   }
+    // if request.user is sending a request to update an account that is not his/hers, return unauthorized
+    if (_user.accountId != accountId) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
+
+    try {
+      const exp = await UserService.createExperience(accountId, experience);
+      return apiResponse.result(
+        res,
+        { message: 'Successfully Created Experience', experience: exp },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[userController.addExperience]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: 'Unable to create new experience',
+      });
+    }
+  }
+
+  public static async deleteExperience(req, res) {
+    const _user = req.user;
+    const { accountId, experienceId } = req.params;
+
+    // if request.user is sending a request to update an account that is not his/hers, return unauthorized
+    if (_user.accountId != accountId) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
+
+    try {
+      await UserService.deleteExperience(experienceId);
+      return apiResponse.result(
+        res,
+        { message: 'Successfully Deleted Experience' },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[userController.deleteExperience]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: 'Unable to delete experience',
+      });
+    }
+  }
+
+  public static async updateExperience(req, res) {
+    const _user = req.user;
+    const { accountId } = req.params;
+    const { experience } = req.body;
+
+    // if request.user is sending a request to update an account that is not his/hers, return unauthorized
+    if (_user.accountId != accountId) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
+
+    try {
+      const exp = await UserService.updateExperience(accountId, experience);
+      return apiResponse.result(
+        res,
+        { message: 'Successfully Updated Experience', experience: exp },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[userController.updateExperience]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: 'Unable to update experience',
+      });
+    }
+  }
 }

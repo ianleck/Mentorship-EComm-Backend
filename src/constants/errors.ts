@@ -3,6 +3,7 @@ export const ERRORS = {
   SENSEI_DOES_NOT_EXIST: 'Sensei does not exist',
   STUDENT_DOES_NOT_EXIST: 'Student does not exist',
   USER_DOES_NOT_EXIST: 'User does not exist',
+  EXPERIENCE_DOES_NOT_EXIST: 'Experience does not exist',
 };
 
 export const MENTORSHIP_ERRORS = {

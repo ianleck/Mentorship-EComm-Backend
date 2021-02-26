@@ -10,7 +10,28 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
-/*** GET REQUESTS ***/
+// ================================ USER AUTH ================================
+router.post(
+  '/login',
+  schemaValidator.body(user.login),
+  Utility.asyncHandler(UserController.login)
+);
+
+router.post(
+  '/register',
+  schemaValidator.body(user.register),
+  Utility.asyncHandler(UserController.register)
+);
+
+// authentication: check that req.user == accountId
+router.put(
+  '/change-password',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.body(user.changePassword),
+  Utility.asyncHandler(UserController.changePassword)
+);
+
+// ================================ USER ================================
 
 // get user (student/sensei)
 router.get(
@@ -30,33 +51,6 @@ router.get(
   Utility.asyncHandler(UserController.getAllActiveStudents)
 );
 
-/*** END OF GET REQUESTS ***/
-
-/*** POST REQUESTS ***/
-router.post(
-  '/login',
-  schemaValidator.body(user.login),
-  Utility.asyncHandler(UserController.login)
-);
-
-router.post(
-  '/register',
-  schemaValidator.body(user.register),
-  Utility.asyncHandler(UserController.register)
-);
-
-/*** END OF POST REQUESTS ***/
-
-/*** PUT REQUESTS ***/
-
-// authentication: check that req.user == accountId
-router.put(
-  '/change-password',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.body(user.changePassword),
-  Utility.asyncHandler(UserController.changePassword)
-);
-
 // update user (student/sensei) (all fields other than occupation and ?industry? check schema for source of truth)
 router.put(
   '/:accountId',
@@ -66,17 +60,6 @@ router.put(
   Utility.asyncHandler(UserController.updateUser)
 );
 
-// router.put(
-//   '/occupation/:accountId',
-//   passport.authenticate('isAuthenticated', { session: false }),
-//   schemaValidator.params(user.accountIdQ),
-//   schemaValidator.body(user.updateUserOccupationB),
-//   Utility.asyncHandler(UserController.updateUserOccupation)
-// );
-/*** END OF PUT REQUESTS ***/
-
-/*** DEL REQUESTS ***/
-
 // delete user (student/sensei)
 router.delete(
   '/:accountId',
@@ -85,6 +68,30 @@ router.delete(
   Utility.asyncHandler(UserController.deactivateUser)
 );
 
-/*** END OF DEL REQUESTS ***/
+// ================================ USER EXPERIENCE ================================
+router.post(
+  '/experience/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdQ),
+  schemaValidator.body(user.createExperienceB),
+  Utility.asyncHandler(UserController.createExperience)
+);
+
+// update experience
+router.put(
+  '/experience/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdQ),
+  schemaValidator.body(user.updateExperienceB),
+  Utility.asyncHandler(UserController.updateExperience)
+);
+
+// delete user experience
+router.delete(
+  '/experience/:accountId/:experienceId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.deleteExperienceParams),
+  Utility.asyncHandler(UserController.deleteExperience)
+);
 
 export default router;
