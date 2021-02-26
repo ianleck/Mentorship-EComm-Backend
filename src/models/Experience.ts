@@ -40,7 +40,7 @@ export class Experience extends BaseEntity {
 
   @Column({
     allowNull: false,
-    type: DataType.BLOB,
+    type: DataType.TEXT,
   })
   description: string;
 

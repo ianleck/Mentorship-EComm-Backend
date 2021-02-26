@@ -1,6 +1,5 @@
 import { User } from '../models/User';
 import bcrypt from 'bcrypt';
-import Utility from '../constants/utility';
 import { STATUS_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import { Admin } from '../models/Admin';
 import { ERRORS } from '../constants/errors';
@@ -52,6 +51,12 @@ export default class UserService {
     }
   }
 
+  public static async findUserById(accountId: string): Promise<User> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    return user;
+  }
+
   public static async findUserOrAdminById(
     accountId: string,
     userType: USER_TYPE_ENUM
@@ -70,14 +75,6 @@ export default class UserService {
     } catch (e) {
       throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     }
-  }
-
-  public static async findUserById(accountId: string): Promise<User> {
-    const user = await User.findByPk(accountId);
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-    // let _user: any = Object.assign({}, user);
-    // console.log('user =', user.toJSON());
-    return user.toJSON();
   }
 
   // get all users with userType = STUDENT
@@ -102,29 +99,14 @@ export default class UserService {
     return senseis;
   }
 
-  public static async updateUser(accountId: string, userDto) {
-    const user = await User.findByPk(accountId);
-    if (user) {
-      return await user.update({
-        firstName: userDto.firstName,
-        lastName: userDto.lastName,
-        contactNumber: userDto.contactNumber,
-      });
-    } else {
-      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-    }
-  }
-
-  public static async updateUserAbout(
+  public static async updateUser(
     accountId: string,
-    userAbout: { headline: string; bio: string }
+    fields: { [key: string]: string }
   ) {
     const user = await User.findByPk(accountId);
     if (user) {
-      return await user.update({
-        headline: userAbout.headline,
-        bio: userAbout.bio,
-      });
+      await user.update(fields);
+      return await User.findByPk(accountId);
     } else {
       throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     }
@@ -167,29 +149,19 @@ export default class UserService {
         paranoid: false,
       });
       if (isStudent) {
-        newUser = new User(
-          {
-            username,
-            email,
-            password,
-            userType: USER_TYPE_ENUM.STUDENT,
-          }
-          // {
-          //   include: [User],
-          // }
-        );
+        newUser = new User({
+          username,
+          email,
+          password,
+          userType: USER_TYPE_ENUM.STUDENT,
+        });
       } else {
-        newUser = new User(
-          {
-            username,
-            email,
-            password,
-            userType: USER_TYPE_ENUM.SENSEI,
-          }
-          // {
-          //   include: [User],
-          // }
-        );
+        newUser = new User({
+          username,
+          email,
+          password,
+          userType: USER_TYPE_ENUM.SENSEI,
+        });
       }
 
       // if user exist, return error

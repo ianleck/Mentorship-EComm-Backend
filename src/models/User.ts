@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {
+  BelongsTo,
   BelongsToMany,
   Column,
   DataType,
@@ -18,7 +19,6 @@ import { Account } from './abstract/Account';
 import { Company } from './Company';
 import { Experience } from './Experience';
 import { MentorshipContract } from './MentorshipContract';
-import { Occupation } from './Occupation';
 import { UserFollowership } from './UserFollowership';
 @Table
 export class User extends Account {
@@ -62,14 +62,17 @@ export class User extends Account {
   @Column({ type: DataType.STRING })
   industry: string;
 
-  @Column({ type: DataType.BLOB })
+  @Column({ type: DataType.STRING })
   headline: string;
 
-  @Column({ type: DataType.BLOB })
+  @Column({ type: DataType.TEXT })
   bio: string;
 
   @Column({ type: DataType.STRING })
   personality: string;
+
+  @Column({ type: DataType.STRING })
+  occupation: string;
 
   // ==================== ACCOUNT SETTINGS ====================
   @Column({ type: DataType.BOOLEAN })
@@ -81,11 +84,7 @@ export class User extends Account {
     defaultValue: PRIVACY_PERMISSIONS_ENUM.ALL,
   })
   privacy: PRIVACY_PERMISSIONS_ENUM;
-
   // ==================== RELATIONSHIP MAPPINGS ====================
-
-  @HasOne(() => Occupation, 'occupationId')
-  Occupation: Occupation;
 
   @HasOne(() => Company, 'companyId')
   Company: Company;

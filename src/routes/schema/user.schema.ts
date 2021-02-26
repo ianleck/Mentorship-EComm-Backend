@@ -1,4 +1,5 @@
 import joi from 'joi';
+import { PRIVACY_PERMISSIONS_ENUM } from '../../constants/enum';
 
 export default {
   login: joi.object({
@@ -32,12 +33,18 @@ export default {
       lastName: joi.string(),
       contactNumber: joi.number(),
       status: joi.string(),
-    }),
-  }),
-  updateUserAboutB: joi.object({
-    about: joi.object({
       headline: joi.string(),
       bio: joi.string(),
+      privacy: joi.string().valid(...Object.values(PRIVACY_PERMISSIONS_ENUM)),
+      personality: joi.string(),
+      emailNotification: joi.boolean(),
+      occupation: joi.string(),
+      industry: joi.string(),
+    }),
+  }),
+  updateUserOccupationB: joi.object({
+    occupation: joi.object({
+      name: joi.string().required(),
     }),
   }),
 };
