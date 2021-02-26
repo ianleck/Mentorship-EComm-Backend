@@ -51,6 +51,12 @@ export default class UserService {
     }
   }
 
+  public static async findUserById(accountId: string): Promise<User> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    return user;
+  }
+
   public static async findUserOrAdminById(
     accountId: string,
     userType: USER_TYPE_ENUM

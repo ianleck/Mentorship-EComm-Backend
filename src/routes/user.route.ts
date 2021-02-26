@@ -66,13 +66,13 @@ router.put(
   Utility.asyncHandler(UserController.updateUser)
 );
 
-router.put(
-  '/occupation/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdQ),
-  schemaValidator.body(user.updateUserOccupationB),
-  Utility.asyncHandler(UserController.updateUserOccupation)
-);
+// router.put(
+//   '/occupation/:accountId',
+//   passport.authenticate('isAuthenticated', { session: false }),
+//   schemaValidator.params(user.accountIdQ),
+//   schemaValidator.body(user.updateUserOccupationB),
+//   Utility.asyncHandler(UserController.updateUserOccupation)
+// );
 /*** END OF PUT REQUESTS ***/
 
 /*** DEL REQUESTS ***/
