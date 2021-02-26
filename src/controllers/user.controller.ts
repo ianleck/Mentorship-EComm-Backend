@@ -3,6 +3,7 @@ import apiResponse from '../utilities/apiResponse';
 import UserService from '../services/user.service';
 import logger from '../config/logger';
 import { USER_TYPE_ENUM } from '../constants/enum';
+import { ERRORS } from '../constants/errors';
 
 const passport = require('passport');
 
@@ -25,9 +26,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.changePassword]:' + e.toString());
+      logger.error('[userController.changePassword]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -60,9 +61,9 @@ export class UserController {
         httpStatusCodes.CREATED
       );
     } catch (e) {
-      logger.error('[userController.register]:' + e.toString());
+      logger.error('[userController.register]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -89,9 +90,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.deactivateUser]:' + e.toString());
+      logger.error('[userController.deactivateUser]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -109,9 +110,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.getUser]:' + e.toString());
+      logger.error('[userController.getUser]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -128,9 +129,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.getAllActiveStudents]:' + e.toString());
+      logger.error('[userController.getAllActiveStudents]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -147,9 +148,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.getAllActiveSenseis]:' + e.toString());
+      logger.error('[userController.getAllActiveSenseis]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -174,9 +175,9 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.updateUser]' + e.toString());
+      logger.error('[userController.updateUser]' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -203,9 +204,13 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.addExperience]:' + e.toString());
+      logger.error('[userController.createExperience]:' + e.message);
+      const errorMsg =
+        e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST
+          ? e.message
+          : 'Unable to create new experience';
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: 'Unable to create new experience',
+        message: errorMsg,
       });
     }
   }
@@ -229,9 +234,13 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.deleteExperience]:' + e.toString());
+      logger.error('[userController.deleteExperience]:' + e.message);
+      const errorMsg =
+        e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST
+          ? e.message
+          : 'Unable to delete experience';
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: 'Unable to delete experience',
+        message: errorMsg,
       });
     }
   }
@@ -256,9 +265,13 @@ export class UserController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.updateExperience]:' + e.toString());
+      logger.error('[userController.updateExperience]:' + e.message);
+      const errorMsg =
+        e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST
+          ? e.message
+          : 'Unable to update experience';
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: 'Unable to update experience',
+        message: errorMsg,
       });
     }
   }

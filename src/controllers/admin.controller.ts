@@ -26,9 +26,9 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.deactivateAdmin]:' + e.toString());
+      logger.error('[adminController.deactivateAdmin]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -64,9 +64,9 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.getAdmin]:' + e.toString());
+      logger.error('[adminController.getAdmin]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -83,9 +83,9 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.getAllAdmins]:' + e.toString());
+      logger.error('[adminController.getAllAdmins]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -102,9 +102,9 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.getAllPendingSenseis]:' + e.toString());
+      logger.error('[adminController.getAllPendingSenseis]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -121,9 +121,9 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.getBannedStudents]:' + e.toString());
+      logger.error('[adminController.getBannedStudents]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -140,9 +140,9 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.getBannedSenseis]:' + e.toString());
+      logger.error('[adminController.getBannedSenseis]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -173,9 +173,9 @@ export class AdminController {
       const admin = await AdminService.registerAdmin(newAdmin, user.accountId);
       return apiResponse.result(res, admin.toAuthJSON(), httpStatusCodes.OK);
     } catch (e) {
-      logger.error('[adminController.registerAdmin]:' + e.toString());
+      logger.error('[adminController.registerAdmin]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -192,9 +192,9 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.resetPassword]:' + e.toString());
+      logger.error('[adminController.resetPassword]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -225,9 +225,9 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.updateAdmin]' + e.toString());
+      logger.error('[adminController.updateAdmin]' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -248,9 +248,9 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.updateAdminPermission]' + e.toString());
+      logger.error('[adminController.updateAdminPermission]' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -273,9 +273,9 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.verifySenseiProfile]:' + e.toString());
+      logger.error('[adminController.verifySenseiProfile]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -298,10 +298,10 @@ export class AdminController {
       );
     } catch (e) {
       logger.error(
-        '[adminController.getSenseiMentorshipListings]:' + e.toString()
+        '[adminController.getSenseiMentorshipListings]:' + e.message
       );
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
@@ -320,9 +320,9 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.getMentorshipContracts]:' + e.toString());
+      logger.error('[adminController.getMentorshipContracts]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: e.message,
       });
     }
   }
