@@ -47,7 +47,7 @@ export class MentorshipListing extends BaseEntity {
   @Max(10)
   @Column({
     type: DataType.FLOAT,
-    defaultValue: DataType.FLOAT,
+    defaultValue: '10.0',
   })
   rating: number;
 

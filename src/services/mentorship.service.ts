@@ -37,7 +37,7 @@ export default class MentorshipService {
       description,
     });
 
-    newListing.save();
+    await newListing.save();
 
     await ListingToCategory.bulkCreate(
       categories.map((categoryId) => ({
@@ -47,7 +47,7 @@ export default class MentorshipService {
     );
 
     return MentorshipListing.findByPk(newListing.mentorshipListingId, {
-      include: [ListingToCategory],
+      include: [Category],
     });
   }
 
