@@ -27,7 +27,7 @@ router.post(
 );
 
 router.put(
-  '/listing/:mentorshipListing',
+  '/listing/:mentorshipListingId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(mentorship.mentorshipListingQ),
@@ -36,7 +36,7 @@ router.put(
 );
 
 router.delete(
-  '/listing/:mentorshipListing',
+  '/listing/:mentorshipListingId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(mentorship.mentorshipListingQ),
@@ -45,7 +45,7 @@ router.delete(
 
 // ==================== MENTORSHIP CONTRACT ====================
 router.post(
-  '/application/:mentorshipListing/:accountId',
+  '/application/:mentorshipListingId/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
   schemaValidator.params(mentorship.mentorshipApplicationQ),
