@@ -36,7 +36,6 @@ export class AdminController {
   public static async getAdmin(req, res) {
     const { user } = req; //user is the user who is making the request
     const { accountId } = req.params; //accountId of the admin who is being updatred
-    const { adminId } = req.body;
 
     /*
     If you are not user && not superadmin, will send error
@@ -54,7 +53,7 @@ export class AdminController {
     }
 
     try {
-      const admin = await AdminService.findAdminById(adminId);
+      const admin = await AdminService.findAdminById(accountId);
       return apiResponse.result(
         res,
         {
