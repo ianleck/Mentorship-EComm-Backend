@@ -55,7 +55,14 @@ export class MentorshipContract extends BaseEntity {
   @BelongsTo(() => User, 'accountId')
   Student: User;
 
-  @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
+  @BelongsTo(() => MentorshipListing, {
+    onDelete: 'CASCADE',
+    onUpdate: 'no action',
+    foreignKey: {
+      name: 'mentorshipListingId',
+      allowNull: false,
+    },
+  })
   MentorshipListing: MentorshipListing;
 }
 

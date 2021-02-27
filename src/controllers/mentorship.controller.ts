@@ -25,12 +25,12 @@ export class MentorshipController {
   // ==================== MENTORSHIP LISTINGS ====================
   public static async createListing(req, res) {
     const { accountId } = req.params;
-    const { newMentorshipListing } = req.body;
+    const { newListing } = req.body;
 
     try {
       const createdListing = await MentorshipService.createListing(
         accountId,
-        newMentorshipListing
+        newListing
       );
       return apiResponse.result(
         res,
