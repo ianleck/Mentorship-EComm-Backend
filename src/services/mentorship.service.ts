@@ -132,7 +132,7 @@ export default class MentorshipService {
     await this.removeListingCategories(mentorshipListingId, categoriesToRemove);
 
     return MentorshipListing.findByPk(currListing.mentorshipListingId, {
-      include: [ListingToCategory],
+      include: [Category],
     });
   }
 
