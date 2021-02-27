@@ -1,4 +1,7 @@
 import * as _ from 'lodash';
+
+import Utility from '../constants/utility';
+import { Op } from 'sequelize';
 import {
   MENTORSHIP_CONTRACT_APPROVAL,
   MENTORSHIP_PROGRESS_ENUM,
@@ -49,6 +52,13 @@ export default class MentorshipService {
     return MentorshipListing.findByPk(newListing.mentorshipListingId, {
       include: [ListingToCategory],
     });
+  }
+
+  public static async getSenseiMentorshipListings(accountId: string) {
+    const mentorshipListings = MentorshipListing.findAll({
+      where: { senseiId: { [Op.eq]: accountId } },
+    });
+    return mentorshipListings;
   }
 
   public static async getAllMentorshipListings() {
@@ -159,6 +169,53 @@ export default class MentorshipService {
     newApplication.save();
 
     return newApplication;
+  }
+
+  //get all mentorship applications (for admin)
+  public static async getAllMentorshipApplications() {
+    const mentorshipApplications = MentorshipContract.findAll();
+    return mentorshipApplications;
+  }
+
+  //get ALL mentorship applications of ONE sensei
+  public static async getSenseiMentorshipApplications(senseiId) {
+    const mentorshipApplications = MentorshipContract.findAll({
+      include: [{ model: MentorshipListing, where: { senseiId } }],
+    });
+
+    return mentorshipApplications;
+  }
+
+  //get ALL mentorship applications of ONE sensei for ONE listing
+  public static async getSenseiListingMentorshipApplications(
+    senseiId,
+    mentorshipListingId
+  ) {
+    const mentorshipApplications = MentorshipContract.findAll({
+      include: [
+        { model: MentorshipListing, where: { senseiId, mentorshipListingId } },
+      ],
+    });
+
+    return mentorshipApplications;
+  }
+
+  //get ONE mentorship application of ONE student
+  public static async getStudentMentorshipApplication(mentorshipContractId) {
+    const mentorshipApplication = MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    return mentorshipApplication;
+  }
+
+  //get all mentorshipApplications created by this student
+  public static async getAllStudentMentorshipApplications(studentId) {
+    const mentorshipApplications = MentorshipContract.findAll({
+      where: {
+        studentId: { [Op.eq]: studentId },
+      },
+    });
+    return mentorshipApplications;
   }
 
   public static async updateApplication(
