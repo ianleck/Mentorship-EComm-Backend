@@ -2,7 +2,7 @@ import joi from 'joi';
 
 export default {
   mentorshipListingB: joi.object({
-    newListing: joi.object({
+    mentorshipListing: joi.object({
       name: joi.string().required(),
       categories: joi.array().items(joi.string().required()).required(),
       description: joi.string().required(),
