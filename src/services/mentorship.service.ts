@@ -9,8 +9,8 @@ import {
 } from '../constants/enum';
 import { ERRORS } from '../constants/errors';
 import {
-  APPLICATION_EXISTS,
-  APPLICATION_MISSING,
+  CONTRACT_EXISTS,
+  CONTRACT_MISSING,
   LISTING_MISSING,
 } from '../controllers/mentorship.controller';
 import { Category } from '../models/Category';
@@ -144,7 +144,7 @@ export default class MentorshipService {
     return mentorshipListings;
   }
 
-  // ==================== MENTORSHIP APPLICATIONS ====================
+  // ==================== MENTORSHIP CONTRACTS ====================
   public static async createContract(
     mentorshipListingId: string,
     accountId: string,
@@ -157,7 +157,7 @@ export default class MentorshipService {
       },
     });
 
-    if (existingContract) throw new Error(APPLICATION_EXISTS);
+    if (existingContract) throw new Error(CONTRACT_EXISTS);
 
     const newContract = new MentorshipContract({
       mentorshipListingId,
@@ -177,7 +177,7 @@ export default class MentorshipService {
     const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
     );
-    if (!currContract) throw new Error(APPLICATION_MISSING);
+    if (!currContract) throw new Error(CONTRACT_MISSING);
 
     const updatedContract = await currContract.update({
       statement,
@@ -192,7 +192,7 @@ export default class MentorshipService {
     const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
     );
-    if (!currContract) throw new Error(APPLICATION_MISSING);
+    if (!currContract) throw new Error(CONTRACT_MISSING);
 
     // Manual cascade deletion of associations - Subscription
 
@@ -258,7 +258,7 @@ export default class MentorshipService {
       mentorshipContractId
     );
 
-    if (!mentorshipContract) throw new Error(APPLICATION_MISSING);
+    if (!mentorshipContract) throw new Error(CONTRACT_MISSING);
 
     return mentorshipContract;
   }

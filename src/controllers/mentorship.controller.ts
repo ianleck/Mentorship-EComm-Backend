@@ -12,15 +12,15 @@ export const LISTING_DELETE =
   'Mentorship Listing has been successfully deleted';
 export const LISTING_MISSING = 'Please create a mentorship contract';
 
-export const APPLICATION_CREATE =
+export const CONTRACT_CREATE =
   'Mentorship Contract has been successfully created';
-export const APPLICATION_UPDATE =
+export const CONTRACT_UPDATE =
   'Mentorship Contract has been successfully updated';
-export const APPLICATION_DELETE =
+export const CONTRACT_DELETE =
   'Mentorship Contract has been successfully deleted';
-export const APPLICATION_EXISTS =
+export const CONTRACT_EXISTS =
   'A mentorship contract has already been made for this mentor. Please edit existing mentorship contract.';
-export const APPLICATION_MISSING =
+export const CONTRACT_MISSING =
   'No pending mentorship contract found. Please create a mentorship contract';
 export class MentorshipController {
   // ==================== MENTORSHIP LISTINGS ====================
@@ -130,7 +130,7 @@ export class MentorshipController {
     }
   }
 
-  // ==================== MENTORSHIP APPLICATIONS ====================
+  // ==================== MENTORSHIP CONTRACTS ====================
   public static async createContract(req, res) {
     const { mentorshipListingId } = req.params;
     const { accountId } = req.user;
@@ -145,7 +145,7 @@ export class MentorshipController {
       );
       return apiResponse.result(
         res,
-        { message: APPLICATION_CREATE, createdContract },
+        { message: CONTRACT_CREATE, createdContract },
         httpStatusCodes.CREATED
       );
     } catch (e) {
@@ -168,7 +168,7 @@ export class MentorshipController {
       );
       return apiResponse.result(
         res,
-        { message: APPLICATION_UPDATE, updatedContract },
+        { message: CONTRACT_UPDATE, updatedContract },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -186,7 +186,7 @@ export class MentorshipController {
       await MentorshipService.deleteContract(mentorshipContractId);
       return apiResponse.result(
         res,
-        { message: APPLICATION_DELETE },
+        { message: CONTRACT_DELETE },
         httpStatusCodes.OK
       );
     } catch (e) {
