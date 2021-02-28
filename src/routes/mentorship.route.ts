@@ -99,7 +99,7 @@ router.get(
 //get ONE mentorship contract of ONE student
 // TO ADD PERMISSIONS
 router.get(
-  '/student-contract/:mentorshipContractId',
+  '/contract/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.mentorshipContractQ),
   Utility.asyncHandler(MentorshipController.getStudentMentorshipContract)
