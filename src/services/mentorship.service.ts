@@ -134,7 +134,7 @@ export default class MentorshipService {
 
   public static async getSenseiMentorshipListings(accountId: string) {
     const mentorshipListings = MentorshipListing.findAll({
-      where: { senseiId: { [Op.eq]: accountId } },
+      where: { accountId: { [Op.eq]: accountId } },
     });
     return mentorshipListings;
   }
