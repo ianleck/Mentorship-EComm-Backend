@@ -14,10 +14,6 @@ import { ListingToCategory } from '../models/ListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
 
 import { MentorshipListing } from '../models/MentorshipListing';
-
-export type UpdateMentorshipListing = MentorshipListing & {
-  categories: Category[];
-};
 export default class MentorshipService {
   // ==================== Mentorship Listings ====================
 
@@ -90,7 +86,11 @@ export default class MentorshipService {
 
   public static async updateListing(
     mentorshipListingId: string,
-    mentorshipListing: UpdateMentorshipListing
+    mentorshipListing: {
+      name: string;
+      description: string;
+      categories: string[];
+    }
   ): Promise<MentorshipListing> {
     const currListing = await MentorshipListing.findByPk(mentorshipListingId);
     if (!currListing) throw new Error(LISTING_MISSING);
@@ -107,12 +107,10 @@ export default class MentorshipService {
       }
     );
 
-    const existingCategories = listingCategories.map(
+    const existingCategories: string[] = listingCategories.map(
       ({ categoryId }) => categoryId
     );
-    const updatedCategories = mentorshipListing.categories.map(
-      ({ categoryId }) => categoryId
-    );
+    const updatedCategories: string[] = mentorshipListing.categories;
 
     const categoriesToAdd = _.difference(updatedCategories, existingCategories);
     const categoriesToRemove = _.difference(
