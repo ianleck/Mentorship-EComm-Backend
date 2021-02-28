@@ -17,6 +17,7 @@ export enum USER_TYPE_ENUM {
 export enum PRIVACY_PERMISSIONS_ENUM {
   FOLLOWING_ONLY = 'FOLLOWING_ONLY',
   ALL = 'ALL',
+  NONE = 'NONE',
 }
 
 export enum ADMIN_VERIFIED_ENUM {

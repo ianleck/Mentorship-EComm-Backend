@@ -82,7 +82,10 @@ export class User extends Account {
     values: Object.values(PRIVACY_PERMISSIONS_ENUM),
     defaultValue: PRIVACY_PERMISSIONS_ENUM.ALL,
   })
-  privacy: PRIVACY_PERMISSIONS_ENUM;
+  chatPrivacy: PRIVACY_PERMISSIONS_ENUM;
+
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  isPrivateProfile: boolean;
   // ==================== RELATIONSHIP MAPPINGS ====================
 
   @HasMany(() => Experience, 'accountId')
