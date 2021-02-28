@@ -188,14 +188,14 @@ export default class MentorshipService {
 
   //get ALL mentorship applications of ONE sensei for ONE listing
   public static async getSenseiListingMentorshipApplications(
-    senseiId,
+    accountId,
     mentorshipListingId
   ) {
     const mentorshipApplications = MentorshipContract.findAll({
       include: [
         {
           model: MentorshipListing,
-          where: { mentorshipListingId, senseiId },
+          where: { mentorshipListingId, accountId },
         },
       ],
     });
