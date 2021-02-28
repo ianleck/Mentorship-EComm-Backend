@@ -41,11 +41,14 @@ router.get(
 );
 
 // get all senseis
-router.get('/sensei', Utility.asyncHandler(UserController.getAllActiveSenseis));
+router.get(
+  '/all/sensei',
+  Utility.asyncHandler(UserController.getAllActiveSenseis)
+);
 
 // get all students (only admin)
 router.get(
-  '/student',
+  '/all/student',
   passport.authenticate('isAuthenticated', { session: false }),
   requireAdmin,
   Utility.asyncHandler(UserController.getAllActiveStudents)
