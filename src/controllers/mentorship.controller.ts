@@ -342,6 +342,31 @@ export class MentorshipController {
     }
   }
 
+  public static async reviewMentorshipApplication(req, res) {
+    const { mentorshipContractId } = req.params;
+    const { mentorshipContract } = req.body;
+
+    // Check that there is an existing mentorship application
+    try {
+      const mentorshipApplication = await MentorshipService.reviewMentorshipApplication(
+        mentorshipContractId,
+        mentorshipContract
+      );
+      return apiResponse.result(
+        res,
+        { message: 'success', mentorshipApplication },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.reviewMentorshipApplication]:' + e.message
+      );
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
   public static async deleteApplication(req, res) {
     const { mentorshipListingId, accountId } = req.params;
 

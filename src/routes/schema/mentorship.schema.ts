@@ -1,4 +1,5 @@
 import joi from 'joi';
+import { MENTORSHIP_CONTRACT_APPROVAL } from '../../constants/enum';
 
 export default {
   mentorshipListingB: joi.object({
@@ -31,5 +32,13 @@ export default {
 
   mentorshipApplicationB: joi.object({
     statement: joi.string().required(),
+  }),
+
+  mentorshipContractB: joi.object({
+    mentorshipContract: joi.object({
+      senseiApproval: joi
+        .string()
+        .valid(...Object.values(MENTORSHIP_CONTRACT_APPROVAL)),
+    }),
   }),
 };

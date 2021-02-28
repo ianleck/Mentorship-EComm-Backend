@@ -193,7 +193,10 @@ export default class MentorshipService {
   ) {
     const mentorshipApplications = MentorshipContract.findAll({
       include: [
-        { model: MentorshipListing, where: { senseiId, mentorshipListingId } },
+        {
+          model: MentorshipListing,
+          where: { mentorshipListingId, senseiId },
+        },
       ],
     });
 
@@ -238,6 +241,22 @@ export default class MentorshipService {
     });
 
     return updatedApplication;
+  }
+
+  public static async reviewMentorshipApplication(
+    mentorshipContractId, //mentorshipcontract has its own id
+    mentorshipContract
+  ) {
+    const mentorshipApplication = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (mentorshipApplication) {
+      await mentorshipContract.update({
+        senseiApproval: mentorshipApplication.senseiApproval,
+      });
+    } else {
+      throw new Error(APPLICATION_MISSING);
+    }
   }
 
   public static async deleteApplication(
