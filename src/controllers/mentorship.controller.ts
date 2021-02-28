@@ -46,6 +46,46 @@ export class MentorshipController {
     }
   }
 
+  public static async updateListing(req, res) {
+    const { mentorshipListingId } = req.params;
+    const { mentorshipListing } = req.body;
+
+    try {
+      const updatedListing = await MentorshipService.updateListing(
+        mentorshipListingId,
+        mentorshipListing
+      );
+      return apiResponse.result(
+        res,
+        { message: LISTING_UPDATE, updatedListing },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.updateListing]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async deleteListing(req, res) {
+    const { mentorshipListingId } = req.params;
+
+    try {
+      await MentorshipService.deleteListing(mentorshipListingId);
+      return apiResponse.result(
+        res,
+        { message: LISTING_DELETE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.deleteListing]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
   public static async getSenseiMentorshipListings(req, res) {
     const { user } = req; //user is the user who is making the request
     const { accountId } = req.params; //accountId of the sensei who is being looked at
@@ -97,46 +137,6 @@ export class MentorshipController {
     }
   }
 
-  public static async deleteListing(req, res) {
-    const { mentorshipListingId } = req.params;
-
-    try {
-      await MentorshipService.deleteListing(mentorshipListingId);
-      return apiResponse.result(
-        res,
-        { message: LISTING_DELETE },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[mentorshipController.deleteListing]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
-    }
-  }
-
-  public static async updateListing(req, res) {
-    const { mentorshipListingId } = req.params;
-    const { mentorshipListing } = req.body;
-
-    try {
-      const updatedListing = await MentorshipService.updateListing(
-        mentorshipListingId,
-        mentorshipListing
-      );
-      return apiResponse.result(
-        res,
-        { message: LISTING_UPDATE, updatedListing },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[mentorshipController.updateListing]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
-    }
-  }
-
   // ==================== MENTORSHIP APPLICATIONS ====================
   public static async createApplication(req, res) {
     const { mentorshipListingId, accountId } = req.params;
@@ -156,6 +156,47 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.createApplication]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async updateApplication(req, res) {
+    const { mentorshipContractId } = req.params;
+    const { statement } = req.body;
+
+    // Check that there is an existing mentorship application
+    try {
+      const updatedApplication = await MentorshipService.updateApplication(
+        mentorshipContractId,
+        statement
+      );
+      return apiResponse.result(
+        res,
+        { message: APPLICATION_UPDATE, updatedApplication },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.updateApplication]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async deleteApplication(req, res) {
+    const { mentorshipContractId } = req.params;
+
+    try {
+      await MentorshipService.deleteApplication(mentorshipContractId);
+      return apiResponse.result(
+        res,
+        { message: APPLICATION_DELETE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.deleteApplication]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });
@@ -191,7 +232,7 @@ export class MentorshipController {
         mentorshipContractId
       );
       if (
-        user.accountId !== application.studentId &&
+        user.accountId !== application.accountId &&
         user.userType !== USER_TYPE_ENUM.ADMIN
       ) {
         return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
@@ -247,30 +288,6 @@ export class MentorshipController {
         '[mentorshipController.getAllStudentMentorshipApplications]:' +
           e.toString()
       );
-    }
-  }
-
-  public static async updateApplication(req, res) {
-    const { mentorshipListingId, accountId } = req.params;
-    const { statement } = req.body;
-
-    // Check that there is an existing mentorship application
-    try {
-      const updatedApplication = await MentorshipService.updateApplication(
-        mentorshipListingId,
-        accountId,
-        statement
-      );
-      return apiResponse.result(
-        res,
-        { message: APPLICATION_UPDATE, updatedApplication },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[mentorshipController.updateApplication]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
     }
   }
 
@@ -339,24 +356,6 @@ export class MentorshipController {
         '[mentorshipController.getSenseiListingMentorshipApplications]:' +
           e.toString()
       );
-    }
-  }
-
-  public static async deleteApplication(req, res) {
-    const { mentorshipListingId, accountId } = req.params;
-
-    try {
-      await MentorshipService.deleteApplication(mentorshipListingId, accountId);
-      return apiResponse.result(
-        res,
-        { message: APPLICATION_DELETE },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[mentorshipController.deleteApplication]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
     }
   }
 }

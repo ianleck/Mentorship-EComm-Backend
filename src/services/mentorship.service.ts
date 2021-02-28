@@ -50,18 +50,6 @@ export default class MentorshipService {
     });
   }
 
-  public static async getSenseiMentorshipListings(accountId: string) {
-    const mentorshipListings = MentorshipListing.findAll({
-      where: { senseiId: { [Op.eq]: accountId } },
-    });
-    return mentorshipListings;
-  }
-
-  public static async getAllMentorshipListings() {
-    const mentorshipListings = MentorshipListing.findAll();
-    return mentorshipListings;
-  }
-
   public static async deleteListing(
     mentorshipListingId: string
   ): Promise<void> {
@@ -144,18 +132,31 @@ export default class MentorshipService {
     });
   }
 
+  public static async getSenseiMentorshipListings(accountId: string) {
+    const mentorshipListings = MentorshipListing.findAll({
+      where: { senseiId: { [Op.eq]: accountId } },
+    });
+    return mentorshipListings;
+  }
+
+  public static async getAllMentorshipListings() {
+    const mentorshipListings = MentorshipListing.findAll();
+    return mentorshipListings;
+  }
+
   // ==================== MENTORSHIP APPLICATIONS ====================
   public static async createApplication(
-    accountId: string,
     mentorshipListingId: string,
+    accountId: string,
     statement: string
   ): Promise<MentorshipContract> {
-    const existingApplication = MentorshipContract.findOne({
+    const existingApplication = await MentorshipContract.findOne({
       where: {
         mentorshipListingId,
         accountId,
       },
     });
+
     if (existingApplication) throw new Error(APPLICATION_EXISTS);
 
     const newApplication = new MentorshipContract({
@@ -164,11 +165,43 @@ export default class MentorshipService {
       statement,
     });
 
-    newApplication.save();
+    await newApplication.save();
 
     return newApplication;
   }
 
+  public static async updateApplication(
+    mentorshipContractId: string,
+    statement: string
+  ): Promise<MentorshipContract> {
+    const currApplication = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!currApplication) throw new Error(APPLICATION_MISSING);
+
+    const updatedApplication = await currApplication.update({
+      statement,
+    });
+
+    return updatedApplication;
+  }
+
+  public static async deleteApplication(
+    mentorshipContractId: string
+  ): Promise<void> {
+    const currApplication = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!currApplication) throw new Error(APPLICATION_MISSING);
+
+    // Manual cascade deletion of associations - Subscription
+
+    await MentorshipContract.destroy({
+      where: {
+        mentorshipContractId,
+      },
+    });
+  }
   //get all mentorship applications (for admin)
   public static async getAllMentorshipApplications() {
     const mentorshipApplications = MentorshipContract.findAll();
@@ -207,58 +240,12 @@ export default class MentorshipService {
   }
 
   //get all mentorshipApplications created by this student
-  public static async getAllStudentMentorshipApplications(studentId) {
+  public static async getAllStudentMentorshipApplications(accountId) {
     const mentorshipApplications = MentorshipContract.findAll({
       where: {
-        studentId: { [Op.eq]: studentId },
+        accountId: { [Op.eq]: accountId },
       },
     });
     return mentorshipApplications;
-  }
-
-  public static async updateApplication(
-    mentorshipListingId: string,
-    accountId: string,
-    statement: string
-  ): Promise<MentorshipContract> {
-    const currApplication = await MentorshipContract.findOne({
-      where: {
-        mentorshipListingId,
-        accountId,
-        progress: MENTORSHIP_PROGRESS_ENUM.NOT_STARTED,
-        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
-      },
-    });
-    if (!currApplication) throw new Error(APPLICATION_MISSING);
-
-    const updatedApplication = await currApplication.update({
-      statement,
-    });
-
-    return updatedApplication;
-  }
-
-  public static async deleteApplication(
-    mentorshipListingId: string,
-    accountId: string
-  ): Promise<void> {
-    const existingApplication = await MentorshipContract.findOne({
-      where: {
-        mentorshipListingId,
-        accountId,
-        progress: MENTORSHIP_PROGRESS_ENUM.NOT_STARTED,
-        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
-      },
-    });
-    if (!existingApplication) throw new Error(APPLICATION_MISSING);
-
-    // Manual cascade deletion of associations - Subscription
-
-    await MentorshipContract.destroy({
-      where: {
-        mentorshipListingId,
-        accountId,
-      },
-    });
   }
 }

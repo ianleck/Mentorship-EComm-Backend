@@ -25,7 +25,7 @@ export class MentorshipContract extends BaseEntity {
     allowNull: false,
     type: DataType.UUID,
   })
-  studentId: string;
+  accountId: string; // studentId
 
   @Column({
     allowNull: false,
@@ -55,14 +55,7 @@ export class MentorshipContract extends BaseEntity {
   @BelongsTo(() => User, 'accountId')
   Student: User;
 
-  @BelongsTo(() => MentorshipListing, {
-    onDelete: 'CASCADE',
-    onUpdate: 'no action',
-    foreignKey: {
-      name: 'mentorshipListingId',
-      allowNull: false,
-    },
-  })
+  @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
   MentorshipListing: MentorshipListing;
 }
 

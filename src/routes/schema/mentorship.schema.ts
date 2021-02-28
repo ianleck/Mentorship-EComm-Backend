@@ -22,7 +22,7 @@ export default {
     mentorshipContractId: joi.string().required(),
   }),
 
-  userIdQ: joi.object({
+  accountIdQ: joi.object({
     accountId: joi.string().required(),
   }),
 

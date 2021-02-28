@@ -60,7 +60,7 @@ export class MentorshipListing extends BaseEntity {
   })
   Categories: Category[];
 
-  @HasMany(() => MentorshipContract, 'mentorshipContractId')
+  @HasMany(() => MentorshipContract, 'mentorshipListingId')
   MentorshipContracts: MentorshipContract[];
 }
 
