@@ -219,12 +219,15 @@ export default class MentorshipService {
 
   //get ALL mentorship applications of ONE sensei for ONE listing
   public static async getSenseiListingMentorshipApplications(
-    senseiId,
+    accountId,
     mentorshipListingId
   ) {
     const mentorshipApplications = MentorshipContract.findAll({
       include: [
-        { model: MentorshipListing, where: { senseiId, mentorshipListingId } },
+        {
+          model: MentorshipListing,
+          where: { accountId, mentorshipListingId },
+        },
       ],
     });
 
@@ -232,10 +235,16 @@ export default class MentorshipService {
   }
 
   //get ONE mentorship application of ONE student
-  public static async getStudentMentorshipApplication(mentorshipContractId) {
-    const mentorshipApplication = MentorshipContract.findByPk(
-      mentorshipContractId
-    );
+  public static async getStudentMentorshipApplication(
+    mentorshipListingId: string,
+    accountId: string
+  ): Promise<MentorshipContract> {
+    const mentorshipApplication = await MentorshipContract.findOne({
+      where: { mentorshipListingId, accountId },
+    });
+
+    if (!mentorshipApplication) throw new Error(APPLICATION_MISSING);
+
     return mentorshipApplication;
   }
 

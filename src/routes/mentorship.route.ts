@@ -92,9 +92,9 @@ router.get(
 
 //get ONE mentorship application of ONE student
 router.get(
-  '/applications/:mentorshipContractId/:accountId',
+  '/student-application/:mentorshipListingId/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.mentorshipContractQ),
+  schemaValidator.params(mentorship.mentorshipApplicationQ),
   Utility.asyncHandler(MentorshipController.getStudentMentorshipApplication)
 );
 
@@ -116,9 +116,9 @@ router.get(
 
 //get ALL mentorship applications of ONE sensei for a particular listing
 router.get(
-  '/applications/:mentorshipListing/:accountId',
+  '/applications/:mentorshipListingId/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.mentorshipListingQ),
+  schemaValidator.params(mentorship.mentorshipApplicationQ),
   Utility.asyncHandler(
     MentorshipController.getSenseiListingMentorshipApplications
   )

@@ -225,11 +225,12 @@ export class MentorshipController {
   //get ONE mentorship application of ONE student (for admin and student)
   public static async getStudentMentorshipApplication(req, res) {
     const { user } = req; //user is the user who is making the request
-    const { mentorshipContractId } = req.params;
+    const { mentorshipListingId, accountId } = req.params;
 
     try {
       const application = await MentorshipService.getStudentMentorshipApplication(
-        mentorshipContractId
+        mentorshipListingId,
+        accountId
       );
       if (
         user.accountId !== application.accountId &&
