@@ -246,7 +246,9 @@ export class MentorshipController {
     }
   }
 
-  //get ONE mentorship contract of ONE student (for admin and student)
+  /*get ONE mentorship contract
+  // Permissions: For student who created the contract, sensei who own the contract.listing and for admins
+  */
   public static async getStudentMentorshipContract(req, res) {
     const { user } = req; //user is the user who is making the request
     const { mentorshipContractId } = req.params;
@@ -257,8 +259,7 @@ export class MentorshipController {
       );
       if (
         user.accountId !== contract.accountId &&
-        // user.accountId !== contract.senseiId && // TO BE ADDEDIN THE FUTUR
-        user.userType !== USER_TYPE_ENUM.SENSEI && // TO BE DELETED IN THE FUTURE
+        user.accountId !== contract.MentorshipListing.accountId && // TO BE ADDEDIN THE FUTURE
         user.userType !== USER_TYPE_ENUM.ADMIN
       ) {
         return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {

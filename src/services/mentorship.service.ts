@@ -255,7 +255,10 @@ export default class MentorshipService {
     mentorshipContractId: string
   ): Promise<MentorshipContract> {
     const mentorshipContract = await MentorshipContract.findByPk(
-      mentorshipContractId
+      mentorshipContractId,
+      {
+        include: [MentorshipListing],
+      }
     );
 
     if (!mentorshipContract) throw new Error(CONTRACT_MISSING);
