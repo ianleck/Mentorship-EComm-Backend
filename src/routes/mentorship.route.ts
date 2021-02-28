@@ -13,7 +13,7 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
-// ==================== MENTORSHIP LISTINGS ====================
+// ==================================== MENTORSHIP LISTINGS ====================================
 router.post(
   '/listing/',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -61,7 +61,7 @@ router.get(
   Utility.asyncHandler(MentorshipController.getSenseiMentorshipListings)
 );
 
-// ==================== MENTORSHIP CONTRACT ====================
+// ==================================== MENTORSHIP CONTRACT ====================================
 router.post(
   '/contract/:mentorshipListingId/',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -96,8 +96,7 @@ router.get(
   Utility.asyncHandler(MentorshipController.getAllMentorshipContracts)
 );
 
-//get ONE mentorship contract of ONE student
-// TO ADD PERMISSIONS
+//get ONE mentorship contract
 router.get(
   '/contract/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
