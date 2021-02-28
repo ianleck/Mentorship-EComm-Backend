@@ -94,7 +94,7 @@ export class User extends Account {
   @BelongsToMany(() => User, () => UserFollowership, 'followingId')
   Followers: User[];
 
-  @HasMany(() => MentorshipContract, 'studentId')
+  @HasMany(() => MentorshipContract, 'accountId')
   MentorshipContracts: MentorshipContract[];
   // @Column
   // achievements: Achievement;
@@ -102,8 +102,6 @@ export class User extends Account {
   // @HasMany(() => CourseContract)
   // courses: CourseContract;
   //
-  // @HasMany(() => MentorshipContract)
-  // mentorships: MentorshipContract;
 
   // achievements
 
