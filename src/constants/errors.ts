@@ -4,6 +4,7 @@ export const ERRORS = {
   STUDENT_DOES_NOT_EXIST: 'Student does not exist',
   USER_DOES_NOT_EXIST: 'User does not exist',
   EXPERIENCE_DOES_NOT_EXIST: 'Experience does not exist',
+  LISTING_DOES_NOT_EXIST: 'Listing does not exist',
 };
 
 export const MENTORSHIP_ERRORS = {

@@ -5,8 +5,9 @@ import { Op } from 'sequelize';
 import {
   MENTORSHIP_CONTRACT_APPROVAL,
   MENTORSHIP_PROGRESS_ENUM,
+  USER_TYPE_ENUM,
 } from '../constants/enum';
-
+import { ERRORS } from '../constants/errors';
 import {
   APPLICATION_EXISTS,
   APPLICATION_MISSING,
@@ -133,10 +134,9 @@ export default class MentorshipService {
   }
 
   public static async getSenseiMentorshipListings(accountId: string) {
-    const mentorshipListings = MentorshipListing.findAll({
+    return MentorshipListing.findAll({
       where: { accountId: { [Op.eq]: accountId } },
     });
-    return mentorshipListings;
   }
 
   public static async getAllMentorshipListings() {
@@ -145,54 +145,54 @@ export default class MentorshipService {
   }
 
   // ==================== MENTORSHIP APPLICATIONS ====================
-  public static async createApplication(
+  public static async createContract(
     mentorshipListingId: string,
     accountId: string,
     statement: string
   ): Promise<MentorshipContract> {
-    const existingApplication = await MentorshipContract.findOne({
+    const existingContract = await MentorshipContract.findOne({
       where: {
         mentorshipListingId,
         accountId,
       },
     });
 
-    if (existingApplication) throw new Error(APPLICATION_EXISTS);
+    if (existingContract) throw new Error(APPLICATION_EXISTS);
 
-    const newApplication = new MentorshipContract({
+    const newContract = new MentorshipContract({
       mentorshipListingId,
       accountId,
       statement,
     });
 
-    await newApplication.save();
+    await newContract.save();
 
-    return newApplication;
+    return newContract;
   }
 
-  public static async updateApplication(
+  public static async updateContract(
     mentorshipContractId: string,
     statement: string
   ): Promise<MentorshipContract> {
-    const currApplication = await MentorshipContract.findByPk(
+    const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
     );
-    if (!currApplication) throw new Error(APPLICATION_MISSING);
+    if (!currContract) throw new Error(APPLICATION_MISSING);
 
-    const updatedApplication = await currApplication.update({
+    const updatedContract = await currContract.update({
       statement,
     });
 
-    return updatedApplication;
+    return updatedContract;
   }
 
-  public static async deleteApplication(
+  public static async deleteContract(
     mentorshipContractId: string
   ): Promise<void> {
-    const currApplication = await MentorshipContract.findByPk(
+    const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
     );
-    if (!currApplication) throw new Error(APPLICATION_MISSING);
+    if (!currContract) throw new Error(APPLICATION_MISSING);
 
     // Manual cascade deletion of associations - Subscription
 
@@ -202,59 +202,74 @@ export default class MentorshipService {
       },
     });
   }
-  //get all mentorship applications (for admin)
-  public static async getAllMentorshipApplications() {
-    const mentorshipApplications = await MentorshipContract.findAll();
-    return mentorshipApplications;
+
+  // get one listing
+  // if student, return without listing.contracts
+  // if sensei/admin return whole obj
+
+  //get all mentorship contracts (for admin)
+  public static async getListing(
+    mentorshipListingId: string
+  ): Promise<MentorshipListing> {
+    const listing = await MentorshipListing.findByPk(mentorshipListingId, {
+      include: [MentorshipContract],
+    });
+    if (!listing) throw new Error(ERRORS.LISTING_DOES_NOT_EXIST);
+
+    return listing;
   }
 
-  //get ALL mentorship applications of ONE sensei
-  public static async getSenseiMentorshipApplications(accountId) {
-    const mentorshipApplications = await MentorshipContract.findAll({
+  public static async getAllMentorshipContracts() {
+    const mentorshipContracts = await MentorshipContract.findAll();
+    return mentorshipContracts;
+  }
+
+  //get ALL mentorship contracts of ONE sensei
+  public static async getSenseiMentorshipContracts(accountId) {
+    const mentorshipContracts = await MentorshipContract.findAll({
       include: [{ model: MentorshipListing, where: { accountId } }],
     });
 
-    return mentorshipApplications;
+    return mentorshipContracts;
   }
 
-  //get ALL mentorship applications of ONE sensei for ONE listing
-  public static async getSenseiListingMentorshipApplications(
-    accountId,
-    mentorshipListingId
-  ) {
-    const mentorshipApplications = await MentorshipContract.findAll({
-      include: [
-        {
-          model: MentorshipListing,
-          where: { accountId, mentorshipListingId },
-        },
-      ],
-    });
+  //get ALL mentorship contracts of ONE sensei for ONE listing
+  // public static async getSenseiListingMentorshipContracts(
+  //   accountId,
+  //   mentorshipListingId
+  // ) {
+  //   const mentorshipContracts = await MentorshipContract.findAll({
+  //     include: [
+  //       {
+  //         model: MentorshipListing,
+  //         where: { accountId, mentorshipListingId },
+  //       },
+  //     ],
+  //   });
 
-    return mentorshipApplications;
-  }
+  //   return mentorshipContracts;
+  // }
 
-  //get ONE mentorship application of ONE student
-  public static async getStudentMentorshipApplication(
-    mentorshipListingId: string,
-    accountId: string
+  //get ONE mentorship contract of ONE student
+  public static async getStudentMentorshipContract(
+    mentorshipContractId: string
   ): Promise<MentorshipContract> {
-    const mentorshipApplication = await MentorshipContract.findOne({
-      where: { mentorshipListingId, accountId },
-    });
+    const mentorshipContract = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
 
-    if (!mentorshipApplication) throw new Error(APPLICATION_MISSING);
+    if (!mentorshipContract) throw new Error(APPLICATION_MISSING);
 
-    return mentorshipApplication;
+    return mentorshipContract;
   }
 
-  //get all mentorshipApplications created by this student
-  public static async getAllStudentMentorshipApplications(accountId) {
-    const mentorshipApplications = await MentorshipContract.findAll({
+  //get all mentorshipContracts created by this student
+  public static async getAllStudentMentorshipContracts(accountId) {
+    const mentorshipContracts = await MentorshipContract.findAll({
       where: {
         accountId: { [Op.eq]: accountId },
       },
     });
-    return mentorshipApplications;
+    return mentorshipContracts;
   }
 }
