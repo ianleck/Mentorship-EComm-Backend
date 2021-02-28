@@ -294,7 +294,7 @@ export class MentorshipController {
 
   //get ALL mentorship applications of ONE sensei
   public static async getSenseiMentorshipApplications(req, res) {
-    const { accountId } = req.params;
+    const { accountId } = req.params; //accountId of the sensei
     const { user } = req; //user is the user who is making the request
 
     if (

@@ -204,14 +204,14 @@ export default class MentorshipService {
   }
   //get all mentorship applications (for admin)
   public static async getAllMentorshipApplications() {
-    const mentorshipApplications = MentorshipContract.findAll();
+    const mentorshipApplications = await MentorshipContract.findAll();
     return mentorshipApplications;
   }
 
   //get ALL mentorship applications of ONE sensei
-  public static async getSenseiMentorshipApplications(senseiId) {
-    const mentorshipApplications = MentorshipContract.findAll({
-      include: [{ model: MentorshipListing, where: { senseiId } }],
+  public static async getSenseiMentorshipApplications(accountId) {
+    const mentorshipApplications = await MentorshipContract.findAll({
+      include: [{ model: MentorshipListing, where: { accountId } }],
     });
 
     return mentorshipApplications;
@@ -222,7 +222,7 @@ export default class MentorshipService {
     accountId,
     mentorshipListingId
   ) {
-    const mentorshipApplications = MentorshipContract.findAll({
+    const mentorshipApplications = await MentorshipContract.findAll({
       include: [
         {
           model: MentorshipListing,
@@ -250,7 +250,7 @@ export default class MentorshipService {
 
   //get all mentorshipApplications created by this student
   public static async getAllStudentMentorshipApplications(accountId) {
-    const mentorshipApplications = MentorshipContract.findAll({
+    const mentorshipApplications = await MentorshipContract.findAll({
       where: {
         accountId: { [Op.eq]: accountId },
       },
