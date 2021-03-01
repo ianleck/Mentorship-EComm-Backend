@@ -43,7 +43,7 @@ sequelize
     app.use(cors(corsOptions));
     // init dev upload folders
     const uploadDir = './uploads';
-    const childDir = ['/transcript', '/dp'];
+    const childDir = ['/transcript', '/dp', '/cv'];
 
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir);
