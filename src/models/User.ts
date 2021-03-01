@@ -82,7 +82,10 @@ export class User extends Account {
     values: Object.values(PRIVACY_PERMISSIONS_ENUM),
     defaultValue: PRIVACY_PERMISSIONS_ENUM.ALL,
   })
-  privacy: PRIVACY_PERMISSIONS_ENUM;
+  chatPrivacy: PRIVACY_PERMISSIONS_ENUM;
+
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  isPrivateProfile: boolean;
   // ==================== RELATIONSHIP MAPPINGS ====================
 
   @HasMany(() => Experience, 'accountId')
@@ -94,7 +97,7 @@ export class User extends Account {
   @BelongsToMany(() => User, () => UserFollowership, 'followingId')
   Followers: User[];
 
-  @HasMany(() => MentorshipContract, 'studentId')
+  @HasMany(() => MentorshipContract, 'accountId')
   MentorshipContracts: MentorshipContract[];
   // @Column
   // achievements: Achievement;
@@ -102,8 +105,6 @@ export class User extends Account {
   // @HasMany(() => CourseContract)
   // courses: CourseContract;
   //
-  // @HasMany(() => MentorshipContract)
-  // mentorships: MentorshipContract;
 
   // achievements
 

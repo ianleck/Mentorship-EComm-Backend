@@ -27,7 +27,7 @@ export class MentorshipListing extends BaseEntity {
     allowNull: false,
     type: DataType.UUID,
   })
-  senseiId: string;
+  accountId: string;
 
   @Column({
     allowNull: false,
@@ -47,7 +47,7 @@ export class MentorshipListing extends BaseEntity {
   @Max(10)
   @Column({
     type: DataType.FLOAT,
-    defaultValue: DataType.FLOAT,
+    defaultValue: '10.0',
   })
   rating: number;
 
@@ -60,7 +60,7 @@ export class MentorshipListing extends BaseEntity {
   })
   Categories: Category[];
 
-  @HasMany(() => MentorshipContract, 'mentorshipContractId')
+  @HasMany(() => MentorshipContract, 'mentorshipListingId')
   MentorshipContracts: MentorshipContract[];
 }
 

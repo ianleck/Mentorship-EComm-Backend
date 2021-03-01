@@ -40,16 +40,6 @@ router.post(
   Utility.asyncHandler(AdminController.login)
 );
 
-//create admin account
-//the schema must have details needed to register an admin
-router.post(
-  '/register-admin',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireSuperAdmin,
-  schemaValidator.body(admin.registerAdmin),
-  Utility.asyncHandler(AdminController.registerAdmin)
-);
-
 router.get(
   '/verify-senseis',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -67,7 +57,7 @@ router.get(
 
 //get list of admins
 router.get(
-  '/admins',
+  '/',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSuperAdmin,
   Utility.asyncHandler(AdminController.getAllAdmins)
@@ -88,14 +78,6 @@ router.get(
   requireAdmin,
   Utility.asyncHandler(AdminController.getBannedSenseis)
 );
-
-//get single sensei mentorship listings
-// router.get(
-//   '/mentorship-listings/:accountId',
-//   passport.authenticate('isAuthenticated', { session: false }),
-//   schemaValidator.params(admin.senseiIdQ),
-//   Utility.asyncHandler(AdminController.getSenseiMentorshipListings)
-// );
 
 /*
 

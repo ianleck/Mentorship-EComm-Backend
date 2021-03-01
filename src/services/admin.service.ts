@@ -40,7 +40,7 @@ export default class AdminService {
     const students = User.findAll({
       where: {
         status: { [Op.eq]: STATUS_ENUM.BANNED },
-        userType: USER_TYPE_ENUM.SENSEI,
+        userType: USER_TYPE_ENUM.STUDENT,
       },
     });
     return students;
@@ -60,16 +60,10 @@ export default class AdminService {
     const senseis = User.findAll({
       where: {
         adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
+        userType: USER_TYPE_ENUM.SENSEI,
       },
     });
     return senseis;
-  }
-
-  public static async getSenseiMentorshipListings(accountId: string) {
-    const mentorshipListings = MentorshipListing.findAll({
-      where: { senseiId: { [Op.eq]: accountId } },
-    });
-    return mentorshipListings;
   }
 
   /*

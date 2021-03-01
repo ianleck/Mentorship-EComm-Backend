@@ -59,7 +59,10 @@ export default {
       status: joi.string(),
       headline: joi.string(),
       bio: joi.string(),
-      privacy: joi.string().valid(...Object.values(PRIVACY_PERMISSIONS_ENUM)),
+      chatPrivacy: joi
+        .string()
+        .valid(...Object.values(PRIVACY_PERMISSIONS_ENUM)),
+      isPrivateProfile: joi.boolean(),
       personality: joi.string(),
       emailNotification: joi.boolean(),
       occupation: joi.string(),

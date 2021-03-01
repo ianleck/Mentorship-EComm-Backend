@@ -25,7 +25,7 @@ export class MentorshipContract extends BaseEntity {
     allowNull: false,
     type: DataType.UUID,
   })
-  studentId: string;
+  accountId: string; // studentId
 
   @Column({
     allowNull: false,
