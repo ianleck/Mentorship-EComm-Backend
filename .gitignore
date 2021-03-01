@@ -6,6 +6,3 @@ coverage/*
 env
 *.env
 ./*.log
-
-./uploads
-./DS_Store
