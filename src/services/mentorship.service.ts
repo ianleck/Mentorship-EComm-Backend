@@ -1,18 +1,9 @@
 import * as _ from 'lodash';
 
-import Utility from '../constants/utility';
 import { Op } from 'sequelize';
-import {
-  MENTORSHIP_CONTRACT_APPROVAL,
-  MENTORSHIP_PROGRESS_ENUM,
-  USER_TYPE_ENUM,
-} from '../constants/enum';
-import { ERRORS } from '../constants/errors';
-import {
-  CONTRACT_EXISTS,
-  CONTRACT_MISSING,
-  LISTING_MISSING,
-} from '../controllers/mentorship.controller';
+
+import { MENTORSHIP_ERRORS } from '../constants/errors';
+
 import { Category } from '../models/Category';
 import { ListingToCategory } from '../models/ListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
@@ -92,7 +83,7 @@ export default class MentorshipService {
     }
   ): Promise<MentorshipListing> {
     const currListing = await MentorshipListing.findByPk(mentorshipListingId);
-    if (!currListing) throw new Error(LISTING_MISSING);
+    if (!currListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
 
     await currListing.update({
       name: mentorshipListing.name,
@@ -160,7 +151,7 @@ export default class MentorshipService {
       },
     });
 
-    if (existingContract) throw new Error(CONTRACT_EXISTS);
+    if (existingContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_EXISTS);
 
     const newContract = new MentorshipContract({
       mentorshipListingId,
@@ -180,7 +171,7 @@ export default class MentorshipService {
     const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
     );
-    if (!currContract) throw new Error(CONTRACT_MISSING);
+    if (!currContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
 
     const updatedContract = await currContract.update({
       statement,
@@ -195,7 +186,7 @@ export default class MentorshipService {
     const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
     );
-    if (!currContract) throw new Error(CONTRACT_MISSING);
+    if (!currContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
 
     // Manual cascade deletion of associations - Subscription
 
@@ -217,7 +208,7 @@ export default class MentorshipService {
     const listing = await MentorshipListing.findByPk(mentorshipListingId, {
       include: [MentorshipContract],
     });
-    if (!listing) throw new Error(ERRORS.LISTING_DOES_NOT_EXIST);
+    if (!listing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
 
     return listing;
   }
@@ -264,7 +255,8 @@ export default class MentorshipService {
       }
     );
 
-    if (!mentorshipContract) throw new Error(CONTRACT_MISSING);
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
 
     return mentorshipContract;
   }

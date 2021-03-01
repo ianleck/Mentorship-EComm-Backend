@@ -3,25 +3,7 @@ import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
 import MentorshipService from '../services/mentorship.service';
 import { USER_TYPE_ENUM } from '../constants/enum';
-
-export const LISTING_CREATE =
-  'Mentorship Listing has been successfully created';
-export const LISTING_UPDATE =
-  'Mentorship Listing has been successfully updated';
-export const LISTING_DELETE =
-  'Mentorship Listing has been successfully deleted';
-export const LISTING_MISSING = 'Please create a mentorship contract';
-
-export const CONTRACT_CREATE =
-  'Mentorship Contract has been successfully created';
-export const CONTRACT_UPDATE =
-  'Mentorship Contract has been successfully updated';
-export const CONTRACT_DELETE =
-  'Mentorship Contract has been successfully deleted';
-export const CONTRACT_EXISTS =
-  'A mentorship contract has already been made for this mentor. Please edit existing mentorship contract.';
-export const CONTRACT_MISSING =
-  'No pending mentorship contract found. Please create a mentorship contract';
+import { MENTORSHIP_RESPONSE } from '../constants/successMessages';
 export class MentorshipController {
   // ==================== MENTORSHIP LISTINGS ====================
   public static async createListing(req, res) {
@@ -35,7 +17,7 @@ export class MentorshipController {
       );
       return apiResponse.result(
         res,
-        { message: LISTING_CREATE, createdListing },
+        { message: MENTORSHIP_RESPONSE.LISTING_CREATE, createdListing },
         httpStatusCodes.CREATED
       );
     } catch (e) {
@@ -57,7 +39,7 @@ export class MentorshipController {
       );
       return apiResponse.result(
         res,
-        { message: LISTING_UPDATE, updatedListing },
+        { message: MENTORSHIP_RESPONSE.LISTING_UPDATE, updatedListing },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -75,7 +57,7 @@ export class MentorshipController {
       await MentorshipService.deleteListing(mentorshipListingId);
       return apiResponse.result(
         res,
-        { message: LISTING_DELETE },
+        { message: MENTORSHIP_RESPONSE.LISTING_DELETE },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -145,7 +127,7 @@ export class MentorshipController {
       );
       return apiResponse.result(
         res,
-        { message: CONTRACT_CREATE, createdContract },
+        { message: MENTORSHIP_RESPONSE.CONTRACT_CREATE, createdContract },
         httpStatusCodes.CREATED
       );
     } catch (e) {
@@ -168,7 +150,7 @@ export class MentorshipController {
       );
       return apiResponse.result(
         res,
-        { message: CONTRACT_UPDATE, updatedContract },
+        { message: MENTORSHIP_RESPONSE.CONTRACT_UPDATE, updatedContract },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -186,7 +168,7 @@ export class MentorshipController {
       await MentorshipService.deleteContract(mentorshipContractId);
       return apiResponse.result(
         res,
-        { message: CONTRACT_DELETE },
+        { message: MENTORSHIP_RESPONSE.CONTRACT_DELETE },
         httpStatusCodes.OK
       );
     } catch (e) {
