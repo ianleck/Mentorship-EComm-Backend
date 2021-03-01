@@ -4,6 +4,7 @@ import { TEMPLATES } from '../constants/templates/index';
 import { User } from '../models/User';
 import path from 'path';
 import { ERRORS } from '../constants/errors';
+import { lowerCase } from 'lodash';
 export default class EmailService {
   public static async sendEmail(
     email: string,
@@ -67,7 +68,6 @@ export default class EmailService {
     }
   ) {
     const name = `${user.firstName} ${user.lastName}`;
-    const userType = user.userType;
 
     const fileName = TEMPLATES[template].fileName;
     const rootPath = process.cwd();
@@ -75,14 +75,31 @@ export default class EmailService {
       `${rootPath}/src/constants/templates/${fileName}`
     );
 
-    const htmlTemplate = await ejs.renderFile(filePath, {
-      name,
-      email,
-      userType,
-      // url: additional.url,
-      // mentorshipName: additional.mentorshipName,
-    });
+    switch (template) {
+      case 'register':
+        const userType = lowerCase(user.userType);
+        const placeHolder = 'https://www.google.com';
+        return await ejs.renderFile(filePath, {
+          name,
+          email,
+          userType,
+          url: placeHolder,
+        });
 
-    return htmlTemplate;
+      case 'forgotPassword':
+        return await ejs.renderFile(filePath, {
+          name,
+          email,
+          userType,
+          url: additional.url,
+        });
+
+      case 'passwordReset':
+        return await ejs.renderFile(filePath, {
+          name,
+          email,
+          userType,
+        });
+    }
   }
 }
