@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import ejs from 'ejs';
 import { TEMPLATES } from '../constants/templates/index';
 import { User } from '../models/User';
-
+import path from 'path';
 export default class EmailService {
   public static async sendEmail(email: string, template: string) {
     try {
@@ -54,7 +54,10 @@ export default class EmailService {
 
     const fileName = TEMPLATES[template].fileName;
     const rootPath = process.cwd();
-    const filePath = `${rootPath}\\src\\constants\\templates\\${fileName}`;
+    const filePath = path.normalize(
+      `${rootPath}/src/constants/templates/${fileName}`
+    );
+
     const url = `https://www.google.com`;
 
     const htmlTemplate = await ejs.renderFile(filePath, {
