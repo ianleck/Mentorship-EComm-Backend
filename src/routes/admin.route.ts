@@ -22,7 +22,7 @@ import express from 'express';
 
 import { AdminController } from '../controllers/admin.controller';
 import admin from './schema/admin.schema';
-import user from './schema/user.schema';
+import auth from './schema/auth.schema';
 
 import Utility from '../constants/utility';
 import {
@@ -36,7 +36,7 @@ const schemaValidator = require('express-joi-validation').createValidator({});
 
 router.post(
   '/login',
-  schemaValidator.body(user.login),
+  schemaValidator.body(auth.login),
   Utility.asyncHandler(AdminController.login)
 );
 

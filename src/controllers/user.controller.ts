@@ -8,66 +8,6 @@ import { ERRORS } from '../constants/errors';
 const passport = require('passport');
 
 export class UserController {
-  // ================================ USER AUTH ================================
-  public static async changePassword(req, res) {
-    const { accountId, userType } = req.user;
-    const { oldPassword, newPassword, confirmPassword } = req.body;
-    try {
-      await UserService.changePassword(
-        accountId,
-        userType,
-        oldPassword,
-        newPassword,
-        confirmPassword
-      );
-      return apiResponse.result(
-        res,
-        { message: 'Successfully Changed Password' },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[userController.changePassword]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
-    }
-  }
-
-  public static async login(req, res, next) {
-    return passport.authenticate(
-      'jwt-local',
-      { session: false },
-      (err, passportUser, info) => {
-        if (err) {
-          return next(err);
-        }
-        if (passportUser) {
-          const user = passportUser;
-          return apiResponse.result(res, user.toAuthJSON(), httpStatusCodes.OK);
-        }
-
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, info);
-      }
-    )(req, res, next);
-  }
-
-  public static async register(req, res) {
-    const { newUser } = req.body;
-    try {
-      const user = await UserService.register(newUser);
-      return apiResponse.result(
-        res,
-        user.toAuthJSON(),
-        httpStatusCodes.CREATED
-      );
-    } catch (e) {
-      logger.error('[userController.register]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
-    }
-  }
-
   // ================================ USER ================================
 
   public static async deactivateUser(req, res) {
