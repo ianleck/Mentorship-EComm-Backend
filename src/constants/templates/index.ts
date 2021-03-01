@@ -7,6 +7,10 @@ export const TEMPLATES = {
     fileName: 'forgotPassword.ejs',
     subject: '[DigiDojo] Password Reset Request',
   },
+  passwordReset: {
+    fileName: `passwordReset.ejs`,
+    subject: '[DigiDojo] Password has been successfully reset!',
+  },
   acceptStudent: {
     fileName: 'acceptStudent.ejs',
     subject:

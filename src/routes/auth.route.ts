@@ -32,4 +32,15 @@ router.put(
   Utility.asyncHandler(AuthController.changePassword)
 );
 
+router.post(
+  '/forgot-password/:email',
+  schemaValidator.params(auth.emailQ),
+  Utility.asyncHandler(AuthController.forgotPassword)
+);
+
+router.put(
+  '/forgot-password',
+  schemaValidator.body(auth.resetPasswordB),
+  Utility.asyncHandler(AuthController.resetPassword)
+);
 export default router;

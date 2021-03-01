@@ -67,3 +67,37 @@ export class AuthController {
     }
   }
 
+  public static async forgotPassword(req, res) {
+    const { email } = req.params;
+    try {
+      await AuthService.forgotPassword(email);
+      return apiResponse.result(
+        res,
+        { message: AUTH_RESPONSE.SUCCESSFULLY_REQUESTED_PASSWORD },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[userController.forgotPassword]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async resetPassword(req, res) {
+    const { resetToken, accountId, newPassword } = req.body;
+    try {
+      await AuthService.resetPassword(resetToken, accountId, newPassword);
+      return apiResponse.result(
+        res,
+        { message: AUTH_RESPONSE.SUCCESSFULLY_RESET_PASSWORD },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[userController.resetPassword]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+}

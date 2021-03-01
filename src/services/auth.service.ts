@@ -115,3 +115,67 @@ export default class AuthService {
       throw e;
     }
   }
+
+  public static async forgotPassword(email: string) {
+    // Check for existing user
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    }
+    // Destroy existing token
+    const existingToken = await ResetToken.findOne({
+      where: { accountId: user.accountId },
+    });
+    if (existingToken) {
+      await existingToken.destroy();
+    }
+
+    // Generate resetToken
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hash = await bcrypt.hash(resetToken, 10);
+    const createdAt = new Date();
+    const expiredAt = new Date();
+    expiredAt.setMinutes(createdAt.getMinutes() + 10);
+
+    await new ResetToken({
+      hash,
+      accountId: user.accountId,
+      createdAt,
+      expiredAt,
+    }).save();
+
+    const url = `${RESET_PASSWORD_URL}/reset-password?token=${resetToken}&id=${user.accountId}`;
+    const additional = { url };
+    await EmailService.sendEmail(user.email, 'forgotPassword', additional);
+  }
+
+  public static async resetPassword(
+    resetToken: string,
+    accountId: string,
+    password: string
+  ) {
+    const passwordResetToken = await ResetToken.findOne({
+      where: { accountId },
+    });
+
+    if (!passwordResetToken || !(passwordResetToken.expiredAt > new Date()))
+      throw new Error(AUTH_ERRORS.INVALID_TOKEN);
+
+    const isValid = await bcrypt.compare(resetToken, passwordResetToken.hash);
+
+    if (!isValid) throw new Error(AUTH_ERRORS.INVALID_TOKEN);
+
+    const salt = await bcrypt.genSalt(10);
+
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    await user.update({ password: hashedPassword });
+
+    await ResetToken.destroy({ where: { accountId } });
+
+    await EmailService.sendEmail(user.email, 'passwordReset');
+  }
+}
