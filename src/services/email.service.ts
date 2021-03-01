@@ -10,7 +10,9 @@ export default class EmailService {
       const { SENDER_EMAIL_ADDRESS, SENDER_EMAIL_PASSWORD } = process.env;
 
       var transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
           user: SENDER_EMAIL_ADDRESS,
           pass: SENDER_EMAIL_PASSWORD,
@@ -54,7 +56,9 @@ export default class EmailService {
 
     const fileName = TEMPLATES[template].fileName;
     const rootPath = process.cwd();
-    const filePath = `${rootPath}\\src\\constants\\templates\\${fileName}`;
+    console.log(rootPath);
+    const filePath = `${rootPath}/src/constants/templates/${fileName}`;
+    // \src\constants\templates\acceptSensei.ejs
     const url = `https://www.google.com`;
 
     const htmlTemplate = await ejs.renderFile(filePath, {
