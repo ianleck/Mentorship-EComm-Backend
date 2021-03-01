@@ -77,28 +77,22 @@ export default class EmailService {
 
     switch (template) {
       case 'register':
-        const userType = lowerCase(user.userType);
         const placeHolder = 'https://www.google.com';
         return await ejs.renderFile(filePath, {
           name,
-          email,
-          userType,
+          userType: lowerCase(user.userType),
           url: placeHolder,
         });
 
       case 'forgotPassword':
         return await ejs.renderFile(filePath, {
           name,
-          email,
-          userType,
           url: additional.url,
         });
 
       case 'passwordReset':
         return await ejs.renderFile(filePath, {
           name,
-          email,
-          userType,
         });
     }
   }
