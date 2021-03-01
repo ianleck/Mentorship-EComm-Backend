@@ -2,12 +2,17 @@ import nodemailer from 'nodemailer';
 import ejs from 'ejs';
 import { TEMPLATES } from '../constants/templates/index';
 import { User } from '../models/User';
-
+import path from 'path';
+import { ERRORS } from '../constants/errors';
+import { lowerCase } from 'lodash';
 export default class EmailService {
   public static async sendEmail(
     email: string,
     template: string,
-    mentorshipContractId?: string
+    additional?: {
+      url?: string;
+      mentorshipName?: string;
+    }
   ) {
     try {
       // Set up emailClient
@@ -25,6 +30,7 @@ export default class EmailService {
 
       // Verification
       const user = await User.findOne({ where: { email } });
+      if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
       // Send Email
       const subject = TEMPLATES[template].subject;
@@ -32,7 +38,7 @@ export default class EmailService {
         email,
         template,
         user,
-        mentorshipContractId
+        additional
       );
 
       const mailOptions = {
@@ -58,27 +64,60 @@ export default class EmailService {
     email: string,
     template: string,
     user: User,
-    mentorshipId?: string
+    additional?: {
+      url?: string;
+      mentorshipName?: string;
+    }
   ) {
     const name = `${user.firstName} ${user.lastName}`;
-    const userType = user.userType;
-    console.log(name, 'name');
 
     const fileName = TEMPLATES[template].fileName;
     const rootPath = process.cwd();
-    console.log(rootPath);
-    const filePath = `${rootPath}/src/constants/templates/${fileName}`;
-    // \src\constants\templates\acceptSensei.ejs
-    const url = `https://www.google.com`;
+    const filePath = path.normalize(
+      `${rootPath}/src/constants/templates/${fileName}`
+    );
 
-    const htmlTemplate = await ejs.renderFile(filePath, {
-      name,
-      email,
-      userType,
-      url,
-      mentorshipId,
-    });
+    switch (template) {
+      case 'register':
+        const placeHolder = 'https://www.google.com';
+        return await ejs.renderFile(filePath, {
+          name,
+          userType: lowerCase(user.userType),
+          url: placeHolder,
+        });
 
-    return htmlTemplate;
+      case 'forgotPassword':
+        return await ejs.renderFile(filePath, {
+          name,
+          url: additional.url,
+        });
+
+      case 'passwordReset':
+        return await ejs.renderFile(filePath, {
+          name,
+        });
+
+      case 'acceptSensei':
+        return await ejs.renderFile(filePath, {
+          name,
+        });
+
+      case 'rejectSensei':
+        return await ejs.renderFile(filePath, {
+          name,
+        });
+
+      case 'acceptContract':
+        return await ejs.renderFile(filePath, {
+          name,
+          mentorshipName: additional.mentorshipName,
+        });
+
+      case 'rejectContract':
+        return await ejs.renderFile(filePath, {
+          name,
+          mentorshipName: additional.mentorshipName,
+        });
+    }
   }
 }
