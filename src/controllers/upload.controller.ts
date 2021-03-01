@@ -1,13 +1,11 @@
 import httpStatusCodes from 'http-status-codes';
-import apiResponse from '../utilities/apiResponse';
-import UserService from '../services/user.service';
 import logger from '../config/logger';
-import { USER_TYPE_ENUM } from '../constants/enum';
-import { ERRORS } from '../constants/errors';
-import Utility from '../constants/utility';
-import { UPLOAD_ERRORS } from '../constants/errors';
-
 import { ALLOWED_TRANSCRIPT_FILE_TYPES } from '../constants/constants';
+import { UPLOAD_ERRORS } from '../constants/errors';
+import Utility from '../constants/utility';
+import UserService from '../services/user.service';
+import apiResponse from '../utilities/apiResponse';
+
 export class UploadController {
   public static async uploadTranscript(req, res) {
     const { accountId } = req.user;
@@ -30,7 +28,7 @@ export class UploadController {
         } else {
           // update user transcript file path
           const user = await UserService.updateUser(accountId, {
-            transcriptUrl: saveFilePath,
+            transcriptUrl: accountId + fileType,
           });
           return apiResponse.result(
             res,
