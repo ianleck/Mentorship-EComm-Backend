@@ -7,5 +7,5 @@ env
 *.env
 ./*.log
 
-/uploads
+uploads
 .DS_Store
