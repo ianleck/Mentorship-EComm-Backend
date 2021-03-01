@@ -111,7 +111,7 @@ export class UserController {
       const userEntity = await UserService.updateUser(accountId, user);
       apiResponse.result(
         res,
-        { message: 'success', student: userEntity },
+        { message: 'success', user: userEntity },
         httpStatusCodes.OK
       );
     } catch (e) {
