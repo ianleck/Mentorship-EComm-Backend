@@ -22,8 +22,6 @@ export const checkPermission = (req, res, next) => {
   // check that document belongs to user
   // document name is saved in the form of <accountId>.<file extension>
   // eg. 1243123.docx
-  console.log('user.accountId =', user.accountId);
-  console.log('documentId =', documentId);
   if (user.accountId === documentId) {
     next();
   } else {
