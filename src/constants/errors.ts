@@ -11,3 +11,8 @@ export const MENTORSHIP_ERRORS = {
   UNAUTH_LISTING:
     'You lack the required permission to create a mentorship listing.',
 };
+
+export const UPLOAD_ERRORS = {
+  INVALID_FILE_TYPE: 'Invalid File Type',
+  NO_FILE_UPLOADED: 'No files were uploaded',
+};
