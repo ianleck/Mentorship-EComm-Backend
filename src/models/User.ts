@@ -73,6 +73,11 @@ export class User extends Account {
   @Column({ type: DataType.STRING })
   occupation: string;
 
+  @Column({ type: DataType.STRING })
+  transcriptUrl: string;
+
+  @Column({ type: DataType.STRING })
+  profileImgUrl: string;
   // ==================== ACCOUNT SETTINGS ====================
   @Column({ type: DataType.BOOLEAN })
   emailNotification: boolean;
@@ -82,7 +87,10 @@ export class User extends Account {
     values: Object.values(PRIVACY_PERMISSIONS_ENUM),
     defaultValue: PRIVACY_PERMISSIONS_ENUM.ALL,
   })
-  privacy: PRIVACY_PERMISSIONS_ENUM;
+  chatPrivacy: PRIVACY_PERMISSIONS_ENUM;
+
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  isPrivateProfile: boolean;
   // ==================== RELATIONSHIP MAPPINGS ====================
 
   @HasMany(() => Experience, 'accountId')

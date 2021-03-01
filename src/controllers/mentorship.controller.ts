@@ -10,27 +10,27 @@ export const LISTING_UPDATE =
   'Mentorship Listing has been successfully updated';
 export const LISTING_DELETE =
   'Mentorship Listing has been successfully deleted';
-export const LISTING_MISSING = 'Please create a mentorship application';
+export const LISTING_MISSING = 'Please create a mentorship contract';
 
-export const APPLICATION_CREATE =
-  'Mentorship Application has been successfully created';
-export const APPLICATION_UPDATE =
-  'Mentorship Application has been successfully updated';
-export const APPLICATION_DELETE =
-  'Mentorship Application has been successfully deleted';
-export const APPLICATION_EXISTS =
-  'A mentorship application has already been made for this mentor. Please edit existing mentorship application.';
-export const APPLICATION_MISSING =
-  'No pending mentorship application found. Please create a mentorship application';
+export const CONTRACT_CREATE =
+  'Mentorship Contract has been successfully created';
+export const CONTRACT_UPDATE =
+  'Mentorship Contract has been successfully updated';
+export const CONTRACT_DELETE =
+  'Mentorship Contract has been successfully deleted';
+export const CONTRACT_EXISTS =
+  'A mentorship contract has already been made for this mentor. Please edit existing mentorship contract.';
+export const CONTRACT_MISSING =
+  'No pending mentorship contract found. Please create a mentorship contract';
 export class MentorshipController {
   // ==================== MENTORSHIP LISTINGS ====================
   public static async createListing(req, res) {
-    const { accountId } = req.params;
+    const { user } = req;
     const { mentorshipListing } = req.body;
 
     try {
       const createdListing = await MentorshipService.createListing(
-        accountId,
+        user.accountId,
         mentorshipListing
       );
       return apiResponse.result(
@@ -87,17 +87,8 @@ export class MentorshipController {
   }
 
   public static async getSenseiMentorshipListings(req, res) {
-    const { user } = req; //user is the user who is making the request
+    // const { user } = req; //user is the user who is making the request
     const { accountId } = req.params; //accountId of the sensei who is being looked at
-
-    if (
-      user.accountId !== accountId &&
-      user.userType !== USER_TYPE_ENUM.ADMIN
-    ) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
 
     try {
       const mentorshipListings = await MentorshipService.getSenseiMentorshipListings(
@@ -133,64 +124,67 @@ export class MentorshipController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[mentorshipController.getMentorshipListings]:' + e.message);
+      logger.error(
+        '[mentorshipController.getAllMentorshipListings]:' + e.message
+      );
     }
   }
 
-  // ==================== MENTORSHIP APPLICATIONS ====================
-  public static async createApplication(req, res) {
-    const { mentorshipListingId, accountId } = req.params;
+  // ==================== MENTORSHIP CONTRACTS ====================
+  public static async createContract(req, res) {
+    const { mentorshipListingId } = req.params;
+    const { accountId } = req.user;
     const { statement } = req.body;
 
-    // Check that there is no existing mentorship application
+    // Check that there is no existing mentorship contract
     try {
-      const createdApplication = await MentorshipService.createApplication(
+      const createdContract = await MentorshipService.createContract(
         mentorshipListingId,
         accountId,
         statement
       );
       return apiResponse.result(
         res,
-        { message: APPLICATION_CREATE, createdApplication },
+        { message: CONTRACT_CREATE, createdContract },
         httpStatusCodes.CREATED
       );
     } catch (e) {
-      logger.error('[mentorshipController.createApplication]:' + e.message);
+      logger.error('[mentorshipController.createContract]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });
     }
   }
 
-  public static async updateApplication(req, res) {
+  public static async updateContract(req, res) {
     const { mentorshipContractId } = req.params;
     const { statement } = req.body;
 
-    // Check that there is an existing mentorship application
+    // Check that there is an existing mentorship contract
     try {
-      const updatedApplication = await MentorshipService.updateApplication(
+      const updatedContract = await MentorshipService.updateContract(
         mentorshipContractId,
         statement
       );
       return apiResponse.result(
         res,
-        { message: APPLICATION_UPDATE, updatedApplication },
+        { message: CONTRACT_UPDATE, updatedContract },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[mentorshipController.updateApplication]:' + e.message);
+      logger.error('[mentorshipController.updateContract]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });
     }
   }
 
-  public static async acceptMentorshipApplication(req, res) {
+  public static async acceptMentorshipContract(req, res) {
     const { mentorshipContractId } = req.params;
 
     // Check that there is an existing mentorship application
     try {
-      const mentorshipContract = await MentorshipService.acceptApplication(
+      const mentorshipContract = await MentorshipService.acceptContract(
         mentorshipContractId
       );
       return apiResponse.result(
@@ -208,12 +202,12 @@ export class MentorshipController {
     }
   }
 
-  public static async rejectMentorshipApplication(req, res) {
+  public static async rejectMentorshipContract(req, res) {
     const { mentorshipContractId } = req.params;
 
     // Check that there is an existing mentorship application
     try {
-      const mentorshipContract = await MentorshipService.rejectApplication(
+      const mentorshipContract = await MentorshipService.rejectContract(
         mentorshipContractId
       );
       return apiResponse.result(
@@ -231,55 +225,87 @@ export class MentorshipController {
     }
   }
 
-  public static async deleteApplication(req, res) {
+  public static async deleteContract(req, res) {
     const { mentorshipContractId } = req.params;
 
     try {
-      await MentorshipService.deleteApplication(mentorshipContractId);
+      await MentorshipService.deleteContract(mentorshipContractId);
       return apiResponse.result(
         res,
-        { message: APPLICATION_DELETE },
+        { message: CONTRACT_DELETE },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[mentorshipController.deleteApplication]:' + e.message);
+      logger.error('[mentorshipController.deleteContract]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });
     }
   }
 
-  //get ALL mentorship applications
-  public static async getAllMentorshipApplications(req, res) {
+  // get one listing
+  // if student, return without listing.contracts
+  // if sensei/admin return whole obj
+  public static async getListing(req, res) {
+    const { mentorshipListingId } = req.params;
+    const { user } = req;
+
     try {
-      const mentorshipApplications = await MentorshipService.getAllMentorshipApplications();
+      const listing = await MentorshipService.getListing(mentorshipListingId);
+
+      // remove contracts if request user is not the owner of the listing and not an admin
+      if (
+        listing.accountId !== user.accountId &&
+        user.userType !== USER_TYPE_ENUM.ADMIN
+      ) {
+        listing.MentorshipContracts = null;
+      }
+      return apiResponse.result(
+        res,
+        { message: 'success', mentorshipListing: listing },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.getListing]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  //get ALL mentorship contracts
+  public static async getAllMentorshipContracts(req, res) {
+    try {
+      const mentorshipContracts = await MentorshipService.getAllMentorshipContracts();
       return apiResponse.result(
         res,
         {
           message: 'success',
-          mentorshipApplications,
+          mentorshipContracts,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error(
-        '[mentorshipController.getAllMentorshipApplications]:' + e.toString()
+        '[mentorshipController.getAllMentorshipContracts]:' + e.toString()
       );
     }
   }
 
-  //get ONE mentorship application of ONE student (for admin and student)
-  public static async getStudentMentorshipApplication(req, res) {
+  /*get ONE mentorship contract
+  // Permissions: For student who created the contract, sensei who own the contract.listing and for admins
+  */
+  public static async getStudentMentorshipContract(req, res) {
     const { user } = req; //user is the user who is making the request
-    const { mentorshipListingId, accountId } = req.params;
+    const { mentorshipContractId } = req.params;
 
     try {
-      const application = await MentorshipService.getStudentMentorshipApplication(
-        mentorshipListingId,
-        accountId
+      const contract = await MentorshipService.getStudentMentorshipContract(
+        mentorshipContractId
       );
       if (
-        user.accountId !== application.accountId &&
+        user.accountId !== contract.accountId &&
+        user.accountId !== contract.MentorshipListing.accountId && // TO BE ADDEDIN THE FUTURE
         user.userType !== USER_TYPE_ENUM.ADMIN
       ) {
         return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
@@ -290,13 +316,13 @@ export class MentorshipController {
         res,
         {
           message: 'success',
-          application,
+          contract,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error(
-        '[mentorshipController.getStudentMentorshipApplication]:' + e.toString()
+        '[mentorshipController.getStudentMentorshipContract]:' + e.toString()
       );
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.toString(),
@@ -304,8 +330,8 @@ export class MentorshipController {
     }
   }
 
-  //get ALL mentorship applications of ONE student
-  public static async getAllStudentMentorshipApplications(req, res) {
+  //get ALL mentorship contracts of ONE student
+  public static async getAllStudentMentorshipContracts(req, res) {
     const { accountId } = req.params;
     const { user } = req; //user is the user who is making the request
 
@@ -319,27 +345,27 @@ export class MentorshipController {
     }
 
     try {
-      const applications = await MentorshipService.getAllStudentMentorshipApplications(
+      const contracts = await MentorshipService.getAllStudentMentorshipContracts(
         accountId
       );
       return apiResponse.result(
         res,
         {
           message: 'success',
-          applications,
+          contracts,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error(
-        '[mentorshipController.getAllStudentMentorshipApplications]:' +
+        '[mentorshipController.getAllStudentMentorshipContracts]:' +
           e.toString()
       );
     }
   }
 
-  //get ALL mentorship applications of ONE sensei
-  public static async getSenseiMentorshipApplications(req, res) {
+  //get ALL mentorship contracts of ONE sensei
+  public static async getSenseiMentorshipContracts(req, res) {
     const { accountId } = req.params; //accountId of the sensei
     const { user } = req; //user is the user who is making the request
 
@@ -353,56 +379,57 @@ export class MentorshipController {
     }
 
     try {
-      const applications = await MentorshipService.getSenseiMentorshipApplications(
+      const contracts = await MentorshipService.getSenseiMentorshipContracts(
         accountId
       );
       return apiResponse.result(
         res,
         {
           message: 'success',
-          applications,
+          contracts,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error(
-        '[mentorshipController.getSenseiMentorshipApplications]:' + e.toString()
+        '[mentorshipController.getSenseiMentorshipContracts]:' + e.toString()
       );
     }
   }
 
-  //get ALL mentorship applications of ONE sensei for ONE listing
-  public static async getSenseiListingMentorshipApplications(req, res) {
-    const { accountId, mentorshipListingId } = req.params;
-    const { user } = req; //user is the user who is making the request
+  //get ALL mentorship contracts of ONE sensei for ONE listing
+  // public static async getSenseiListingMentorshipContracts(req, res) {
+  //   const { mentorshipListingId } = req.params;
+  //   const { user } = req; //user is the user who is making the request
 
-    if (
-      user.accountId !== accountId &&
-      user.userType !== USER_TYPE_ENUM.ADMIN
-    ) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
+  //   console.log(' user=', user);
+  //   if (
+  //     user.userType !== USER_TYPE_ENUM.SENSEI &&
+  //     user.userType !== USER_TYPE_ENUM.ADMIN
+  //   ) {
+  //     return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+  //       message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+  //     });
+  //   }
 
-    try {
-      const applications = await MentorshipService.getSenseiListingMentorshipApplications(
-        accountId,
-        mentorshipListingId
-      );
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          applications,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error(
-        '[mentorshipController.getSenseiListingMentorshipApplications]:' +
-          e.toString()
-      );
-    }
-  }
+  //   try {
+  //     const contracts = await MentorshipService.getSenseiListingMentorshipContracts(
+  //       mentorshipListingId,
+  //       user.accountId
+  //     );
+  //     return apiResponse.result(
+  //       res,
+  //       {
+  //         message: 'success',
+  //         contracts,
+  //       },
+  //       httpStatusCodes.OK
+  //     );
+  //   } catch (e) {
+  //     logger.error(
+  //       '[mentorshipController.getSenseiListingMentorshipContracts]:' +
+  //         e.toString()
+  //     );
+  //   }
+  // }
 }

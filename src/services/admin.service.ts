@@ -11,6 +11,7 @@ import {
 } from '../constants/enum';
 import { Op } from 'sequelize';
 import { User } from '../models/User';
+import EmailService from './email.service';
 export default class AdminService {
   public static async deactivateAdmin(
     accountId: string,
@@ -187,6 +188,7 @@ export default class AdminService {
       await sensei.update({
         adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
       });
+      await EmailService.sendEmail(sensei.email, 'acceptSensei');
     } else {
       throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
     }

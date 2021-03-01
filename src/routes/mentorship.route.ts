@@ -13,12 +13,11 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
-// ==================== MENTORSHIP LISTINGS ====================
+// ==================================== MENTORSHIP LISTINGS ====================================
 router.post(
-  '/listing/:accountId',
+  '/listing/',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
-  schemaValidator.params(mentorship.accountIdQ),
   schemaValidator.body(mentorship.mentorshipListingB),
   Utility.asyncHandler(MentorshipController.createListing)
 );
@@ -37,7 +36,7 @@ router.put(
   '/accept-application/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.mentorshipContractQ),
-  Utility.asyncHandler(MentorshipController.acceptMentorshipApplication)
+  Utility.asyncHandler(MentorshipController.acceptMentorshipContract)
 );
 
 //Reject Mentorship Application
@@ -45,7 +44,7 @@ router.put(
   '/reject-application/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.mentorshipContractQ),
-  Utility.asyncHandler(MentorshipController.rejectMentorshipApplication)
+  Utility.asyncHandler(MentorshipController.rejectMentorshipContract)
 );
 
 router.delete(
@@ -56,87 +55,94 @@ router.delete(
   Utility.asyncHandler(MentorshipController.deleteListing)
 );
 
+router.get(
+  '/listing/:mentorshipListingId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.mentorshipListingQ),
+  Utility.asyncHandler(MentorshipController.getListing)
+);
+
 //get ALL mentorship listings
 router.get(
-  '/mentorship-listings',
+  '/listing',
   passport.authenticate('isAuthenticated', { session: false }),
   Utility.asyncHandler(MentorshipController.getMentorshipListings)
 );
 
 //get single sensei mentorship listings
 router.get(
-  '/mentorship-listings/:accountId',
+  '/listing/sensei/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.accountIdQ),
   Utility.asyncHandler(MentorshipController.getSenseiMentorshipListings)
 );
 
-// ==================== MENTORSHIP CONTRACT ====================
+// ==================================== MENTORSHIP CONTRACT ====================================
 router.post(
-  '/application/:mentorshipListingId/:accountId',
+  '/contract/:mentorshipListingId/',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.params(mentorship.mentorshipApplicationQ),
-  schemaValidator.body(mentorship.mentorshipApplicationB), // Should be created with subscription here
-  Utility.asyncHandler(MentorshipController.createApplication)
+  schemaValidator.params(mentorship.mentorshipListingQ),
+  schemaValidator.body(mentorship.mentorshipContractB), // Should be created with subscription here
+  Utility.asyncHandler(MentorshipController.createContract)
 );
 
 router.put(
-  '/application/:mentorshipContractId',
+  '/contract/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
   schemaValidator.params(mentorship.mentorshipContractQ),
-  schemaValidator.body(mentorship.mentorshipApplicationB), // Should be created with subscription as well
-  Utility.asyncHandler(MentorshipController.updateApplication)
+  schemaValidator.body(mentorship.mentorshipContractB), // Should be created with subscription as well
+  Utility.asyncHandler(MentorshipController.updateContract)
 );
 
 router.delete(
-  '/application/:mentorshipContractId',
+  '/contract/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
   schemaValidator.params(mentorship.mentorshipContractQ),
-  Utility.asyncHandler(MentorshipController.deleteApplication)
+  Utility.asyncHandler(MentorshipController.deleteContract)
 );
 
-//get ALL mentorship applications
+//get ALL mentorship contracts
 router.get(
-  '/mentorship-applications',
+  '/contract',
   passport.authenticate('isAuthenticated', { session: false }),
   requireAdmin,
-  Utility.asyncHandler(MentorshipController.getAllMentorshipApplications)
+  Utility.asyncHandler(MentorshipController.getAllMentorshipContracts)
 );
 
-//get ONE mentorship application of ONE student
+//get ONE mentorship contract
 router.get(
-  '/student-application/:mentorshipListingId/:accountId',
+  '/contract/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.mentorshipApplicationQ),
-  Utility.asyncHandler(MentorshipController.getStudentMentorshipApplication)
+  schemaValidator.params(mentorship.mentorshipContractQ),
+  Utility.asyncHandler(MentorshipController.getStudentMentorshipContract)
 );
 
-//get ALL mentorship applications of ONE student
+//get ALL mentorship contracts of ONE student
 router.get(
-  '/applications/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.accountIdQ),
-  Utility.asyncHandler(MentorshipController.getAllStudentMentorshipApplications)
-);
-
-//get ALL mentorship applications of ONE sensei
-router.get(
-  '/applications/:accountId',
+  '/contract/student/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.accountIdQ),
-  Utility.asyncHandler(MentorshipController.getSenseiMentorshipApplications)
+  Utility.asyncHandler(MentorshipController.getAllStudentMentorshipContracts)
 );
 
-//get ALL mentorship applications of ONE sensei for a particular listing
+//get ALL mentorship contracts of ONE sensei
 router.get(
-  '/applications/:mentorshipListingId/:accountId',
+  '/contract/sensei/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.mentorshipApplicationQ),
-  Utility.asyncHandler(
-    MentorshipController.getSenseiListingMentorshipApplications
-  )
+  schemaValidator.params(mentorship.accountIdQ),
+  Utility.asyncHandler(MentorshipController.getSenseiMentorshipContracts)
 );
+
+//get ALL mentorship contracts of ONE sensei for a particular listing
+// router.get(
+//   '/contracts/:mentorshipListingId',
+//   passport.authenticate('isAuthenticated', { session: false }),
+//   schemaValidator.params(mentorship.mentorshipListingQ),
+//   Utility.asyncHandler(
+//     MentorshipController.getSenseiListingMentorshipContracts
+//   )
+// );
 export default router;

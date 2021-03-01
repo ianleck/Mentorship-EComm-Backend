@@ -13,11 +13,6 @@ export default {
     mentorshipListingId: joi.string().required(),
   }),
 
-  mentorshipApplicationQ: joi.object({
-    mentorshipListingId: joi.string().required(),
-    accountId: joi.string().required(),
-  }),
-
   mentorshipContractQ: joi.object({
     mentorshipContractId: joi.string().required(),
   }),
@@ -26,7 +21,7 @@ export default {
     accountId: joi.string().required(),
   }),
 
-  mentorshipApplicationB: joi.object({
+  mentorshipContractB: joi.object({
     statement: joi.string().required(),
   }),
 };
