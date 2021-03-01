@@ -78,6 +78,9 @@ export class User extends Account {
 
   @Column({ type: DataType.STRING })
   profileImgUrl: string;
+
+  @Column({ type: DataType.STRING })
+  cvUrl: string;
   // ==================== ACCOUNT SETTINGS ====================
   @Column({ type: DataType.BOOLEAN })
   emailNotification: boolean;
