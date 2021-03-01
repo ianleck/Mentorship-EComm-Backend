@@ -136,11 +136,14 @@ export default class MentorshipService {
   public static async getSenseiMentorshipListings(accountId: string) {
     return MentorshipListing.findAll({
       where: { accountId: { [Op.eq]: accountId } },
+      include: [Category],
     });
   }
 
   public static async getAllMentorshipListings() {
-    const mentorshipListings = MentorshipListing.findAll();
+    const mentorshipListings = MentorshipListing.findAll({
+      include: [Category],
+    });
     return mentorshipListings;
   }
 
@@ -255,7 +258,10 @@ export default class MentorshipService {
     mentorshipContractId: string
   ): Promise<MentorshipContract> {
     const mentorshipContract = await MentorshipContract.findByPk(
-      mentorshipContractId
+      mentorshipContractId,
+      {
+        include: [MentorshipListing],
+      }
     );
 
     if (!mentorshipContract) throw new Error(CONTRACT_MISSING);
