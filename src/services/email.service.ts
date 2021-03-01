@@ -4,7 +4,11 @@ import { TEMPLATES } from '../constants/templates/index';
 import { User } from '../models/User';
 
 export default class EmailService {
-  public static async sendEmail(email: string, template: string) {
+  public static async sendEmail(
+    email: string,
+    template: string,
+    mentorshipContractId?: string
+  ) {
     try {
       // Set up emailClient
       const { SENDER_EMAIL_ADDRESS, SENDER_EMAIL_PASSWORD } = process.env;
@@ -24,7 +28,12 @@ export default class EmailService {
 
       // Send Email
       const subject = TEMPLATES[template].subject;
-      const htmlTemplate = await this.generateTemplate(email, template, user);
+      const htmlTemplate = await this.generateTemplate(
+        email,
+        template,
+        user,
+        mentorshipContractId
+      );
 
       const mailOptions = {
         from: SENDER_EMAIL_ADDRESS,
@@ -48,7 +57,8 @@ export default class EmailService {
   public static async generateTemplate(
     email: string,
     template: string,
-    user: User
+    user: User,
+    mentorshipId?: string
   ) {
     const name = `${user.firstName} ${user.lastName}`;
     const userType = user.userType;
@@ -66,6 +76,7 @@ export default class EmailService {
       email,
       userType,
       url,
+      mentorshipId,
     });
 
     return htmlTemplate;

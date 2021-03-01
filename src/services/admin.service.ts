@@ -193,8 +193,6 @@ export default class AdminService {
       throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
     }
 
-    //SEND EMAIL TO NOTIFY SENSEI ABOUT ACCEPTANCE
-
     return sensei;
   }
 
@@ -204,6 +202,7 @@ export default class AdminService {
       await sensei.update({
         adminVerified: ADMIN_VERIFIED_ENUM.REJECTED,
       });
+      await EmailService.sendEmail(sensei.email, 'rejectSensei');
     } else {
       throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
     }

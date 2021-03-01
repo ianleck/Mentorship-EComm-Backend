@@ -8,6 +8,7 @@ import {
   USER_TYPE_ENUM,
 } from '../constants/enum';
 import { ERRORS } from '../constants/errors';
+import EmailService from './email.service';
 import {
   CONTRACT_EXISTS,
   CONTRACT_MISSING,
@@ -16,6 +17,7 @@ import {
 import { Category } from '../models/Category';
 import { ListingToCategory } from '../models/ListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
+import { User } from '../models/User';
 
 import { MentorshipListing } from '../models/MentorshipListing';
 export default class MentorshipService {
@@ -201,7 +203,14 @@ export default class MentorshipService {
       senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
     });
 
+    const student = await User.findByPk(currApplication.accountId);
+
     //SEND EMAIL TO INFORM OF ACCEPTANCE OF APPLICATION
+    await EmailService.sendEmail(
+      student.email,
+      'acceptContract',
+      acceptedApplication.accountId
+    );
 
     return acceptedApplication;
   }
@@ -214,13 +223,20 @@ export default class MentorshipService {
     );
     if (!currApplication) throw new Error(CONTRACT_MISSING);
 
-    const acceptedApplication = await currApplication.update({
+    const rejectedApplication = await currApplication.update({
       senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.REJECTED,
     });
 
-    //SEND EMAIL TO INFORM OF REJECTION OF APPLICATION
+    const student = await User.findByPk(currApplication.accountId);
 
-    return acceptedApplication;
+    //SEND EMAIL TO INFORM OF REJECTION OF APPLICATION
+    await EmailService.sendEmail(
+      student.email,
+      'rejectContract',
+      rejectedApplication.accountId
+    );
+
+    return rejectedApplication;
   }
 
   public static async deleteContract(
