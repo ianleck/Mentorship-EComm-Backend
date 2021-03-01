@@ -42,10 +42,17 @@ sequelize
     app.use(fileUpload());
     app.use(cors(corsOptions));
     // init dev upload folders
-    var dir = './uploads/transcript';
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
+    const uploadDir = './uploads';
+    const childDir = ['/transcript', '/dp'];
+
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir);
     }
+    childDir.forEach((dir) => {
+      if (!fs.existsSync(uploadDir + dir)) {
+        fs.mkdirSync(uploadDir + dir);
+      }
+    });
 
     // Passport
     app.use(passport.initialize());

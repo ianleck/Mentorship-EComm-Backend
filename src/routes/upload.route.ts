@@ -22,4 +22,12 @@ router.get(
   express.static(path.join(__dirname, '../../uploads'))
 );
 
+router.post(
+  '/dp',
+  passport.authenticate('isAuthenticated', { session: false }),
+  Utility.asyncHandler(UploadController.uploadProfilePic)
+);
+
+router.get('/dp/*', express.static(path.join(__dirname, '../../uploads')));
+
 export default router;
