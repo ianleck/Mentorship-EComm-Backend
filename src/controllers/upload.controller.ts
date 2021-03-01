@@ -31,7 +31,7 @@ export class UploadController {
       // path to save in db. 'upload' because /upload is the route
       // const saveName = `${BACKEND_API}/upload/transcript/${accountId}${fileType}`;
       const url = `cv/${accountId}${fileType}`;
-      const saveName = `${BACKEND_API}/upload/${url}`;
+      const saveName = `${BACKEND_API}/file/${url}`;
 
       // path to save file in /uploads/transcript folder
       const saveFilePath = `${__dirname}/../../uploads/${url}`;
@@ -83,7 +83,7 @@ export class UploadController {
       // path to save in db. 'upload' because /upload is the route
       // const saveName = `${BACKEND_API}/upload/transcript/${accountId}${fileType}`;
       const url = `transcript/${accountId}${fileType}`;
-      const saveName = `${BACKEND_API}/upload/${url}`;
+      const saveName = `${BACKEND_API}/file/${url}`;
 
       // path to save file in /uploads/transcript folder
       const saveFilePath = `${__dirname}/../../uploads/${url}`;
@@ -134,7 +134,7 @@ export class UploadController {
 
       // path to save in db. 'upload' because /upload is the route
       const url = `dp/${accountId}${fileType}`;
-      const saveName = `${BACKEND_API}/upload/${url}`;
+      const saveName = `${BACKEND_API}/file/${url}`;
 
       // path to save file in /uploads/dp folder
       const saveFilePath = `${__dirname}/../../uploads/${url}`;
