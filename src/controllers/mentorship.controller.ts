@@ -2,6 +2,11 @@ import httpStatusCodes from 'http-status-codes';
 import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
 import MentorshipService from '../services/mentorship.service';
+import { MentorshipContract } from '../models/MentorshipContract';
+import { MentorshipListing } from '../models/MentorshipListing';
+
+import { MENTORSHIP_ERRORS } from '../constants/errors';
+
 import { USER_TYPE_ENUM } from '../constants/enum';
 import { MENTORSHIP_RESPONSE } from '../constants/successMessages';
 export class MentorshipController {
@@ -163,6 +168,22 @@ export class MentorshipController {
 
   public static async acceptMentorshipContract(req, res) {
     const { mentorshipContractId } = req.params;
+    const { user } = req;
+
+    const mentorshipContract = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+
+    if (user.accountId !== mentorshipListing.accountId) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
 
     // Check that there is an existing mentorship application
     try {
@@ -186,6 +207,23 @@ export class MentorshipController {
 
   public static async rejectMentorshipContract(req, res) {
     const { mentorshipContractId } = req.params;
+
+    const { user } = req;
+
+    const mentorshipContract = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+
+    if (user.accountId !== mentorshipListing.accountId) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
 
     // Check that there is an existing mentorship application
     try {
