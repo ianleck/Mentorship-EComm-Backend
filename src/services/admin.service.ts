@@ -181,17 +181,32 @@ export default class AdminService {
     }
   }
 
-  public static async verifySenseiProfile(accountId, senseiAccount) {
+  public static async acceptSenseiProfile(accountId) {
     const sensei = await User.findByPk(accountId);
     if (sensei) {
       await sensei.update({
-        adminVerified: senseiAccount.adminVerified,
+        adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
       });
     } else {
       throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
     }
 
-    //SEND EMAIL TO NOTIFY SENSEI ABOUT ACCEPTANCE / REJECTION
+    //SEND EMAIL TO NOTIFY SENSEI ABOUT ACCEPTANCE
+
+    return sensei;
+  }
+
+  public static async rejectSenseiProfile(accountId) {
+    const sensei = await User.findByPk(accountId);
+    if (sensei) {
+      await sensei.update({
+        adminVerified: ADMIN_VERIFIED_ENUM.REJECTED,
+      });
+    } else {
+      throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+    }
+
+    //SEND EMAIL TO NOTIFY SENSEI ABOUT ACCEPTANCE
 
     return sensei;
   }

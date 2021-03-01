@@ -186,6 +186,40 @@ export default class MentorshipService {
     return updatedApplication;
   }
 
+  public static async acceptApplication(
+    mentorshipContractId: string
+  ): Promise<MentorshipContract> {
+    const currApplication = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!currApplication) throw new Error(APPLICATION_MISSING);
+
+    const acceptedApplication = await currApplication.update({
+      senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
+    });
+
+    //SEND EMAIL TO INFORM OF ACCEPTANCE OF APPLICATION
+
+    return acceptedApplication;
+  }
+
+  public static async rejectApplication(
+    mentorshipContractId: string
+  ): Promise<MentorshipContract> {
+    const currApplication = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!currApplication) throw new Error(APPLICATION_MISSING);
+
+    const acceptedApplication = await currApplication.update({
+      senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.REJECTED,
+    });
+
+    //SEND EMAIL TO INFORM OF REJECTION OF APPLICATION
+
+    return acceptedApplication;
+  }
+
   public static async deleteApplication(
     mentorshipContractId: string
   ): Promise<void> {

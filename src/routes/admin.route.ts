@@ -134,14 +134,22 @@ router.put(
   Utility.asyncHandler(AdminController.updateAdminPermission)
 );
 
-//verify sensei profile
+//accept sensei profile
 router.put(
-  '/verify-senseis/:accountId',
+  '/accept-sensei/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireAdmin,
   schemaValidator.params(admin.senseiIdQ),
-  schemaValidator.body(admin.verifySensei),
-  Utility.asyncHandler(AdminController.verifySenseiProfile)
+  Utility.asyncHandler(AdminController.acceptSenseiProfile)
+);
+
+//reject sensei profile
+router.put(
+  '/reject-sensei/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  schemaValidator.params(admin.senseiIdQ),
+  Utility.asyncHandler(AdminController.rejectSenseiProfile)
 );
 
 /*** END OF PUT REQUESTS ***/

@@ -185,6 +185,52 @@ export class MentorshipController {
     }
   }
 
+  public static async acceptMentorshipApplication(req, res) {
+    const { mentorshipContractId } = req.params;
+
+    // Check that there is an existing mentorship application
+    try {
+      const mentorshipContract = await MentorshipService.acceptApplication(
+        mentorshipContractId
+      );
+      return apiResponse.result(
+        res,
+        { message: 'success', mentorshipContract },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.acceptMentorshipApplication]:' + e.message
+      );
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async rejectMentorshipApplication(req, res) {
+    const { mentorshipContractId } = req.params;
+
+    // Check that there is an existing mentorship application
+    try {
+      const mentorshipContract = await MentorshipService.rejectApplication(
+        mentorshipContractId
+      );
+      return apiResponse.result(
+        res,
+        { message: 'success', mentorshipContract },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.rejectMentorshipApplication]:' + e.message
+      );
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
   public static async deleteApplication(req, res) {
     const { mentorshipContractId } = req.params;
 

@@ -32,6 +32,22 @@ router.put(
   Utility.asyncHandler(MentorshipController.updateListing)
 );
 
+//Accept Mentorship Application
+router.put(
+  '/accept-application/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.mentorshipContractQ),
+  Utility.asyncHandler(MentorshipController.acceptMentorshipApplication)
+);
+
+//Reject Mentorship Application
+router.put(
+  '/reject-application/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.mentorshipContractQ),
+  Utility.asyncHandler(MentorshipController.rejectMentorshipApplication)
+);
+
 router.delete(
   '/listing/:mentorshipListingId',
   passport.authenticate('isAuthenticated', { session: false }),
