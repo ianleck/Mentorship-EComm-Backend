@@ -4,6 +4,8 @@ export const ERRORS = {
   STUDENT_DOES_NOT_EXIST: 'Student does not exist',
   USER_DOES_NOT_EXIST: 'User does not exist',
   EXPERIENCE_DOES_NOT_EXIST: 'Experience does not exist',
+  SENSEI_NOT_PENDING:
+    'Sensei has either not been found or is not pending approval',
 };
 
 export const AUTH_ERRORS = {

@@ -7,17 +7,29 @@ export const TEMPLATES = {
     fileName: 'forgotPassword.ejs',
     subject: '[DigiDojo] Password Reset Request',
   },
+
   passwordReset: {
     fileName: `passwordReset.ejs`,
     subject: '[DigiDojo] Password has been successfully reset!',
   },
-  acceptStudent: {
-    fileName: 'acceptStudent.ejs',
+
+  acceptContract: {
+    fileName: 'acceptContract.ejs',
     subject:
       '[DigiDojo] Congratulations! Your Mentorship Application has been approved!',
   },
-  rejectStudent: {
-    fileName: 'rejectStudent.ejs',
+  rejectContract: {
+    fileName: 'rejectContract.ejs',
     subject: '[DigiDojo] Mentorship Application Rejected',
+  },
+
+  acceptSensei: {
+    fileName: 'acceptSensei.ejs',
+    subject: '[DigiDojo] Congratulations! You have been approved as a Sensei!',
+  },
+
+  rejectSensei: {
+    fileName: 'rejectSensei.ejs',
+    subject: '[DigiDojo] Sensei Profile Rejected',
   },
 };

@@ -88,6 +88,24 @@ router.delete(
   Utility.asyncHandler(MentorshipController.deleteContract)
 );
 
+//Accept Mentorship Application
+router.put(
+  '/accept-application/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.mentorshipContractQ),
+  Utility.asyncHandler(MentorshipController.acceptMentorshipContract)
+);
+
+//Reject Mentorship Application
+router.put(
+  '/reject-application/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.mentorshipContractQ),
+  Utility.asyncHandler(MentorshipController.rejectMentorshipContract)
+);
+
 //get ALL mentorship contracts
 router.get(
   '/contract',

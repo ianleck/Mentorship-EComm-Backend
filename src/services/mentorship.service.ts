@@ -2,11 +2,15 @@ import * as _ from 'lodash';
 
 import { Op } from 'sequelize';
 
-import { MENTORSHIP_ERRORS } from '../constants/errors';
-
+import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
+import { MENTORSHIP_CONTRACT_APPROVAL } from '../constants/enum';
 import { Category } from '../models/Category';
 import { ListingToCategory } from '../models/ListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
+import { User } from '../models/User';
+import EmailService from './email.service';
+import httpStatusCodes from 'http-status-codes';
+import { USER_TYPE_ENUM } from '../constants/enum';
 
 import { MentorshipListing } from '../models/MentorshipListing';
 export default class MentorshipService {
@@ -180,6 +184,80 @@ export default class MentorshipService {
     return updatedContract;
   }
 
+  public static async acceptContract(mentorshipContractId, accountId) {
+    // Check for existing mentorship contract that is pending
+    const mentorshipContract = await MentorshipContract.findOne({
+      where: {
+        mentorshipContractId,
+        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+      },
+    });
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    // Check that sensei approving is sensei in question on contract
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+    if (accountId !== mentorshipListing.accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    // Check that student still exists
+    const student = await User.findByPk(mentorshipContract.accountId);
+    if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
+
+    const acceptedApplication = await mentorshipContract.update({
+      senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
+    });
+
+    const mentorshipName = mentorshipListing.name;
+    const additional = { mentorshipName };
+
+    //SEND EMAIL TO INFORM OF ACCEPTANCE OF APPLICATION
+    await EmailService.sendEmail(student.email, 'acceptContract', additional);
+
+    return acceptedApplication;
+  }
+
+  public static async rejectContract(mentorshipContractId, accountId) {
+    // Check for existing mentorship contract that is pending
+    const mentorshipContract = await MentorshipContract.findOne({
+      where: {
+        mentorshipContractId,
+        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+      },
+    });
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    // Check that sensei approving is sensei in question on contract
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+    if (accountId !== mentorshipListing.accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    // Check that student still exists
+    const student = await User.findByPk(mentorshipContract.accountId);
+    if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
+
+    const rejectedApplication = await mentorshipContract.update({
+      senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.REJECTED,
+    });
+
+    const mentorshipName = mentorshipListing.name;
+    const additional = { mentorshipName };
+
+    //SEND EMAIL TO INFORM OF REJECTION OF APPLICATION
+    await EmailService.sendEmail(student.email, 'rejectContract', additional);
+
+    return rejectedApplication;
+  }
+
   public static async deleteContract(
     mentorshipContractId: string
   ): Promise<void> {
@@ -246,14 +324,25 @@ export default class MentorshipService {
 
   //get ONE mentorship contract of ONE student
   public static async getStudentMentorshipContract(
-    mentorshipContractId: string
-  ): Promise<MentorshipContract> {
+    mentorshipContractId: string,
+    accountId: string,
+    userType: USER_TYPE_ENUM
+  ) {
     const mentorshipContract = await MentorshipContract.findByPk(
       mentorshipContractId,
       {
         include: [MentorshipListing],
       }
     );
+
+    if (
+      accountId !== mentorshipContract.accountId &&
+      accountId !== mentorshipContract.MentorshipListing.accountId && // TO BE ADDEDIN THE FUTURE
+      userType !== USER_TYPE_ENUM.ADMIN
+    )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
 
     if (!mentorshipContract)
       throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);

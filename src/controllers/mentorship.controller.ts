@@ -2,6 +2,7 @@ import httpStatusCodes from 'http-status-codes';
 import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
 import MentorshipService from '../services/mentorship.service';
+
 import { USER_TYPE_ENUM } from '../constants/enum';
 import { MENTORSHIP_RESPONSE } from '../constants/successMessages';
 export class MentorshipController {
@@ -161,6 +162,54 @@ export class MentorshipController {
     }
   }
 
+  public static async acceptMentorshipContract(req, res) {
+    const { mentorshipContractId } = req.params;
+    const { user } = req;
+
+    try {
+      const mentorshipContract = await MentorshipService.acceptContract(
+        mentorshipContractId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        { message: 'success', mentorshipContract },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.acceptMentorshipApplication]:' + e.message
+      );
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async rejectMentorshipContract(req, res) {
+    const { mentorshipContractId } = req.params;
+    const { user } = req;
+
+    try {
+      const mentorshipContract = await MentorshipService.rejectContract(
+        mentorshipContractId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        { message: 'success', mentorshipContract },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.rejectMentorshipApplication]:' + e.message
+      );
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
   public static async deleteContract(req, res) {
     const { mentorshipContractId } = req.params;
 
@@ -237,17 +286,11 @@ export class MentorshipController {
 
     try {
       const contract = await MentorshipService.getStudentMentorshipContract(
-        mentorshipContractId
+        mentorshipContractId,
+        user.accountId,
+        user.userType
       );
-      if (
-        user.accountId !== contract.accountId &&
-        user.accountId !== contract.MentorshipListing.accountId && // TO BE ADDEDIN THE FUTURE
-        user.userType !== USER_TYPE_ENUM.ADMIN
-      ) {
-        return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-          message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-        });
-      }
+
       return apiResponse.result(
         res,
         {

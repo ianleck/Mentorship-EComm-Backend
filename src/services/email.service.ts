@@ -19,7 +19,9 @@ export default class EmailService {
       const { SENDER_EMAIL_ADDRESS, SENDER_EMAIL_PASSWORD } = process.env;
 
       var transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
           user: SENDER_EMAIL_ADDRESS,
           pass: SENDER_EMAIL_PASSWORD,
@@ -93,6 +95,28 @@ export default class EmailService {
       case 'passwordReset':
         return await ejs.renderFile(filePath, {
           name,
+        });
+
+      case 'acceptSensei':
+        return await ejs.renderFile(filePath, {
+          name,
+        });
+
+      case 'rejectSensei':
+        return await ejs.renderFile(filePath, {
+          name,
+        });
+
+      case 'acceptContract':
+        return await ejs.renderFile(filePath, {
+          name,
+          mentorshipName: additional.mentorshipName,
+        });
+
+      case 'rejectContract':
+        return await ejs.renderFile(filePath, {
+          name,
+          mentorshipName: additional.mentorshipName,
         });
     }
   }

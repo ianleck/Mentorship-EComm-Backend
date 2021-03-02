@@ -254,15 +254,11 @@ export class AdminController {
     }
   }
 
-  public static async verifySenseiProfile(req, res) {
+  public static async acceptSenseiProfile(req, res) {
     const { accountId } = req.params; //accountId of the sensei who is being verified
-    const { sensei } = req.body;
 
     try {
-      const senseiVerified = await AdminService.verifySenseiProfile(
-        accountId,
-        sensei
-      );
+      const senseiVerified = await AdminService.acceptSenseiProfile(accountId);
       return apiResponse.result(
         res,
         {
@@ -272,7 +268,28 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.verifySenseiProfile]:' + e.message);
+      logger.error('[adminController.acceptSenseiProfile]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async rejectSenseiProfile(req, res) {
+    const { accountId } = req.params; //accountId of the sensei who is being verified
+
+    try {
+      const senseiVerified = await AdminService.rejectSenseiProfile(accountId);
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          sensei: senseiVerified,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.rejectSenseiProfile]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });

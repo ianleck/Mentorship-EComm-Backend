@@ -5,8 +5,10 @@ import {
   ALLOWED_IMG_FILE_TYPES,
   BACKEND_API,
 } from '../constants/constants';
-import { UPLOAD_ERRORS } from '../constants/errors';
+import { ADMIN_VERIFIED_ENUM } from '../constants/enum';
+import { ERRORS, UPLOAD_ERRORS } from '../constants/errors';
 import Utility from '../constants/utility';
+import { User } from '../models/User';
 import UserService from '../services/user.service';
 import apiResponse from '../utilities/apiResponse';
 
@@ -45,9 +47,21 @@ export class UploadController {
           });
         } else {
           // update user transcript file path
-          const user = await UserService.updateUser(accountId, {
-            cvUrl: saveName,
-          });
+          const user = await User.findByPk(accountId);
+          if (user) {
+            await user.update({ cvUrl: saveName });
+          } else {
+            throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+          }
+
+          if (
+            user.transcriptUrl &&
+            user.adminVerified === ADMIN_VERIFIED_ENUM.SHELL
+          ) {
+            await user.update({
+              adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
+            });
+          }
           return apiResponse.result(
             res,
             { message: 'Successfully Uploaded CV', user },
@@ -97,9 +111,18 @@ export class UploadController {
           });
         } else {
           // update user transcript file path
-          const user = await UserService.updateUser(accountId, {
-            transcriptUrl: saveName,
-          });
+          const user = await User.findByPk(accountId);
+          if (user) {
+            await user.update({ transcriptUrl: saveName });
+          } else {
+            throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+          }
+
+          if (user.cvUrl && user.adminVerified === ADMIN_VERIFIED_ENUM.SHELL) {
+            await user.update({
+              adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
+            });
+          }
           return apiResponse.result(
             res,
             { message: 'Successfully Uploaded Transcript', user },
