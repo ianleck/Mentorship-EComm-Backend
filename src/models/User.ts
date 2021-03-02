@@ -28,13 +28,13 @@ export class User extends Account {
   @Column({ type: DataType.STRING })
   password: string;
 
-  @Column({ field: 'first_name', type: DataType.STRING })
+  @Column({ type: DataType.STRING })
   firstName: string;
 
-  @Column({ field: 'last_name', type: DataType.STRING })
+  @Column({ type: DataType.STRING })
   lastName: string;
 
-  @Column({ field: 'email', type: DataType.STRING, unique: true })
+  @Column({ type: DataType.STRING, unique: true })
   email: string;
 
   @Column({ type: DataType.STRING })

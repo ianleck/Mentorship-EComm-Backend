@@ -14,4 +14,6 @@ export const MENTORSHIP_RESPONSE = {
   CONTRACT_CREATE: 'Mentorship Contract has been successfully created',
   CONTRACT_UPDATE: 'Mentorship Contract has been successfully updated',
   CONTRACT_DELETE: 'Mentorship Contract has been successfully deleted',
+  CONTRACT_ACCEPT: 'Mentorship Contract has been successfully accepted',
+  CONTRACT_REJECT: 'Mentorship Contract has been successfully rejected',
 };
