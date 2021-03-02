@@ -299,7 +299,13 @@ export default class MentorshipService {
   //get ALL mentorship contracts of ONE sensei
   public static async getSenseiMentorshipContracts(accountId) {
     const mentorshipContracts = await MentorshipContract.findAll({
-      include: [{ model: MentorshipListing, where: { accountId } }],
+      include: [
+        { model: MentorshipListing, where: { accountId } },
+        {
+          model: User,
+          attributes: ['firstName', 'lastName'],
+        },
+      ],
     });
 
     return mentorshipContracts;

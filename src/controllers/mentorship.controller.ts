@@ -173,7 +173,7 @@ export class MentorshipController {
       );
       return apiResponse.result(
         res,
-        { message: 'success', mentorshipContract },
+        { message: MENTORSHIP_RESPONSE.CONTRACT_ACCEPT, mentorshipContract },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -197,7 +197,7 @@ export class MentorshipController {
       );
       return apiResponse.result(
         res,
-        { message: 'success', mentorshipContract },
+        { message: MENTORSHIP_RESPONSE.CONTRACT_ACCEPT, mentorshipContract },
         httpStatusCodes.OK
       );
     } catch (e) {
