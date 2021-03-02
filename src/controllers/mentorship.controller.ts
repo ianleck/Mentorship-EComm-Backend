@@ -170,25 +170,12 @@ export class MentorshipController {
     const { mentorshipContractId } = req.params;
     const { user } = req;
 
-    const mentorshipContract = await MentorshipContract.findByPk(
-      mentorshipContractId
-    );
-    if (!mentorshipContract)
-      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
-    const mentorshipListing = await MentorshipListing.findByPk(
-      mentorshipContract.mentorshipListingId
-    );
-
-    if (user.accountId !== mentorshipListing.accountId) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
-
     // Check that there is an existing mentorship application
     try {
       const mentorshipContract = await MentorshipService.acceptContract(
-        mentorshipContractId
+        mentorshipContractId,
+        user,
+        res
       );
       return apiResponse.result(
         res,
@@ -207,28 +194,14 @@ export class MentorshipController {
 
   public static async rejectMentorshipContract(req, res) {
     const { mentorshipContractId } = req.params;
-
     const { user } = req;
-
-    const mentorshipContract = await MentorshipContract.findByPk(
-      mentorshipContractId
-    );
-    if (!mentorshipContract)
-      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
-    const mentorshipListing = await MentorshipListing.findByPk(
-      mentorshipContract.mentorshipListingId
-    );
-
-    if (user.accountId !== mentorshipListing.accountId) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
 
     // Check that there is an existing mentorship application
     try {
       const mentorshipContract = await MentorshipService.rejectContract(
-        mentorshipContractId
+        mentorshipContractId,
+        user,
+        res
       );
       return apiResponse.result(
         res,
@@ -321,17 +294,11 @@ export class MentorshipController {
 
     try {
       const contract = await MentorshipService.getStudentMentorshipContract(
-        mentorshipContractId
+        mentorshipContractId,
+        user,
+        res
       );
-      if (
-        user.accountId !== contract.accountId &&
-        user.accountId !== contract.MentorshipListing.accountId && // TO BE ADDEDIN THE FUTURE
-        user.userType !== USER_TYPE_ENUM.ADMIN
-      ) {
-        return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-          message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-        });
-      }
+
       return apiResponse.result(
         res,
         {
@@ -355,18 +322,11 @@ export class MentorshipController {
     const { accountId } = req.params;
     const { user } = req; //user is the user who is making the request
 
-    if (
-      user.accountId !== accountId &&
-      user.userType !== USER_TYPE_ENUM.ADMIN
-    ) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
-
     try {
       const contracts = await MentorshipService.getAllStudentMentorshipContracts(
-        accountId
+        accountId,
+        user,
+        res
       );
       return apiResponse.result(
         res,
@@ -389,18 +349,11 @@ export class MentorshipController {
     const { accountId } = req.params; //accountId of the sensei
     const { user } = req; //user is the user who is making the request
 
-    if (
-      user.accountId !== accountId &&
-      user.userType !== USER_TYPE_ENUM.ADMIN
-    ) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
-
     try {
       const contracts = await MentorshipService.getSenseiMentorshipContracts(
-        accountId
+        accountId,
+        user,
+        res
       );
       return apiResponse.result(
         res,
