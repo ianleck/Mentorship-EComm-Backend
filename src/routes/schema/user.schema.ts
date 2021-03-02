@@ -1,5 +1,6 @@
 import joi, { string } from 'joi';
 import { PRIVACY_PERMISSIONS_ENUM } from '../../constants/enum';
+import { ADMIN_VERIFIED_ENUM } from '../../constants/enum';
 
 export default {
   accountIdQ: joi.object({
@@ -47,6 +48,7 @@ export default {
       emailNotification: joi.boolean(),
       occupation: joi.string(),
       industry: joi.string(),
+      adminVerified: joi.string().valid(...Object.values(ADMIN_VERIFIED_ENUM)),
     }),
   }),
   updateUserOccupationB: joi.object({
