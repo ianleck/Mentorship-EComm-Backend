@@ -170,12 +170,10 @@ export class MentorshipController {
     const { mentorshipContractId } = req.params;
     const { user } = req;
 
-    // Check that there is an existing mentorship application
     try {
       const mentorshipContract = await MentorshipService.acceptContract(
         mentorshipContractId,
-        user,
-        res
+        user
       );
       return apiResponse.result(
         res,
@@ -196,12 +194,10 @@ export class MentorshipController {
     const { mentorshipContractId } = req.params;
     const { user } = req;
 
-    // Check that there is an existing mentorship application
     try {
       const mentorshipContract = await MentorshipService.rejectContract(
         mentorshipContractId,
-        user,
-        res
+        user
       );
       return apiResponse.result(
         res,

@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 
 import { Op } from 'sequelize';
 
-import { MENTORSHIP_ERRORS } from '../constants/errors';
+import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
 import { MENTORSHIP_CONTRACT_APPROVAL } from '../constants/enum';
 import { Category } from '../models/Category';
 import { ListingToCategory } from '../models/ListingToCategory';
@@ -186,42 +186,34 @@ export default class MentorshipService {
     return updatedContract;
   }
 
-  public static async acceptContract(mentorshipContractId, user, res) {
-    try {
-      const mentorshipContract = await MentorshipContract.findByPk(
-        mentorshipContractId
-      );
-      if (!mentorshipContract)
-        throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
-      const mentorshipListing = await MentorshipListing.findByPk(
-        mentorshipContract.mentorshipListingId
-      );
+  public static async acceptContract(mentorshipContractId, user) {
+    // Check for existing mentorship contract that is pending
+    const mentorshipContract = await MentorshipContract.findOne({
+      where: {
+        mentorshipContractId,
+        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+      },
+    });
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
 
-      if (user.accountId !== mentorshipListing.accountId) {
-        return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-          message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-        });
-      }
-    } catch (e) {
-      logger.error('[mentorshipService.acceptContract]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
-    }
-
-    const currApplication = await MentorshipContract.findByPk(
-      mentorshipContractId
+    // Check that sensei approving is sensei in question on contract
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
     );
-    if (!currApplication) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+    if (user.accountId !== mentorshipListing.accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
 
-    const acceptedApplication = await currApplication.update({
+    // Check that student still exists
+    const student = await User.findByPk(mentorshipContract.accountId);
+    if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
+
+    const acceptedApplication = await mentorshipContract.update({
       senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
     });
 
-    const student = await User.findByPk(currApplication.accountId);
-    const mentorshipListing = await MentorshipListing.findByPk(
-      currApplication.mentorshipListingId
-    );
     const mentorshipName = mentorshipListing.name;
     const additional = { mentorshipName };
 
@@ -231,41 +223,34 @@ export default class MentorshipService {
     return acceptedApplication;
   }
 
-  public static async rejectContract(mentorshipContractId, user, res) {
-    try {
-      const mentorshipContract = await MentorshipContract.findByPk(
-        mentorshipContractId
-      );
-      if (!mentorshipContract)
-        throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
-      const mentorshipListing = await MentorshipListing.findByPk(
-        mentorshipContract.mentorshipListingId
-      );
+  public static async rejectContract(mentorshipContractId, user) {
+    // Check for existing mentorship contract that is pending
+    const mentorshipContract = await MentorshipContract.findOne({
+      where: {
+        mentorshipContractId,
+        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+      },
+    });
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
 
-      if (user.accountId !== mentorshipListing.accountId) {
-        return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-          message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-        });
-      }
-    } catch (e) {
-      logger.error('[mentorshipService.rejectContract]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
-    }
-    const currApplication = await MentorshipContract.findByPk(
-      mentorshipContractId
+    // Check that sensei approving is sensei in question on contract
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
     );
-    if (!currApplication) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+    if (user.accountId !== mentorshipListing.accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
 
-    const rejectedApplication = await currApplication.update({
+    // Check that student still exists
+    const student = await User.findByPk(mentorshipContract.accountId);
+    if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
+
+    const rejectedApplication = await mentorshipContract.update({
       senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.REJECTED,
     });
 
-    const student = await User.findByPk(currApplication.accountId);
-    const mentorshipListing = await MentorshipListing.findByPk(
-      currApplication.mentorshipListingId
-    );
     const mentorshipName = mentorshipListing.name;
     const additional = { mentorshipName };
 
