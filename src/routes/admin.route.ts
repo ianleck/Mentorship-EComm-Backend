@@ -65,7 +65,7 @@ router.get(
 
 //get list of banned students
 router.get(
-  '/banned-students',
+  '/ban/student',
   passport.authenticate('isAuthenticated', { session: false }),
   requireAdmin,
   Utility.asyncHandler(AdminController.getBannedStudents)
@@ -73,7 +73,7 @@ router.get(
 
 //get list of banned senseis
 router.get(
-  '/banned-senseis',
+  '/ban/sensei',
   passport.authenticate('isAuthenticated', { session: false }),
   requireAdmin,
   Utility.asyncHandler(AdminController.getBannedSenseis)
