@@ -38,8 +38,8 @@ export class MentorshipListing extends BaseEntity {
 
   @Column({
     allowNull: false,
-    type: DataType.STRING,
-    defaultValue: DataType.STRING,
+    type: DataType.TEXT,
+    defaultValue: DataType.TEXT,
   })
   description: string;
 

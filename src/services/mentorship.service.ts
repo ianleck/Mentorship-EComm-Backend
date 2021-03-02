@@ -137,7 +137,13 @@ export default class MentorshipService {
 
   public static async getAllMentorshipListings() {
     const mentorshipListings = MentorshipListing.findAll({
-      include: [Category],
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl'],
+        },
+      ],
     });
     return mentorshipListings;
   }
