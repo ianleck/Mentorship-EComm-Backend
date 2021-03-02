@@ -7,7 +7,7 @@ export const checkPermission = (req, res, next) => {
   const { documentName } = req.params;
 
   // continue if admin$ ≈
-  if (user.userType == USER_TYPE_ENUM.ADMIN) return next();
+  if (user.userType === USER_TYPE_ENUM.ADMIN) return next();
 
   const _documentName = documentName.split('.');
   if (_documentName.length <= 0) {
