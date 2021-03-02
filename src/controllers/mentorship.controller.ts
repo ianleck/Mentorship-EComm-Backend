@@ -2,10 +2,6 @@ import httpStatusCodes from 'http-status-codes';
 import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
 import MentorshipService from '../services/mentorship.service';
-import { MentorshipContract } from '../models/MentorshipContract';
-import { MentorshipListing } from '../models/MentorshipListing';
-
-import { MENTORSHIP_ERRORS } from '../constants/errors';
 
 import { USER_TYPE_ENUM } from '../constants/enum';
 import { MENTORSHIP_RESPONSE } from '../constants/successMessages';
@@ -173,7 +169,7 @@ export class MentorshipController {
     try {
       const mentorshipContract = await MentorshipService.acceptContract(
         mentorshipContractId,
-        user
+        user.accountId
       );
       return apiResponse.result(
         res,
@@ -197,7 +193,7 @@ export class MentorshipController {
     try {
       const mentorshipContract = await MentorshipService.rejectContract(
         mentorshipContractId,
-        user
+        user.accountId
       );
       return apiResponse.result(
         res,
@@ -291,8 +287,8 @@ export class MentorshipController {
     try {
       const contract = await MentorshipService.getStudentMentorshipContract(
         mentorshipContractId,
-        user,
-        res
+        user.accountId,
+        user.userType
       );
 
       return apiResponse.result(
@@ -318,11 +314,18 @@ export class MentorshipController {
     const { accountId } = req.params;
     const { user } = req; //user is the user who is making the request
 
+    if (
+      user.accountId !== accountId &&
+      user.userType !== USER_TYPE_ENUM.ADMIN
+    ) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
+
     try {
       const contracts = await MentorshipService.getAllStudentMentorshipContracts(
-        accountId,
-        user,
-        res
+        accountId
       );
       return apiResponse.result(
         res,
@@ -345,11 +348,18 @@ export class MentorshipController {
     const { accountId } = req.params; //accountId of the sensei
     const { user } = req; //user is the user who is making the request
 
+    if (
+      user.accountId !== accountId &&
+      user.userType !== USER_TYPE_ENUM.ADMIN
+    ) {
+      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
+        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      });
+    }
+
     try {
       const contracts = await MentorshipService.getSenseiMentorshipContracts(
-        accountId,
-        user,
-        res
+        accountId
       );
       return apiResponse.result(
         res,

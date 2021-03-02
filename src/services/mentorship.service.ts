@@ -10,8 +10,6 @@ import { MentorshipContract } from '../models/MentorshipContract';
 import { User } from '../models/User';
 import EmailService from './email.service';
 import httpStatusCodes from 'http-status-codes';
-import apiResponse from '../utilities/apiResponse';
-import logger from '../config/logger';
 import { USER_TYPE_ENUM } from '../constants/enum';
 
 import { MentorshipListing } from '../models/MentorshipListing';
@@ -186,7 +184,7 @@ export default class MentorshipService {
     return updatedContract;
   }
 
-  public static async acceptContract(mentorshipContractId, user) {
+  public static async acceptContract(mentorshipContractId, accountId) {
     // Check for existing mentorship contract that is pending
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
@@ -201,7 +199,7 @@ export default class MentorshipService {
     const mentorshipListing = await MentorshipListing.findByPk(
       mentorshipContract.mentorshipListingId
     );
-    if (user.accountId !== mentorshipListing.accountId)
+    if (accountId !== mentorshipListing.accountId)
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
@@ -223,7 +221,7 @@ export default class MentorshipService {
     return acceptedApplication;
   }
 
-  public static async rejectContract(mentorshipContractId, user) {
+  public static async rejectContract(mentorshipContractId, accountId) {
     // Check for existing mentorship contract that is pending
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
@@ -238,7 +236,7 @@ export default class MentorshipService {
     const mentorshipListing = await MentorshipListing.findByPk(
       mentorshipContract.mentorshipListingId
     );
-    if (user.accountId !== mentorshipListing.accountId)
+    if (accountId !== mentorshipListing.accountId)
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
@@ -299,16 +297,7 @@ export default class MentorshipService {
   }
 
   //get ALL mentorship contracts of ONE sensei
-  public static async getSenseiMentorshipContracts(accountId, user, res) {
-    if (
-      user.accountId !== accountId &&
-      user.userType !== USER_TYPE_ENUM.ADMIN
-    ) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
-
+  public static async getSenseiMentorshipContracts(accountId) {
     const mentorshipContracts = await MentorshipContract.findAll({
       include: [{ model: MentorshipListing, where: { accountId } }],
     });
@@ -335,52 +324,34 @@ export default class MentorshipService {
 
   //get ONE mentorship contract of ONE student
   public static async getStudentMentorshipContract(
-    mentorshipContractId,
-    user,
-    res
+    mentorshipContractId: string,
+    accountId: string,
+    userType: USER_TYPE_ENUM
   ) {
-    try {
-      const mentorshipContract = await MentorshipContract.findByPk(
-        mentorshipContractId,
-        {
-          include: [MentorshipListing],
-        }
-      );
-
-      if (
-        user.accountId !== mentorshipContract.accountId &&
-        user.accountId !== mentorshipContract.MentorshipListing.accountId && // TO BE ADDEDIN THE FUTURE
-        user.userType !== USER_TYPE_ENUM.ADMIN
-      ) {
-        return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-          message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-        });
+    const mentorshipContract = await MentorshipContract.findByPk(
+      mentorshipContractId,
+      {
+        include: [MentorshipListing],
       }
+    );
 
-      if (!mentorshipContract)
-        throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
-
-      return mentorshipContract;
-    } catch (e) {
-      logger.error(
-        '[mentorshipService.getStudentMentorshipContract]:' + e.toString()
+    if (
+      accountId !== mentorshipContract.accountId &&
+      accountId !== mentorshipContract.MentorshipListing.accountId && // TO BE ADDEDIN THE FUTURE
+      userType !== USER_TYPE_ENUM.ADMIN
+    )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
-      });
-    }
+
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    return mentorshipContract;
   }
 
   //get all mentorshipContracts created by this student
-  public static async getAllStudentMentorshipContracts(accountId, user, res) {
-    if (
-      user.accountId !== accountId &&
-      user.userType !== USER_TYPE_ENUM.ADMIN
-    ) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
+  public static async getAllStudentMentorshipContracts(accountId) {
     const mentorshipContracts = await MentorshipContract.findAll({
       where: {
         accountId: { [Op.eq]: accountId },

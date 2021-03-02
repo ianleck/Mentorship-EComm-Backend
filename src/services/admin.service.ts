@@ -1,8 +1,6 @@
 import { Admin } from '../models/Admin';
-import { MentorshipListing } from '../models/MentorshipListing';
 import bcrypt from 'bcrypt';
 import { ERRORS } from '../constants/errors';
-import Utility from '../constants/utility';
 import {
   USER_TYPE_ENUM,
   ADMIN_PERMISSION_ENUM,
@@ -183,28 +181,32 @@ export default class AdminService {
   }
 
   public static async acceptSenseiProfile(accountId) {
-    const sensei = await User.findByPk(accountId);
+    const sensei = await User.findOne({
+      where: { accountId, adminVerified: ADMIN_VERIFIED_ENUM.PENDING },
+    });
     if (sensei) {
       await sensei.update({
         adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
       });
       await EmailService.sendEmail(sensei.email, 'acceptSensei');
     } else {
-      throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+      throw new Error(ERRORS.SENSEI_NOT_PENDING);
     }
 
     return sensei;
   }
 
   public static async rejectSenseiProfile(accountId) {
-    const sensei = await User.findByPk(accountId);
+    const sensei = await User.findOne({
+      where: { accountId, adminVerified: ADMIN_VERIFIED_ENUM.PENDING },
+    });
     if (sensei) {
       await sensei.update({
         adminVerified: ADMIN_VERIFIED_ENUM.REJECTED,
       });
       await EmailService.sendEmail(sensei.email, 'rejectSensei');
     } else {
-      throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+      throw new Error(ERRORS.SENSEI_NOT_PENDING);
     }
 
     //SEND EMAIL TO NOTIFY SENSEI ABOUT ACCEPTANCE
