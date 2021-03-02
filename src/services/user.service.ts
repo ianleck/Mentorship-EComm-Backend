@@ -145,4 +145,11 @@ export default class UserService {
       throw e;
     }
   }
+
+  public static async getExperienceByAccountId(accountId: string) {
+    const user = await User.findByPk(accountId, {
+      include: [Experience],
+    });
+    return user.Experience;
+  }
 }
