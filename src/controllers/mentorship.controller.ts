@@ -5,6 +5,7 @@ import MentorshipService from '../services/mentorship.service';
 
 import { USER_TYPE_ENUM } from '../constants/enum';
 import { MENTORSHIP_RESPONSE } from '../constants/successMessages';
+import UserService from '../services/user.service';
 export class MentorshipController {
   // ==================== MENTORSHIP LISTINGS ====================
   public static async createListing(req, res) {
@@ -110,6 +111,43 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.getAllMentorshipListings]:' + e.message
       );
+    }
+  }
+
+  // get one listing
+  // if student, return without listing.contracts
+  // if sensei/admin return whole obj
+  public static async getListing(req, res) {
+    const { mentorshipListingId } = req.params;
+    const { user } = req;
+
+    try {
+      const listing = await MentorshipService.getListing(mentorshipListingId);
+      const experiences = await UserService.getExperienceByAccountId(
+        listing.accountId
+      );
+      // remove contracts if request user is not the owner of the listing and not an admin
+      if (
+        listing.accountId !== user.accountId &&
+        user.userType !== USER_TYPE_ENUM.ADMIN
+      ) {
+        listing.MentorshipContracts = null;
+      }
+
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          mentorshipListing: listing,
+          experience: experiences,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.getListing]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
     }
   }
 
@@ -222,36 +260,6 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.deleteContract]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
-    }
-  }
-
-  // get one listing
-  // if student, return without listing.contracts
-  // if sensei/admin return whole obj
-  public static async getListing(req, res) {
-    const { mentorshipListingId } = req.params;
-    const { user } = req;
-
-    try {
-      const listing = await MentorshipService.getListing(mentorshipListingId);
-
-      // remove contracts if request user is not the owner of the listing and not an admin
-      if (
-        listing.accountId !== user.accountId &&
-        user.userType !== USER_TYPE_ENUM.ADMIN
-      ) {
-        listing.MentorshipContracts = null;
-      }
-      return apiResponse.result(
-        res,
-        { message: 'success', mentorshipListing: listing },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[mentorshipController.getListing]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });
