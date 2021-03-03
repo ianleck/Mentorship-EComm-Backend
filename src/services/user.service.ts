@@ -100,7 +100,7 @@ export default class UserService {
         ...experience,
         accountId: user.accountId,
       });
-      newExp.save();
+      await newExp.save();
       return newExp;
     } catch (e) {
       throw e;
@@ -139,7 +139,7 @@ export default class UserService {
       await exp.update({
         ...experience,
       });
-      exp.save();
+      await exp.save();
       return exp;
     } catch (e) {
       throw e;
