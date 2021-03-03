@@ -30,7 +30,8 @@ export default class EmailService {
 
       // Verification
       const user = await User.findOne({ where: { email } });
-      if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+      if (!user && template !== 'register')
+        throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
       // Send Email
       const subject = TEMPLATES[template].subject;

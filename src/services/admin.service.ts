@@ -120,7 +120,7 @@ export default class AdminService {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(newUser.password, salt);
       newUser.password = hash;
-      newUser.save();
+      await newUser.save();
       return newUser;
     } catch (e) {
       throw e;
@@ -143,7 +143,7 @@ export default class AdminService {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(newPassword, salt);
       user.password = hash;
-      user.save();
+      await user.save();
     } catch (e) {
       throw e;
     }
