@@ -235,7 +235,7 @@ export class MentorshipController {
       );
       return apiResponse.result(
         res,
-        { message: MENTORSHIP_RESPONSE.CONTRACT_ACCEPT, mentorshipContract },
+        { message: MENTORSHIP_RESPONSE.CONTRACT_REJECT, mentorshipContract },
         httpStatusCodes.OK
       );
     } catch (e) {
