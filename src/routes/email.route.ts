@@ -2,7 +2,6 @@ import express from 'express';
 import email from './schema/email.schema';
 import Utility from '../constants/utility';
 import { EmailController } from '../controllers/email.controller';
-// import { EmailHandler } from '../middlewares/emailHandler';
 
 const router = express.Router();
 

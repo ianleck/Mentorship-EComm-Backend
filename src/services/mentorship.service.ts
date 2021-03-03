@@ -3,7 +3,10 @@ import * as _ from 'lodash';
 import { Op } from 'sequelize';
 
 import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
-import { MENTORSHIP_CONTRACT_APPROVAL } from '../constants/enum';
+import {
+  MENTORSHIP_CONTRACT_APPROVAL,
+  MENTORSHIP_PROGRESS_ENUM,
+} from '../constants/enum';
 import { Category } from '../models/Category';
 import { ListingToCategory } from '../models/ListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
@@ -154,14 +157,26 @@ export default class MentorshipService {
     accountId: string,
     statement: string
   ): Promise<MentorshipContract> {
+    const pendingContract = await MentorshipContract.findOne({
+      where: {
+        mentorshipListingId,
+        accountId,
+        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+      },
+    });
     const existingContract = await MentorshipContract.findOne({
       where: {
         mentorshipListingId,
         accountId,
+        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
+        progress:
+          MENTORSHIP_PROGRESS_ENUM.NOT_STARTED ||
+          MENTORSHIP_PROGRESS_ENUM.ONGOING,
       },
     });
 
-    if (existingContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_EXISTS);
+    if (pendingContract || existingContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_EXISTS);
 
     const newContract = new MentorshipContract({
       mentorshipListingId,
