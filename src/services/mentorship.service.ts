@@ -368,6 +368,7 @@ export default class MentorshipService {
       where: {
         accountId: { [Op.eq]: accountId },
       },
+      include: [{ model: MentorshipListing }],
     });
     return mentorshipContracts;
   }
