@@ -1,13 +1,12 @@
 import * as express from 'express';
-
-import userRoute from './user.route';
-import mentorship from './mentorship.route';
 import adminRoute from './admin.route';
-import emailRoute from './email.route';
-import categoryRoute from './category.route';
-import uploadRoute from './upload.route';
-import fileRoute from './file.route';
 import authRoute from './auth.route';
+import categoryRoute from './category.route';
+import emailRoute from './email.route';
+import fileRoute from './file.route';
+import mentorship from './mentorship.route';
+import uploadRoute from './upload.route';
+import userRoute from './user.route';
 
 const router = express.Router();
 

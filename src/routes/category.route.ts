@@ -1,8 +1,6 @@
 import express from 'express';
-
-import { CategoryController } from '../controllers/category.controller';
-
 import Utility from '../constants/utility';
+import { CategoryController } from '../controllers/category.controller';
 
 const router = express.Router();
 

@@ -1,10 +1,10 @@
-import nodemailer from 'nodemailer';
 import ejs from 'ejs';
-import { TEMPLATES } from '../constants/templates/index';
-import { User } from '../models/User';
+import { lowerCase } from 'lodash';
+import nodemailer from 'nodemailer';
 import path from 'path';
 import { ERRORS } from '../constants/errors';
-import { lowerCase } from 'lodash';
+import { TEMPLATES } from '../constants/templates/index';
+import { User } from '../models/User';
 export default class EmailService {
   public static async sendEmail(
     email: string,

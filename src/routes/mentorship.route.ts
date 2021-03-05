@@ -1,12 +1,13 @@
 import express from 'express';
-import { MentorshipController } from '../controllers/mentorship.controller';
-import mentorship from './schema/mentorship.schema';
 import Utility from '../constants/utility';
+import { MentorshipController } from '../controllers/mentorship.controller';
 import {
+  requireAdmin,
   requireSensei,
   requireStudent,
-  requireAdmin,
 } from '../middlewares/userTypeHandler';
+import mentorship from './schema/mentorship.schema';
+import user from './schema/user.schema';
 const passport = require('passport');
 
 const router = express.Router();
@@ -57,7 +58,7 @@ router.get(
 router.get(
   '/listing/sensei/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.accountIdQ),
+  schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(MentorshipController.getSenseiMentorshipListings)
 );
 
@@ -90,7 +91,7 @@ router.delete(
 
 //Accept Mentorship Application
 router.put(
-  '/accept-application/:mentorshipContractId',
+  '/accept/application/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(mentorship.mentorshipContractQ),
@@ -99,7 +100,7 @@ router.put(
 
 //Reject Mentorship Application
 router.put(
-  '/reject-application/:mentorshipContractId',
+  '/reject/application/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(mentorship.mentorshipContractQ),
@@ -126,7 +127,7 @@ router.get(
 router.get(
   '/contract/student/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.accountIdQ),
+  schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(MentorshipController.getAllStudentMentorshipContracts)
 );
 
@@ -134,7 +135,7 @@ router.get(
 router.get(
   '/contract/sensei/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.accountIdQ),
+  schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(MentorshipController.getSenseiMentorshipContracts)
 );
 

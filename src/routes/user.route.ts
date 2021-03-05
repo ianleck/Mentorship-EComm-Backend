@@ -1,8 +1,8 @@
 import express from 'express';
-import { UserController } from '../controllers/user.controller';
-import user from './schema/user.schema';
 import Utility from '../constants/utility';
+import { UserController } from '../controllers/user.controller';
 import { requireAdmin } from '../middlewares/userTypeHandler';
+import user from './schema/user.schema';
 
 const passport = require('passport');
 
@@ -15,7 +15,7 @@ const schemaValidator = require('express-joi-validation').createValidator({});
 // get user (student/sensei)
 router.get(
   '/:accountId',
-  schemaValidator.params(user.accountIdQ),
+  schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(UserController.getUser)
 );
 
@@ -37,7 +37,7 @@ router.get(
 router.put(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdQ),
+  schemaValidator.params(user.accountIdP),
   schemaValidator.body(user.updateUserB),
   Utility.asyncHandler(UserController.updateUser)
 );
@@ -46,7 +46,7 @@ router.put(
 router.delete(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdQ),
+  schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(UserController.deactivateUser)
 );
 
@@ -54,7 +54,7 @@ router.delete(
 router.post(
   '/experience/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdQ),
+  schemaValidator.params(user.accountIdP),
   schemaValidator.body(user.createExperienceB),
   Utility.asyncHandler(UserController.createExperience)
 );
@@ -63,7 +63,7 @@ router.post(
 router.put(
   '/experience/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdQ),
+  schemaValidator.params(user.accountIdP),
   schemaValidator.body(user.updateExperienceB),
   Utility.asyncHandler(UserController.updateExperience)
 );

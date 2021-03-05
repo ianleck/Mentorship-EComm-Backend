@@ -30,17 +30,9 @@ export default {
     confirmPassword: joi.string().required(),
   }),
 
-  adminIdQ: joi.object({
-    accountId: joi.string().required(),
-  }),
-
   login: joi.object({
     email: joi.string().email().required(),
     password: joi.string().required(),
-  }),
-
-  senseiIdQ: joi.object({
-    accountId: joi.string().required(),
   }),
 
   updateAdmin: joi.object({

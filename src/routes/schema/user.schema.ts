@@ -3,7 +3,7 @@ import { PRIVACY_PERMISSIONS_ENUM } from '../../constants/enum';
 import { ADMIN_VERIFIED_ENUM } from '../../constants/enum';
 
 export default {
-  accountIdQ: joi.object({
+  accountIdP: joi.object({
     accountId: joi.string().required(),
   }),
 

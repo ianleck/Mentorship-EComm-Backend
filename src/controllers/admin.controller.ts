@@ -1,9 +1,11 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
+import { ADMIN_PERMISSION_ENUM } from '../constants/enum';
+import { AUTH_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
+import { ADMIN_RESPONSE, AUTH_RESPONSE } from '../constants/successMessages';
 import AdminService from '../services/admin.service';
 import apiResponse from '../utilities/apiResponse';
 const passport = require('passport');
-import { ADMIN_PERMISSION_ENUM } from '../constants/enum';
 
 export class AdminController {
   public static async deactivateAdmin(req, res) {
@@ -22,14 +24,18 @@ export class AdminController {
       await AdminService.deactivateAdmin(accountId, user.accountId);
       return apiResponse.result(
         res,
-        { message: 'Account successfully deactivated' },
+        { message: ADMIN_RESPONSE.ADMIN_DEACTIVATE },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[adminController.deactivateAdmin]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === ERRORS.ADMIN_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -64,9 +70,13 @@ export class AdminController {
       );
     } catch (e) {
       logger.error('[adminController.getAdmin]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === ERRORS.ADMIN_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -84,7 +94,7 @@ export class AdminController {
     } catch (e) {
       logger.error('[adminController.getAllAdmins]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
@@ -103,7 +113,7 @@ export class AdminController {
     } catch (e) {
       logger.error('[adminController.getAllPendingSenseis]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
@@ -122,7 +132,7 @@ export class AdminController {
     } catch (e) {
       logger.error('[adminController.getBannedStudents]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
@@ -141,7 +151,7 @@ export class AdminController {
     } catch (e) {
       logger.error('[adminController.getBannedSenseis]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
@@ -173,9 +183,13 @@ export class AdminController {
       return apiResponse.result(res, admin.toAuthJSON(), httpStatusCodes.OK);
     } catch (e) {
       logger.error('[adminController.registerAdmin]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === AUTH_ERRORS.ADMIN_EXISTS) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -187,14 +201,18 @@ export class AdminController {
       await AdminService.resetPassword(accountId, newPassword, confirmPassword);
       return apiResponse.result(
         res,
-        { message: 'Successfully Changed Password' },
+        { message: AUTH_RESPONSE.SUCCESSFULLY_CHANGED_PASSWORD },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[adminController.resetPassword]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === AUTH_ERRORS.NEW_PASSWORD_MISMATCH) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -220,14 +238,18 @@ export class AdminController {
       const user = await AdminService.updateAdmin(accountId, admin);
       apiResponse.result(
         res,
-        { message: 'success', admin: user },
+        { message: ADMIN_RESPONSE.ADMIN_UPDATE, admin: user },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[adminController.updateAdmin]' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === ERRORS.ADMIN_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -243,14 +265,18 @@ export class AdminController {
       );
       apiResponse.result(
         res,
-        { message: 'success', admin: adminUpdated },
+        { message: ADMIN_RESPONSE.ADMIN_ROLE_UPDATE, admin: adminUpdated },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[adminController.updateAdminPermission]' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === ERRORS.ADMIN_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -262,16 +288,20 @@ export class AdminController {
       return apiResponse.result(
         res,
         {
-          message: 'success',
+          message: ADMIN_RESPONSE.SENSEI_ACCEPT,
           sensei: senseiVerified,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[adminController.acceptSenseiProfile]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === ERRORS.SENSEI_NOT_PENDING) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -283,16 +313,20 @@ export class AdminController {
       return apiResponse.result(
         res,
         {
-          message: 'success',
+          message: ADMIN_RESPONSE.SENSEI_REJECT,
           sensei: senseiVerified,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[adminController.rejectSenseiProfile]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === ERRORS.SENSEI_NOT_PENDING) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 

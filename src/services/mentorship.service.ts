@@ -1,21 +1,19 @@
+import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
-
 import { Op } from 'sequelize';
-
-import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
 import {
   MENTORSHIP_CONTRACT_APPROVAL,
   MENTORSHIP_PROGRESS_ENUM,
+  USER_TYPE_ENUM,
 } from '../constants/enum';
+import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
 import { Category } from '../models/Category';
 import { ListingToCategory } from '../models/ListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
+import { MentorshipListing } from '../models/MentorshipListing';
 import { User } from '../models/User';
 import EmailService from './email.service';
-import httpStatusCodes from 'http-status-codes';
-import { USER_TYPE_ENUM } from '../constants/enum';
 
-import { MentorshipListing } from '../models/MentorshipListing';
 export default class MentorshipService {
   // ==================== Mentorship Listings ====================
 

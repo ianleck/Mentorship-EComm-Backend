@@ -1,11 +1,12 @@
 import httpStatusCodes from 'http-status-codes';
-import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
-import MentorshipService from '../services/mentorship.service';
-
 import { USER_TYPE_ENUM } from '../constants/enum';
+import { ERRORS, MENTORSHIP_ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { MENTORSHIP_RESPONSE } from '../constants/successMessages';
+import MentorshipService from '../services/mentorship.service';
 import UserService from '../services/user.service';
+import apiResponse from '../utilities/apiResponse';
+
 export class MentorshipController {
   // ==================== MENTORSHIP LISTINGS ====================
   public static async createListing(req, res) {
@@ -25,7 +26,7 @@ export class MentorshipController {
     } catch (e) {
       logger.error('[mentorshipController.createListing]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
@@ -46,9 +47,13 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.updateListing]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === MENTORSHIP_ERRORS.LISTING_MISSING) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -91,7 +96,7 @@ export class MentorshipController {
         '[mentorshipService.getSenseiMentorshipListings]:' + e.toString()
       );
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: RESPONSE_ERROR.RES_ERROR.toString(),
       });
     }
   }
@@ -111,6 +116,9 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.getAllMentorshipListings]:' + e.message
       );
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
     }
   }
 
@@ -145,9 +153,16 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.getListing]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
+        e.message === ERRORS.USER_DOES_NOT_EXIST
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -171,9 +186,13 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.createContract]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === MENTORSHIP_ERRORS.CONTRACT_EXISTS) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -194,9 +213,13 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.updateContract]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -216,11 +239,19 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error(
-        '[mentorshipController.acceptMentorshipApplication]:' + e.message
+        '[mentorshipController.acceptMentorshipContract]:' + e.message
       );
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === ERRORS.STUDENT_DOES_NOT_EXIST ||
+        e.message === httpStatusCodes.UNAUTHORIZED
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -240,11 +271,19 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error(
-        '[mentorshipController.rejectMentorshipApplication]:' + e.message
+        '[mentorshipController.rejectMentorshipContract]:' + e.message
       );
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === ERRORS.STUDENT_DOES_NOT_EXIST ||
+        e.message === httpStatusCodes.UNAUTHORIZED
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -260,9 +299,13 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.deleteContract]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -282,6 +325,9 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.getAllMentorshipContracts]:' + e.toString()
       );
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
     }
   }
 
@@ -312,10 +358,21 @@ export class MentorshipController {
         '[mentorshipController.getStudentMentorshipContract]:' + e.toString()
       );
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.toString(),
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
+
+  /*  if (e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING || e.message === httpStatusCodes.UNAUTHORIZED
+        ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
+    }
+  }*/
 
   //get ALL mentorship contracts of ONE student
   public static async getAllStudentMentorshipContracts(req, res) {
@@ -348,6 +405,9 @@ export class MentorshipController {
         '[mentorshipController.getAllStudentMentorshipContracts]:' +
           e.toString()
       );
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
     }
   }
 
@@ -381,6 +441,9 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.getSenseiMentorshipContracts]:' + e.toString()
       );
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
     }
   }
 

@@ -1,13 +1,13 @@
-import { Admin } from '../models/Admin';
 import bcrypt from 'bcrypt';
-import { ERRORS } from '../constants/errors';
-import {
-  USER_TYPE_ENUM,
-  ADMIN_PERMISSION_ENUM,
-  STATUS_ENUM,
-  ADMIN_VERIFIED_ENUM,
-} from '../constants/enum';
 import { Op } from 'sequelize';
+import {
+  ADMIN_PERMISSION_ENUM,
+  ADMIN_VERIFIED_ENUM,
+  STATUS_ENUM,
+  USER_TYPE_ENUM,
+} from '../constants/enum';
+import { AUTH_ERRORS, ERRORS } from '../constants/errors';
+import { Admin } from '../models/Admin';
 import { User } from '../models/User';
 import EmailService from './email.service';
 export default class AdminService {
@@ -113,7 +113,7 @@ export default class AdminService {
 
       // if user exist, return error
       if (user) {
-        throw new Error('Email already exists');
+        throw new Error(AUTH_ERRORS.ADMIN_EXISTS);
       }
 
       // hash password
@@ -137,7 +137,7 @@ export default class AdminService {
 
       // throw error if newPassword != confirmPassword
       if (newPassword != confirmPassword)
-        throw new Error('New password does not match');
+        throw new Error(AUTH_ERRORS.NEW_PASSWORD_MISMATCH);
 
       // change pass
       const salt = await bcrypt.genSalt(10);
@@ -208,8 +208,6 @@ export default class AdminService {
     } else {
       throw new Error(ERRORS.SENSEI_NOT_PENDING);
     }
-
-    //SEND EMAIL TO NOTIFY SENSEI ABOUT ACCEPTANCE
 
     return sensei;
   }

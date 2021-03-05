@@ -1,9 +1,10 @@
 import httpStatusCodes from 'http-status-codes';
-import apiResponse from '../utilities/apiResponse';
-import UserService from '../services/user.service';
 import logger from '../config/logger';
 import { USER_TYPE_ENUM } from '../constants/enum';
-import { ERRORS } from '../constants/errors';
+import { ERRORS, RESPONSE_ERROR } from '../constants/errors';
+import { USER_RESPONSE } from '../constants/successMessages';
+import UserService from '../services/user.service';
+import apiResponse from '../utilities/apiResponse';
 
 const passport = require('passport');
 
@@ -26,14 +27,18 @@ export class UserController {
       await UserService.deactivateUser(accountId);
       return apiResponse.result(
         res,
-        { message: 'Account successfully deactivated' },
+        { message: USER_RESPONSE.USER_DEACTIVATE },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[userController.deactivateUser]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === ERRORS.STUDENT_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -51,9 +56,13 @@ export class UserController {
       );
     } catch (e) {
       logger.error('[userController.getUser]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -71,7 +80,7 @@ export class UserController {
     } catch (e) {
       logger.error('[userController.getAllActiveStudents]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
@@ -90,7 +99,7 @@ export class UserController {
     } catch (e) {
       logger.error('[userController.getAllActiveSenseis]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
@@ -111,14 +120,18 @@ export class UserController {
       const userEntity = await UserService.updateUser(accountId, user);
       apiResponse.result(
         res,
-        { message: 'success', user: userEntity },
+        { message: USER_RESPONSE.USER_UPDATE, user: userEntity },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[userController.updateUser]' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -140,18 +153,18 @@ export class UserController {
       const exp = await UserService.createExperience(accountId, experience);
       return apiResponse.result(
         res,
-        { message: 'Successfully Created Experience', experience: exp },
+        { message: USER_RESPONSE.EXPERIENCE_CREATE, experience: exp },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[userController.createExperience]:' + e.message);
-      const errorMsg =
-        e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST
-          ? e.message
-          : 'Unable to create new experience';
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: errorMsg,
-      });
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -170,18 +183,18 @@ export class UserController {
       await UserService.deleteExperience(experienceId);
       return apiResponse.result(
         res,
-        { message: 'Successfully Deleted Experience' },
+        { message: USER_RESPONSE.EXPERIENCE_DELETE },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[userController.deleteExperience]:' + e.message);
-      const errorMsg =
-        e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST
-          ? e.message
-          : 'Unable to delete experience';
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: errorMsg,
-      });
+      if (e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -201,18 +214,21 @@ export class UserController {
       const exp = await UserService.updateExperience(accountId, experience);
       return apiResponse.result(
         res,
-        { message: 'Successfully Updated Experience', experience: exp },
+        { message: USER_RESPONSE.EXPERIENCE_UPDATE, experience: exp },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[userController.updateExperience]:' + e.message);
-      const errorMsg =
-        e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST
-          ? e.message
-          : 'Unable to update experience';
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: errorMsg,
-      });
+      if (
+        e.message === ERRORS.EXPERIENCE_DOES_NOT_EXIST ||
+        e.message === ERRORS.USER_DOES_NOT_EXIST
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 }

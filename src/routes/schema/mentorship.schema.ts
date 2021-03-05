@@ -17,10 +17,6 @@ export default {
     mentorshipContractId: joi.string().required(),
   }),
 
-  accountIdQ: joi.object({
-    accountId: joi.string().required(),
-  }),
-
   mentorshipContractB: joi.object({
     statement: joi.string().required(),
   }),

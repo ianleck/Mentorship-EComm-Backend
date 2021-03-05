@@ -23,6 +23,7 @@ import express from 'express';
 import { AdminController } from '../controllers/admin.controller';
 import admin from './schema/admin.schema';
 import auth from './schema/auth.schema';
+import user from './schema/user.schema';
 
 import Utility from '../constants/utility';
 import {
@@ -41,7 +42,7 @@ router.post(
 );
 
 router.get(
-  '/verify-senseis',
+  '/pending/sensei',
   passport.authenticate('isAuthenticated', { session: false }),
   requireAdmin,
   Utility.asyncHandler(AdminController.getAllPendingSenseis)
@@ -51,7 +52,7 @@ router.get(
 router.get(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(admin.adminIdQ),
+  schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(AdminController.getAdmin)
 );
 
@@ -95,7 +96,7 @@ router.get(
 /*** POST REQUESTS ***/
 //create admin account
 router.post(
-  '/register-admin',
+  '/register',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSuperAdmin,
   schemaValidator.body(admin.registerAdmin),
@@ -107,10 +108,10 @@ router.post(
 /*** PUT REQUESTS ***/
 //suepradmin changes admin password
 router.put(
-  '/reset-admin-password/:accountId',
+  '/password/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSuperAdmin,
-  schemaValidator.params(admin.adminIdQ), // adminId to be changed
+  schemaValidator.params(user.accountIdP), // adminId to be changed
   schemaValidator.body(admin.resetPassword),
   Utility.asyncHandler(AdminController.resetPassword)
 );
@@ -119,36 +120,36 @@ router.put(
 router.put(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(admin.adminIdQ),
+  schemaValidator.params(user.accountIdP),
   schemaValidator.body(admin.updateAdmin),
   Utility.asyncHandler(AdminController.updateAdmin)
 );
 
 //update permission of admin (done by superdmin)
 router.put(
-  '/update-permission/:accountId',
+  '/permission/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSuperAdmin,
-  schemaValidator.params(admin.adminIdQ), //adminId to be changed
+  schemaValidator.params(user.accountIdP), //adminId to be changed
   schemaValidator.body(admin.updateAdminPermission),
   Utility.asyncHandler(AdminController.updateAdminPermission)
 );
 
 //accept sensei profile
 router.put(
-  '/accept-sensei/:accountId',
+  '/accept/sensei/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireAdmin,
-  schemaValidator.params(admin.senseiIdQ),
+  schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(AdminController.acceptSenseiProfile)
 );
 
 //reject sensei profile
 router.put(
-  '/reject-sensei/:accountId',
+  '/reject/sensei/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireAdmin,
-  schemaValidator.params(admin.senseiIdQ),
+  schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(AdminController.rejectSenseiProfile)
 );
 
@@ -159,7 +160,7 @@ router.put(
 router.delete(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(admin.adminIdQ),
+  schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(AdminController.deactivateAdmin)
 );
 

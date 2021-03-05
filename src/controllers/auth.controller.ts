@@ -1,8 +1,9 @@
 import httpStatusCodes from 'http-status-codes';
-import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
-import AuthService from '../services/auth.service';
+import { AUTH_ERRORS, ERRORS } from '../constants/errors';
 import { AUTH_RESPONSE } from '../constants/successMessages';
+import AuthService from '../services/auth.service';
+import apiResponse from '../utilities/apiResponse';
 
 const passport = require('passport');
 
@@ -25,10 +26,19 @@ export class AuthController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.changePassword]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      logger.error('[authController.changePassword]:' + e.message);
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === AUTH_ERRORS.OLD_PASSWORD_INCORRECT ||
+        e.message === AUTH_ERRORS.NEW_PASSWORD_MISMATCH ||
+        e.message === AUTH_ERRORS.NEW_PASSWORD_CANNOT_BE_OLD_PASSWORD
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -60,10 +70,14 @@ export class AuthController {
         httpStatusCodes.CREATED
       );
     } catch (e) {
-      logger.error('[userController.register]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      logger.error('[authController.register]:' + e.message);
+      if (e.message === AUTH_ERRORS.USER_EXISTS) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -77,10 +91,14 @@ export class AuthController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.forgotPassword]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      logger.error('[authController.forgotPassword]:' + e.message);
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 
@@ -94,10 +112,17 @@ export class AuthController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.resetPassword]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      logger.error('[authController.resetPassword]:' + e.message);
+      if (
+        e.message === AUTH_ERRORS.INVALID_TOKEN ||
+        e.message === ERRORS.USER_DOES_NOT_EXIST
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        console.log('Error');
+      }
     }
   }
 }
