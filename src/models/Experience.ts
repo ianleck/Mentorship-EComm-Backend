@@ -1,15 +1,12 @@
 import {
+  BelongsTo,
   Column,
   DataType,
   Default,
+  Model,
   PrimaryKey,
   Table,
-  HasOne,
-  BelongsTo,
-  Model,
-  ForeignKey,
 } from 'sequelize-typescript';
-import { BaseEntity } from './abstract/BaseEntity';
 import { User } from './User';
 
 @Table
@@ -18,6 +15,13 @@ export class Experience extends Model<Experience> {
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
   experienceId: string;
+
+  @Column
+  @Column({
+    allowNull: false,
+    type: DataType.UUID,
+  })
+  accountId: string;
 
   @Column({
     allowNull: false,

@@ -39,3 +39,16 @@ export enum MENTORSHIP_CONTRACT_APPROVAL {
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
 }
+
+export enum INTERVAL_UNIT {
+  DAILY = 'DAY',
+  WEEKLY = 'WEEK',
+  MONTHLY = 'MONTH',
+  YEARLY = 'YEAR',
+}
+
+export enum BillingStatus {
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  ADMIN = 'ADMIN',
+}

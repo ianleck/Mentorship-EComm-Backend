@@ -17,3 +17,8 @@ export const MENTORSHIP_RESPONSE = {
   CONTRACT_ACCEPT: 'Mentorship Contract has been successfully accepted',
   CONTRACT_REJECT: 'Mentorship Contract has been successfully rejected',
 };
+
+// ==================== PAYPAL RESPONSE MESSAGES ====================
+export const PAYPAL_RESPONSE = {
+  ORDER_CREATE: 'Order has been successfully created',
+};
