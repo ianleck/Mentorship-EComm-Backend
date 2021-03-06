@@ -1,5 +1,5 @@
 import express from 'express';
-import { checkPermission } from '../middlewares/uploadMiddleware';
+import { downloadAuthentication } from '../middlewares/authenticationMiddleware';
 const path = require('path');
 
 const passport = require('passport');
@@ -9,7 +9,7 @@ const router = express.Router();
 router.get(
   '/transcript/:documentName',
   passport.authenticate('isAuthenticated', { session: false }),
-  checkPermission, // check that user is retrieving his own document or if user is an admin
+  downloadAuthentication, // check that user is retrieving his own document or if user is an admin
   express.static(path.join(__dirname, '../../uploads'))
 );
 
@@ -17,7 +17,7 @@ router.get(
 router.get(
   '/cv/:documentName',
   passport.authenticate('isAuthenticated', { session: false }),
-  checkPermission, // check that user is retrieving his own document or if user is an admin
+  downloadAuthentication, // check that user is retrieving his own document or if user is an admin
   express.static(path.join(__dirname, '../../uploads'))
 );
 

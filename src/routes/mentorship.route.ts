@@ -5,7 +5,7 @@ import {
   requireAdmin,
   requireSensei,
   requireStudent,
-} from '../middlewares/userTypeHandler';
+} from '../middlewares/authenticationMiddleware';
 import mentorship from './schema/mentorship.schema';
 import user from './schema/user.schema';
 const passport = require('passport');

@@ -29,7 +29,7 @@ import Utility from '../constants/utility';
 import {
   requireSuperAdmin,
   requireAdmin,
-} from '../middlewares/userTypeHandler';
+} from '../middlewares/authenticationMiddleware';
 
 const router = express.Router();
 const passport = require('passport');
