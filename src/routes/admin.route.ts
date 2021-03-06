@@ -117,14 +117,14 @@ router.put(
   Utility.asyncHandler(AdminController.updateAdmin)
 );
 
-//update permission of admin (done by superdmin)
+//update role of admin (done by superdmin)
 router.put(
-  '/permission/:accountId',
+  '/role/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSuperAdmin,
   schemaValidator.params(user.accountIdP), //adminId to be changed
-  schemaValidator.body(admin.updateAdminPermission),
-  Utility.asyncHandler(AdminController.updateAdminPermission)
+  schemaValidator.body(admin.updateAdminRole),
+  Utility.asyncHandler(AdminController.updateAdminRole)
 );
 
 //accept sensei profile

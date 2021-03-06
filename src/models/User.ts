@@ -94,6 +94,13 @@ export class User extends Account {
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isPrivateProfile: boolean;
+
+  @Column({
+    type: DataType.ENUM,
+    values: Object.values(ADMIN_VERIFIED_ENUM),
+    defaultValue: ADMIN_VERIFIED_ENUM.SHELL,
+  })
+  adminVerified: ADMIN_VERIFIED_ENUM;
   // ==================== RELATIONSHIP MAPPINGS ====================
 
   @HasMany(() => Experience, 'accountId')
@@ -115,13 +122,6 @@ export class User extends Account {
   //
 
   // achievements
-
-  @Column({
-    type: DataType.ENUM,
-    values: Object.values(ADMIN_VERIFIED_ENUM),
-    defaultValue: ADMIN_VERIFIED_ENUM.SHELL,
-  })
-  adminVerified: ADMIN_VERIFIED_ENUM;
 
   // @HasMany(() => Course)
   // coursesTaught: Course[];

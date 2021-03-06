@@ -1,18 +1,8 @@
-import {
-  Column,
-  DataType,
-  ForeignKey,
-  HasOne,
-  Table,
-} from 'sequelize-typescript';
-import { Account } from './abstract/Account';
-import {
-  ADMIN_PERMISSION_ENUM,
-  USER_TYPE_ENUM,
-  STATUS_ENUM,
-} from '../constants/enum';
 import jwt from 'jsonwebtoken';
+import { Column, DataType, HasOne, Table } from 'sequelize-typescript';
 import { JWT_SECRET } from '../constants/constants';
+import { ADMIN_ROLE_ENUM, USER_TYPE_ENUM } from '../constants/enum';
+import { Account } from './abstract/Account';
 @Table
 export class Admin extends Account {
   @Column({ type: DataType.STRING, unique: true })
@@ -40,21 +30,15 @@ export class Admin extends Account {
   contactNumber: string;
 
   @Column({
-    type: DataType.ENUM(...Object.values(STATUS_ENUM)),
-    defaultValue: STATUS_ENUM.ACTIVE,
-  })
-  status: STATUS_ENUM;
-
-  @Column({
     type: DataType.ENUM(...Object.values(USER_TYPE_ENUM)),
   })
   userType: USER_TYPE_ENUM;
 
   @Column({
-    type: DataType.ENUM(...Object.values(ADMIN_PERMISSION_ENUM)),
-    defaultValue: ADMIN_PERMISSION_ENUM.ADMIN,
+    type: DataType.ENUM(...Object.values(ADMIN_ROLE_ENUM)),
+    defaultValue: ADMIN_ROLE_ENUM.ADMIN,
   })
-  permission: ADMIN_PERMISSION_ENUM;
+  role: ADMIN_ROLE_ENUM;
 
   @HasOne(() => Admin, 'accountId')
   updatedBy: Admin;

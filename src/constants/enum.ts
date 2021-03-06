@@ -3,9 +3,10 @@ export enum STATUS_ENUM {
   BANNED = 'BANNED',
 }
 
-export enum ADMIN_PERMISSION_ENUM {
+export enum ADMIN_ROLE_ENUM {
   SUPERADMIN = 'SUPERADMIN',
   ADMIN = 'ADMIN',
+  FINANCE = 'FINANCE',
 }
 
 export enum USER_TYPE_ENUM {
