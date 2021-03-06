@@ -17,3 +17,32 @@ export const MENTORSHIP_RESPONSE = {
   CONTRACT_ACCEPT: 'Mentorship Contract has been successfully accepted',
   CONTRACT_REJECT: 'Mentorship Contract has been successfully rejected',
 };
+
+// ==================== ADMIN RESPONSE MESSAGES ====================
+export const ADMIN_RESPONSE = {
+  ADMIN_UPDATE: 'Admin has been successfully updated',
+  ADMIN_DEACTIVATE: 'Admin has been successfully deactivated',
+
+  ADMIN_ROLE_UPDATE: 'Role of admin has been successfully updated',
+
+  SENSEI_ACCEPT: 'Sensei profile has been successfully accepted',
+  SENSEI_REJECT: 'Sensei profile has been successfully rejected',
+};
+
+// ==================== USER RESPONSE MESSAGES ====================
+
+export const USER_RESPONSE = {
+  USER_UPDATE: 'User has been successfully updated',
+  USER_DEACTIVATE: 'User has been successfully deactivated',
+
+  EXPERIENCE_CREATE: 'Experience has been successfully created',
+  EXPERIENCE_DELETE: 'Experience has been successfully deleted',
+  EXPERIENCE_UPDATE: 'Experience has been successfully deleted',
+};
+
+// ==================== UPLOAD RESPONSE MESSAGES ====================
+export const UPLOAD_RESPONSE = {
+  CV_UPLOAD: 'CV has been successfully uploaded',
+  TRANSCRIPT_UPLOAD: 'Transcript has been successfully uploaded',
+  PROFILE_PIC_UPLOAD: 'Profile Pic has been successfully uploaded',
+};

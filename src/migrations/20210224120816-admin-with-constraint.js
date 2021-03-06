@@ -63,8 +63,8 @@ module.exports = {
           userType: {
             type: Sequelize.ENUM('STUDENT', 'SENSEI', 'ADMIN'),
           },
-          permission: {
-            type: Sequelize.ENUM('ADMIN', 'SUPERADMIN'),
+          role: {
+            type: Sequelize.ENUM('ADMIN', 'SUPERADMIN', 'FINANCE'),
             defaultValue: 'ADMIN',
           },
           updatedBy: {
