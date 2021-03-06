@@ -1,10 +1,12 @@
 import {
+  AllowNull,
   BelongsTo,
   Column,
   DataType,
   Default,
   PrimaryKey,
   Table,
+  Unique,
 } from 'sequelize-typescript';
 import { CURRENCY } from '../constants/constants';
 import { INTERVAL_UNIT } from '../constants/enum';
@@ -18,30 +20,22 @@ export class SubscriptionPlan extends BaseEntity {
   @Column(DataType.UUID)
   subscriptionId: string;
 
-  @Column({
-    allowNull: false,
-    unique: true,
-    type: DataType.STRING,
-  })
+  @AllowNull(false)
+  @Unique
+  @Column(DataType.STRING)
   paypalSubscriptionPlanId: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.STRING,
-  })
+  @AllowNull(false)
+  @Column(DataType.STRING)
   name: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.FLOAT,
-  })
+  @AllowNull(false)
+  @Column(DataType.FLOAT)
   amount: number;
 
-  @Column({
-    allowNull: false,
-    type: DataType.STRING,
-    defaultValue: CURRENCY,
-  })
+  @AllowNull(false)
+  @Default(CURRENCY)
+  @Column(DataType.FLOAT)
   currency: string;
 
   @Column({
@@ -52,10 +46,9 @@ export class SubscriptionPlan extends BaseEntity {
   })
   interval: INTERVAL_UNIT;
 
+  // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')
   Sensei: User;
 
   // @HasMany(()=> StudentSubscriptions)
 }
-
-// SubscriptionPlan.hasMany(Review, { foreignKey: 'reviewId' })

@@ -1,4 +1,5 @@
 import {
+  AllowNull,
   BelongsTo,
   Column,
   DataType,
@@ -21,16 +22,12 @@ export class MentorshipContract extends BaseEntity {
   @Column(DataType.UUID)
   mentorshipContractId: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.UUID,
-  })
+  @AllowNull(false)
+  @Column(DataType.UUID)
   accountId: string; // studentId
 
-  @Column({
-    allowNull: false,
-    type: DataType.UUID,
-  })
+  @AllowNull(false)
+  @Column(DataType.UUID)
   mentorshipListingId: string;
 
   @Column(DataType.STRING)
@@ -52,6 +49,7 @@ export class MentorshipContract extends BaseEntity {
   })
   senseiApproval: MENTORSHIP_CONTRACT_APPROVAL;
 
+  // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')
   Student: User;
 

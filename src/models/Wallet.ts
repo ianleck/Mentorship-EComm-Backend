@@ -1,4 +1,5 @@
 import {
+  AllowNull,
   BelongsTo,
   Column,
   DataType,
@@ -8,7 +9,7 @@ import {
   Table,
   Unique,
 } from 'sequelize-typescript';
-import { CURRENCY } from '../constants/constants';
+import { CURRENCY, STARTING_BALANCE } from '../constants/constants';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Billing } from './Billing';
 import { User } from './User';
@@ -20,31 +21,27 @@ export class Wallet extends BaseEntity {
   @Column(DataType.UUID)
   walletId: string;
 
-  @Unique(true)
+  @AllowNull(false)
+  @Unique
   @Column(DataType.UUID)
   ownerId: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.FLOAT,
-    defaultValue: '0.00',
-  })
+  @AllowNull(false)
+  @Default(STARTING_BALANCE)
+  @Column(DataType.FLOAT)
   pendingAmount: number;
 
-  @Column({
-    allowNull: false,
-    type: DataType.FLOAT,
-    defaultValue: '0.00',
-  })
+  @AllowNull(false)
+  @Default(STARTING_BALANCE)
+  @Column(DataType.FLOAT)
   confirmedAmount: number;
 
-  @Column({
-    allowNull: false,
-    type: DataType.STRING,
-    defaultValue: CURRENCY,
-  })
+  @AllowNull(false)
+  @Default(CURRENCY)
+  @Column(DataType.FLOAT)
   currency: string;
 
+  // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')
   WalletOwner: User;
 

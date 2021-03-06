@@ -45,10 +45,8 @@ export class User extends Account {
   contactNumber: string;
 
   // ==================== ACCOUNT STATUS ====================
-  @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-  })
+  @Default(false)
+  @Column(DataType.BOOLEAN)
   emailVerified: boolean;
 
   @Column({

@@ -1,4 +1,5 @@
 import {
+  AllowNull,
   BelongsTo,
   Column,
   DataType,
@@ -6,6 +7,7 @@ import {
   Model,
   PrimaryKey,
   Table,
+  Unique,
 } from 'sequelize-typescript';
 import { User } from './User';
 
@@ -16,49 +18,34 @@ export class Experience extends Model<Experience> {
   @Column(DataType.UUID)
   experienceId: string;
 
-  @Column
-  @Column({
-    allowNull: false,
-    type: DataType.UUID,
-  })
+  @AllowNull(false)
+  @Unique
+  @Column(DataType.UUID)
   accountId: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.STRING,
-  })
+  @AllowNull(false)
+  @Column(DataType.STRING)
   role: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.DATE,
-  })
+  @AllowNull(false)
+  @Column(DataType.DATE)
   dateStart: Date;
 
-  @Column({
-    allowNull: true,
-    type: DataType.DATE,
-  })
+  @Column(DataType.DATE)
   dateEnd: Date;
 
-  @Column({
-    allowNull: false,
-    type: DataType.TEXT,
-  })
+  @AllowNull(false)
+  @Column(DataType.TEXT)
   description: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.STRING,
-  })
+  @AllowNull(false)
+  @Column(DataType.STRING)
   companyName: string;
 
-  @Column({
-    allowNull: true,
-    type: DataType.TEXT,
-  })
+  @Column(DataType.TEXT)
   companyUrl: string;
 
+  // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, {
     onDelete: 'CASCADE',
     onUpdate: 'no action',

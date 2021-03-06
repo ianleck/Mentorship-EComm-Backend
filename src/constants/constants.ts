@@ -10,3 +10,4 @@ export const RESET_PASSWORD_URL = 'http://localhost:3000/auth';
 
 export const CURRENCY = 'SGD';
 export const ORDER_INTENT = 'sale';
+export const STARTING_BALANCE = '0.00';

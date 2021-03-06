@@ -1,4 +1,5 @@
 import {
+  AllowNull,
   BelongsTo,
   BelongsToMany,
   Column,
@@ -23,34 +24,25 @@ export class MentorshipListing extends BaseEntity {
   @Column(DataType.UUID)
   mentorshipListingId: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.UUID,
-  })
+  @AllowNull(false)
+  @Column(DataType.UUID)
   accountId: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.STRING,
-    defaultValue: DataType.STRING,
-  })
+  @AllowNull(false)
+  @Column(DataType.STRING)
   name: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.TEXT,
-    defaultValue: DataType.TEXT,
-  })
+  @AllowNull(false)
+  @Column(DataType.TEXT)
   description: string;
 
   @Min(1)
   @Max(10)
-  @Column({
-    type: DataType.FLOAT,
-    defaultValue: '10.0',
-  })
+  @Default('10.0') //Pend change - arbitrary value
+  @Column(DataType.FLOAT)
   rating: number;
 
+  // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')
   Sensei: User;
 

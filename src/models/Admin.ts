@@ -1,5 +1,12 @@
 import jwt from 'jsonwebtoken';
-import { Column, DataType, HasOne, Table, Unique } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  Default,
+  HasOne,
+  Table,
+  Unique,
+} from 'sequelize-typescript';
 import { JWT_SECRET } from '../constants/constants';
 import { ADMIN_ROLE_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import { Account } from './abstract/Account';
@@ -19,10 +26,8 @@ export class Admin extends Account {
   @Column(DataType.STRING)
   lastName: string;
 
-  @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-  })
+  @Default(false)
+  @Column(DataType.BOOLEAN)
   emailVerified: boolean;
 
   @Unique
