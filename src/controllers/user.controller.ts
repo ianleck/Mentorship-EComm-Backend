@@ -1,28 +1,15 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { USER_TYPE_ENUM } from '../constants/enum';
 import { ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { USER_RESPONSE } from '../constants/successMessages';
 import UserService from '../services/user.service';
 import apiResponse from '../utilities/apiResponse';
-
-const passport = require('passport');
-
 export class UserController {
   // ================================ USER ================================
 
   public static async deactivateUser(req, res) {
-    const _user = req.user;
     const { accountId } = req.params;
 
-    if (
-      _user.accountId != accountId &&
-      _user.userType != USER_TYPE_ENUM.ADMIN
-    ) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
     try {
       await UserService.deactivateUser(accountId);
       return apiResponse.result(
@@ -109,16 +96,8 @@ export class UserController {
   }
 
   public static async updateUser(req, res) {
-    const _user = req.user;
     const { accountId } = req.params;
     const { user } = req.body;
-
-    // check if user is updating his/her own account
-    if (_user.accountId != accountId) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
 
     try {
       const userEntity = await UserService.updateUser(accountId, user);
@@ -144,16 +123,8 @@ export class UserController {
   // ================================ USER EXPERIENCE ================================
 
   public static async createExperience(req, res) {
-    const _user = req.user;
     const { accountId } = req.params;
     const { experience } = req.body;
-
-    // if request.user is sending a request to update an account that is not his/hers, return unauthorized
-    if (_user.accountId != accountId) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
 
     try {
       const exp = await UserService.createExperience(accountId, experience);
@@ -177,15 +148,7 @@ export class UserController {
   }
 
   public static async deleteExperience(req, res) {
-    const _user = req.user;
-    const { accountId, experienceId } = req.params;
-
-    // if request.user is sending a request to update an account that is not his/hers, return unauthorized
-    if (_user.accountId != accountId) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
+    const { experienceId } = req.params;
 
     try {
       await UserService.deleteExperience(experienceId);
@@ -209,16 +172,8 @@ export class UserController {
   }
 
   public static async updateExperience(req, res) {
-    const _user = req.user;
     const { accountId } = req.params;
     const { experience } = req.body;
-
-    // if request.user is sending a request to update an account that is not his/hers, return unauthorized
-    if (_user.accountId != accountId) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
 
     try {
       const exp = await UserService.updateExperience(accountId, experience);

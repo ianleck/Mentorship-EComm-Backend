@@ -189,12 +189,17 @@ export default class MentorshipService {
 
   public static async updateContract(
     mentorshipContractId: string,
-    statement: string
+    statement: string,
+    accountId
   ): Promise<MentorshipContract> {
     const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
     );
     if (!currContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+    if (currContract.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
 
     const updatedContract = await currContract.update({
       statement,
@@ -278,13 +283,17 @@ export default class MentorshipService {
   }
 
   public static async deleteContract(
-    mentorshipContractId: string
+    mentorshipContractId: string,
+    accountId
   ): Promise<void> {
     const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
     );
     if (!currContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
-
+    if (currContract.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
     // Manual cascade deletion of associations - Subscription
 
     await MentorshipContract.destroy({

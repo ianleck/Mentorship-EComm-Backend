@@ -1,6 +1,6 @@
 import { ADMIN_PERMISSION_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import httpStatusCodes from 'http-status-codes';
-import logger from "../config/logger";
+import logger from '../config/logger';
 
 export const downloadAuthentication = (req, res, next) => {
   const { user } = req;
@@ -28,6 +28,49 @@ export const downloadAuthentication = (req, res, next) => {
     return res.status(httpStatusCodes.UNAUTHORIZED).json({
       message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
     });
+  }
+};
+
+// check if user is doing actions to his/her own account
+export const requireSameUser = (req, res, next) => {
+  if (req.user.accountId !== req.params.accountId) {
+    res.status(httpStatusCodes.UNAUTHORIZED).json({
+      message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+    });
+  } else {
+    next();
+  }
+};
+
+// check if user is doing actions to his/her own account or if its an admin
+export const requireSameUserOrAdmin = (req, res, next) => {
+  if (
+    req.user.accountId !== req.params.accountId &&
+    req.user.userType !== USER_TYPE_ENUM.ADMIN
+  ) {
+    res.status(httpStatusCodes.UNAUTHORIZED).json({
+      message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+    });
+  } else {
+    next();
+  }
+};
+
+/*
+  if you are not user && not superadmin, will send error
+  if you are user && not superadmin, will not send error
+  if you are not user && superadmin, will not send error
+*/
+export const requireSameUserOrSuperAdmin = (req, res, next) => {
+  if (
+    req.user.accountId !== req.params.accountId &&
+    req.user.permission !== ADMIN_PERMISSION_ENUM.SUPERADMIN
+  ) {
+    res.status(httpStatusCodes.UNAUTHORIZED).json({
+      message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+    });
+  } else {
+    next();
   }
 };
 

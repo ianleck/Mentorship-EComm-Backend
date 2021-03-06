@@ -3,6 +3,10 @@ import Utility from '../constants/utility';
 import { UserController } from '../controllers/user.controller';
 import { requireAdmin } from '../middlewares/authenticationMiddleware';
 import user from './schema/user.schema';
+import {
+  requireSameUser,
+  requireSameUserOrAdmin,
+} from '../middlewares/authenticationMiddleware';
 
 const passport = require('passport');
 
@@ -37,6 +41,7 @@ router.get(
 router.put(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUser, // if request.user is sending a request to update an account that is not his/hers, return unauthorized
   schemaValidator.params(user.accountIdP),
   schemaValidator.body(user.updateUserB),
   Utility.asyncHandler(UserController.updateUser)
@@ -46,6 +51,7 @@ router.put(
 router.delete(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrAdmin,
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(UserController.deactivateUser)
 );
@@ -54,6 +60,7 @@ router.delete(
 router.post(
   '/experience/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUser, // if request.user is sending a request to update an account that is not his/hers, return unauthorized
   schemaValidator.params(user.accountIdP),
   schemaValidator.body(user.createExperienceB),
   Utility.asyncHandler(UserController.createExperience)
@@ -63,6 +70,7 @@ router.post(
 router.put(
   '/experience/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUser, // if request.user is sending a request to update an account that is not his/hers, return unauthorized
   schemaValidator.params(user.accountIdP),
   schemaValidator.body(user.updateExperienceB),
   Utility.asyncHandler(UserController.updateExperience)
@@ -72,6 +80,7 @@ router.put(
 router.delete(
   '/experience/:accountId/:experienceId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUser, // if request.user is sending a request to update an account that is not his/hers, return unauthorized
   schemaValidator.params(user.deleteExperienceParams),
   Utility.asyncHandler(UserController.deleteExperience)
 );

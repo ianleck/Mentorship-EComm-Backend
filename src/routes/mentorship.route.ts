@@ -5,6 +5,7 @@ import {
   requireAdmin,
   requireSensei,
   requireStudent,
+  requireSameUserOrAdmin,
 } from '../middlewares/authenticationMiddleware';
 import mentorship from './schema/mentorship.schema';
 import user from './schema/user.schema';
@@ -50,7 +51,6 @@ router.get(
 //get ALL mentorship listings
 router.get(
   '/listing',
-  passport.authenticate('isAuthenticated', { session: false }),
   Utility.asyncHandler(MentorshipController.getMentorshipListings)
 );
 
@@ -127,6 +127,7 @@ router.get(
 router.get(
   '/contract/student/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrAdmin,
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(MentorshipController.getAllStudentMentorshipContracts)
 );
@@ -135,17 +136,8 @@ router.get(
 router.get(
   '/contract/sensei/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrAdmin,
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(MentorshipController.getSenseiMentorshipContracts)
 );
-
-//get ALL mentorship contracts of ONE sensei for a particular listing
-// router.get(
-//   '/contracts/:mentorshipListingId',
-//   passport.authenticate('isAuthenticated', { session: false }),
-//   schemaValidator.params(mentorship.mentorshipListingQ),
-//   Utility.asyncHandler(
-//     MentorshipController.getSenseiListingMentorshipContracts
-//   )
-// );
 export default router;
