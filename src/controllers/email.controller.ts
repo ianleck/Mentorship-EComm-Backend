@@ -1,6 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { ERRORS } from '../constants/errors';
+import { ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import EmailService from '../services/email.service';
 import apiResponse from '../utilities/apiResponse';
 
@@ -23,7 +23,9 @@ export class EmailController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }

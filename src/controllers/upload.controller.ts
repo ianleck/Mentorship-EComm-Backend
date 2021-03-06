@@ -1,5 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
-import { UPLOAD_RESPONSE } from 'src/constants/successMessages';
+import { UPLOAD_RESPONSE } from '../constants/successMessages';
 import logger from '../config/logger';
 import {
   ALLOWED_DOCUMENT_FILE_TYPES,

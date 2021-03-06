@@ -37,7 +37,9 @@ export class UserController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -61,7 +63,9 @@ export class UserController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -130,7 +134,9 @@ export class UserController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -163,7 +169,9 @@ export class UserController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -193,7 +201,9 @@ export class UserController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -227,7 +237,9 @@ export class UserController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }

@@ -1,6 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { AUTH_ERRORS, ERRORS } from '../constants/errors';
+import { AUTH_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { AUTH_RESPONSE } from '../constants/successMessages';
 import AuthService from '../services/auth.service';
 import apiResponse from '../utilities/apiResponse';
@@ -37,7 +37,9 @@ export class AuthController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -76,7 +78,9 @@ export class AuthController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -97,7 +101,9 @@ export class AuthController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -121,7 +127,9 @@ export class AuthController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
