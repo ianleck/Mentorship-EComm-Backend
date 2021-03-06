@@ -1,8 +1,5 @@
 import joi from 'joi';
-import {
-  ADMIN_PERMISSION_ENUM,
-  ADMIN_VERIFIED_ENUM,
-} from '../../constants/enum';
+import { ADMIN_ROLE_ENUM, ADMIN_VERIFIED_ENUM } from '../../constants/enum';
 
 interface adminObj {
   accountId: string;
@@ -30,17 +27,9 @@ export default {
     confirmPassword: joi.string().required(),
   }),
 
-  adminIdQ: joi.object({
-    accountId: joi.string().required(),
-  }),
-
   login: joi.object({
     email: joi.string().email().required(),
     password: joi.string().required(),
-  }),
-
-  senseiIdQ: joi.object({
-    accountId: joi.string().required(),
   }),
 
   updateAdmin: joi.object({
@@ -51,9 +40,9 @@ export default {
     }),
   }),
 
-  updateAdminPermission: joi.object({
+  updateAdminRole: joi.object({
     admin: joi.object({
-      permission: joi.string().valid(...Object.values(ADMIN_PERMISSION_ENUM)),
+      role: joi.string().valid(...Object.values(ADMIN_ROLE_ENUM)),
     }),
   }),
 

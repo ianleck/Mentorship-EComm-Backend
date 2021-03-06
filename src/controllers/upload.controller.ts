@@ -1,4 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
+import { UPLOAD_RESPONSE } from '../constants/successMessages';
 import logger from '../config/logger';
 import {
   ALLOWED_DOCUMENT_FILE_TYPES,
@@ -6,7 +7,7 @@ import {
   BACKEND_API,
 } from '../constants/constants';
 import { ADMIN_VERIFIED_ENUM } from '../constants/enum';
-import { ERRORS, UPLOAD_ERRORS } from '../constants/errors';
+import { ERRORS, RESPONSE_ERROR, UPLOAD_ERRORS } from '../constants/errors';
 import Utility from '../constants/utility';
 import { User } from '../models/User';
 import UserService from '../services/user.service';
@@ -41,12 +42,12 @@ export class UploadController {
       // save file
       file.mv(saveFilePath, async (err) => {
         if (err) {
-          logger.error('[uploadController.uploadTranscript]:' + err.message);
-          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-            message: 'Failed to save transcript',
+          logger.error('[uploadController.uploadCv]:' + err.message);
+          return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+            message: UPLOAD_ERRORS.FAILED_CV_SAVE,
           });
         } else {
-          // update user transcript file path
+          // update user CV URL
           const user = await User.findByPk(accountId);
           if (user) {
             await user.update({ cvUrl: saveName });
@@ -64,15 +65,25 @@ export class UploadController {
           }
           return apiResponse.result(
             res,
-            { message: 'Successfully Uploaded CV', user },
+            { message: UPLOAD_RESPONSE.CV_UPLOAD, user },
             httpStatusCodes.OK
           );
         }
       });
     } catch (e) {
       logger.error('[uploadController.uploadCv]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
+        e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
@@ -106,8 +117,8 @@ export class UploadController {
       file.mv(saveFilePath, async (err) => {
         if (err) {
           logger.error('[uploadController.uploadTranscript]:' + err.message);
-          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-            message: 'Failed to save transcript',
+          return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+            message: UPLOAD_ERRORS.FAILED_TRANSCRIPT_SAVE,
           });
         } else {
           // update user transcript file path
@@ -125,15 +136,25 @@ export class UploadController {
           }
           return apiResponse.result(
             res,
-            { message: 'Successfully Uploaded Transcript', user },
+            { message: UPLOAD_RESPONSE.TRANSCRIPT_UPLOAD, user },
             httpStatusCodes.OK
           );
         }
       });
     } catch (e) {
       logger.error('[uploadController.uploadTranscript]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
+        e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
@@ -166,25 +187,36 @@ export class UploadController {
       file.mv(saveFilePath, async (err) => {
         if (err) {
           logger.error('[uploadController.uploadProfilePic]:' + err.message);
-          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-            message: 'Failed to save image',
+          return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+            message: UPLOAD_ERRORS.FAILED_IMAGE_SAVE,
           });
         } else {
-          // update user transcript file path
+          // update user profile image url
+
           const user = await UserService.updateUser(accountId, {
             profileImgUrl: saveName,
           });
           return apiResponse.result(
             res,
-            { message: 'Successfully Uploaded Transcript', user },
+            { message: UPLOAD_RESPONSE.PROFILE_PIC_UPLOAD, user },
             httpStatusCodes.OK
           );
         }
       });
     } catch (e) {
       logger.error('[uploadController.uploadProfilePic]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
+        e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }

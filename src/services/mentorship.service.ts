@@ -1,21 +1,19 @@
+import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
-
 import { Op } from 'sequelize';
-
-import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
 import {
   MENTORSHIP_CONTRACT_APPROVAL,
   MENTORSHIP_PROGRESS_ENUM,
+  USER_TYPE_ENUM,
 } from '../constants/enum';
+import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
 import { Category } from '../models/Category';
 import { ListingToCategory } from '../models/ListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
+import { MentorshipListing } from '../models/MentorshipListing';
 import { User } from '../models/User';
 import EmailService from './email.service';
-import httpStatusCodes from 'http-status-codes';
-import { USER_TYPE_ENUM } from '../constants/enum';
 
-import { MentorshipListing } from '../models/MentorshipListing';
 export default class MentorshipService {
   // ==================== Mentorship Listings ====================
 
@@ -191,12 +189,17 @@ export default class MentorshipService {
 
   public static async updateContract(
     mentorshipContractId: string,
-    statement: string
+    statement: string,
+    accountId
   ): Promise<MentorshipContract> {
     const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
     );
     if (!currContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+    if (currContract.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
 
     const updatedContract = await currContract.update({
       statement,
@@ -280,13 +283,17 @@ export default class MentorshipService {
   }
 
   public static async deleteContract(
-    mentorshipContractId: string
+    mentorshipContractId: string,
+    accountId
   ): Promise<void> {
     const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
     );
     if (!currContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
-
+    if (currContract.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
     // Manual cascade deletion of associations - Subscription
 
     await MentorshipContract.destroy({

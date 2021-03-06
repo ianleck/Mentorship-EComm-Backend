@@ -36,7 +36,7 @@ export class Experience extends Model<Experience> {
   dateStart: Date;
 
   @Column({
-    allowNull: false,
+    allowNull: true,
     type: DataType.DATE,
   })
   dateEnd: Date;

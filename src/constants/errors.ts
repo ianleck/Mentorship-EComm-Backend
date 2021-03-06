@@ -10,6 +10,14 @@ export const ERRORS = {
 
 export const AUTH_ERRORS = {
   INVALID_TOKEN: 'Invalid or expired password reset token',
+
+  NEW_PASSWORD_MISMATCH: 'New password does not match',
+  NEW_PASSWORD_CANNOT_BE_OLD_PASSWORD:
+    'New Password cannot be the same as the Old Password',
+  OLD_PASSWORD_INCORRECT: 'Old password is incorrect',
+
+  USER_EXISTS: 'Email/Username already exists',
+  ADMIN_EXISTS: 'Email already exists',
 };
 
 export const MENTORSHIP_ERRORS = {
@@ -25,4 +33,17 @@ export const MENTORSHIP_ERRORS = {
 export const UPLOAD_ERRORS = {
   INVALID_FILE_TYPE: 'Invalid File Type',
   NO_FILE_UPLOADED: 'No files were uploaded',
+
+  FAILED_TRANSCRIPT_SAVE: 'Failed to save transcript',
+  FAILED_IMAGE_SAVE: 'Failed to save image',
+  FAILED_CV_SAVE: 'Failed to save CV',
+};
+
+export const REGISTER_ERRORS = {
+  USER_EXISTS: 'Email/Username already exists',
+  ADMIN_EXISTS: 'Email already exists',
+};
+
+export const RESPONSE_ERROR = {
+  RES_ERROR: 'Unable to perform request',
 };

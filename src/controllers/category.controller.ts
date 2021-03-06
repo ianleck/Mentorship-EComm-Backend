@@ -1,6 +1,7 @@
 import httpStatusCodes from 'http-status-codes';
-import { Category } from '../models/Category';
 import logger from '../config/logger';
+import { RESPONSE_ERROR } from '../constants/errors';
+import { Category } from '../models/Category';
 import apiResponse from '../utilities/apiResponse';
 
 export class CategoryController {
@@ -17,8 +18,8 @@ export class CategoryController {
       );
     } catch (e) {
       logger.error('[categoryController.getAllCategories]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }

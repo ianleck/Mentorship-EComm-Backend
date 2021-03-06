@@ -1,5 +1,7 @@
 export const JWT_SECRET = 'is4103';
 
+export const BASE = '/api';
+
 export const ALLOWED_DOCUMENT_FILE_TYPES = ['.docx', '.pdf', '.doc'];
 export const ALLOWED_IMG_FILE_TYPES = ['.jpeg', '.jpg', '.png'];
 

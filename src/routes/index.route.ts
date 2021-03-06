@@ -1,7 +1,6 @@
 import * as express from 'express';
-
-import authRoute from './auth.route';
 import adminRoute from './admin.route';
+import authRoute from './auth.route';
 import categoryRoute from './category.route';
 import emailRoute from './email.route';
 import fileRoute from './file.route';

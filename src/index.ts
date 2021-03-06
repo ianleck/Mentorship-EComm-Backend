@@ -1,7 +1,7 @@
 import * as bodyParser from 'body-parser';
 import express from 'express';
 
-import application from './constants/application';
+import { BASE } from './constants/constants';
 import indexRoute from './routes/index.route';
 import joiErrorHandler from './middlewares/joiErrorHandler';
 import * as errorHandler from './middlewares/apiErrorHandler';
@@ -57,7 +57,7 @@ sequelize
     // app.use(passport.session());
 
     // Router/
-    app.use(application.url.base, indexRoute);
+    app.use(BASE, indexRoute);
     // Joi Error Handler
     app.use(joiErrorHandler);
     // Error Handler

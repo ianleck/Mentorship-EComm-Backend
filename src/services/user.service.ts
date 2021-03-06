@@ -1,9 +1,9 @@
-import { User } from '../models/User';
-import { STATUS_ENUM, USER_TYPE_ENUM } from '../constants/enum';
-import { Admin } from '../models/Admin';
-import { ERRORS } from '../constants/errors';
 import { Op } from 'sequelize';
+import { STATUS_ENUM, USER_TYPE_ENUM } from '../constants/enum';
+import { ERRORS } from '../constants/errors';
+import { Admin } from '../models/Admin';
 import { Experience } from '../models/Experience';
+import { User } from '../models/User';
 export default class UserService {
   // ================================ USER ================================
 
@@ -150,6 +150,7 @@ export default class UserService {
     const user = await User.findByPk(accountId, {
       include: [Experience],
     });
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     return user.Experience;
   }
 }

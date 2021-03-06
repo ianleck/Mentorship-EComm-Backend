@@ -7,6 +7,6 @@
     "email": "superadmin@gmail.com",
     "status": "ACTIVE",
     "userType": "ADMIN",
-    "permission": "SUPERADMIN"
+    "role": "SUPERADMIN"
   }
 ]

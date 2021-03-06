@@ -1,7 +1,8 @@
 import httpStatusCodes from 'http-status-codes';
+import logger from '../config/logger';
+import { ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import EmailService from '../services/email.service';
 import apiResponse from '../utilities/apiResponse';
-import logger from '../config/logger';
 
 const EMAIL_SUCCESS = 'Email has been successfully sent';
 export class EmailController {
@@ -17,9 +18,15 @@ export class EmailController {
       );
     } catch (e) {
       logger.error('[emailController.sendEmail]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
     }
   }
 }

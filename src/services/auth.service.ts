@@ -1,12 +1,12 @@
+import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import { Op } from 'sequelize';
+import { RESET_PASSWORD_URL } from '../constants/constants';
+import { USER_TYPE_ENUM } from '../constants/enum';
 import { AUTH_ERRORS, ERRORS } from '../constants/errors';
 import { ResetToken } from '../models/ResetToken';
 import { User } from '../models/User';
-import bcrypt from 'bcrypt';
-import crypto from 'crypto';
-import { RESET_PASSWORD_URL } from '../constants/constants';
 import EmailService from './email.service';
-import { Op } from 'sequelize';
-import { USER_TYPE_ENUM } from '../constants/enum';
 import UserService from './user.service';
 
 export default class AuthService {
@@ -27,14 +27,15 @@ export default class AuthService {
       );
 
       // throw error if old password is incorrect
-      if (!correctOldPassword) throw new Error('Old password is incorrect');
+      if (!correctOldPassword)
+        throw new Error(AUTH_ERRORS.OLD_PASSWORD_INCORRECT);
 
       // throw error if newPassword != confirmPassword
       if (newPassword != confirmPassword)
-        throw new Error('New password does not match');
+        throw new Error(AUTH_ERRORS.NEW_PASSWORD_MISMATCH);
 
       if (newPassword == oldPassword)
-        throw new Error('New Password cannot be the same as the Old Password');
+        throw new Error(AUTH_ERRORS.NEW_PASSWORD_CANNOT_BE_OLD_PASSWORD);
       // change pass
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(newPassword, salt);
@@ -99,7 +100,7 @@ export default class AuthService {
 
       // if user exist, return error
       if (user) {
-        throw new Error('Email/Username already exists');
+        throw new Error(AUTH_ERRORS.USER_EXISTS);
       }
 
       // hash password
