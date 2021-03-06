@@ -43,7 +43,7 @@ export class UploadController {
       file.mv(saveFilePath, async (err) => {
         if (err) {
           logger.error('[uploadController.uploadCv]:' + err.message);
-          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
             message: UPLOAD_ERRORS.FAILED_CV_SAVE,
           });
         } else {
@@ -72,7 +72,17 @@ export class UploadController {
       });
     } catch (e) {
       logger.error('[uploadController.uploadCv]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
+        e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
@@ -107,7 +117,7 @@ export class UploadController {
       file.mv(saveFilePath, async (err) => {
         if (err) {
           logger.error('[uploadController.uploadTranscript]:' + err.message);
-          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
             message: UPLOAD_ERRORS.FAILED_TRANSCRIPT_SAVE,
           });
         } else {
@@ -133,7 +143,17 @@ export class UploadController {
       });
     } catch (e) {
       logger.error('[uploadController.uploadTranscript]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
+        e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
@@ -167,11 +187,12 @@ export class UploadController {
       file.mv(saveFilePath, async (err) => {
         if (err) {
           logger.error('[uploadController.uploadProfilePic]:' + err.message);
-          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
             message: UPLOAD_ERRORS.FAILED_IMAGE_SAVE,
           });
         } else {
           // update user profile image url
+
           const user = await UserService.updateUser(accountId, {
             profileImgUrl: saveName,
           });
@@ -184,7 +205,17 @@ export class UploadController {
       });
     } catch (e) {
       logger.error('[uploadController.uploadProfilePic]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
+        e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }

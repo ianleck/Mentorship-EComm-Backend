@@ -18,7 +18,7 @@ export class CategoryController {
       );
     } catch (e) {
       logger.error('[categoryController.getAllCategories]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }

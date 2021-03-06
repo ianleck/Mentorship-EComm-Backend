@@ -25,7 +25,7 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.createListing]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
@@ -118,7 +118,7 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.getAllMentorshipListings]:' + e.message
       );
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
@@ -352,7 +352,7 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.getAllMentorshipContracts]:' + e.toString()
       );
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
@@ -384,7 +384,7 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.getStudentMentorshipContract]:' + e.toString()
       );
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
@@ -411,7 +411,7 @@ export class MentorshipController {
         '[mentorshipController.getAllStudentMentorshipContracts]:' +
           e.toString()
       );
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
@@ -438,7 +438,7 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.getSenseiMentorshipContracts]:' + e.toString()
       );
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
