@@ -1,4 +1,4 @@
-import { ADMIN_PERMISSION_ENUM, USER_TYPE_ENUM } from '../constants/enum';
+import { ADMIN_ROLE_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
 
@@ -64,7 +64,7 @@ export const requireSameUserOrAdmin = (req, res, next) => {
 export const requireSameUserOrSuperAdmin = (req, res, next) => {
   if (
     req.user.accountId !== req.params.accountId &&
-    req.user.permission !== ADMIN_PERMISSION_ENUM.SUPERADMIN
+    req.user.role !== ADMIN_ROLE_ENUM.SUPERADMIN
   ) {
     res.status(httpStatusCodes.UNAUTHORIZED).json({
       message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
@@ -107,7 +107,7 @@ export const requireAdmin = (req, res, next) => {
 export const requireSuperAdmin = (req, res, next) => {
   if (
     req.user.userType != USER_TYPE_ENUM.ADMIN ||
-    req.user.permission != ADMIN_PERMISSION_ENUM.SUPERADMIN
+    req.user.role != ADMIN_ROLE_ENUM.SUPERADMIN
   ) {
     res.status(httpStatusCodes.UNAUTHORIZED).json({
       message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),

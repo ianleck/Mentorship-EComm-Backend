@@ -1,6 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { ADMIN_PERMISSION_ENUM } from '../constants/enum';
 import { AUTH_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { ADMIN_RESPONSE, AUTH_RESPONSE } from '../constants/successMessages';
 import AdminService from '../services/admin.service';
@@ -232,12 +231,12 @@ export class AdminController {
     }
   }
 
-  public static async updateAdminPermission(req, res) {
+  public static async updateAdminRole(req, res) {
     const { user } = req; //user is the super admin who is making the request
     const { accountId } = req.params; //accountId of the admin who is being updated
     const { admin } = req.body;
     try {
-      const adminUpdated = await AdminService.updateAdminPermission(
+      const adminUpdated = await AdminService.updateAdminRole(
         accountId,
         admin,
         user.accountId
@@ -248,7 +247,7 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.updateAdminPermission]' + e.message);
+      logger.error('[adminController.updateAdminRole]' + e.message);
       if (e.message === ERRORS.ADMIN_DOES_NOT_EXIST) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,

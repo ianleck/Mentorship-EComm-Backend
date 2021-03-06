@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Op } from 'sequelize';
 import {
-  ADMIN_PERMISSION_ENUM,
+  ADMIN_ROLE_ENUM,
   ADMIN_VERIFIED_ENUM,
   STATUS_ENUM,
   USER_TYPE_ENUM,
@@ -106,7 +106,7 @@ export default class AdminService {
         email,
         password,
         userType: USER_TYPE_ENUM.ADMIN,
-        permission: ADMIN_PERMISSION_ENUM.ADMIN,
+        role: ADMIN_ROLE_ENUM.ADMIN,
         updatedBy: adminCreator,
         createdBy: adminCreator,
       });
@@ -162,17 +162,13 @@ export default class AdminService {
     }
   }
 
-  public static async updateAdminPermission(
-    accountId,
-    adminAccount,
-    superAdminId
-  ) {
+  public static async updateAdminRole(accountId, adminAccount, superAdminId) {
     const admin = await Admin.findByPk(accountId);
     const superAdmin = await Admin.findByPk(superAdminId);
 
     if (admin) {
       return await admin.update({
-        permission: adminAccount.permission,
+        role: adminAccount.role,
         updatedBy: superAdmin,
       });
     } else {
