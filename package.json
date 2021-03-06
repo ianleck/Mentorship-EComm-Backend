@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@babel/register": "^7.13.0",
+    "@paypal/checkout-server-sdk": "^1.0.2",
     "@types/bcrypt": "^3.0.0",
     "@types/bluebird": "^3.5.33",
     "@types/jest": "^26.0.20",
@@ -47,6 +48,7 @@
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
+    "paypal-rest-sdk": "^1.8.1",
     "reflect-metadata": "^0.1.13",
     "sequelize": "5.22.3",
     "sequelize-cli": "^6.2.0",

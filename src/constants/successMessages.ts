@@ -46,3 +46,8 @@ export const UPLOAD_RESPONSE = {
   TRANSCRIPT_UPLOAD: 'Transcript has been successfully uploaded',
   PROFILE_PIC_UPLOAD: 'Profile Pic has been successfully uploaded',
 };
+
+// ==================== PAYPAL RESPONSE MESSAGES ====================
+export const PAYPAL_RESPONSE = {
+  ORDER_CREATE: 'Order has been successfully created',
+};

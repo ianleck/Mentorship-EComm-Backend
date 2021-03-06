@@ -4,7 +4,8 @@ import authRoute from './auth.route';
 import categoryRoute from './category.route';
 import emailRoute from './email.route';
 import fileRoute from './file.route';
-import mentorship from './mentorship.route';
+import mentorshipRoute from './mentorship.route';
+import paypalRoute from './paypal.route';
 import uploadRoute from './upload.route';
 import userRoute from './user.route';
 
@@ -15,7 +16,8 @@ router.use('/admin', adminRoute);
 router.use('/category', categoryRoute);
 router.use('/email', emailRoute);
 router.use('/file', fileRoute);
-router.use('/mentorship', mentorship);
+router.use('/mentorship', mentorshipRoute);
+router.use('/paypal', paypalRoute);
 router.use('/upload', uploadRoute);
 router.use('/user', userRoute);
 

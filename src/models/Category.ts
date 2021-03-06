@@ -1,4 +1,5 @@
 import {
+  AllowNull,
   BelongsToMany,
   Column,
   DataType,
@@ -17,13 +18,11 @@ export class Category extends BaseEntity {
   @Column(DataType.UUID)
   categoryId: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.STRING,
-    defaultValue: DataType.STRING,
-  })
+  @AllowNull(false)
+  @Column(DataType.STRING)
   name: string;
 
+  // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsToMany(() => MentorshipListing, {
     through: () => ListingToCategory,
     foreignKey: 'categoryId',
