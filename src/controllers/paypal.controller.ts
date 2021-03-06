@@ -6,9 +6,9 @@ import apiResponse from '../utilities/apiResponse';
 export class PaypalController {
   public static async createOrder(req, res) {
     try {
-      const { intent, value } = req.body;
+      const { value, payment_method } = req.body;
 
-      const response = await PaypalService.createOrder(intent, value);
+      const response = await PaypalService.createOrder(value, payment_method);
       return apiResponse.result(res, { message: response }, httpStatusCodes.OK);
     } catch (e) {
       logger.error('[PaypalController.createOrder]:' + e.message);

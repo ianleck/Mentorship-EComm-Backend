@@ -9,3 +9,4 @@ export const BACKEND_API = 'http://localhost:5000/api';
 export const RESET_PASSWORD_URL = 'http://localhost:3000/auth';
 
 export const CURRENCY = 'SGD';
+export const ORDER_INTENT = 'sale';

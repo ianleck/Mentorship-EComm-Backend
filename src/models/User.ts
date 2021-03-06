@@ -1,43 +1,47 @@
 import jwt from 'jsonwebtoken';
 import {
-  BelongsTo,
   BelongsToMany,
   Column,
   DataType,
+  Default,
   HasMany,
   HasOne,
   Table,
+  Unique,
 } from 'sequelize-typescript';
 import { JWT_SECRET } from '../constants/constants';
 import {
+  ADMIN_VERIFIED_ENUM,
+  PRIVACY_PERMISSIONS_ENUM,
   STATUS_ENUM,
   USER_TYPE_ENUM,
-  PRIVACY_PERMISSIONS_ENUM,
-  ADMIN_VERIFIED_ENUM,
 } from '../constants/enum';
 import { Account } from './abstract/Account';
 import { Experience } from './Experience';
 import { MentorshipContract } from './MentorshipContract';
 import { UserFollowership } from './UserFollowership';
+import { Wallet } from './Wallet';
 @Table
 export class User extends Account {
   // ==================== PERSONAL INFORMATION ====================
-  @Column({ type: DataType.STRING, unique: true })
+  @Unique
+  @Column(DataType.STRING)
   username: string;
 
-  @Column({ type: DataType.STRING })
+  @Column(DataType.STRING)
   password: string;
 
-  @Column({ type: DataType.STRING })
+  @Column(DataType.STRING)
   firstName: string;
 
-  @Column({ type: DataType.STRING })
+  @Column(DataType.STRING)
   lastName: string;
 
-  @Column({ type: DataType.STRING, unique: true })
+  @Unique
+  @Column(DataType.STRING)
   email: string;
 
-  @Column({ type: DataType.STRING })
+  @Column(DataType.STRING)
   contactNumber: string;
 
   // ==================== ACCOUNT STATUS ====================
@@ -58,31 +62,31 @@ export class User extends Account {
   userType: USER_TYPE_ENUM;
 
   // ==================== PROFILE INFORMATION ====================
-  @Column({ type: DataType.STRING })
+  @Column(DataType.STRING)
   industry: string;
 
-  @Column({ type: DataType.STRING })
+  @Column(DataType.STRING)
   headline: string;
 
-  @Column({ type: DataType.TEXT })
+  @Column(DataType.TEXT)
   bio: string;
 
-  @Column({ type: DataType.STRING })
+  @Column(DataType.STRING)
   personality: string;
 
-  @Column({ type: DataType.STRING })
+  @Column(DataType.STRING)
   occupation: string;
 
-  @Column({ type: DataType.STRING })
+  @Column(DataType.STRING)
   transcriptUrl: string;
 
-  @Column({ type: DataType.STRING })
+  @Column(DataType.STRING)
   profileImgUrl: string;
 
-  @Column({ type: DataType.STRING })
+  @Column(DataType.STRING)
   cvUrl: string;
   // ==================== ACCOUNT SETTINGS ====================
-  @Column({ type: DataType.BOOLEAN })
+  @Column(DataType.BOOLEAN)
   emailNotification: boolean;
 
   @Column({
@@ -92,7 +96,8 @@ export class User extends Account {
   })
   chatPrivacy: PRIVACY_PERMISSIONS_ENUM;
 
-  @Column({ type: DataType.BOOLEAN, defaultValue: false })
+  @Default(false)
+  @Column(DataType.BOOLEAN)
   isPrivateProfile: boolean;
 
   @Column({
@@ -101,6 +106,12 @@ export class User extends Account {
     defaultValue: ADMIN_VERIFIED_ENUM.SHELL,
   })
   adminVerified: ADMIN_VERIFIED_ENUM;
+
+  // ==================== PAYMENT SETTINGS ====================
+  @Unique
+  @Column(DataType.STRING)
+  walletId: string;
+
   // ==================== RELATIONSHIP MAPPINGS ====================
 
   @HasMany(() => Experience, 'accountId')
@@ -114,6 +125,10 @@ export class User extends Account {
 
   @HasMany(() => MentorshipContract, 'accountId')
   MentorshipContracts: MentorshipContract[];
+
+  @HasOne(() => Wallet, 'ownerId')
+  Wallet: Wallet;
+
   // @Column
   // achievements: Achievement;
 
@@ -132,8 +147,6 @@ export class User extends Account {
   // @HasMany(() => Post)
   // posts: Post[];
   //
-  // @HasOne(() => Wallet)
-  // wallet: Wallet;
 
   // ==================== USER FUNCTIONS ====================
   generateJWT() {

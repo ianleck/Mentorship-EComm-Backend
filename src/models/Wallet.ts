@@ -6,6 +6,7 @@ import {
   HasMany,
   PrimaryKey,
   Table,
+  Unique,
 } from 'sequelize-typescript';
 import { CURRENCY } from '../constants/constants';
 import { BaseEntity } from './abstract/BaseEntity';
@@ -18,6 +19,10 @@ export class Wallet extends BaseEntity {
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
   walletId: string;
+
+  @Unique(true)
+  @Column(DataType.UUID)
+  ownerId: string;
 
   @Column({
     allowNull: false,
