@@ -1,9 +1,7 @@
 import httpStatusCodes from 'http-status-codes';
-import EmailService from '../services/email.service';
-import apiResponse from '../utilities/apiResponse';
 import logger from '../config/logger';
 import PaypalService from '../services/paypal.service';
-import { PAYPAL_RESPONSE } from '../constants/successMessages';
+import apiResponse from '../utilities/apiResponse';
 
 export class PaypalController {
   public static async createOrder(req, res) {
