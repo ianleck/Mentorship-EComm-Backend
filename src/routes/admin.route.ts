@@ -29,7 +29,8 @@ import Utility from '../constants/utility';
 import {
   requireSuperAdmin,
   requireAdmin,
-} from '../middlewares/userTypeHandler';
+  requireSameUserOrSuperAdmin,
+} from '../middlewares/authenticationMiddleware';
 
 const router = express.Router();
 const passport = require('passport');
@@ -52,6 +53,7 @@ router.get(
 router.get(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrSuperAdmin,
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(AdminController.getAdmin)
 );
@@ -79,17 +81,6 @@ router.get(
   requireAdmin,
   Utility.asyncHandler(AdminController.getBannedSenseis)
 );
-
-/*
-
-//get list of mentorship contracts - mentorshipApplication : pending / approved 
-router.get(
-  '/mentorship-contracts',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  Utility.asyncHandler(AdminController.getMentorshipContracts)
-);
-*/
 
 /*** END OF GET REQUESTS ***/
 
@@ -120,6 +111,7 @@ router.put(
 router.put(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrSuperAdmin,
   schemaValidator.params(user.accountIdP),
   schemaValidator.body(admin.updateAdmin),
   Utility.asyncHandler(AdminController.updateAdmin)
@@ -160,6 +152,7 @@ router.put(
 router.delete(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrSuperAdmin,
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(AdminController.deactivateAdmin)
 );

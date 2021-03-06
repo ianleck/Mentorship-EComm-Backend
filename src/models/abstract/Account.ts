@@ -13,7 +13,4 @@ export abstract class Account extends BaseEntity {
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
   accountId: string;
-
-  @Column({ type: DataType.STRING })
-  paypalId: number;
 }

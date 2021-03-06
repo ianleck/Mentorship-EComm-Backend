@@ -12,14 +12,6 @@ export class AdminController {
     const { user } = req; // superadmin who requested to deactive account
     const { accountId } = req.params;
 
-    if (
-      user.accountId !== accountId &&
-      user.permission !== ADMIN_PERMISSION_ENUM.SUPERADMIN
-    ) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
     try {
       await AdminService.deactivateAdmin(accountId, user.accountId);
       return apiResponse.result(
@@ -34,7 +26,9 @@ export class AdminController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -48,15 +42,6 @@ export class AdminController {
     if you are user && not superadmin, will not send error
     if you are not user && superadmin, will not send error
     */
-
-    if (
-      user.accountId !== accountId &&
-      user.permission !== ADMIN_PERMISSION_ENUM.SUPERADMIN
-    ) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    }
 
     try {
       const admin = await AdminService.findAdminById(accountId);
@@ -75,7 +60,9 @@ export class AdminController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -93,7 +80,7 @@ export class AdminController {
       );
     } catch (e) {
       logger.error('[adminController.getAllAdmins]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
@@ -112,7 +99,7 @@ export class AdminController {
       );
     } catch (e) {
       logger.error('[adminController.getAllPendingSenseis]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
@@ -131,7 +118,7 @@ export class AdminController {
       );
     } catch (e) {
       logger.error('[adminController.getBannedStudents]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
@@ -150,7 +137,7 @@ export class AdminController {
       );
     } catch (e) {
       logger.error('[adminController.getBannedSenseis]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
@@ -188,7 +175,9 @@ export class AdminController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -211,7 +200,9 @@ export class AdminController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -220,20 +211,6 @@ export class AdminController {
     const { user } = req; //user is the user who is making the request
     const { accountId } = req.params; //accountId of the admin who is being updatred
     const { admin } = req.body;
-
-    /*
-    f you are not user && not superadmin, will send error
-    if you are user && not superadmin, will not send error
-    if you are not user && superadmin, will not send error
-    */
-    if (
-      user.accountId !== accountId &&
-      user.permission !== ADMIN_PERMISSION_ENUM.SUPERADMIN
-    ) {
-      return apiResponse.error(res, httpStatusCodes.UNAUTHORIZED, {
-        message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
-      });
-    } //end of check
     try {
       const user = await AdminService.updateAdmin(accountId, admin);
       apiResponse.result(
@@ -248,7 +225,9 @@ export class AdminController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -275,7 +254,9 @@ export class AdminController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -300,7 +281,9 @@ export class AdminController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
@@ -325,7 +308,9 @@ export class AdminController {
           message: e.message,
         });
       } else {
-        console.log('Error');
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
       }
     }
   }
