@@ -1,6 +1,7 @@
 import * as express from 'express';
 import adminRoute from './admin.route';
 import authRoute from './auth.route';
+import cartRoute from './cart.route';
 import categoryRoute from './category.route';
 import emailRoute from './email.route';
 import fileRoute from './file.route';
@@ -18,6 +19,7 @@ router.use('/email', emailRoute);
 router.use('/file', fileRoute);
 router.use('/mentorship', mentorshipRoute);
 router.use('/paypal', paypalRoute);
+router.use('/shoppingCart', cartRoute);
 router.use('/upload', uploadRoute);
 router.use('/user', userRoute);
 

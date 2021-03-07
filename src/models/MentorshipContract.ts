@@ -1,6 +1,7 @@
 import {
   AllowNull,
   BelongsTo,
+  BelongsToMany,
   Column,
   DataType,
   Default,
@@ -12,6 +13,8 @@ import {
   MENTORSHIP_PROGRESS_ENUM,
 } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
+import { Cart } from './Cart';
+import { CartToMentorshipContract } from './CartToMentorshipContract';
 import { MentorshipListing } from './MentorshipListing';
 import { User } from './User';
 
@@ -55,6 +58,12 @@ export class MentorshipContract extends BaseEntity {
 
   @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
   MentorshipListing: MentorshipListing;
+
+  @BelongsToMany(() => Cart, {
+    through: () => CartToMentorshipContract,
+    foreignKey: 'mentorshipContractId',
+  })
+  Carts: Cart[];
 }
 
 // one to one mapping for Review

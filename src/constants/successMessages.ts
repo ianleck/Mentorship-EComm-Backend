@@ -51,3 +51,8 @@ export const UPLOAD_RESPONSE = {
 export const PAYPAL_RESPONSE = {
   ORDER_CREATE: 'Order has been successfully created',
 };
+
+// ==================== CART RESPONSE MESSAGES ====================
+export const CART_RESPONSE = {
+  ADD_TO_CART: 'Item has been successfully added to cart',
+};
