@@ -8,7 +8,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
-import { ListingToCategory } from './ListingToCategory';
+import { MentorshipListingToCategory } from './MentorshipListingToCategory';
 import { MentorshipListing } from './MentorshipListing';
 
 @Table
@@ -24,7 +24,7 @@ export class Category extends BaseEntity {
 
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsToMany(() => MentorshipListing, {
-    through: () => ListingToCategory,
+    through: () => MentorshipListingToCategory,
     foreignKey: 'categoryId',
   })
   MentorshipListings: MentorshipListing[];
