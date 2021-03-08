@@ -21,6 +21,7 @@ export default class AuthService {
   ) {
     try {
       const user = await UserService.findUserOrAdminById(accountId, userType);
+      if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
       const correctOldPassword = await bcrypt.compare(
         oldPassword,
         user.password
@@ -61,17 +62,10 @@ export default class AuthService {
       isStudent,
     } = registerBody;
 
-    if (!username || !email || !password || !confirmPassword) {
-      throw new Error('Please enter all fields');
-    }
-
     if (password != confirmPassword) {
-      throw new Error('Passwords do not match');
+      throw new Error(AUTH_ERRORS.NEW_PASSWORD_MISMATCH);
     }
 
-    if (password.length < 8) {
-      throw new Error('Password must be at least 8 characters');
-    }
     let user, newUser;
 
     // check if user exist as a student or sensei
