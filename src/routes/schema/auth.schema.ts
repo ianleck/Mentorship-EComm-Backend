@@ -3,15 +3,15 @@ import joi from 'joi';
 export default {
   login: joi.object({
     email: joi.string().email().required(),
-    password: joi.string().required(),
+    password: joi.string().required().min(8),
   }),
 
   register: joi.object({
     newUser: joi.object({
       username: joi.string().required(),
       email: joi.string().email().required(),
-      password: joi.string().required(),
-      confirmPassword: joi.string().required(),
+      password: joi.string().required().min(8),
+      confirmPassword: joi.string().required().min(8),
       isStudent: joi.boolean().required(),
     }),
   }),
@@ -23,12 +23,12 @@ export default {
   resetPasswordB: joi.object({
     resetToken: joi.string().required(),
     accountId: joi.string().required(),
-    newPassword: joi.string().required(),
+    newPassword: joi.string().required().min(8),
   }),
 
   changePassword: joi.object({
-    oldPassword: joi.string().required(),
-    newPassword: joi.string().required(),
-    confirmPassword: joi.string().required(),
+    oldPassword: joi.string().required().min(8),
+    newPassword: joi.string().required().min(8),
+    confirmPassword: joi.string().required().min(8),
   }),
 };
