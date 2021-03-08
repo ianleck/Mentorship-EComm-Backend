@@ -30,7 +30,7 @@ export class Billing extends BaseEntity {
   @AllowNull(false)
   @Default(CURRENCY)
   @Column(DataType.STRING)
-  currency: number;
+  currency: string;
 
   @AllowNull(false)
   @Column(DataType.STRING)

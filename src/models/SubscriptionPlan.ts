@@ -35,7 +35,7 @@ export class SubscriptionPlan extends BaseEntity {
 
   @AllowNull(false)
   @Default(CURRENCY)
-  @Column(DataType.FLOAT)
+  @Column(DataType.STRING)
   currency: string;
 
   @Column({
