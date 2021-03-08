@@ -73,7 +73,10 @@ export class AuthController {
       );
     } catch (e) {
       logger.error('[authController.register]:' + e.message);
-      if (e.message === AUTH_ERRORS.USER_EXISTS) {
+      if (
+        e.message === AUTH_ERRORS.USER_EXISTS ||
+        e.message === AUTH_ERRORS.NEW_PASSWORD_MISMATCH
+      ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
