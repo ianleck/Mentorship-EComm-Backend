@@ -27,6 +27,10 @@ export class Course extends BaseEntity {
   courseId: string;
 
   @AllowNull(false)
+  @Column(DataType.UUID)
+  accountId: string;
+
+  @AllowNull(false)
   @Column(DataType.STRING)
   name: string;
 
