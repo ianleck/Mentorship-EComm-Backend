@@ -20,6 +20,14 @@ export const AUTH_ERRORS = {
   ADMIN_EXISTS: 'Email already exists',
 };
 
+export const COURSE_ERRORS = {
+  COURSE_MISSING: 'Course does not exist',
+  CONTRACT_EXISTS:
+    'A course contract has already been made for this mentor. Please edit existing course contract.',
+  CONTRACT_MISSING:
+    'No pending course contract found. Please create a course contract',
+};
+
 export const MENTORSHIP_ERRORS = {
   UNAUTH_LISTING:
     'You lack the required permission to create a mentorship listing.',

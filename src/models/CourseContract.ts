@@ -7,20 +7,17 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
-import {
-  MENTORSHIP_CONTRACT_APPROVAL,
-  CONTRACT_PROGRESS_ENUM,
-} from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
-import { MentorshipListing } from './MentorshipListing';
+import { Course } from './Course';
 import { User } from './User';
+import { CONTRACT_PROGRESS_ENUM } from '../constants/enum';
 
 @Table
-export class MentorshipContract extends BaseEntity {
+export class CourseContract extends BaseEntity {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  mentorshipContractId: string;
+  courseContractId: string;
 
   @AllowNull(false)
   @Column(DataType.UUID)
@@ -28,10 +25,7 @@ export class MentorshipContract extends BaseEntity {
 
   @AllowNull(false)
   @Column(DataType.UUID)
-  mentorshipListingId: string;
-
-  @Column(DataType.STRING)
-  statement: string;
+  courseId: string;
 
   @Column({
     allowNull: false,
@@ -41,20 +35,12 @@ export class MentorshipContract extends BaseEntity {
   })
   progress: CONTRACT_PROGRESS_ENUM;
 
-  @Column({
-    allowNull: false,
-    type: DataType.ENUM,
-    values: Object.values(MENTORSHIP_CONTRACT_APPROVAL),
-    defaultValue: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
-  })
-  senseiApproval: MENTORSHIP_CONTRACT_APPROVAL;
-
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')
   Student: User;
 
-  @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
-  MentorshipListing: MentorshipListing;
+  @BelongsTo(() => Course, 'courseId')
+  Course: Course;
 }
 
 // one to one mapping for Review

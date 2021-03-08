@@ -3,12 +3,12 @@ import * as _ from 'lodash';
 import { Op } from 'sequelize';
 import {
   MENTORSHIP_CONTRACT_APPROVAL,
-  MENTORSHIP_PROGRESS_ENUM,
+  CONTRACT_PROGRESS_ENUM,
   USER_TYPE_ENUM,
 } from '../constants/enum';
 import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
 import { Category } from '../models/Category';
-import { ListingToCategory } from '../models/ListingToCategory';
+import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { User } from '../models/User';
@@ -35,7 +35,7 @@ export default class MentorshipService {
 
     await newListing.save();
 
-    await ListingToCategory.bulkCreate(
+    await MentorshipListingToCategory.bulkCreate(
       categories.map((categoryId) => ({
         mentorshipListingId: newListing.mentorshipListingId,
         categoryId,
@@ -50,7 +50,7 @@ export default class MentorshipService {
   public static async deleteListing(
     mentorshipListingId: string
   ): Promise<void> {
-    const listingCategories = await ListingToCategory.findAll({
+    const listingCategories = await MentorshipListingToCategory.findAll({
       where: { mentorshipListingId },
     });
 
@@ -69,7 +69,7 @@ export default class MentorshipService {
     await Promise.all(
       categoriesToRemove.map(
         async (categoryId) =>
-          await ListingToCategory.destroy({
+          await MentorshipListingToCategory.destroy({
             where: {
               mentorshipListingId,
               categoryId,
@@ -96,7 +96,7 @@ export default class MentorshipService {
     });
 
     // Find all category associations with listing
-    const listingCategories: ListingToCategory[] = await ListingToCategory.findAll(
+    const listingCategories: MentorshipListingToCategory[] = await MentorshipListingToCategory.findAll(
       {
         where: { mentorshipListingId },
       }
@@ -114,7 +114,7 @@ export default class MentorshipService {
     );
 
     // Create new associations to new categories
-    await ListingToCategory.bulkCreate(
+    await MentorshipListingToCategory.bulkCreate(
       categoriesToAdd.map((categoryId) => ({
         mentorshipListingId,
         categoryId,
@@ -168,8 +168,8 @@ export default class MentorshipService {
         accountId,
         senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
         progress:
-          MENTORSHIP_PROGRESS_ENUM.NOT_STARTED ||
-          MENTORSHIP_PROGRESS_ENUM.ONGOING,
+          CONTRACT_PROGRESS_ENUM.NOT_STARTED ||
+          CONTRACT_PROGRESS_ENUM.ONGOING,
       },
     });
 

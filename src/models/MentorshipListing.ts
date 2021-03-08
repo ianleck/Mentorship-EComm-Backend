@@ -13,7 +13,7 @@ import {
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Category } from './Category';
-import { ListingToCategory } from './ListingToCategory';
+import { MentorshipListingToCategory } from './MentorshipListingToCategory';
 import { MentorshipContract } from './MentorshipContract';
 import { User } from './User';
 
@@ -47,7 +47,7 @@ export class MentorshipListing extends BaseEntity {
   Sensei: User;
 
   @BelongsToMany(() => Category, {
-    through: () => ListingToCategory,
+    through: () => MentorshipListingToCategory,
     foreignKey: 'mentorshipListingId',
   })
   Categories: Category[];
