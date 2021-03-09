@@ -11,7 +11,15 @@ router.post(
   '/',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.body(course.createCourseB),
-  Utility.asyncHandler(CourseController.createCourse)
+  Utility.asyncHandler(CourseController.createCourseDraft)
+);
+
+router.put(
+  '/:courseId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.courseIdP),
+  schemaValidator.body(course.updateCourseB),
+  Utility.asyncHandler(CourseController.updateCourse)
 );
 
 router.post(
