@@ -142,7 +142,7 @@ export default class MentorshipService {
         Category,
         {
           model: User,
-          attributes: ['firstName', 'lastName', 'profileImgUrl'],
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
         },
       ],
     });
@@ -168,8 +168,7 @@ export default class MentorshipService {
         accountId,
         senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
         progress:
-          CONTRACT_PROGRESS_ENUM.NOT_STARTED ||
-          CONTRACT_PROGRESS_ENUM.ONGOING,
+          CONTRACT_PROGRESS_ENUM.NOT_STARTED || CONTRACT_PROGRESS_ENUM.ONGOING,
       },
     });
 

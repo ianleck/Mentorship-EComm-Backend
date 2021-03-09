@@ -22,6 +22,7 @@ export const AUTH_ERRORS = {
 
 export const COURSE_ERRORS = {
   COURSE_MISSING: 'Course does not exist',
+  COURSE_DRAFT_MISSING: 'Course draft does not exist',
   CONTRACT_EXISTS:
     'A course contract has already been made for this mentor. Please edit existing course contract.',
   CONTRACT_MISSING:

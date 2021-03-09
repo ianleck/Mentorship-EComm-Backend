@@ -12,7 +12,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { CURRENCY, STARTING_BALANCE } from '../constants/constants';
-import { ADMIN_VERIFIED_ENUM } from '../constants/enum';
+import { ADMIN_VERIFIED_ENUM, LEVEL_ENUM } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Category } from './Category';
 import { CourseContract } from './CourseContract';
@@ -32,11 +32,23 @@ export class Course extends BaseEntity {
 
   @AllowNull(false)
   @Column(DataType.STRING)
-  name: string;
+  title: string;
+
+  @AllowNull(true)
+  @Column(DataType.TEXT)
+  subTitle: string;
 
   @AllowNull(false)
   @Column(DataType.TEXT)
   description: string;
+
+  @AllowNull(true)
+  @Column(DataType.TEXT)
+  imgUrl: string;
+
+  @AllowNull(false)
+  @Column(DataType.STRING)
+  language: string;
 
   @AllowNull(false)
   @Default(STARTING_BALANCE)
@@ -50,11 +62,6 @@ export class Course extends BaseEntity {
 
   @AllowNull(true)
   @Default(null)
-  @Column(DataType.STRING)
-  parentCourseId: string;
-
-  @AllowNull(true)
-  @Default(null)
   @Column(DataType.DATE)
   publishedAt: Date;
 
@@ -63,6 +70,17 @@ export class Course extends BaseEntity {
   @Default('10.0') //Pend change - arbitrary value
   @Column(DataType.FLOAT)
   rating: number;
+
+  @Column(DataType.BOOLEAN)
+  isHidden: boolean;
+
+  @Column({
+    allowNull: false,
+    type: DataType.ENUM,
+    values: Object.values(LEVEL_ENUM),
+    defaultValue: LEVEL_ENUM.BEGINNER,
+  })
+  level: LEVEL_ENUM;
 
   @Column({
     allowNull: false,

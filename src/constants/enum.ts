@@ -1,24 +1,7 @@
-export enum STATUS_ENUM {
-  ACTIVE = 'ACTIVE',
-  BANNED = 'BANNED',
-}
-
 export enum ADMIN_ROLE_ENUM {
   SUPERADMIN = 'SUPERADMIN',
   ADMIN = 'ADMIN',
   FINANCE = 'FINANCE',
-}
-
-export enum USER_TYPE_ENUM {
-  STUDENT = 'STUDENT',
-  SENSEI = 'SENSEI',
-  ADMIN = 'ADMIN',
-}
-
-export enum PRIVACY_PERMISSIONS_ENUM {
-  FOLLOWING_ONLY = 'FOLLOWING_ONLY',
-  ALL = 'ALL',
-  NONE = 'NONE',
 }
 
 export enum ADMIN_VERIFIED_ENUM {
@@ -29,17 +12,17 @@ export enum ADMIN_VERIFIED_ENUM {
   DRAFT = 'DRAFT',
 }
 
+export enum BillingStatus {
+  SUCCESS = 'SUCCESS',
+  FAILED = 'FAILED',
+  ADMIN = 'ADMIN',
+}
+
 export enum CONTRACT_PROGRESS_ENUM {
   NOT_STARTED = 'NOT_STARTED',
   ONGOING = 'ONGOING',
   CANCELLED = 'CANCELLED',
   COMPLETED = 'COMPLETED',
-}
-
-export enum MENTORSHIP_CONTRACT_APPROVAL {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
 }
 
 export enum INTERVAL_UNIT {
@@ -49,8 +32,31 @@ export enum INTERVAL_UNIT {
   YEARLY = 'YEAR',
 }
 
-export enum BillingStatus {
-  SUCCESS = 'SUCCESS',
-  FAILED = 'FAILED',
+export enum LEVEL_ENUM {
+  BEGINNER = 'BEGINNER',
+  INTERMEDIATE = 'INTERMEDIATE',
+  ADVANCED = 'ADVANCED',
+}
+
+export enum MENTORSHIP_CONTRACT_APPROVAL {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export enum PRIVACY_PERMISSIONS_ENUM {
+  FOLLOWING_ONLY = 'FOLLOWING_ONLY',
+  ALL = 'ALL',
+  NONE = 'NONE',
+}
+
+export enum STATUS_ENUM {
+  ACTIVE = 'ACTIVE',
+  BANNED = 'BANNED',
+}
+
+export enum USER_TYPE_ENUM {
+  STUDENT = 'STUDENT',
+  SENSEI = 'SENSEI',
   ADMIN = 'ADMIN',
 }
