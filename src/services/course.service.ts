@@ -174,7 +174,6 @@ export default class CourseService {
 
   public static async getOneCourse(courseId: string, user?) {
     const _user = user ? await User.findByPk(user.accountId) : null;
-    // if user is logged in and is the publishing sensei or if the user is an admin
     const courseWithoutContracts = await Course.findByPk(courseId, {
       include: [
         Category,
@@ -185,8 +184,8 @@ export default class CourseService {
       ],
     });
     if (!courseWithoutContracts) throw new Error(COURSE_ERRORS.COURSE_MISSING);
-    // if user is not logged in or if user is logged in but not the publishing sensei nor an admin
-    // return course without contract
+    // if user is not logged in or (if user is logged in but not the publishing sensei and not an admin)
+    // return course without contracts
     if (
       !_user ||
       (_user.userType !== USER_TYPE_ENUM.ADMIN &&
