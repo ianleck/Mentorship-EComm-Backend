@@ -1,4 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
+import { USER_TYPE_ENUM } from 'src/constants/enum';
 import logger from '../config/logger';
 import { COURSE_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { COURSE_RESPONSE } from '../constants/successMessages';
@@ -23,6 +24,40 @@ export class CourseController {
       );
     } catch (e) {
       logger.error('[courseController.createCourse]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async updateCourse(req, res) {
+    const { user } = req;
+    const { courseId } = req.params;
+    const { updatedCourse } = req.body;
+    try {
+      const updatedListing = await CourseService.updateCourse(
+        user.accountId,
+        courseId,
+        updatedCourse
+      );
+
+      return apiResponse.result(
+        res,
+        { message: COURSE_RESPONSE.COURSE_UPDATE, updatedListing },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.updateCourse]:' + e.message);
+      if (
+        e.message === COURSE_ERRORS.COURSE_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
@@ -81,34 +116,31 @@ export class CourseController {
     }
   }
 
-  public static async updateCourse(req, res) {
-    const { user } = req;
+  /** Get one course
+   *  if student => get course without contract
+   *  if sensei/admin => get course with contracts
+   * */
+  public static async getOneCourse(req, res) {
     const { courseId } = req.params;
-    const { updatedCourse } = req.body;
+    const { user } = req;
+    console.log('user =', user);
     try {
-      const updatedListing = await CourseService.updateCourse(
-        user.accountId,
-        courseId,
-        updatedCourse
-      );
-
+      const course = await CourseService.getOneCourse(courseId, user);
       return apiResponse.result(
         res,
-        { message: COURSE_RESPONSE.COURSE_UPDATE, updatedListing },
+        {
+          message: 'success',
+          course,
+        },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[courseController.updateCourse]:' + e.message);
-      if (
-        e.message === COURSE_ERRORS.COURSE_MISSING ||
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      ) {
+      logger.error('[courseController.getOneCourse]:' + e.message);
+      if (e.message === COURSE_ERRORS.COURSE_MISSING) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
       }
-
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });

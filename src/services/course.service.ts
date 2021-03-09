@@ -6,6 +6,7 @@ import { Category } from '../models/Category';
 import {
   ADMIN_VERIFIED_ENUM,
   LEVEL_ENUM,
+  USER_TYPE_ENUM,
   VISIBILITY_ENUM,
 } from '../constants/enum';
 import { CourseContract } from '../models/CourseContract';
@@ -22,11 +23,11 @@ type newCourseType = {
   currency: string;
   level: LEVEL_ENUM;
   categories: string[];
+  visibility: VISIBILITY_ENUM;
 };
 
 type courseType = newCourseType & {
   courseId?: string;
-  isHidden: boolean;
 };
 
 type getFilter = {
@@ -61,45 +62,6 @@ export default class CourseService {
     return Course.findByPk(newCourse.courseId, {
       include: [Category],
     });
-  }
-
-  public static async getAllCourses() {
-    const courses = Course.findAll({
-      where: {
-        adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED, // courses that have been approved by admin
-        isHidden: false, // courses that are not hidden
-      },
-      include: [
-        Category,
-        {
-          model: User,
-          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
-        },
-      ],
-    });
-    return courses;
-  }
-
-  public static async getAllSenseiCourses(
-    accountId: string,
-    filter: getFilter
-  ) {
-    const user = await User.findByPk(accountId);
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-    const courses = Course.findAll({
-      where: {
-        ...filter.where,
-        accountId,
-      },
-      include: [
-        Category,
-        {
-          model: User,
-          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
-        },
-      ],
-    });
-    return courses;
   }
 
   // can be draft or existing published course
@@ -168,6 +130,81 @@ export default class CourseService {
           })
       )
     );
+  }
+
+  public static async getAllCourses() {
+    const courses = Course.findAll({
+      where: {
+        adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED, // courses that have been approved by admin
+        visibility: VISIBILITY_ENUM.PUBLISHED, // courses that are not hidden
+      },
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+      ],
+    });
+    return courses;
+  }
+
+  public static async getAllSenseiCourses(
+    accountId: string,
+    filter: getFilter
+  ) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    const courses = Course.findAll({
+      where: {
+        ...filter.where,
+        accountId,
+      },
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+      ],
+    });
+    return courses;
+  }
+
+  public static async getOneCourse(courseId: string, user?) {
+    const _user = user ? await User.findByPk(user.accountId) : null;
+    // if user is logged in and is the publishing sensei or if the user is an admin
+    const courseWithoutContracts = await Course.findByPk(courseId, {
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+      ],
+    });
+    if (!courseWithoutContracts) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+    // if user is not logged in or if user is logged in but not the publishing sensei nor an admin
+    // return course without contract
+    if (
+      !_user ||
+      (_user.userType !== USER_TYPE_ENUM.ADMIN &&
+        _user.accountId !== courseWithoutContracts.accountId)
+    ) {
+      return courseWithoutContracts;
+    }
+
+    // else return course with contract (for publishing sensei and admins)
+    return await Course.findByPk(courseId, {
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+        CourseContract,
+      ],
+    });
   }
 
   // ======================================== COURSE CONTRACT ========================================

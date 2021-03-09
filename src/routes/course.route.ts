@@ -1,5 +1,8 @@
 import express from 'express';
-import { requireSameUserOrAdmin } from '../middlewares/authenticationMiddleware';
+import {
+  requireSameUserOrAdmin,
+  optionalAuth,
+} from '../middlewares/authenticationMiddleware';
 import Utility from '../constants/utility';
 import { CourseController } from '../controllers/course.controller';
 import course from './schema/course.schema';
@@ -13,6 +16,13 @@ const schemaValidator = require('express-joi-validation').createValidator({});
 // ==================== Mentorship Listings ====================
 // get all courses
 router.get('/', Utility.asyncHandler(CourseController.getAllCourses));
+
+router.get(
+  '/:courseId',
+  optionalAuth,
+  schemaValidator.params(course.courseIdP),
+  Utility.asyncHandler(CourseController.getOneCourse)
+);
 
 router.get(
   '/sensei/:accountId',
