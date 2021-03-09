@@ -166,6 +166,7 @@ export default class CourseService {
           model: User,
           attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
         },
+        CourseContract,
       ],
     });
     return courses;
