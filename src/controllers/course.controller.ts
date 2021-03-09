@@ -1,6 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { COURSE_ERRORS, RESPONSE_ERROR } from '../constants/errors';
+import { COURSE_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { COURSE_RESPONSE } from '../constants/successMessages';
 import CourseService from '../services/course.service';
 import apiResponse from '../utilities/apiResponse';
@@ -29,10 +29,61 @@ export class CourseController {
     }
   }
 
+  // to include search query params in the future (ie: most popular, least popular, page number)
+  public static async getAllCourses(req, res) {
+    try {
+      const courses = await CourseService.getAllCourses();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          courses,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.getAllCourses]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getAllSenseiCourses(req, res) {
+    const { accountId } = req.params;
+    const { adminVerified, visibility } = req.query;
+
+    try {
+      const courses = await CourseService.getAllSenseiCourses(accountId, {
+        where: {
+          adminVerified,
+          visibility,
+        },
+      });
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          courses,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.getAllSenseiCourses]:' + e.message);
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
   public static async updateCourse(req, res) {
     const { user } = req;
     const { courseId } = req.params;
-    console.log('courseId =', courseId);
     const { updatedCourse } = req.body;
     try {
       const updatedListing = await CourseService.updateCourse(

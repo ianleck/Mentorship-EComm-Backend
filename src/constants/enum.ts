@@ -50,6 +50,11 @@ export enum PRIVACY_PERMISSIONS_ENUM {
   NONE = 'NONE',
 }
 
+export enum VISIBILITY_ENUM {
+  PUBLISHED = 'PUBLISHED',
+  HIDDEN = 'HIDDEN',
+}
+
 export enum STATUS_ENUM {
   ACTIVE = 'ACTIVE',
   BANNED = 'BANNED',

@@ -3,9 +3,14 @@ import * as _ from 'lodash';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { Course } from '../models/Course';
 import { Category } from '../models/Category';
-import { ADMIN_VERIFIED_ENUM, LEVEL_ENUM } from '../constants/enum';
+import {
+  ADMIN_VERIFIED_ENUM,
+  LEVEL_ENUM,
+  VISIBILITY_ENUM,
+} from '../constants/enum';
 import { CourseContract } from '../models/CourseContract';
-import { COURSE_ERRORS } from '../constants/errors';
+import { COURSE_ERRORS, ERRORS } from '../constants/errors';
+import { User } from '../models/User';
 
 type newCourseType = {
   title?: string;
@@ -22,6 +27,13 @@ type newCourseType = {
 type courseType = newCourseType & {
   courseId?: string;
   isHidden: boolean;
+};
+
+type getFilter = {
+  where: {
+    adminVerified: ADMIN_VERIFIED_ENUM;
+    visibility: VISIBILITY_ENUM;
+  };
 };
 export default class CourseService {
   // ======================================== COURSE LISTING ========================================
@@ -49,6 +61,45 @@ export default class CourseService {
     return Course.findByPk(newCourse.courseId, {
       include: [Category],
     });
+  }
+
+  public static async getAllCourses() {
+    const courses = Course.findAll({
+      where: {
+        adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED, // courses that have been approved by admin
+        isHidden: false, // courses that are not hidden
+      },
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+      ],
+    });
+    return courses;
+  }
+
+  public static async getAllSenseiCourses(
+    accountId: string,
+    filter: getFilter
+  ) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    const courses = Course.findAll({
+      where: {
+        ...filter.where,
+        accountId,
+      },
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+      ],
+    });
+    return courses;
   }
 
   // can be draft or existing published course
