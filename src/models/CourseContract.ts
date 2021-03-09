@@ -17,7 +17,7 @@ export class CourseContract extends BaseEntity {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  courseContracttId: string;
+  courseContractId: string;
 
   @AllowNull(false)
   @Column(DataType.UUID)
