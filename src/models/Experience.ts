@@ -19,7 +19,6 @@ export class Experience extends Model<Experience> {
   experienceId: string;
 
   @AllowNull(false)
-  @Unique
   @Column(DataType.UUID)
   accountId: string;
 

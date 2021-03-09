@@ -14,7 +14,7 @@ export default {
       dateEnd: joi.date().required(),
       description: joi.string().required(),
       companyName: joi.string().required(),
-      companyUrl: joi.string(),
+      companyUrl: joi.string().allow('', null),
     }),
   }),
   deleteExperienceParams: joi.object({
@@ -29,7 +29,7 @@ export default {
       dateEnd: joi.date().required(),
       description: joi.string().required(),
       companyName: joi.string().required(),
-      companyUrl: joi.string(),
+      companyUrl: joi.string().allow('', null),
     }),
   }),
   updateUserB: joi.object({
