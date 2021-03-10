@@ -16,6 +16,7 @@ export const AUTH_RESPONSE = {
   SUCCESSFULLY_CHANGED_PASSWORD: 'Successfully Changed Password',
 };
 
+// ==================== COURSE RESPONSE MESSAGES ====================
 export const COURSE_RESPONSE = {
   COURSE_CREATE: 'Course Listing has been successfully created',
   COURSE_UPDATE: 'Course Listing has been successfully updated',
@@ -26,6 +27,8 @@ export const COURSE_RESPONSE = {
   CONTRACT_DELETE: 'Course Contract has been successfully deleted',
   CONTRACT_ACCEPT: 'Course Contract has been successfully accepted',
   CONTRACT_REJECT: 'Course Contract has been successfully rejected',
+
+  COMMENT_CREATE: 'Successfully commented on lesson',
 };
 
 // ==================== MENTORSHIP RESPONSE MESSAGES ====================

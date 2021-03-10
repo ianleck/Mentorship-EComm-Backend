@@ -111,5 +111,5 @@ export class Course extends BaseEntity {
   CourseContracts: CourseContract[];
 
   @HasMany(() => Lesson, 'courseId')
-  lessons: Lesson[];
+  Lessons: Lesson[];
 }

@@ -24,9 +24,10 @@ export const COURSE_ERRORS = {
   COURSE_MISSING: 'Course does not exist',
   COURSE_DRAFT_MISSING: 'Course draft does not exist',
   CONTRACT_EXISTS:
-    'A course contract has already been made for this mentor. Please edit existing course contract.',
+    'A course contract has already been made for this course. Please edit existing course contract.',
   CONTRACT_MISSING:
-    'No pending course contract found. Please create a course contract',
+    'Course contract does not exist. Please sign up for the course first.',
+  LESSON_MISSING: 'Lesson does not exist',
 };
 
 export const MENTORSHIP_ERRORS = {

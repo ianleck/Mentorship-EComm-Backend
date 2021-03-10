@@ -18,7 +18,7 @@ export class CourseController {
       );
       return apiResponse.result(
         res,
-        { message: COURSE_RESPONSE.COURSE_CREATE, createdListing },
+        { message: COURSE_RESPONSE.COURSE_CREATE, course: createdListing },
         httpStatusCodes.CREATED
       );
     } catch (e) {
@@ -42,7 +42,7 @@ export class CourseController {
 
       return apiResponse.result(
         res,
-        { message: COURSE_RESPONSE.COURSE_UPDATE, updatedListing },
+        { message: COURSE_RESPONSE.COURSE_UPDATE, course: updatedListing },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -118,18 +118,23 @@ export class CourseController {
   /** Get one course
    *  if student => get course without contract
    *  if sensei/admin => get course with contracts
+   *  if user is a student and user purchased the course, return existing contract
    * */
   public static async getOneCourse(req, res) {
     const { courseId } = req.params;
     const { user } = req;
-    console.log('user =', user);
     try {
       const course = await CourseService.getOneCourse(courseId, user);
+      const existingContract = await CourseService.getContractIfExist(
+        courseId,
+        user.accountId
+      );
       return apiResponse.result(
         res,
         {
           message: 'success',
           course,
+          courseContract: existingContract,
         },
         httpStatusCodes.OK
       );
@@ -162,7 +167,7 @@ export class CourseController {
         httpStatusCodes.CREATED
       );
     } catch (e) {
-      logger.error('[courseController.createCourse]:' + e.message);
+      logger.error('[courseController.createLessonShell]:' + e.message);
       if (
         e.message ===
           httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
@@ -190,11 +195,11 @@ export class CourseController {
       );
       return apiResponse.result(
         res,
-        { message: COURSE_RESPONSE.COURSE_CREATE, createdListing },
+        { message: COURSE_RESPONSE.CONTRACT_CREATE, createdListing },
         httpStatusCodes.CREATED
       );
     } catch (e) {
-      logger.error('[courseController.createCourse]:' + e.message);
+      logger.error('[courseController.createContract]:' + e.message);
       if (
         e.message === COURSE_ERRORS.COURSE_MISSING ||
         e.message === COURSE_ERRORS.CONTRACT_EXISTS
@@ -203,6 +208,55 @@ export class CourseController {
           message: e.message,
         });
       }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  // ======================================== COMMENTS ========================================
+  public static async createComment(req, res) {
+    const { user } = req;
+    const { comment } = req.body;
+    const { lessonId } = req.params;
+    try {
+      const createdComment = await CourseService.createComment(
+        user.accountId,
+        lessonId,
+        comment.body
+      );
+      return apiResponse.result(
+        res,
+        { message: COURSE_RESPONSE.COMMENT_CREATE, comment: createdComment },
+        httpStatusCodes.CREATED
+      );
+    } catch (e) {
+      logger.error('[courseController.createComment]:' + e.message);
+      if (
+        e.message === COURSE_ERRORS.COURSE_MISSING ||
+        e.message === COURSE_ERRORS.CONTRACT_EXISTS
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getLessonComments(req, res) {
+    const { lessonId } = req.params;
+    try {
+      const comments = await CourseService.getLessonComments(lessonId);
+      return apiResponse.result(
+        res,
+        { message: 'success', comments },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.getLessonComments]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });

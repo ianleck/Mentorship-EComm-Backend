@@ -8,6 +8,7 @@ import {
 } from '../constants/enum';
 import { COURSE_ERRORS, ERRORS } from '../constants/errors';
 import { Category } from '../models/Category';
+import { Comment } from '../models/Comment';
 import { Course } from '../models/Course';
 import { CourseContract } from '../models/CourseContract';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
@@ -173,47 +174,30 @@ export default class CourseService {
     return courses;
   }
 
-  public static async getCourseWithAssociations(
+  /**
+   * @param obj = {
+   *  courseId: string,
+   *  extraModels: Models[]
+   *  inclSoftDelete: boolean
+   * }
+   */
+  public static async getCourseWithAssociations({
     courseId,
-    withCourseContract: boolean,
-    inclSoftDelete: boolean // true to return rows that are soft deleted. False otherwise
-  ) {
-    if (withCourseContract) {
-      return await Course.findByPk(courseId, {
-        include: [
-          Category,
-          {
-            model: User,
-            attributes: [
-              'firstName',
-              'lastName',
-              'profileImgUrl',
-              'occupation',
-            ],
-          },
-          Lesson,
-        ],
-        paranoid: !inclSoftDelete,
-      });
-    } else {
-      return await Course.findByPk(courseId, {
-        include: [
-          Category,
-          {
-            model: User,
-            attributes: [
-              'firstName',
-              'lastName',
-              'profileImgUrl',
-              'occupation',
-            ],
-          },
-          CourseContract,
-          Lesson,
-        ],
-        paranoid: !inclSoftDelete,
-      });
-    }
+    extraModels,
+    // withCourseContract: boolean,
+    inclSoftDelete, // true to return rows that are soft deleted. False otherwise
+  }) {
+    return await Course.findByPk(courseId, {
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+        ...extraModels,
+      ],
+      paranoid: !inclSoftDelete,
+    });
   }
 
   public static async getOneCourse(courseId: string, user?) {
@@ -222,18 +206,35 @@ export default class CourseService {
     // if no user, return course without contract and dont need to find deleted ones
     let course;
     if (!_user) {
-      course = await this.getCourseWithAssociations(courseId, false, false); // return course without contracts that are not soft deleted
+      // return course without contracts that are not soft deleted
+      course = await this.getCourseWithAssociations({
+        courseId,
+        extraModels: [Lesson],
+        inclSoftDelete: false,
+      });
       if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
       return course;
     }
 
     // if user and is a student, see if student has a course with the course.
+    if (_user.userType === USER_TYPE_ENUM.STUDENT) {
+      const existingContract = CourseContract.findOne({
+        where: {
+          courseId,
+          accountId: _user.accountId,
+        },
+      });
+
+      if (existingContract) {
+        // if student has bought the course, return
+      }
+    }
     // if true, return course, else return course that isnt soft delted
-    const courseWithoutContracts = await this.getCourseWithAssociations(
+    const courseWithoutContracts = await this.getCourseWithAssociations({
       courseId,
-      false,
-      true
-    );
+      extraModels: [Lesson],
+      inclSoftDelete: true,
+    });
 
     // if user is logged in but not the publishing sensei and not an admin
     // return course without contracts
@@ -245,7 +246,11 @@ export default class CourseService {
     }
 
     // else return course with contract (for publishing sensei and admins)
-    return this.getCourseWithAssociations(courseId, true, true);
+    return this.getCourseWithAssociations({
+      courseId,
+      extraModels: [Lesson, CourseContract],
+      inclSoftDelete: true,
+    });
   }
 
   // ======================================== LESSONS ========================================
@@ -298,6 +303,52 @@ export default class CourseService {
     await newContract.save();
 
     return newContract;
+  }
+
+  /**
+   * Get course contract if request.user is a student that signed up with the course
+   * @param courseId
+   * @param accountId
+   */
+  public static async getContractIfExist(courseId: string, accountId: string) {
+    return await CourseContract.findOne({
+      where: {
+        accountId,
+        courseId,
+      },
+    });
+  }
+
+  // ======================================== COMMENTS ========================================
+  public static async createComment(
+    accountId: string,
+    lessonId: string,
+    bodyText: string
+  ): Promise<Comment> {
+    const lesson = await Lesson.findByPk(lessonId);
+    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
+    const comment = new Comment({
+      accountId,
+      lessonId,
+      body: bodyText,
+    });
+
+    await comment.save();
+    return comment;
+  }
+
+  public static async getLessonComments(lessonId: string): Promise<Comment[]> {
+    return Comment.findAll({
+      where: {
+        lessonId,
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl'],
+        },
+      ],
+    });
   }
 }
 

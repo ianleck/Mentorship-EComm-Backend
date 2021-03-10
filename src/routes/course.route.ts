@@ -53,7 +53,7 @@ router.put(
 router.post(
   '/lesson/:courseId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(course.createContractP),
+  schemaValidator.params(course.courseIdP),
   Utility.asyncHandler(CourseController.createLessonShell)
 );
 
@@ -61,8 +61,24 @@ router.post(
 router.post(
   '/contract/:courseId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(course.createContractP),
+  schemaValidator.params(course.courseIdP),
   Utility.asyncHandler(CourseController.createContract)
+);
+
+// ======================================== COMMENTS ========================================
+router.post(
+  '/comment/lesson/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.lessonIdP),
+  schemaValidator.body(course.createCommentB),
+  Utility.asyncHandler(CourseController.createComment)
+);
+
+router.get(
+  '/comment/lesson/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.lessonIdP),
+  Utility.asyncHandler(CourseController.getLessonComments)
 );
 
 export default router;
