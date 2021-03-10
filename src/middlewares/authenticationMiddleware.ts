@@ -1,6 +1,7 @@
 import { ADMIN_ROLE_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
+const passport = require('passport');
 
 export const downloadAuthentication = (req, res, next) => {
   const { user } = req;
@@ -28,6 +29,19 @@ export const downloadAuthentication = (req, res, next) => {
     return res.status(httpStatusCodes.UNAUTHORIZED).json({
       message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
     });
+  }
+};
+
+export const optionalAuth = async (req, res, next) => {
+  const auth = req.header('Authorization');
+  if (auth) {
+    passport.authenticate('isAuthenticated', { session: false })(
+      req,
+      res,
+      next
+    );
+  } else {
+    next();
   }
 };
 

@@ -12,11 +12,16 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { CURRENCY, STARTING_BALANCE } from '../constants/constants';
-import { ADMIN_VERIFIED_ENUM, LEVEL_ENUM } from '../constants/enum';
+import {
+  ADMIN_VERIFIED_ENUM,
+  LEVEL_ENUM,
+  VISIBILITY_ENUM,
+} from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Category } from './Category';
 import { CourseContract } from './CourseContract';
 import { CourseListingToCategory } from './CourseListingToCategory';
+import { Lesson } from './Lesson';
 import { User } from './User';
 
 @Table
@@ -34,7 +39,6 @@ export class Course extends BaseEntity {
   @Column(DataType.STRING)
   title: string;
 
-  @AllowNull(true)
   @Column(DataType.TEXT)
   subTitle: string;
 
@@ -42,7 +46,6 @@ export class Course extends BaseEntity {
   @Column(DataType.TEXT)
   description: string;
 
-  @AllowNull(true)
   @Column(DataType.TEXT)
   imgUrl: string;
 
@@ -60,7 +63,6 @@ export class Course extends BaseEntity {
   @Column(DataType.STRING)
   currency: string;
 
-  @AllowNull(true)
   @Default(null)
   @Column(DataType.DATE)
   publishedAt: Date;
@@ -71,8 +73,13 @@ export class Course extends BaseEntity {
   @Column(DataType.FLOAT)
   rating: number;
 
-  @Column(DataType.BOOLEAN)
-  isHidden: boolean;
+  @Column({
+    allowNull: false,
+    type: DataType.ENUM,
+    values: Object.values(VISIBILITY_ENUM),
+    defaultValue: VISIBILITY_ENUM.HIDDEN,
+  })
+  visibility: VISIBILITY_ENUM;
 
   @Column({
     allowNull: false,
@@ -102,4 +109,7 @@ export class Course extends BaseEntity {
 
   @HasMany(() => CourseContract, 'courseId')
   CourseContracts: CourseContract[];
+
+  @HasMany(() => Lesson, 'courseId')
+  Lessons: Lesson[];
 }

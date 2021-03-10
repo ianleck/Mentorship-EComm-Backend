@@ -1,11 +1,19 @@
 import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
-import { CourseListingToCategory } from '../models/CourseListingToCategory';
-import { Course } from '../models/Course';
+import {
+  ADMIN_VERIFIED_ENUM,
+  LEVEL_ENUM,
+  USER_TYPE_ENUM,
+  VISIBILITY_ENUM,
+} from '../constants/enum';
+import { COURSE_ERRORS, ERRORS } from '../constants/errors';
 import { Category } from '../models/Category';
-import { ADMIN_VERIFIED_ENUM, LEVEL_ENUM } from '../constants/enum';
+import { Comment } from '../models/Comment';
+import { Course } from '../models/Course';
 import { CourseContract } from '../models/CourseContract';
-import { COURSE_ERRORS } from '../constants/errors';
+import { CourseListingToCategory } from '../models/CourseListingToCategory';
+import { Lesson } from '../models/Lesson';
+import { User } from '../models/User';
 
 type newCourseType = {
   title?: string;
@@ -17,11 +25,18 @@ type newCourseType = {
   currency: string;
   level: LEVEL_ENUM;
   categories: string[];
+  visibility: VISIBILITY_ENUM;
 };
 
 type courseType = newCourseType & {
   courseId?: string;
-  isHidden: boolean;
+};
+
+type getFilter = {
+  where: {
+    adminVerified: ADMIN_VERIFIED_ENUM;
+    visibility: VISIBILITY_ENUM;
+  };
 };
 export default class CourseService {
   // ======================================== COURSE LISTING ========================================
@@ -119,6 +134,144 @@ export default class CourseService {
     );
   }
 
+  public static async getAllCourses() {
+    const courses = Course.findAll({
+      where: {
+        adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED, // courses that have been approved by admin
+        visibility: VISIBILITY_ENUM.PUBLISHED, // courses that are not hidden
+      },
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+      ],
+    });
+    return courses;
+  }
+
+  public static async getAllSenseiCourses(
+    accountId: string,
+    filter: getFilter
+  ) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    const courses = Course.findAll({
+      where: {
+        ...filter.where,
+        accountId,
+      },
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+        CourseContract,
+      ],
+    });
+    return courses;
+  }
+
+  /**
+   * @param obj = {
+   *  courseId: string,
+   *  extraModels: Models[]
+   *  inclSoftDelete: boolean
+   * }
+   */
+  public static async getCourseWithAssociations({
+    courseId,
+    extraModels,
+    // withCourseContract: boolean,
+    inclSoftDelete, // true to return rows that are soft deleted. False otherwise
+  }) {
+    return await Course.findByPk(courseId, {
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+        ...extraModels,
+      ],
+      paranoid: !inclSoftDelete,
+    });
+  }
+
+  public static async getOneCourse(courseId: string, user?) {
+    const _user = user ? await User.findByPk(user.accountId) : null;
+
+    // if no user, return course without contract and dont need to find deleted ones
+    let course;
+    if (!_user) {
+      // return course without contracts that are not soft deleted
+      course = await this.getCourseWithAssociations({
+        courseId,
+        extraModels: [Lesson],
+        inclSoftDelete: false,
+      });
+      if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+      return course;
+    }
+
+    // if user and is a student, see if student has a course with the course.
+    if (_user.userType === USER_TYPE_ENUM.STUDENT) {
+      const existingContract = CourseContract.findOne({
+        where: {
+          courseId,
+          accountId: _user.accountId,
+        },
+      });
+
+      if (existingContract) {
+        // if student has bought the course, return
+      }
+    }
+    // if true, return course, else return course that isnt soft delted
+    const courseWithoutContracts = await this.getCourseWithAssociations({
+      courseId,
+      extraModels: [Lesson],
+      inclSoftDelete: true,
+    });
+
+    // if user is logged in but not the publishing sensei and not an admin
+    // return course without contracts
+    if (
+      _user.userType !== USER_TYPE_ENUM.ADMIN &&
+      _user.accountId !== courseWithoutContracts.accountId
+    ) {
+      return courseWithoutContracts;
+    }
+
+    // else return course with contract (for publishing sensei and admins)
+    return this.getCourseWithAssociations({
+      courseId,
+      extraModels: [Lesson, CourseContract],
+      inclSoftDelete: true,
+    });
+  }
+
+  // ======================================== LESSONS ========================================
+  public static async createLessonShell(
+    courseId: string,
+    accountId: string
+  ): Promise<Lesson> {
+    const course = await Course.findByPk(courseId);
+    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+    const user = await User.findByPk(accountId);
+    if (user.accountId !== course.accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    const lesson = new Lesson({
+      courseId,
+    });
+    await lesson.save();
+    return lesson;
+  }
+
   // ======================================== COURSE CONTRACT ========================================
   public static async createContract(
     accountId: string,
@@ -150,6 +303,52 @@ export default class CourseService {
     await newContract.save();
 
     return newContract;
+  }
+
+  /**
+   * Get course contract if request.user is a student that signed up with the course
+   * @param courseId
+   * @param accountId
+   */
+  public static async getContractIfExist(courseId: string, accountId: string) {
+    return await CourseContract.findOne({
+      where: {
+        accountId,
+        courseId,
+      },
+    });
+  }
+
+  // ======================================== COMMENTS ========================================
+  public static async createComment(
+    accountId: string,
+    lessonId: string,
+    bodyText: string
+  ): Promise<Comment> {
+    const lesson = await Lesson.findByPk(lessonId);
+    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
+    const comment = new Comment({
+      accountId,
+      lessonId,
+      body: bodyText,
+    });
+
+    await comment.save();
+    return comment;
+  }
+
+  public static async getLessonComments(lessonId: string): Promise<Comment[]> {
+    return Comment.findAll({
+      where: {
+        lessonId,
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl'],
+        },
+      ],
+    });
   }
 }
 

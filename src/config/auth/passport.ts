@@ -1,8 +1,8 @@
 // import { Student } from '../../models/Student';
 import bcrypt from 'bcrypt';
-import { User } from '../../models/User';
 import { JWT_SECRET } from '../../constants/constants';
 import { Admin } from '../../models/Admin';
+import { User } from '../../models/User';
 
 const LocalStrategy = require('passport-local').Strategy;
 
