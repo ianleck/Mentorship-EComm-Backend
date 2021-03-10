@@ -2,15 +2,15 @@ import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
 import { Op } from 'sequelize';
 import {
-  MENTORSHIP_CONTRACT_APPROVAL,
   CONTRACT_PROGRESS_ENUM,
+  MENTORSHIP_CONTRACT_APPROVAL,
   USER_TYPE_ENUM,
 } from '../constants/enum';
 import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
 import { Category } from '../models/Category';
-import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
+import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
 import { User } from '../models/User';
 import EmailService from './email.service';
 

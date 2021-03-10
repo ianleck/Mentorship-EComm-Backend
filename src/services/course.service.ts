@@ -1,17 +1,17 @@
 import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
-import { CourseListingToCategory } from '../models/CourseListingToCategory';
-import { Course } from '../models/Course';
-import { Category } from '../models/Category';
-import { Lesson } from '../models/Lesson';
 import {
   ADMIN_VERIFIED_ENUM,
   LEVEL_ENUM,
   USER_TYPE_ENUM,
   VISIBILITY_ENUM,
 } from '../constants/enum';
-import { CourseContract } from '../models/CourseContract';
 import { COURSE_ERRORS, ERRORS } from '../constants/errors';
+import { Category } from '../models/Category';
+import { Course } from '../models/Course';
+import { CourseContract } from '../models/CourseContract';
+import { CourseListingToCategory } from '../models/CourseListingToCategory';
+import { Lesson } from '../models/Lesson';
 import { User } from '../models/User';
 
 type newCourseType = {

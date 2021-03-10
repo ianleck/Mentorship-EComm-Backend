@@ -1,5 +1,4 @@
 import httpStatusCodes from 'http-status-codes';
-import { USER_TYPE_ENUM } from 'src/constants/enum';
 import logger from '../config/logger';
 import { COURSE_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { COURSE_RESPONSE } from '../constants/successMessages';

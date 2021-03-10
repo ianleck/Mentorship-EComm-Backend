@@ -1,10 +1,10 @@
 import express from 'express';
-import {
-  requireSameUserOrAdmin,
-  optionalAuth,
-} from '../middlewares/authenticationMiddleware';
 import Utility from '../constants/utility';
 import { CourseController } from '../controllers/course.controller';
+import {
+  optionalAuth,
+  requireSameUserOrAdmin,
+} from '../middlewares/authenticationMiddleware';
 import course from './schema/course.schema';
 import user from './schema/user.schema';
 

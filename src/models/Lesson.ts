@@ -1,5 +1,4 @@
 import {
-  AllowNull,
   BelongsTo,
   Column,
   DataType,
@@ -7,11 +6,9 @@ import {
   Model,
   PrimaryKey,
   Table,
-  Unique,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Course } from './Course';
-import { User } from './User';
 
 @Table
 export class Lesson extends Model<BaseEntity> {
