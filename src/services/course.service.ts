@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { Course } from '../models/Course';
 import { Category } from '../models/Category';
+import { Lesson } from '../models/Lesson';
 import {
   ADMIN_VERIFIED_ENUM,
   LEVEL_ENUM,
@@ -172,39 +173,98 @@ export default class CourseService {
     return courses;
   }
 
+  public static async getCourseWithAssociations(
+    courseId,
+    withCourseContract: boolean,
+    inclSoftDelete: boolean // true to return rows that are soft deleted. False otherwise
+  ) {
+    if (withCourseContract) {
+      return await Course.findByPk(courseId, {
+        include: [
+          Category,
+          {
+            model: User,
+            attributes: [
+              'firstName',
+              'lastName',
+              'profileImgUrl',
+              'occupation',
+            ],
+          },
+          Lesson,
+        ],
+        paranoid: !inclSoftDelete,
+      });
+    } else {
+      return await Course.findByPk(courseId, {
+        include: [
+          Category,
+          {
+            model: User,
+            attributes: [
+              'firstName',
+              'lastName',
+              'profileImgUrl',
+              'occupation',
+            ],
+          },
+          CourseContract,
+          Lesson,
+        ],
+        paranoid: !inclSoftDelete,
+      });
+    }
+  }
+
   public static async getOneCourse(courseId: string, user?) {
     const _user = user ? await User.findByPk(user.accountId) : null;
-    const courseWithoutContracts = await Course.findByPk(courseId, {
-      include: [
-        Category,
-        {
-          model: User,
-          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
-        },
-      ],
-    });
-    if (!courseWithoutContracts) throw new Error(COURSE_ERRORS.COURSE_MISSING);
-    // if user is not logged in or (if user is logged in but not the publishing sensei and not an admin)
+
+    // if no user, return course without contract and dont need to find deleted ones
+    let course;
+    if (!_user) {
+      course = await this.getCourseWithAssociations(courseId, false, false); // return course without contracts that are not soft deleted
+      if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+      return course;
+    }
+
+    // if user and is a student, see if student has a course with the course.
+    // if true, return course, else return course that isnt soft delted
+    const courseWithoutContracts = await this.getCourseWithAssociations(
+      courseId,
+      false,
+      true
+    );
+
+    // if user is logged in but not the publishing sensei and not an admin
     // return course without contracts
     if (
-      !_user ||
-      (_user.userType !== USER_TYPE_ENUM.ADMIN &&
-        _user.accountId !== courseWithoutContracts.accountId)
+      _user.userType !== USER_TYPE_ENUM.ADMIN &&
+      _user.accountId !== courseWithoutContracts.accountId
     ) {
       return courseWithoutContracts;
     }
 
     // else return course with contract (for publishing sensei and admins)
-    return await Course.findByPk(courseId, {
-      include: [
-        Category,
-        {
-          model: User,
-          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
-        },
-        CourseContract,
-      ],
+    return this.getCourseWithAssociations(courseId, true, true);
+  }
+
+  // ======================================== LESSONS ========================================
+  public static async createLessonShell(
+    courseId: string,
+    accountId: string
+  ): Promise<Lesson> {
+    const course = await Course.findByPk(courseId);
+    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+    const user = await User.findByPk(accountId);
+    if (user.accountId !== course.accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    const lesson = new Lesson({
+      courseId,
     });
+    await lesson.save();
+    return lesson;
   }
 
   // ======================================== COURSE CONTRACT ========================================

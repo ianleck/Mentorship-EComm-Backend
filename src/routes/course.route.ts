@@ -13,7 +13,7 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
-// ==================== Mentorship Listings ====================
+// ======================================== COURSE LISTING ========================================
 // get all courses
 router.get('/', Utility.asyncHandler(CourseController.getAllCourses));
 
@@ -49,7 +49,15 @@ router.put(
   Utility.asyncHandler(CourseController.updateCourse)
 );
 
-// ==================== MENTORSHIP CONTRACTS ====================
+// ======================================== LESSONS ========================================
+router.post(
+  '/lesson/:courseId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.createContractP),
+  Utility.asyncHandler(CourseController.createLessonShell)
+);
+
+// ======================================== COURSE CONTRACT ========================================
 router.post(
   '/contract/:courseId',
   passport.authenticate('isAuthenticated', { session: false }),
