@@ -82,8 +82,10 @@ export default class CourseService {
 
     const user = await User.findByPk(accountId);
     if (
-      // if user is submitting course request but user account has not been verified/accepted by admin, throw error.
-      updatedDraft.adminVerified === ADMIN_VERIFIED_ENUM.PENDING &&
+      // if user is submitting course request or if user is tryign to publish course
+      // but user account has not been verified/accepted by admin, throw error.
+      (updatedDraft.adminVerified === ADMIN_VERIFIED_ENUM.PENDING ||
+        updatedDraft.visibility === VISIBILITY_ENUM.PUBLISHED) &&
       user.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED
     )
       throw new Error(COURSE_ERRORS.USER_NOT_VERIFIED);
@@ -91,10 +93,9 @@ export default class CourseService {
     if (
       // If user is trying to publish the course request but course has not been verified/accepted by admin, throw error
       updatedDraft.visibility === VISIBILITY_ENUM.PUBLISHED &&
-      (updatedDraft.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED ||
-        user.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED)
+      updatedDraft.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED
     )
-      throw new Error(COURSE_ERRORS.USER_NOT_VERIFIED);
+      throw new Error(COURSE_ERRORS.COURSE_NOT_VERIFIED);
     const { categories, ...courseWithoutCategories } = updatedDraft;
 
     if (categories != null)
