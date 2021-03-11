@@ -65,6 +65,13 @@ router.put(
   Utility.asyncHandler(CourseController.updateLesson)
 );
 
+router.delete(
+  '/lesson/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.lessonIdP),
+  Utility.asyncHandler(CourseController.deleteLesson)
+);
+
 // ======================================== COURSE CONTRACT ========================================
 router.post(
   '/contract/:courseId',

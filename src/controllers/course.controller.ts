@@ -217,6 +217,36 @@ export class CourseController {
     }
   }
 
+  public static async deleteLesson(req, res) {
+    const { user } = req;
+    const { lessonId } = req.params;
+    try {
+      const updatedLesson = await CourseService.deleteLesson(
+        lessonId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        { message: COURSE_RESPONSE.COURSE_DELETE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.deleteLesson]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === COURSE_ERRORS.LESSON_MISSING
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
   // ======================================== COURSE CONTRACT ========================================
   public static async createContract(req, res) {
     const { user } = req;
