@@ -18,6 +18,7 @@ import {
   VISIBILITY_ENUM,
 } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
+//import { Announcement } from './Announcement';
 import { Category } from './Category';
 import { CourseContract } from './CourseContract';
 import { CourseListingToCategory } from './CourseListingToCategory';
@@ -112,4 +113,7 @@ export class Course extends BaseEntity {
 
   @HasMany(() => Lesson, 'courseId')
   Lessons: Lesson[];
+
+  //@HasMany(() => Announcement, 'courseId')
+  //Announcements: Announcement[];
 }

@@ -58,6 +58,14 @@ router.post(
   Utility.asyncHandler(CourseController.createLessonShell)
 );
 
+// ======================================== ANNOUNCEMENTS ========================================
+/*router.post(
+  '/announcement/:courseId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.courseIdP),
+  Utility.asyncHandler(CourseController.createLessonShell)
+); */
+
 // ======================================== COURSE REQUESTS ========================================
 //only admin can see pending courses 
 router.get(

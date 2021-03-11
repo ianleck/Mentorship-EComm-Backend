@@ -1,7 +1,7 @@
 import httpStatusCodes from 'http-status-codes';
 import { Course } from 'src/models/Course';
 import logger from '../config/logger';
-import { COURSE_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
+import { COURSE_ERRORS, ERRORS, RESPONSE_ERROR, AUTH_ERRORS } from '../constants/errors';
 import { COURSE_RESPONSE } from '../constants/successMessages';
 import CourseService from '../services/course.service';
 import apiResponse from '../utilities/apiResponse';
@@ -234,8 +234,9 @@ export class CourseController {
 
   public static async acceptCourseRequest(req,res) {
     const { courseId } = req.params; 
+    const { user } = req; 
     try {
-      const courseRequest = await CourseService.acceptCourseRequest(courseId);
+      const courseRequest = await CourseService.acceptCourseRequest(courseId, user.accountId);
       return apiResponse.result(
         res,
         { message: COURSE_RESPONSE.COURSE_REQUEST_ACCEPTED, courseRequest },
@@ -245,7 +246,11 @@ export class CourseController {
       logger.error(
         '[courseController.acceptCourseRequest]:' + e.message
       ); 
-      if (e.message === COURSE_ERRORS.COURSE_MISSING || e.message === ERRORS.SENSEI_DOES_NOT_EXIST) {
+      if (e.message === COURSE_ERRORS.COURSE_MISSING || 
+          e.message === ERRORS.SENSEI_DOES_NOT_EXIST ||
+          e.message === AUTH_ERRORS.USER_BANNED ||
+          e.message === COURSE_ERRORS.COURSE_REJECTED 
+          ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
@@ -259,8 +264,10 @@ export class CourseController {
 
   public static async rejectCourseRequest(req,res) {
     const { courseId } = req.params; 
+    const { user } = req; 
+
     try {
-      const courseRequest = await CourseService.rejectCourseRequest(courseId);
+      const courseRequest = await CourseService.rejectCourseRequest(courseId, user.accountId);
       return apiResponse.result(
         res,
         { message: COURSE_RESPONSE.COURSE_REQUEST_REJECTED, courseRequest },

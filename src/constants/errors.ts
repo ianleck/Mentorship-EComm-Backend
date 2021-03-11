@@ -18,6 +18,8 @@ export const AUTH_ERRORS = {
 
   USER_EXISTS: 'Email/Username already exists',
   ADMIN_EXISTS: 'Email already exists',
+
+  USER_BANNED: 'User has been banned',
 };
 
 export const COURSE_ERRORS = {
@@ -28,6 +30,7 @@ export const COURSE_ERRORS = {
   CONTRACT_MISSING:
     'Course contract does not exist. Please sign up for the course first.',
   LESSON_MISSING: 'Lesson does not exist',
+  COURSE_REJECTED: 'Course has been rejected', 
 };
 
 export const MENTORSHIP_ERRORS = {

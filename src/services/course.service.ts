@@ -6,8 +6,9 @@ import {
   LEVEL_ENUM,
   USER_TYPE_ENUM,
   VISIBILITY_ENUM,
+  STATUS_ENUM
 } from '../constants/enum';
-import { COURSE_ERRORS, ERRORS } from '../constants/errors';
+import { COURSE_ERRORS, ERRORS, AUTH_ERRORS } from '../constants/errors';
 import { Category } from '../models/Category';
 import { Comment } from '../models/Comment';
 import { Course } from '../models/Course';
@@ -293,7 +294,7 @@ export default class CourseService {
     return courseRequest; 
   }
 
-  public static async acceptCourseRequest(courseId) {
+  public static async acceptCourseRequest(courseId, accountId) {
     const courseRequest = await Course.findOne({
       where: {
         courseId,
@@ -305,6 +306,10 @@ export default class CourseService {
     // Check that sensei still exists 
     const sensei = await User.findByPk(courseRequest.accountId);
     if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+
+    if (sensei.status === STATUS_ENUM.BANNED) throw new Error(AUTH_ERRORS.USER_BANNED);
+
+    if (sensei.adminVerified === ADMIN_VERIFIED_ENUM.REJECTED) throw new Error (COURSE_ERRORS.COURSE_REJECTED);
 
     const acceptedCourse = await courseRequest.update({
       adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
@@ -320,7 +325,7 @@ export default class CourseService {
 
   }
 
-  public static async rejectCourseRequest(courseId) {
+  public static async rejectCourseRequest(courseId, accountId) {
     const courseRequest = await Course.findOne({
       where: {
         courseId,
