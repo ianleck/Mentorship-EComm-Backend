@@ -57,6 +57,14 @@ router.post(
   Utility.asyncHandler(CourseController.createLessonShell)
 );
 
+router.put(
+  '/lesson/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.lessonIdP),
+  schemaValidator.body(course.updateLessonB),
+  Utility.asyncHandler(CourseController.updateLesson)
+);
+
 // ======================================== COURSE CONTRACT ========================================
 router.post(
   '/contract/:courseId',

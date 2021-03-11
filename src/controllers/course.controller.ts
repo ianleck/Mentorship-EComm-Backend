@@ -185,6 +185,38 @@ export class CourseController {
     }
   }
 
+  public static async updateLesson(req, res) {
+    const { user } = req;
+    const { lessonId } = req.params;
+    const { updateLesson } = req.body;
+    try {
+      const updatedLesson = await CourseService.updateLesson(
+        lessonId,
+        user.accountId,
+        updateLesson
+      );
+      return apiResponse.result(
+        res,
+        { message: COURSE_RESPONSE.COURSE_UPDATE, lesson: updatedLesson },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.updateLesson]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === COURSE_ERRORS.LESSON_MISSING
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
   // ======================================== COURSE CONTRACT ========================================
   public static async createContract(req, res) {
     const { user } = req;
