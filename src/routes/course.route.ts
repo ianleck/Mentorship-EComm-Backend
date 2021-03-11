@@ -4,6 +4,7 @@ import { CourseController } from '../controllers/course.controller';
 import {
   optionalAuth,
   requireSameUserOrAdmin,
+  requireAdmin,
 } from '../middlewares/authenticationMiddleware';
 import course from './schema/course.schema';
 import user from './schema/user.schema';
@@ -56,6 +57,41 @@ router.post(
   schemaValidator.params(course.courseIdP),
   Utility.asyncHandler(CourseController.createLessonShell)
 );
+
+// ======================================== COURSE REQUESTS ========================================
+//only admin can see pending courses 
+router.get(
+  '/all/request',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  Utility.asyncHandler(CourseController.getAllRequests)
+); 
+
+router.get(
+  '/request/:courseId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin, 
+  schemaValidator.params(course.courseIdP),
+  Utility.asyncHandler(CourseController.getRequest)
+); 
+
+router.put(
+  '/accept/request/:courseId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  schemaValidator.params(course.courseIdP),
+  Utility.asyncHandler(CourseController.acceptCourseRequest)
+); 
+
+router.put(
+  '/reject/request/:courseId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  schemaValidator.params(course.courseIdP),
+  Utility.asyncHandler(CourseController.rejectCourseRequest)
+);
+
+
 
 // ======================================== COURSE CONTRACT ========================================
 router.post(

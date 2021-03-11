@@ -1,3 +1,4 @@
+import { captureRejectionSymbol } from 'events';
 import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
 import {
@@ -14,6 +15,7 @@ import { CourseContract } from '../models/CourseContract';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { Lesson } from '../models/Lesson';
 import { User } from '../models/User';
+import EmailService from './email.service';
 
 type newCourseType = {
   title?: string;
@@ -271,6 +273,81 @@ export default class CourseService {
     await lesson.save();
     return lesson;
   }
+
+  // ======================================== COURSE REQUESTS ========================================
+  public static async getAllRequests() {
+    const courseRequests = Course.findAll({
+      where: {
+        adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
+      },
+    });
+    return courseRequests; 
+  }
+
+  public static async getRequest(
+    courseId: string
+  ): Promise<Course> {
+    const courseRequest = await Course.findByPk(courseId); 
+    if (!courseRequest) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+
+    return courseRequest; 
+  }
+
+  public static async acceptCourseRequest(courseId) {
+    const courseRequest = await Course.findOne({
+      where: {
+        courseId,
+      },
+    }); 
+
+    if (!courseRequest) throw new Error (COURSE_ERRORS.COURSE_MISSING);
+
+    // Check that sensei still exists 
+    const sensei = await User.findByPk(courseRequest.accountId);
+    if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+
+    const acceptedCourse = await courseRequest.update({
+      adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
+    });
+
+    const courseName = courseRequest.title;
+    const additional = { courseName }; 
+
+    // Send Email to inform acceptance of course request
+    await EmailService.sendEmail(sensei.email, 'acceptCourse', additional)
+
+    return acceptedCourse; 
+
+  }
+
+  public static async rejectCourseRequest(courseId) {
+    const courseRequest = await Course.findOne({
+      where: {
+        courseId,
+      },
+    }); 
+
+    if (!courseRequest) throw new Error (COURSE_ERRORS.COURSE_MISSING);
+
+    // Check that sensei still exists 
+    const sensei = await User.findByPk(courseRequest.accountId);
+    if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+
+    const rejectedCourse = await courseRequest.update({
+      adminVerified: ADMIN_VERIFIED_ENUM.REJECTED,
+    });
+
+    const courseName = courseRequest.title;
+    const additional = { courseName }; 
+
+    // Send Email to inform acceptance of course request
+    await EmailService.sendEmail(sensei.email, 'rejectCourse' , additional)
+
+    return rejectedCourse; 
+
+  }
+
+
 
   // ======================================== COURSE CONTRACT ========================================
   public static async createContract(
