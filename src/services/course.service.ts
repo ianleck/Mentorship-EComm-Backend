@@ -26,7 +26,6 @@ type newCourseType = {
   level: LEVEL_ENUM;
   categories: string[];
   visibility: VISIBILITY_ENUM;
-  adminVerified: ADMIN_VERIFIED_ENUM;
 };
 
 type courseType = newCourseType & {
@@ -80,21 +79,6 @@ export default class CourseService {
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       ); // course not created by user
 
-    const user = await User.findByPk(accountId);
-    if (
-      // if user is submitting course request but user account has not been verified/accepted by admin, throw error.
-      updatedDraft.adminVerified === ADMIN_VERIFIED_ENUM.PENDING &&
-      user.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED
-    )
-      throw new Error(COURSE_ERRORS.USER_NOT_VERIFIED);
-
-    if (
-      // If user is trying to publish the course request but course has not been verified/accepted by admin, throw error
-      updatedDraft.visibility === VISIBILITY_ENUM.PUBLISHED &&
-      (updatedDraft.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED ||
-        user.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED)
-    )
-      throw new Error(COURSE_ERRORS.USER_NOT_VERIFIED);
     const { categories, ...courseWithoutCategories } = updatedDraft;
 
     if (categories != null)

@@ -50,9 +50,7 @@ export class CourseController {
       if (
         e.message === COURSE_ERRORS.COURSE_MISSING ||
         e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
-        e.message === COURSE_ERRORS.USER_NOT_VERIFIED ||
-        e.message === COURSE_ERRORS.COURSE_NOT_VERIFIED
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
