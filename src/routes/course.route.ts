@@ -5,7 +5,8 @@ import {
   optionalAuth,
   requireSameUserOrAdmin,
   requireSensei,
-  requireAdmin, 
+  requireAdmin,
+  requireStudent, 
 } from '../middlewares/authenticationMiddleware';
 import course from './schema/course.schema';
 import user from './schema/user.schema';
@@ -89,6 +90,39 @@ router.post(
   Utility.asyncHandler(CourseController.createAnnouncement)
 );
 
+router.put(
+  '/announcement/:announcementId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(course.announcementIdP),
+  schemaValidator.body(course.updateAnnouncementB),
+  Utility.asyncHandler(CourseController.updateAnnouncement)
+);
+
+router.delete(
+  '/announcement/:announcementId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(course.announcementIdP),
+  Utility.asyncHandler(CourseController.deleteAnnouncement)
+);
+
+//view all announcements in one course 
+//only students doing course and sensei who created course can access 
+router.get(
+  '/all/announcement/:courseId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.courseIdP),
+  Utility.asyncHandler(CourseController.getAllAnnouncements)
+); 
+
+router.get(
+  '/announcement/:announcementId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.announcementIdP),
+  Utility.asyncHandler(CourseController.getAnnouncement)
+); 
+
 
 // ======================================== COURSE REQUESTS ========================================
 //only admin can see pending courses 
@@ -129,6 +163,14 @@ router.post(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(course.courseIdP),
   Utility.asyncHandler(CourseController.createContract)
+);
+
+router.get(
+  'contract/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent, 
+  schemaValidator.params(course.studentIdP),
+  Utility.asyncHandler(CourseController.getAllPurchasedCourses)
 );
 
 // ======================================== COMMENTS ========================================

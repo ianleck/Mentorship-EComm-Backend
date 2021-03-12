@@ -359,6 +359,121 @@ export default class CourseService {
 
   }
 
+  public static async updateAnnouncement(
+    announcementId: string,
+    accountId: string,
+    updateAnnouncement
+  ): Promise<Announcement> {
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) throw new Error(COURSE_ERRORS.ANNOUNCEMENT_MISSING);
+
+    const course = await Course.findByPk(announcement.courseId);
+    // Check if user sending the request is the sensei who created the course
+    if (course.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    return await announcement.update(updateAnnouncement);
+  }
+
+  public static async deleteAnnouncement(
+    announcementId: string,
+    accountId: string
+  ): Promise<void> {
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) throw new Error(COURSE_ERRORS.ANNOUNCEMENT_MISSING);
+
+    const course = await Course.findByPk(announcement.courseId);
+    // Check if user sending the request is the sensei who created the course
+    if (course.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    await Announcement.destroy({
+      where: {
+        announcementId,
+      },
+    });
+  }
+
+  public static async getAllAnnouncements(courseId, accountId) {
+    const course = await Course.findByPk(courseId);
+    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+
+    // Check if user sending the request is the sensei who created the course
+    if (user.userType === USER_TYPE_ENUM.SENSEI) {
+      if (course.accountId !== accountId )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    }
+    //Check if user sending the request is the student who has bought this course 
+    if (user.userType === USER_TYPE_ENUM.STUDENT) {
+      const courseContract = await CourseContract.findOne({
+        where: {
+          courseId, 
+          accountId, 
+        }, 
+      });
+      if (!courseContract)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    }
+    const courseAnnouncements = Announcement.findAll({
+      where: {
+        courseId, 
+      },
+    });
+    return courseAnnouncements; 
+  }
+
+  public static async getAnnouncement(
+    announcementId: string,
+    accountId: string, 
+  ): Promise<Announcement> {
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) throw new Error(COURSE_ERRORS.ANNOUNCEMENT_MISSING);
+
+    const course = await Course.findByPk(announcement.courseId);
+    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+    
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+
+    // Check if user sending the request is the sensei who created the course of the announcement
+    if (user.userType === USER_TYPE_ENUM.SENSEI) {
+      if (course.accountId !== accountId )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    }
+    //Check if user sending the request is the student who has bought this course 
+    if (user.userType === USER_TYPE_ENUM.STUDENT) {
+      const courseContract = await CourseContract.findOne({
+        where: {
+          courseId: course.courseId, 
+          accountId, 
+        }, 
+      });
+      if (!courseContract)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    }
+
+    return announcement; 
+  }
+
+
+
+
   // ======================================== COURSE REQUESTS ========================================
   public static async getAllRequests() {
     const courseRequests = Course.findAll({
