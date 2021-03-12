@@ -4,7 +4,7 @@ import { CourseController } from '../controllers/course.controller';
 import {
   optionalAuth,
   requireSameUserOrAdmin,
-  requireAdmin,
+  requireSensei,
 } from '../middlewares/authenticationMiddleware';
 import course from './schema/course.schema';
 import user from './schema/user.schema';
@@ -37,6 +37,7 @@ router.get(
 router.post(
   '/',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
   schemaValidator.body(course.createCourseB),
   Utility.asyncHandler(CourseController.createCourseDraft)
 );
@@ -45,6 +46,7 @@ router.post(
 router.put(
   '/:courseId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
   schemaValidator.params(course.courseIdP),
   schemaValidator.body(course.updateCourseB),
   Utility.asyncHandler(CourseController.updateCourse)
@@ -54,52 +56,27 @@ router.put(
 router.post(
   '/lesson/:courseId',
   passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
   schemaValidator.params(course.courseIdP),
   Utility.asyncHandler(CourseController.createLessonShell)
 );
 
-// ======================================== ANNOUNCEMENTS ========================================
-/*router.post(
-  '/announcement/:courseId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(course.courseIdP),
-  Utility.asyncHandler(CourseController.createLessonShell)
-); */
-
-// ======================================== COURSE REQUESTS ========================================
-//only admin can see pending courses 
-router.get(
-  '/all/request',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  Utility.asyncHandler(CourseController.getAllRequests)
-); 
-
-router.get(
-  '/request/:courseId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin, 
-  schemaValidator.params(course.courseIdP),
-  Utility.asyncHandler(CourseController.getRequest)
-); 
-
 router.put(
-  '/accept/request/:courseId',
+  '/lesson/:lessonId',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  schemaValidator.params(course.courseIdP),
-  Utility.asyncHandler(CourseController.acceptCourseRequest)
-); 
-
-router.put(
-  '/reject/request/:courseId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  schemaValidator.params(course.courseIdP),
-  Utility.asyncHandler(CourseController.rejectCourseRequest)
+  requireSensei,
+  schemaValidator.params(course.lessonIdP),
+  schemaValidator.body(course.updateLessonB),
+  Utility.asyncHandler(CourseController.updateLesson)
 );
 
-
+router.delete(
+  '/lesson/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(course.lessonIdP),
+  Utility.asyncHandler(CourseController.deleteLesson)
+);
 
 // ======================================== COURSE CONTRACT ========================================
 router.post(

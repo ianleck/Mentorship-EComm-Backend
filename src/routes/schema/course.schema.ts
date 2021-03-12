@@ -62,4 +62,12 @@ export default {
       })
       .required(),
   }),
+  updateLessonB: joi.object({
+    updateLesson: joi
+      .object({
+        title: joi.string().optional(),
+        description: joi.string().optional(),
+      })
+      .required(),
+  }),
 };
