@@ -32,4 +32,14 @@ export const TEMPLATES = {
     fileName: 'rejectSensei.ejs',
     subject: '[DigiDojo] Sensei Profile Rejected',
   },
+
+  acceptCourse: {
+    fileName: 'acceptCourse.ejs',
+    subject:
+      '[DigiDojo] Congratulations! Your Course has been approved!',
+  },
+  rejectCourse: {
+    fileName: 'rejectCourse.ejs',
+    subject: '[DigiDojo] Course Rejected',
+  },
 };

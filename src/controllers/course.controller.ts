@@ -1,6 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { COURSE_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
+import { COURSE_ERRORS, ERRORS, RESPONSE_ERROR, AUTH_ERRORS } from '../constants/errors';
 import { COURSE_RESPONSE } from '../constants/successMessages';
 import CourseService from '../services/course.service';
 import apiResponse from '../utilities/apiResponse';
@@ -244,6 +244,111 @@ export class CourseController {
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
+    }
+  }
+
+  // ======================================== COURSE REQUESTS ========================================
+  public static async getAllRequests(req, res) {
+    try {
+      const requests = await CourseService.getAllRequests();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          requests, 
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[courseController.getAllRequests]:' + e.message
+      );
+      return apiResponse.error(res,httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getRequest(req,res) {
+    const { courseId } = req.params; 
+    try {
+      const courseRequest = await CourseService.getRequest(courseId);
+      return apiResponse.result(
+        res, 
+        {
+          message: 'success',
+          courseRequest, 
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.getRequest]:' + e.message);
+      if (e.message === COURSE_ERRORS.COURSE_MISSING) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
+  public static async acceptCourseRequest(req,res) {
+    const { courseId } = req.params; 
+    try {
+      const courseRequest = await CourseService.acceptCourseRequest(courseId);
+      return apiResponse.result(
+        res,
+        { message: COURSE_RESPONSE.COURSE_REQUEST_ACCEPTED, courseRequest },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[courseController.acceptCourseRequest]:' + e.message
+      ); 
+      if (e.message === COURSE_ERRORS.COURSE_MISSING || 
+          e.message === ERRORS.SENSEI_DOES_NOT_EXIST ||  
+          e.message === AUTH_ERRORS.USER_BANNED ||
+          e.message === COURSE_ERRORS.USER_NOT_VERIFIED) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        }); 
+      }
+    }
+  }
+
+  public static async rejectCourseRequest(req,res) {
+    const { courseId } = req.params; 
+    try {
+      const courseRequest = await CourseService.rejectCourseRequest(courseId);
+      return apiResponse.result(
+        res,
+        { message: COURSE_RESPONSE.COURSE_REQUEST_REJECTED, courseRequest },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[courseController.rejectCourseRequest]:' + e.message
+      ); 
+      if ( 
+        e.message === COURSE_ERRORS.COURSE_MISSING ||
+        e.message === ERRORS.SENSEI_DOES_NOT_EXIST ||
+        e.message === AUTH_ERRORS.USER_BANNED 
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        }); 
+      }
     }
   }
 

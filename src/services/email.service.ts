@@ -12,6 +12,7 @@ export default class EmailService {
     additional?: {
       url?: string;
       mentorshipName?: string;
+      courseName?: string; 
     }
   ) {
     try {
@@ -68,6 +69,7 @@ export default class EmailService {
     additional?: {
       url?: string;
       mentorshipName?: string;
+      courseName?: string; 
     }
   ) {
     const name = `${user.firstName} ${user.lastName}`;
@@ -119,6 +121,18 @@ export default class EmailService {
           name,
           mentorshipName: additional.mentorshipName,
         });
+
+        case 'acceptCourse':
+        return await ejs.renderFile(filePath, {
+          name,
+          courseName: additional.courseName, 
+        });
+
+      case 'rejectCourse':
+        return await ejs.renderFile(filePath, {
+          name,
+          courseName: additional.courseName, 
+        }); 
     }
   }
 }
