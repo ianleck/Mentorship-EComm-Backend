@@ -5,8 +5,9 @@ import {
   LEVEL_ENUM,
   USER_TYPE_ENUM,
   VISIBILITY_ENUM,
+  STATUS_ENUM
 } from '../constants/enum';
-import { COURSE_ERRORS, ERRORS } from '../constants/errors';
+import { COURSE_ERRORS, ERRORS, AUTH_ERRORS  } from '../constants/errors';
 import { Category } from '../models/Category';
 import { Comment } from '../models/Comment';
 import { Course } from '../models/Course';
@@ -14,6 +15,8 @@ import { CourseContract } from '../models/CourseContract';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { Lesson } from '../models/Lesson';
 import { User } from '../models/User';
+import EmailService from './email.service';
+
 
 type newCourseType = {
   title?: string;
