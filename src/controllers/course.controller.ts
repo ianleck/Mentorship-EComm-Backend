@@ -247,6 +247,41 @@ export class CourseController {
     }
   }
 
+  // ======================================== ANNOUNCEMENTS ========================================
+  public static async createAnnouncement(req,res) {
+    const { user } = req;
+    const { courseId } = req.params;
+    const { newAnnouncement } = req.body;
+
+    try {
+      const createdAnnouncement = await CourseService.createAnnouncement(
+        courseId, 
+        user.accountId,
+        newAnnouncement,  
+        ); 
+        return apiResponse.result(
+          res,
+          { message: COURSE_RESPONSE.ANNOUNCEMENT_CREATE, lesson: createdAnnouncement },
+          httpStatusCodes.CREATED
+        );
+      } catch (e) {
+        logger.error('[courseController.createAnnouncement]:' + e.message);
+        if (
+          e.message ===
+            httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+          e.message === COURSE_ERRORS.COURSE_MISSING
+        ) {
+          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+            message: e.message,
+          });
+        }
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+
+
   // ======================================== COURSE REQUESTS ========================================
   public static async getAllRequests(req, res) {
     try {

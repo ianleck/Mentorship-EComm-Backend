@@ -15,6 +15,7 @@ import { CourseContract } from '../models/CourseContract';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { Lesson } from '../models/Lesson';
 import { User } from '../models/User';
+import { Announcement } from '../models/Announcement';
 import EmailService from './email.service';
 
 
@@ -330,6 +331,37 @@ export default class CourseService {
     });
   }
 
+  // ======================================== ANNOUNCEMENTS ========================================
+  public static async createAnnouncement(
+    courseId: string,
+    accountId: string,
+    announcement: {
+      title: string;
+      description: string;
+    }
+  ): Promise<Announcement> {
+
+    const course = await Course.findByPk(courseId);
+    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+    const user = await User.findByPk(accountId);
+    if (user.accountId !== course.accountId) throw new Error(httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED));
+    
+    const { title, description } = announcement;
+    
+    const newAnnouncement = new Announcement({
+      courseId,
+      title,
+      description, 
+      accountId, 
+    });
+    
+    await newAnnouncement.save();
+    return newAnnouncement;
+
+  }
+
+  
+
   // ======================================== COURSE REQUESTS ========================================
   public static async getAllRequests() {
     const courseRequests = Course.findAll({
@@ -443,6 +475,7 @@ export default class CourseService {
     return newContract;
   }
 
+
   /**
    * Get course contract if request.user is a student that signed up with the course
    * @param courseId
@@ -455,6 +488,17 @@ export default class CourseService {
         courseId,
       },
     });
+  }
+
+  public static async getAllPurchasedCourses(userId, accountId) {
+    if (userId !== accountId) throw new Error(httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED));
+
+    const purchasedCourses = CourseContract.findAll({
+      where: {
+        accountId, 
+      },
+    });
+    return purchasedCourses;
   }
 
   // ======================================== COMMENTS ========================================

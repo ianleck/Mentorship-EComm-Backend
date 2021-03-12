@@ -79,6 +79,17 @@ router.delete(
   Utility.asyncHandler(CourseController.deleteLesson)
 );
 
+// ======================================== ANNOUNCEMENTS ========================================
+router.post(
+  '/announcement/:courseId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei, 
+  schemaValidator.params(course.courseIdP),
+  schemaValidator.body(course.createAnnouncement),
+  Utility.asyncHandler(CourseController.createAnnouncement)
+);
+
+
 // ======================================== COURSE REQUESTS ========================================
 //only admin can see pending courses 
 router.get(

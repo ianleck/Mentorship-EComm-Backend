@@ -32,6 +32,8 @@ export const COURSE_RESPONSE = {
   CONTRACT_REJECT: 'Course Contract has been successfully rejected',
 
   COMMENT_CREATE: 'Successfully commented on lesson',
+
+  ANNOUNCEMENT_CREATE: "Announcement has been successfully written", 
 };
 
 // ==================== MENTORSHIP RESPONSE MESSAGES ====================
