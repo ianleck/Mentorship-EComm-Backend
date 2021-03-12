@@ -289,6 +289,44 @@ export default class CourseService {
     return lesson;
   }
 
+  public static async updateLesson(
+    lessonId: string,
+    accountId: string,
+    updateLesson
+  ): Promise<Lesson> {
+    const lesson = await Lesson.findByPk(lessonId);
+    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
+
+    const course = await Course.findByPk(lesson.courseId);
+    // Check if user sending the request is the sensei who created the course
+    if (course.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    return await lesson.update(updateLesson);
+  }
+
+  public static async deleteLesson(
+    lessonId: string,
+    accountId: string
+  ): Promise<void> {
+    const lesson = await Lesson.findByPk(lessonId);
+    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
+
+    const course = await Course.findByPk(lesson.courseId);
+    // Check if user sending the request is the sensei who created the course
+    if (course.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    await Lesson.destroy({
+      where: {
+        lessonId,
+      },
+    });
+  }
+
   // ======================================== COURSE CONTRACT ========================================
   public static async createContract(
     accountId: string,
