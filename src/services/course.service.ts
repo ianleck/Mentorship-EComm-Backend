@@ -289,32 +289,123 @@ export default class CourseService {
     return lesson;
   }
 
-  // ======================================== ANNOUNCEMENTS ========================================
-  public static async createAnnouncement(
-    courseId: string,
+  public static async updateLesson(
+    lessonId: string,
     accountId: string,
-    announcement: {
-      title: string;
-      description: string;
-    }
-  ): Promise<Announcement> {
+    updateLesson
+  ): Promise<Lesson> {
+    const lesson = await Lesson.findByPk(lessonId);
+    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
 
-    const course = await Course.findByPk(courseId);
-    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
-    const user = await User.findByPk(accountId);
-    if (user.accountId !== course.accountId)
+    const course = await Course.findByPk(lesson.courseId);
+    // Check if user sending the request is the sensei who created the course
+    if (course.accountId !== accountId)
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
-      const { title, description } = announcement;
 
-    const newAnnouncement = new Announcement({
-      courseId,
-      title,
-      description, 
+    return await lesson.update(updateLesson);
+  }
+
+  public static async deleteLesson(
+    lessonId: string,
+    accountId: string
+  ): Promise<void> {
+    const lesson = await Lesson.findByPk(lessonId);
+    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
+
+    const course = await Course.findByPk(lesson.courseId);
+    // Check if user sending the request is the sensei who created the course
+    if (course.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    await Lesson.destroy({
+      where: {
+        lessonId,
+      },
     });
-    await newAnnouncement.save();
-    return newAnnouncement;
+  }
+
+  // ======================================== COURSE REQUESTS ========================================
+  public static async getAllRequests() {
+    const courseRequests = Course.findAll({
+      where: {
+        adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
+      },
+    });
+    return courseRequests; 
+  }
+
+  public static async getRequest(
+    courseId: string
+  ): Promise<Course> {
+    const courseRequest = await Course.findByPk(courseId); 
+    if (!courseRequest) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+
+    return courseRequest; 
+  }
+
+  public static async acceptCourseRequest(courseId) {
+    const courseRequest = await Course.findOne({
+      where: {
+        courseId,
+      },
+    }); 
+
+    if (!courseRequest) throw new Error (COURSE_ERRORS.COURSE_MISSING);
+
+    // Check that sensei still exists 
+    const sensei = await User.findByPk(courseRequest.accountId);
+    if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+
+    if (sensei.status === STATUS_ENUM.BANNED) throw new Error(AUTH_ERRORS.USER_BANNED);
+
+    if (sensei.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED) throw new Error (COURSE_ERRORS.USER_NOT_VERIFIED);
+
+    const acceptedCourse = await courseRequest.update({
+      adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
+    });
+
+    const courseName = courseRequest.title;
+    const additional = { courseName }; 
+
+    // Send Email to inform acceptance of course request
+    await EmailService.sendEmail(sensei.email, 'acceptCourse', additional)
+
+    return acceptedCourse; 
+
+  }
+
+  public static async rejectCourseRequest(courseId) {
+    const courseRequest = await Course.findOne({
+      where: {
+        courseId,
+      },
+    }); 
+
+    if (!courseRequest) throw new Error (COURSE_ERRORS.COURSE_MISSING);
+
+    // Check that sensei still exists 
+    const sensei = await User.findByPk(courseRequest.accountId);
+    if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+
+    if (sensei.status === STATUS_ENUM.BANNED) throw new Error(AUTH_ERRORS.USER_BANNED);
+
+    if (sensei.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED) throw new Error (COURSE_ERRORS.USER_NOT_VERIFIED);
+
+    const rejectedCourse = await courseRequest.update({
+      adminVerified: ADMIN_VERIFIED_ENUM.REJECTED,
+    });
+
+    const courseName = courseRequest.title;
+    const additional = { courseName }; 
+
+    // Send Email to inform acceptance of course request
+    await EmailService.sendEmail(sensei.email, 'rejectCourse' , additional)
+
+    return rejectedCourse; 
+
   }
 
   // ======================================== COURSE CONTRACT ========================================
