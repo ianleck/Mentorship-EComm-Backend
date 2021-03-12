@@ -30,7 +30,6 @@ export const COURSE_ERRORS = {
   CONTRACT_MISSING:
     'Course contract does not exist. Please sign up for the course first.',
   LESSON_MISSING: 'Lesson does not exist',
-  COURSE_REJECTED: 'Course has been rejected', 
   USER_NOT_VERIFIED:
     'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your course or submitting your course request for approval.',
   COURSE_NOT_VERIFIED:

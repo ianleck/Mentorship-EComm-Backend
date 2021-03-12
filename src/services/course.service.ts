@@ -311,7 +311,7 @@ export default class CourseService {
     return courseRequest; 
   }
 
-  public static async acceptCourseRequest(courseId, accountId) {
+  public static async acceptCourseRequest(courseId) {
     const courseRequest = await Course.findOne({
       where: {
         courseId,
@@ -326,7 +326,7 @@ export default class CourseService {
 
     if (sensei.status === STATUS_ENUM.BANNED) throw new Error(AUTH_ERRORS.USER_BANNED);
 
-    if (sensei.adminVerified === ADMIN_VERIFIED_ENUM.REJECTED) throw new Error (COURSE_ERRORS.COURSE_REJECTED);
+    if (sensei.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED) throw new Error (COURSE_ERRORS.USER_NOT_VERIFIED);
 
     const acceptedCourse = await courseRequest.update({
       adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
@@ -342,7 +342,7 @@ export default class CourseService {
 
   }
 
-  public static async rejectCourseRequest(courseId, accountId) {
+  public static async rejectCourseRequest(courseId) {
     const courseRequest = await Course.findOne({
       where: {
         courseId,
@@ -354,6 +354,10 @@ export default class CourseService {
     // Check that sensei still exists 
     const sensei = await User.findByPk(courseRequest.accountId);
     if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+
+    if (sensei.status === STATUS_ENUM.BANNED) throw new Error(AUTH_ERRORS.USER_BANNED);
+
+    if (sensei.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED) throw new Error (COURSE_ERRORS.USER_NOT_VERIFIED);
 
     const rejectedCourse = await courseRequest.update({
       adminVerified: ADMIN_VERIFIED_ENUM.REJECTED,

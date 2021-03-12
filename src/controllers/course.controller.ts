@@ -236,9 +236,8 @@ export class CourseController {
 
   public static async acceptCourseRequest(req,res) {
     const { courseId } = req.params; 
-    const { user } = req; 
     try {
-      const courseRequest = await CourseService.acceptCourseRequest(courseId, user.accountId);
+      const courseRequest = await CourseService.acceptCourseRequest(courseId);
       return apiResponse.result(
         res,
         { message: COURSE_RESPONSE.COURSE_REQUEST_ACCEPTED, courseRequest },
@@ -251,7 +250,7 @@ export class CourseController {
       if (e.message === COURSE_ERRORS.COURSE_MISSING || 
           e.message === ERRORS.SENSEI_DOES_NOT_EXIST ||
           e.message === AUTH_ERRORS.USER_BANNED ||
-          e.message === COURSE_ERRORS.COURSE_REJECTED 
+          e.message === COURSE_ERRORS.USER_NOT_VERIFIED 
           ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
@@ -266,10 +265,9 @@ export class CourseController {
 
   public static async rejectCourseRequest(req,res) {
     const { courseId } = req.params; 
-    const { user } = req; 
 
     try {
-      const courseRequest = await CourseService.rejectCourseRequest(courseId, user.accountId);
+      const courseRequest = await CourseService.rejectCourseRequest(courseId);
       return apiResponse.result(
         res,
         { message: COURSE_RESPONSE.COURSE_REQUEST_REJECTED, courseRequest },
@@ -281,7 +279,9 @@ export class CourseController {
       ); 
       if ( 
         e.message === COURSE_ERRORS.COURSE_MISSING ||
-        e.message === ERRORS.SENSEI_DOES_NOT_EXIST 
+        e.message === ERRORS.SENSEI_DOES_NOT_EXIST || 
+        e.message === AUTH_ERRORS.USER_BANNED ||
+        e.message === COURSE_ERRORS.USER_NOT_VERIFIED 
       ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
