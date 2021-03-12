@@ -352,6 +352,7 @@ export default class CourseService {
       courseId,
       title,
       description, 
+      accountId, 
     });
     
     await newAnnouncement.save();
@@ -473,6 +474,7 @@ export default class CourseService {
 
 
 
+  
 
   // ======================================== COURSE REQUESTS ========================================
   public static async getAllRequests() {
@@ -587,6 +589,7 @@ export default class CourseService {
     return newContract;
   }
 
+
   /**
    * Get course contract if request.user is a student that signed up with the course
    * @param courseId
@@ -599,6 +602,17 @@ export default class CourseService {
         courseId,
       },
     });
+  }
+
+  public static async getAllPurchasedCourses(userId, accountId) {
+    if (userId !== accountId) throw new Error(httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED));
+
+    const purchasedCourses = CourseContract.findAll({
+      where: {
+        accountId, 
+      },
+    });
+    return purchasedCourses;
   }
 
   // ======================================== COMMENTS ========================================
