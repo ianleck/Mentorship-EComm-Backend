@@ -1,18 +1,14 @@
 import httpStatusCodes from 'http-status-codes';
-import { UPLOAD_RESPONSE } from '../constants/successMessages';
 import logger from '../config/logger';
 import {
-  ALLOWED_DOCUMENT_FILE_TYPES,
-  ALLOWED_IMG_FILE_TYPES,
-  BACKEND_API,
-} from '../constants/constants';
-import { ADMIN_VERIFIED_ENUM } from '../constants/enum';
-import { ERRORS, RESPONSE_ERROR, UPLOAD_ERRORS } from '../constants/errors';
-import Utility from '../constants/utility';
-import { User } from '../models/User';
-import UserService from '../services/user.service';
-import apiResponse from '../utilities/apiResponse';
+  COURSE_ERRORS,
+  ERRORS,
+  RESPONSE_ERROR,
+  UPLOAD_ERRORS,
+} from '../constants/errors';
+import { UPLOAD_RESPONSE } from '../constants/successMessages';
 import UploadService from '../services/uploadService';
+import apiResponse from '../utilities/apiResponse';
 export class UploadController {
   // ================================ USER RELATED UPLOADS ================================
   public static async uploadCv(req, res) {
@@ -35,7 +31,9 @@ export class UploadController {
         e.message === ERRORS.USER_DOES_NOT_EXIST ||
         e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
         e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE ||
-        e.message === UPLOAD_ERRORS.FAILED_CV_SAVE
+        e.message === UPLOAD_ERRORS.FAILED_CV_SAVE ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
@@ -67,7 +65,9 @@ export class UploadController {
         e.message === ERRORS.USER_DOES_NOT_EXIST ||
         e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
         e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE ||
-        e.message === UPLOAD_ERRORS.FAILED_TRANSCRIPT_SAVE
+        e.message === UPLOAD_ERRORS.FAILED_TRANSCRIPT_SAVE ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
@@ -100,7 +100,9 @@ export class UploadController {
         e.message === ERRORS.USER_DOES_NOT_EXIST ||
         e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
         e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE ||
-        e.message === UPLOAD_ERRORS.FAILED_IMAGE_SAVE
+        e.message === UPLOAD_ERRORS.FAILED_IMAGE_SAVE ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
@@ -125,46 +127,25 @@ export class UploadController {
       }
 
       const file = req.files.file;
-      const fileType = Utility.getFileType(file.name);
-
-      // if fileType is not .docx / .pdf / . doc, return error;
-      if (ALLOWED_IMG_FILE_TYPES.indexOf(fileType) == -1) {
-        throw new Error(UPLOAD_ERRORS.INVALID_FILE_TYPE);
-      }
-
-      // path to save in db. 'upload' because /upload is the route
-      const url = `course/${accountId}${fileType}`;
-      const saveName = `${BACKEND_API}/file/${url}`;
-
-      // path to save file in /uploads/dp folder
-      const saveFilePath = `${__dirname}/../../uploads/${url}`;
-
-      /// save file
-      file.mv(saveFilePath, async (err) => {
-        if (err) {
-          logger.error('[uploadController.uploadProfilePic]:' + err.message);
-          return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-            message: UPLOAD_ERRORS.FAILED_IMAGE_SAVE,
-          });
-        } else {
-          // update user profile image url
-
-          const user = await UserService.updateUser(accountId, {
-            profileImgUrl: saveName,
-          });
-          return apiResponse.result(
-            res,
-            { message: UPLOAD_RESPONSE.PROFILE_PIC_UPLOAD, user },
-            httpStatusCodes.OK
-          );
-        }
-      });
+      const course = await UploadService.uploadCoursePic(
+        file,
+        accountId,
+        courseId
+      );
+      return apiResponse.result(
+        res,
+        { message: UPLOAD_RESPONSE.COURSE_PIC_UPLOAD, course },
+        httpStatusCodes.OK
+      );
     } catch (e) {
-      logger.error('[uploadController.uploadProfilePic]:' + e.message);
+      logger.error('[uploadController.uploadCoursePic]:' + e.message);
       if (
-        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === COURSE_ERRORS.COURSE_MISSING ||
         e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
-        e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE
+        e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE ||
+        e.message === UPLOAD_ERRORS.FAILED_IMAGE_SAVE ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,

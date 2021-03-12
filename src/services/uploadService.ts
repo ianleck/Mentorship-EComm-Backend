@@ -1,20 +1,14 @@
-import { Op } from 'sequelize';
+import { reject } from 'bluebird';
+import httpStatusCodes from 'http-status-codes';
 import {
   ALLOWED_DOCUMENT_FILE_TYPES,
   ALLOWED_IMG_FILE_TYPES,
   BACKEND_API,
 } from '../constants/constants';
-import { ERRORS, RESPONSE_ERROR, UPLOAD_ERRORS } from '../constants/errors';
-import {
-  ADMIN_VERIFIED_ENUM,
-  STATUS_ENUM,
-  USER_TYPE_ENUM,
-} from '../constants/enum';
-import { Admin } from '../models/Admin';
-import { Experience } from '../models/Experience';
-import { User } from '../models/User';
+import { COURSE_ERRORS, ERRORS, UPLOAD_ERRORS } from '../constants/errors';
 import Utility from '../constants/utility';
-import { reject } from 'bluebird';
+import { Course } from '../models/Course';
+import { User } from '../models/User';
 export default class UploadService {
   // ================================ UPLOAD HELPER METHODS ================================
   /**
@@ -54,7 +48,7 @@ export default class UploadService {
 
   // ================================ USER RELATED UPLOADS ================================
 
-  public static async uploadCv(file, accountId: string): Promise<void> {
+  public static async uploadCv(file, accountId: string): Promise<User> {
     const fileType = Utility.getFileType(file.name);
     const type = 'cv';
     // if fileType is not .docx / .pdf / . doc, return error;
@@ -64,13 +58,18 @@ export default class UploadService {
 
     const saveName = this.getSaveName(type, accountId, fileType);
     const saveFilePath = this.getSaveFilePath(type, accountId, fileType);
+
+    let user: any = await User.findByPk(accountId);
+    if (!user) reject(new Error(ERRORS.USER_DOES_NOT_EXIST));
+    if (user.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
     return new Promise((resolve, reject) => {
       return file.mv(saveFilePath, async (err) => {
         if (err) {
           reject(new Error(UPLOAD_ERRORS.FAILED_CV_SAVE));
         } else {
-          let user: any = await User.findByPk(accountId);
-          if (!user) reject(new Error(ERRORS.USER_DOES_NOT_EXIST));
           user = await user.update({ cvUrl: saveName });
           resolve(user);
         }
@@ -78,7 +77,7 @@ export default class UploadService {
     });
   }
 
-  public static async uploadTranscript(file, accountId: string): Promise<void> {
+  public static async uploadTranscript(file, accountId: string): Promise<User> {
     const fileType = Utility.getFileType(file.name);
     const type = 'transcript';
     // if fileType is not .docx / .pdf / . doc, return error;
@@ -88,13 +87,18 @@ export default class UploadService {
 
     const saveName = this.getSaveName(type, accountId, fileType);
     const saveFilePath = this.getSaveFilePath(type, accountId, fileType);
+
+    let user: any = await User.findByPk(accountId);
+    if (!user) reject(new Error(ERRORS.USER_DOES_NOT_EXIST));
+    if (user.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
     return new Promise((resolve, reject) => {
       return file.mv(saveFilePath, async (err) => {
         if (err) {
           reject(new Error(UPLOAD_ERRORS.FAILED_TRANSCRIPT_SAVE));
         } else {
-          let user: any = await User.findByPk(accountId);
-          if (!user) reject(new Error(ERRORS.USER_DOES_NOT_EXIST));
           user = await user.update({ transcriptUrl: saveName });
           resolve(user);
         }
@@ -102,7 +106,7 @@ export default class UploadService {
     });
   }
 
-  public static async uploadProfilePic(file, accountId: string): Promise<void> {
+  public static async uploadProfilePic(file, accountId: string): Promise<User> {
     const fileType = Utility.getFileType(file.name);
     const type = 'dp';
     // if fileType is not .docx / .pdf / . doc, return error;
@@ -112,15 +116,54 @@ export default class UploadService {
 
     const saveName = this.getSaveName(type, accountId, fileType);
     const saveFilePath = this.getSaveFilePath(type, accountId, fileType);
+
+    let user: any = await User.findByPk(accountId);
+    if (!user) reject(new Error(ERRORS.USER_DOES_NOT_EXIST));
+    if (user.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
     return new Promise((resolve, reject) => {
       return file.mv(saveFilePath, async (err) => {
         if (err) {
           reject(new Error(UPLOAD_ERRORS.FAILED_IMAGE_SAVE));
         } else {
-          let user: any = await User.findByPk(accountId);
-          if (!user) reject(new Error(ERRORS.USER_DOES_NOT_EXIST));
           user = await user.update({ profileImgUrl: saveName });
           resolve(user);
+        }
+      });
+    });
+  }
+
+  // ================================ COURSE RELATED UPLOADS ================================
+  public static async uploadCoursePic(
+    file,
+    accountId: string,
+    courseId: string
+  ): Promise<Course> {
+    const fileType = Utility.getFileType(file.name);
+    const type = 'course';
+    // if fileType is not .docx / .pdf / . doc, return error;
+    if (ALLOWED_IMG_FILE_TYPES.indexOf(fileType) == -1) {
+      throw new Error(UPLOAD_ERRORS.INVALID_FILE_TYPE);
+    }
+
+    const saveName = this.getSaveName(type, courseId, fileType);
+    const saveFilePath = this.getSaveFilePath(type, courseId, fileType);
+    let course: any = await Course.findByPk(courseId);
+    if (!course) reject(new Error(COURSE_ERRORS.COURSE_MISSING));
+    if (course.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    return new Promise((resolve, reject) => {
+      return file.mv(saveFilePath, async (err) => {
+        if (err) {
+          reject(new Error(UPLOAD_ERRORS.FAILED_IMAGE_SAVE));
+        } else {
+          course = await course.update({ imgUrl: saveName });
+          resolve(course);
         }
       });
     });
