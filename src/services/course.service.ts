@@ -15,6 +15,7 @@ import { CourseContract } from '../models/CourseContract';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { Lesson } from '../models/Lesson';
 import { User } from '../models/User';
+import { Announcement } from '../models/Announcement';
 import EmailService from './email.service';
 
 
@@ -328,6 +329,34 @@ export default class CourseService {
         lessonId,
       },
     });
+  }
+
+  // ======================================== ANNOUNCEMENTS ========================================
+  public static async createAnnouncement(
+    courseId: string,
+    accountId: string,
+    announcement: {
+      title: string;
+      description: string;
+    }
+  ): Promise<Announcement> {
+
+    const course = await Course.findByPk(courseId);
+    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+    const user = await User.findByPk(accountId);
+    if (user.accountId !== course.accountId) throw new Error(httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED));
+    
+    const { title, description } = announcement;
+    
+    const newAnnouncement = new Announcement({
+      courseId,
+      title,
+      description, 
+    });
+    
+    await newAnnouncement.save();
+    return newAnnouncement;
+
   }
 
   // ======================================== COURSE REQUESTS ========================================

@@ -23,6 +23,8 @@ import { CourseContract } from './CourseContract';
 import { CourseListingToCategory } from './CourseListingToCategory';
 import { Lesson } from './Lesson';
 import { User } from './User';
+import { Announcement } from './Announcement';
+
 
 @Table
 export class Course extends BaseEntity {
@@ -112,4 +114,8 @@ export class Course extends BaseEntity {
 
   @HasMany(() => Lesson, 'courseId')
   Lessons: Lesson[];
+
+  @HasMany(() => Announcement, 'courseId')
+  Announcements: Announcement[];
+
 }

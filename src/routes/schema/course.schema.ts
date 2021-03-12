@@ -13,6 +13,13 @@ export default {
       })
       .required(),
   }),
+
+  createAnnouncement: joi.object({
+    newAnnouncement: joi.object({
+      title: joi.string().required(),
+      description: joi.string().required(),
+    }).required(),
+  }),
   createCourseB: joi.object({
     newCourse: joi
       .object({
