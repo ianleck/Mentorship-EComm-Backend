@@ -368,9 +368,8 @@ export default class CourseService {
     const announcement = await Announcement.findByPk(announcementId);
     if (!announcement) throw new Error(COURSE_ERRORS.ANNOUNCEMENT_MISSING);
 
-    const course = await Course.findByPk(announcement.courseId);
-    // Check if user sending the request is the sensei who created the course
-    if (course.accountId !== accountId)
+    // Check if user sending the request is the sensei who created the announcement
+    if (announcement.accountId !== accountId)
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
@@ -385,9 +384,8 @@ export default class CourseService {
     const announcement = await Announcement.findByPk(announcementId);
     if (!announcement) throw new Error(COURSE_ERRORS.ANNOUNCEMENT_MISSING);
 
-    const course = await Course.findByPk(announcement.courseId);
-    // Check if user sending the request is the sensei who created the course
-    if (course.accountId !== accountId)
+    // Check if user sending the request is the sensei who created the announcemnet
+    if (announcement.accountId !== accountId)
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
@@ -430,6 +428,12 @@ export default class CourseService {
       where: {
         courseId, 
       },
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl'],
+        },
+      ],
     });
     return courseAnnouncements; 
   }
@@ -448,9 +452,9 @@ export default class CourseService {
     if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
 
-    // Check if user sending the request is the sensei who created the course of the announcement
+    // Check if user sending the request is the sensei who created announcement
     if (user.userType === USER_TYPE_ENUM.SENSEI) {
-      if (course.accountId !== accountId )
+      if (announcement.accountId !== accountId )
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
@@ -469,12 +473,20 @@ export default class CourseService {
       );
     }
 
-    return announcement; 
+    const courseAnnouncement = await Announcement.findOne({
+      where: {
+        announcementId, 
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl'],
+        },
+      ],
+    });
+    return courseAnnouncement; 
   }
 
-
-
-  
 
   // ======================================== COURSE REQUESTS ========================================
   public static async getAllRequests() {
@@ -607,11 +619,12 @@ export default class CourseService {
   public static async getAllPurchasedCourses(userId, accountId) {
     if (userId !== accountId) throw new Error(httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED));
 
-    const purchasedCourses = CourseContract.findAll({
-      where: {
-        accountId, 
-      },
-    });
+    const purchasedCourses = await Course.findAll({
+      include: [
+        { model: CourseContract, where: { accountId } },
+      ],
+    }); 
+
     return purchasedCourses;
   }
 

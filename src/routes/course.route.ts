@@ -166,7 +166,7 @@ router.post(
 );
 
 router.get(
-  'contract/:accountId',
+  '/contract/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent, 
   schemaValidator.params(course.studentIdP),
