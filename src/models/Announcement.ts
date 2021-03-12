@@ -1,20 +1,27 @@
 import {
-    BelongsTo,
-    Column,
-    DataType,
-    Default,
-    Model,
-    PrimaryKey,
-    Table
+  BelongsTo,
+  Column,
+  DataType,
+  Default,
+  Model,
+  PrimaryKey,
+  Table,
+  AllowNull
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Course } from './Course';
+import { User } from './User';
+
   @Table
   export class Announcement extends Model<BaseEntity> {
       @PrimaryKey
       @Default(DataType.UUIDV4)
       @Column(DataType.UUID)
       announcementId: string; 
+      
+      @AllowNull(false)
+      @Column(DataType.UUID)
+      accountId: string;
 
       @Default('')
       @Column(DataType.STRING)
@@ -38,4 +45,7 @@ import { Course } from './Course';
     },
   })
   Course: Course;
+
+  @BelongsTo(() => User, 'accountId')
+  Sensei: User;
 }
