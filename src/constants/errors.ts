@@ -20,6 +20,20 @@ export const AUTH_ERRORS = {
   ADMIN_EXISTS: 'Email already exists',
 };
 
+export const COURSE_ERRORS = {
+  COURSE_MISSING: 'Course does not exist',
+  COURSE_DRAFT_MISSING: 'Course draft does not exist',
+  CONTRACT_EXISTS:
+    'A course contract has already been made for this course. Please edit existing course contract.',
+  CONTRACT_MISSING:
+    'Course contract does not exist. Please sign up for the course first.',
+  LESSON_MISSING: 'Lesson does not exist',
+  USER_NOT_VERIFIED:
+    'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your course or submitting your course request for approval.',
+  COURSE_NOT_VERIFIED:
+    'Course have not been approved yet. Please submit your course for approval before publishing it.',
+};
+
 export const MENTORSHIP_ERRORS = {
   UNAUTH_LISTING:
     'You lack the required permission to create a mentorship listing.',

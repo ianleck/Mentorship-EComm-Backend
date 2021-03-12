@@ -7,7 +7,6 @@ import {
   Model,
   PrimaryKey,
   Table,
-  Unique,
 } from 'sequelize-typescript';
 import { User } from './User';
 
@@ -19,7 +18,6 @@ export class Experience extends Model<Experience> {
   experienceId: string;
 
   @AllowNull(false)
-  @Unique
   @Column(DataType.UUID)
   accountId: string;
 

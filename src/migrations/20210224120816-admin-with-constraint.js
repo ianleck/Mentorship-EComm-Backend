@@ -39,6 +39,9 @@ module.exports = {
           contactNumber: {
             type: Sequelize.STRING,
           },
+          walletId: {
+            type: Sequelize.STRING,
+          },
           status: {
             type: Sequelize.ENUM('ACTIVE', 'BANNED'),
             defaultValue: 'ACTIVE',

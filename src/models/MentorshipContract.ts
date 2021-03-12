@@ -10,7 +10,7 @@ import {
 } from 'sequelize-typescript';
 import {
   MENTORSHIP_CONTRACT_APPROVAL,
-  MENTORSHIP_PROGRESS_ENUM,
+  CONTRACT_PROGRESS_ENUM,
 } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Cart } from './Cart';
@@ -39,10 +39,10 @@ export class MentorshipContract extends BaseEntity {
   @Column({
     allowNull: false,
     type: DataType.ENUM,
-    values: Object.values(MENTORSHIP_PROGRESS_ENUM),
-    defaultValue: MENTORSHIP_PROGRESS_ENUM.NOT_STARTED,
+    values: Object.values(CONTRACT_PROGRESS_ENUM),
+    defaultValue: CONTRACT_PROGRESS_ENUM.NOT_STARTED,
   })
-  progress: MENTORSHIP_PROGRESS_ENUM;
+  progress: CONTRACT_PROGRESS_ENUM;
 
   @Column({
     allowNull: false,
