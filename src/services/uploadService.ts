@@ -1,8 +1,10 @@
 import { reject } from 'bluebird';
 import httpStatusCodes from 'http-status-codes';
+import { Lesson } from '../models/Lesson';
 import {
   ALLOWED_DOCUMENT_FILE_TYPES,
   ALLOWED_IMG_FILE_TYPES,
+  ALLOWED_VIDEO_FILE_TYPES,
   BACKEND_API,
 } from '../constants/constants';
 import { COURSE_ERRORS, ERRORS, UPLOAD_ERRORS } from '../constants/errors';
@@ -164,6 +166,43 @@ export default class UploadService {
         } else {
           course = await course.update({ imgUrl: saveName });
           resolve(course);
+        }
+      });
+    });
+  }
+
+  public static async uploadLessonVideo(
+    file,
+    accountId: string,
+    lessonId: string
+  ): Promise<Course> {
+    const fileType = Utility.getFileType(file.name);
+    const type = 'course/lesson/video';
+    // if fileType is not an allowed type, return error;
+    if (ALLOWED_VIDEO_FILE_TYPES.indexOf(fileType) == -1) {
+      throw new Error(UPLOAD_ERRORS.INVALID_FILE_TYPE);
+    }
+
+    const saveName = this.getSaveName(type, lessonId, fileType);
+    const saveFilePath = this.getSaveFilePath(type, lessonId, fileType);
+    let lesson: any = await Lesson.findByPk(lessonId, {
+      include: [Course],
+    });
+    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
+
+    const course = lesson.Course;
+    if (course.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    return new Promise((resolve, reject) => {
+      return file.mv(saveFilePath, async (err) => {
+        if (err) {
+          reject(new Error(UPLOAD_ERRORS.FAILED_IMAGE_SAVE));
+        } else {
+          lesson = await lesson.update({ videoUrl: saveName });
+          resolve(lesson);
         }
       });
     });

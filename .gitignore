@@ -6,6 +6,6 @@ coverage/*
 env
 *.env
 ./*.log
-
+./tmp
 uploads
 .DS_Store

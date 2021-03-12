@@ -51,6 +51,7 @@ export const UPLOAD_ERRORS = {
   FAILED_TRANSCRIPT_SAVE: 'Failed to save transcript',
   FAILED_IMAGE_SAVE: 'Failed to save image',
   FAILED_CV_SAVE: 'Failed to save CV',
+  FAILED_VIDEO_SAVE: 'Failed to save video',
 };
 
 export const REGISTER_ERRORS = {

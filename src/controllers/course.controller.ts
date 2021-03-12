@@ -87,14 +87,11 @@ export class CourseController {
 
   public static async getAllSenseiCourses(req, res) {
     const { accountId } = req.params;
-    const { adminVerified, visibility } = req.query;
+    const query = req.query;
 
     try {
       const courses = await CourseService.getAllSenseiCourses(accountId, {
-        where: {
-          adminVerified,
-          visibility,
-        },
+        where: query,
       });
       return apiResponse.result(
         res,

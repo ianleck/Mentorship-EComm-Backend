@@ -36,12 +36,19 @@ sequelize
       );
       next();
     });
-    app.use(fileUpload());
+    app.use(fileUpload({ useTempFiles: true, tempFileDir: '/tmp/' }));
     app.use(cors(corsOptions));
 
     // init dev upload folders
     const uploadDir = './uploads';
-    const childDir = ['/transcript', '/dp', '/cv'];
+    const childDir = [
+      '/transcript',
+      '/dp',
+      '/cv',
+      '/course',
+      '/course/lesson',
+      '/course/lesson/video',
+    ];
 
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir);
