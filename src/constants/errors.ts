@@ -18,6 +18,9 @@ export const AUTH_ERRORS = {
 
   USER_EXISTS: 'Email/Username already exists',
   ADMIN_EXISTS: 'Email already exists',
+
+  USER_BANNED: 'User has been banned',
+
 };
 
 export const CART_ERRORS = {

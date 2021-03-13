@@ -13,6 +13,13 @@ export default {
       })
       .required(),
   }),
+
+  createAnnouncement: joi.object({
+    newAnnouncement: joi.object({
+      title: joi.string().required(),
+      description: joi.string().required(),
+    }).required(),
+  }),
   createCourseB: joi.object({
     newCourse: joi
       .object({
@@ -59,6 +66,14 @@ export default {
           .string()
           .valid(...Object.values(ADMIN_VERIFIED_ENUM)),
         level: joi.string().valid(...Object.values(LEVEL_ENUM)),
+      })
+      .required(),
+  }),
+  updateLessonB: joi.object({
+    updateLesson: joi
+      .object({
+        title: joi.string().optional(),
+        description: joi.string().optional(),
       })
       .required(),
   }),

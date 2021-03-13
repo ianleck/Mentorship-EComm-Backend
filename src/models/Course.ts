@@ -18,6 +18,7 @@ import {
   VISIBILITY_ENUM,
 } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
+import { Announcement } from './Announcement';
 import { Cart } from './Cart';
 import { CartToCourse } from './CartToCourse';
 import { Category } from './Category';
@@ -109,15 +110,18 @@ export class Course extends BaseEntity {
   })
   Categories: Category[];
 
+  @BelongsToMany(() => Cart, {
+    through: () => CartToCourse,
+    foreignKey: 'courseId',
+  })
+  Carts: Cart[];
+
   @HasMany(() => CourseContract, 'courseId')
   CourseContracts: CourseContract[];
 
   @HasMany(() => Lesson, 'courseId')
   Lessons: Lesson[];
 
-  @BelongsToMany(() => Cart, {
-    through: () => CartToCourse,
-    foreignKey: 'courseId',
-  })
-  Carts: Cart[];
+  @HasMany(() => Announcement, 'courseId')
+  Announcements: Announcement[];
 }

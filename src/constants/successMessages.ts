@@ -22,6 +22,9 @@ export const COURSE_RESPONSE = {
   COURSE_UPDATE: 'Course Listing has been successfully updated',
   COURSE_DELETE: 'Course Listing has been successfully deleted',
 
+  COURSE_REQUEST_ACCEPTED: 'Course Request has been successfully accepted',
+  COURSE_REQUEST_REJECTED: 'Course Request has been successfully rejected',
+
   CONTRACT_CREATE: 'Course Contract has been successfully created',
   CONTRACT_UPDATE: 'Course Contract has been successfully updated',
   CONTRACT_DELETE: 'Course Contract has been successfully deleted',
@@ -29,6 +32,8 @@ export const COURSE_RESPONSE = {
   CONTRACT_REJECT: 'Course Contract has been successfully rejected',
 
   COMMENT_CREATE: 'Successfully commented on lesson',
+
+  ANNOUNCEMENT_CREATE: "Announcement has been successfully written", 
 };
 
 // ==================== MENTORSHIP RESPONSE MESSAGES ====================
