@@ -33,7 +33,10 @@ export const COURSE_RESPONSE = {
 
   COMMENT_CREATE: 'Successfully commented on lesson',
 
-  ANNOUNCEMENT_CREATE: "Announcement has been successfully written", 
+  ANNOUNCEMENT_CREATE: "Announcement has been successfully written",
+  ANNOUNCEMENT_UPDATE: "Announcement has been successfully updated",  
+  ANNOUNCEMENT_DELETE: "Announcement has been successfully deleted",  
+
 };
 
 // ==================== MENTORSHIP RESPONSE MESSAGES ====================
