@@ -66,4 +66,8 @@ export const UPLOAD_RESPONSE = {
   TRANSCRIPT_UPLOAD: 'Transcript has been uploaded successfully',
   PROFILE_PIC_UPLOAD: 'Profile image has been uploaded successfully',
   COURSE_PIC_UPLOAD: 'Course image has been uploaded successfully',
+  LESSON_FILE_UPLOAD: 'Successfully uploaded file',
+  LESSON_VIDEO_UPLOAD: 'Successfully uploaded video',
+
+  FILE_DELETED: 'Successfully deleted file',
 };

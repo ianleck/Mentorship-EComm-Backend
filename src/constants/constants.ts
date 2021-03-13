@@ -14,6 +14,7 @@ export const CHILD_FOLDERS = [
   '/course',
   '/course/image',
   '/course/lesson',
+  '/course/lesson/file',
   '/course/lesson/video',
   '/course/lesson/assessment-video',
 ];
@@ -24,6 +25,7 @@ export const CHILD_FOLDERS = [
 export const ALLOWED_DOCUMENT_FILE_TYPES = ['.docx', '.pdf', '.doc'];
 export const ALLOWED_IMG_FILE_TYPES = ['.jpeg', '.jpg', '.png'];
 export const ALLOWED_VIDEO_FILE_TYPES = ['.mp4', '.mov'];
+export const ALLOWED_ZIP_FILE = ['.zip'];
 
 /**
  * API constants

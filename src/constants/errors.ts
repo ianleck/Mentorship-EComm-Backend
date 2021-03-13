@@ -47,7 +47,7 @@ export const MENTORSHIP_ERRORS = {
 export const UPLOAD_ERRORS = {
   INVALID_FILE_TYPE: 'Invalid File Type',
   NO_FILE_UPLOADED: 'No files were uploaded',
-
+  ZIP_FILE_ALLOWED: 'Only zip files are allowed',
   FAILED_TRANSCRIPT_SAVE: 'Failed to save transcript',
   FAILED_IMAGE_SAVE: 'Failed to save image',
   FAILED_CV_SAVE: 'Failed to save CV',

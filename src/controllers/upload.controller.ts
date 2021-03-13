@@ -180,7 +180,7 @@ export class UploadController {
       );
       return apiResponse.result(
         res,
-        { message: UPLOAD_RESPONSE.COURSE_PIC_UPLOAD, course },
+        { message: UPLOAD_RESPONSE.LESSON_VIDEO_UPLOAD, course },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -226,7 +226,7 @@ export class UploadController {
       );
       return apiResponse.result(
         res,
-        { message: UPLOAD_RESPONSE.COURSE_PIC_UPLOAD, course },
+        { message: UPLOAD_RESPONSE.LESSON_VIDEO_UPLOAD, course },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -236,6 +236,48 @@ export class UploadController {
         e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
         e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE ||
         e.message === UPLOAD_ERRORS.FAILED_VIDEO_SAVE ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async uploadLessonFile(req, res) {
+    const { accountId } = req.user;
+    const { lessonId } = req.params;
+
+    try {
+      // if no file attached
+      if (!req.files || Object.keys(req.files).length === 0) {
+        throw new Error(UPLOAD_ERRORS.NO_FILE_UPLOADED);
+      }
+
+      const file = req.files.file;
+      const lesson = await UploadService.uploadLessonFile(
+        file,
+        accountId,
+        lessonId
+      );
+      return apiResponse.result(
+        res,
+        { message: UPLOAD_RESPONSE.LESSON_FILE_UPLOAD, lesson },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[uploadController.uploadLessonFile]:' + e.message);
+      if (
+        e.message === COURSE_ERRORS.COURSE_MISSING ||
+        e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
+        e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE ||
+        e.message === UPLOAD_ERRORS.FAILED_IMAGE_SAVE ||
         e.message ===
           httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       ) {
@@ -262,7 +304,7 @@ export class UploadController {
       );
       return apiResponse.result(
         res,
-        { message: UPLOAD_RESPONSE.COURSE_PIC_UPLOAD, course },
+        { message: UPLOAD_RESPONSE.FILE_DELETED, course },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -297,11 +339,46 @@ export class UploadController {
       );
       return apiResponse.result(
         res,
-        { message: UPLOAD_RESPONSE.COURSE_PIC_UPLOAD, course },
+        { message: UPLOAD_RESPONSE.FILE_DELETED, course },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[uploadController.deleteAssessmentVideo]:' + e.message);
+      if (
+        e.message === COURSE_ERRORS.LESSON_MISSING ||
+        e.message === COURSE_ERRORS.COURSE_MISSING ||
+        e.message === UPLOAD_ERRORS.FILE_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async deleteLessonFile(req, res) {
+    const { accountId } = req.user;
+    const { lessonId } = req.params;
+
+    try {
+      const course = await UploadService.deleteLessonFile(
+        accountId,
+        lessonId,
+        'lessonFileUrl'
+      );
+      return apiResponse.result(
+        res,
+        { message: UPLOAD_RESPONSE.FILE_DELETED, course },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[uploadController.deleteLessonFile]:' + e.message);
       if (
         e.message === COURSE_ERRORS.LESSON_MISSING ||
         e.message === COURSE_ERRORS.COURSE_MISSING ||

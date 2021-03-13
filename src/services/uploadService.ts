@@ -6,6 +6,7 @@ import {
   ALLOWED_IMG_FILE_TYPES,
   ALLOWED_VIDEO_FILE_TYPES,
   BACKEND_API,
+  ALLOWED_ZIP_FILE,
 } from '../constants/constants';
 import { COURSE_ERRORS, ERRORS, UPLOAD_ERRORS } from '../constants/errors';
 import Utility from '../constants/utility';
@@ -172,6 +173,42 @@ export default class UploadService {
         } else {
           course = await course.update({ imgUrl: saveName });
           resolve(course);
+        }
+      });
+    });
+  }
+
+  public static async uploadLessonFile(
+    file,
+    accountId: string,
+    lessonId: string
+  ): Promise<Lesson> {
+    const fileType = Utility.getFileType(file.name);
+    console.log('filet ypee=', fileType);
+    const folder = 'course/lesson/file';
+    // if fileType is not .docx / .pdf / . doc, return error;
+    if (ALLOWED_ZIP_FILE.indexOf(fileType) == -1) {
+      throw new Error(UPLOAD_ERRORS.ZIP_FILE_ALLOWED);
+    }
+
+    const saveName = this.getSaveName(folder, lessonId, fileType);
+    const saveFilePath = this.getSaveFilePath(folder, lessonId, fileType);
+    let lesson: any = await Lesson.findByPk(lessonId);
+    if (!lesson) reject(new Error(COURSE_ERRORS.LESSON_MISSING));
+
+    const course = await Course.findByPk(lesson.courseId);
+    if (course.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    return new Promise((resolve, reject) => {
+      return file.mv(saveFilePath, async (err) => {
+        if (err) {
+          reject(new Error(UPLOAD_ERRORS.FAILED_IMAGE_SAVE));
+        } else {
+          lesson = await lesson.update({ lessonFileUrl: saveName });
+          resolve(lesson);
         }
       });
     });

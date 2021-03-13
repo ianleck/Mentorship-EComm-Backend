@@ -45,6 +45,13 @@ router.post(
   Utility.asyncHandler(UploadController.uploadAssessmentVideo)
 );
 
+router.post(
+  '/lesson/file/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.lessonIdP),
+  Utility.asyncHandler(UploadController.uploadLessonFile)
+);
+
 router.delete(
   '/lesson/video/:lessonId',
   passport.authenticate('isAuthenticated', { session: false }),
