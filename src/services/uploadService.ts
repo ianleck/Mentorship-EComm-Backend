@@ -184,7 +184,6 @@ export default class UploadService {
     lessonId: string
   ): Promise<Lesson> {
     const fileType = Utility.getFileType(file.name);
-    console.log('filet ypee=', fileType);
     const folder = 'course/lesson/file';
     // if fileType is not .docx / .pdf / . doc, return error;
     if (ALLOWED_ZIP_FILE.indexOf(fileType) == -1) {

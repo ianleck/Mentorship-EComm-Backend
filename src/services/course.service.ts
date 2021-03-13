@@ -31,6 +31,7 @@ type newCourseType = {
 
 type courseType = newCourseType & {
   courseId?: string;
+  publishedAt?: Date;
 };
 
 type getFilter = {
@@ -84,7 +85,7 @@ export default class CourseService {
     if (
       // if user is submitting course request or if user is tryign to publish course
       // but user account has not been verified/accepted by admin, throw error.
-      (updatedDraft.adminVerified === ADMIN_VERIFIED_ENUM.PENDING ||
+      (course.adminVerified === ADMIN_VERIFIED_ENUM.PENDING ||
         updatedDraft.visibility === VISIBILITY_ENUM.PUBLISHED) &&
       user.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED
     )
@@ -93,13 +94,20 @@ export default class CourseService {
     if (
       // If user is trying to publish the course request but course has not been verified/accepted by admin, throw error
       updatedDraft.visibility === VISIBILITY_ENUM.PUBLISHED &&
-      updatedDraft.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED
+      course.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED
     )
       throw new Error(COURSE_ERRORS.COURSE_NOT_VERIFIED);
     const { categories, ...courseWithoutCategories } = updatedDraft;
 
     if (categories != null)
       await this.updateCourseCategory(courseId, updatedDraft); // update categories
+    if (
+      // if user is publishign course for the first time
+      !course.publishedAt &&
+      updatedDraft.visibility === VISIBILITY_ENUM.PUBLISHED
+    ) {
+      courseWithoutCategories.publishedAt = new Date();
+    }
     await course.update(courseWithoutCategories); // update course draft
 
     return Course.findByPk(courseId, {
