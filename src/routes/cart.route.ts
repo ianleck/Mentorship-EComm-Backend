@@ -9,6 +9,13 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
+router.get(
+  '/',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  Utility.asyncHandler(CartController.viewCart)
+);
+
 router.post(
   '/',
   passport.authenticate('isAuthenticated', { session: false }),

@@ -33,7 +33,7 @@ export const COURSE_RESPONSE = {
 
   COMMENT_CREATE: 'Successfully commented on lesson',
 
-  ANNOUNCEMENT_CREATE: "Announcement has been successfully written", 
+  ANNOUNCEMENT_CREATE: 'Announcement has been successfully written',
 };
 
 // ==================== MENTORSHIP RESPONSE MESSAGES ====================
@@ -76,5 +76,5 @@ export const UPLOAD_RESPONSE = {
 export const CART_RESPONSE = {
   ADD_TO_CART: 'Course has been successfully added to cart',
   DELETE_FROM_CART:
-    'The selected items have been successfully removed from cart',
+    'The selected item(s) have been successfully removed from cart',
 };

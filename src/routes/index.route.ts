@@ -15,13 +15,13 @@ const router = express.Router();
 
 router.use('/auth', authRoute);
 router.use('/admin', adminRoute);
+router.use('/cart', cartRoute);
 router.use('/category', categoryRoute);
 router.use('/course', courseRoute);
 router.use('/email', emailRoute);
 router.use('/file', fileRoute);
 router.use('/mentorship', mentorshipRoute);
 router.use('/paypal', paypalRoute);
-router.use('/shoppingCart', cartRoute);
 router.use('/upload', uploadRoute);
 router.use('/user', userRoute);
 

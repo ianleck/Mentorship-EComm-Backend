@@ -4,7 +4,12 @@ import {
   MENTORSHIP_CONTRACT_APPROVAL,
   VISIBILITY_ENUM,
 } from '../constants/enum';
-import { COURSE_ERRORS, ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
+import {
+  CART_ERRORS,
+  COURSE_ERRORS,
+  ERRORS,
+  MENTORSHIP_ERRORS,
+} from '../constants/errors';
 import { Cart } from '../models/Cart';
 import { CartToCourse } from '../models/CartToCourse';
 import { CartToMentorshipContract } from '../models/CartToMentorshipContract';
@@ -27,22 +32,19 @@ export default class CartService {
     });
     if (!course) throw new Error(COURSE_ERRORS.CONTRACT_MISSING);
 
-    let cart = await Cart.findOne({ where: { studentId } });
-    if (!cart) {
-      cart = new Cart({
-        studentId,
-      });
-      await cart.save();
-    }
-
+    const cart = await this.setupCart(studentId);
     const cartId = cart.cartId;
+
+    const addedCourse = CartToCourse.findOne({ where: { cartId, courseId } });
+    if (addedCourse) throw new Error(CART_ERRORS.COURSE_ALREADY_ADDED);
 
     await new CartToCourse({ cartId, courseId }).save();
 
     return await Cart.findByPk(cartId, {
       include: [
+        Course,
         {
-          model: Course,
+          model: MentorshipContract,
           include: [
             {
               model: MentorshipListing,
@@ -55,7 +57,6 @@ export default class CartService {
             },
           ],
         },
-        MentorshipContract,
       ],
     });
   }
@@ -77,13 +78,7 @@ export default class CartService {
     if (!mentorshipContract)
       throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
 
-    let cart = await Cart.findOne({ where: { studentId } });
-    if (!cart) {
-      cart = new Cart({
-        studentId,
-      });
-      await cart.save();
-    }
+    const cart = await this.setupCart(studentId);
 
     const cartId = cart.cartId;
 
@@ -91,8 +86,9 @@ export default class CartService {
 
     return await Cart.findByPk(cartId, {
       include: [
+        Course,
         {
-          model: Course,
+          model: MentorshipContract,
           include: [
             {
               model: MentorshipListing,
@@ -105,7 +101,6 @@ export default class CartService {
             },
           ],
         },
-        MentorshipContract,
       ],
     });
   }
@@ -129,31 +124,37 @@ export default class CartService {
 
     const cartId = cart.cartId;
 
-    await Promise.all(
-      courseIds.map(async (courseId) => {
-        await CartToCourse.destroy({
-          where: {
-            cartId,
-            courseId,
-          },
-        });
-      })
-    );
+    if (courseIds.length > 0) {
+      await Promise.all(
+        courseIds.map(async (courseId) => {
+          await CartToCourse.destroy({
+            where: {
+              cartId,
+              courseId,
+            },
+          });
+        })
+      );
+    }
 
-    await Promise.all(
-      mentorshipContractIds.map(async (mentorshipContractId) => {
-        await CartToMentorshipContract.destroy({
-          where: {
-            cartId,
-            mentorshipContractId,
-          },
-        });
-      })
-    );
+    if (mentorshipContractIds.length > 0) {
+      await Promise.all(
+        mentorshipContractIds.map(async (mentorshipContractId) => {
+          await CartToMentorshipContract.destroy({
+            where: {
+              cartId,
+              mentorshipContractId,
+            },
+          });
+        })
+      );
+    }
+
     return await Cart.findByPk(cartId, {
       include: [
+        Course,
         {
-          model: Course,
+          model: MentorshipContract,
           include: [
             {
               model: MentorshipListing,
@@ -166,7 +167,6 @@ export default class CartService {
             },
           ],
         },
-        MentorshipContract,
       ],
     });
   }
@@ -179,5 +179,31 @@ export default class CartService {
       });
       await cart.save();
     }
+    return cart;
+  }
+
+  public static async viewCart(studentId: string) {
+    const cart = await this.setupCart(studentId);
+
+    const cartId = cart.cartId;
+    return await Cart.findByPk(cartId, {
+      include: [
+        Course,
+        {
+          model: MentorshipContract,
+          include: [
+            {
+              model: MentorshipListing,
+              attributes: [
+                'mentorshipListingId',
+                'name',
+                'description',
+                'priceAmount',
+              ],
+            },
+          ],
+        },
+      ],
+    });
   }
 }

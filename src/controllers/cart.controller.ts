@@ -57,4 +57,27 @@ export class CartController {
       }
     }
   }
+
+  public static async viewCart(req, res) {
+    try {
+      const { user } = req;
+      const updatedCart = await CartService.viewCart(user.accountId);
+      return apiResponse.result(
+        res,
+        { message: 'success', updatedCart },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[cartController.viewCart]:' + e.message);
+      if (e.message === ERRORS.STUDENT_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
 }
