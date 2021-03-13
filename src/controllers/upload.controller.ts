@@ -169,10 +169,14 @@ export class UploadController {
       }
 
       const file = req.files.file;
+      const folder = 'course/lesson/video';
+      const lessonAttribute = 'videoUrl';
       const course = await UploadService.uploadLessonVideo(
         file,
         accountId,
-        lessonId
+        lessonId,
+        folder,
+        lessonAttribute
       );
       return apiResponse.result(
         res,
@@ -186,6 +190,122 @@ export class UploadController {
         e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
         e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE ||
         e.message === UPLOAD_ERRORS.FAILED_VIDEO_SAVE ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async uploadAssessmentVideo(req, res) {
+    const { accountId } = req.user;
+    const { lessonId } = req.params;
+
+    try {
+      // if no file attached
+      if (!req.files || Object.keys(req.files).length === 0) {
+        throw new Error(UPLOAD_ERRORS.NO_FILE_UPLOADED);
+      }
+
+      const file = req.files.file;
+      const folder = 'course/lesson/assessment-video';
+      const lessonAttribute = 'assessmentUrl';
+      const course = await UploadService.uploadLessonVideo(
+        file,
+        accountId,
+        lessonId,
+        folder,
+        lessonAttribute
+      );
+      return apiResponse.result(
+        res,
+        { message: UPLOAD_RESPONSE.COURSE_PIC_UPLOAD, course },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[uploadController.uploadAssessmentVideo]:' + e.message);
+      if (
+        e.message === COURSE_ERRORS.LESSON_MISSING ||
+        e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
+        e.message === UPLOAD_ERRORS.INVALID_FILE_TYPE ||
+        e.message === UPLOAD_ERRORS.FAILED_VIDEO_SAVE ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async deleteLessonVideo(req, res) {
+    const { accountId } = req.user;
+    const { lessonId } = req.params;
+
+    try {
+      const course = await UploadService.deleteLessonFile(
+        accountId,
+        lessonId,
+        'videoUrl'
+      );
+      return apiResponse.result(
+        res,
+        { message: UPLOAD_RESPONSE.COURSE_PIC_UPLOAD, course },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[uploadController.deleteLessonVideo]:' + e.message);
+      if (
+        e.message === COURSE_ERRORS.LESSON_MISSING ||
+        e.message === COURSE_ERRORS.COURSE_MISSING ||
+        e.message === UPLOAD_ERRORS.FILE_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async deleteAssessmentVideo(req, res) {
+    const { accountId } = req.user;
+    const { lessonId } = req.params;
+
+    try {
+      const course = await UploadService.deleteLessonFile(
+        accountId,
+        lessonId,
+        'assessmentUrl'
+      );
+      return apiResponse.result(
+        res,
+        { message: UPLOAD_RESPONSE.COURSE_PIC_UPLOAD, course },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[uploadController.deleteAssessmentVideo]:' + e.message);
+      if (
+        e.message === COURSE_ERRORS.LESSON_MISSING ||
+        e.message === COURSE_ERRORS.COURSE_MISSING ||
+        e.message === UPLOAD_ERRORS.FILE_MISSING ||
         e.message ===
           httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       ) {

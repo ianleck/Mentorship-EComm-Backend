@@ -1,7 +1,7 @@
 import * as bodyParser from 'body-parser';
 import express from 'express';
 
-import { BASE } from './constants/constants';
+import { BASE, CHILD_FOLDERS } from './constants/constants';
 import indexRoute from './routes/index.route';
 import joiErrorHandler from './middlewares/joiErrorHandler';
 import * as errorHandler from './middlewares/apiErrorHandler';
@@ -41,19 +41,11 @@ sequelize
 
     // init dev upload folders
     const uploadDir = './uploads';
-    const childDir = [
-      '/transcript',
-      '/dp',
-      '/cv',
-      '/course',
-      '/course/lesson',
-      '/course/lesson/video',
-    ];
 
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir);
     }
-    childDir.forEach((dir) => {
+    CHILD_FOLDERS.forEach((dir) => {
       if (!fs.existsSync(uploadDir + dir)) {
         fs.mkdirSync(uploadDir + dir);
       }

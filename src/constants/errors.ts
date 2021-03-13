@@ -52,6 +52,7 @@ export const UPLOAD_ERRORS = {
   FAILED_IMAGE_SAVE: 'Failed to save image',
   FAILED_CV_SAVE: 'Failed to save CV',
   FAILED_VIDEO_SAVE: 'Failed to save video',
+  FILE_MISSING: 'File does not exist',
 };
 
 export const REGISTER_ERRORS = {

@@ -38,4 +38,24 @@ router.post(
   schemaValidator.params(course.lessonIdP),
   Utility.asyncHandler(UploadController.uploadLessonVideo)
 );
+router.post(
+  '/lesson/assessment/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.lessonIdP),
+  Utility.asyncHandler(UploadController.uploadAssessmentVideo)
+);
+
+router.delete(
+  '/lesson/video/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.lessonIdP),
+  Utility.asyncHandler(UploadController.deleteLessonVideo)
+);
+
+router.delete(
+  '/lesson/assessment/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.lessonIdP),
+  Utility.asyncHandler(UploadController.deleteAssessmentVideo)
+);
 export default router;
