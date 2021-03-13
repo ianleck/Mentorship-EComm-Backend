@@ -405,8 +405,7 @@ export default class CourseService {
 
 
     // Check if user sending the request is the sensei who created the course
-    if (user.userType === USER_TYPE_ENUM.SENSEI) {
-      if (course.accountId !== accountId )
+    if (user.userType === USER_TYPE_ENUM.SENSEI && course.accountId !== accountId ) {
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
@@ -453,8 +452,7 @@ export default class CourseService {
 
 
     // Check if user sending the request is the sensei who created announcement
-    if (user.userType === USER_TYPE_ENUM.SENSEI) {
-      if (announcement.accountId !== accountId )
+    if (user.userType === USER_TYPE_ENUM.SENSEI && announcement.accountId !== accountId) {
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
