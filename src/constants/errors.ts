@@ -20,6 +20,10 @@ export const AUTH_ERRORS = {
   ADMIN_EXISTS: 'Email already exists',
 };
 
+export const CART_ERRORS = {
+  CART_MISSING: 'Shopping Cart is already empty',
+};
+
 export const COURSE_ERRORS = {
   COURSE_MISSING: 'Course does not exist',
   COURSE_DRAFT_MISSING: 'Course draft does not exist',

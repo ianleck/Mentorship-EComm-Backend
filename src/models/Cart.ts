@@ -9,7 +9,9 @@ import {
   Unique,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
+import { CartToCourse } from './CartToCourse';
 import { CartToMentorshipContract } from './CartToMentorshipContract';
+import { Course } from './Course';
 import { MentorshipContract } from './MentorshipContract';
 
 @Table
@@ -32,9 +34,9 @@ export class Cart extends BaseEntity {
   })
   MentorshipApplications: MentorshipContract[];
 
-  // @BelongsToMany(() => Course, {
-  //   through: () => CartToCourse,
-  //   foreignKey: 'cartId',
-  // })
-  // Course: Course[];
+  @BelongsToMany(() => Course, {
+    through: () => CartToCourse,
+    foreignKey: 'cartId',
+  })
+  Course: Course[];
 }

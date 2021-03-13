@@ -2,6 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import Utility from '../constants/utility';
 import { CartController } from '../controllers/cart.controller';
+import { requireStudent } from '../middlewares/authenticationMiddleware';
 import cart from './schema/cart.schema';
 
 const router = express.Router();
@@ -9,10 +10,19 @@ const router = express.Router();
 const schemaValidator = require('express-joi-validation').createValidator({});
 
 router.post(
-  '/:courseId',
+  '/',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.query(cart.cartItemsP),
-  Utility.asyncHandler(CartController.addItem)
+  requireStudent,
+  schemaValidator.body(cart.addItemsB),
+  Utility.asyncHandler(CartController.addCourse)
+);
+
+router.delete(
+  '/',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.body(cart.deleteItemsB),
+  Utility.asyncHandler(CartController.deleteItems)
 );
 
 export default router;

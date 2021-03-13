@@ -69,5 +69,7 @@ export const UPLOAD_RESPONSE = {
 
 // ==================== CART RESPONSE MESSAGES ====================
 export const CART_RESPONSE = {
-  ADD_TO_CART: 'Item has been successfully added to cart',
+  ADD_TO_CART: 'Course has been successfully added to cart',
+  DELETE_FROM_CART:
+    'The selected items have been successfully removed from cart',
 };

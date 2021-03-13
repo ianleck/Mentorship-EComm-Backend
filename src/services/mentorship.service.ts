@@ -12,6 +12,7 @@ import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
 import { User } from '../models/User';
+import CartService from './cart.service';
 import EmailService from './email.service';
 
 export default class MentorshipService {
@@ -238,6 +239,10 @@ export default class MentorshipService {
     const mentorshipName = mentorshipListing.name;
     const additional = { mentorshipName };
 
+    await CartService.addMentorshipContract(
+      acceptedApplication.mentorshipContractId,
+      student.accountId
+    );
     //SEND EMAIL TO INFORM OF ACCEPTANCE OF APPLICATION
     await EmailService.sendEmail(student.email, 'acceptContract', additional);
 

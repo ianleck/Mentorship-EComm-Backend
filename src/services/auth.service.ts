@@ -6,6 +6,7 @@ import { USER_TYPE_ENUM } from '../constants/enum';
 import { AUTH_ERRORS, ERRORS } from '../constants/errors';
 import { ResetToken } from '../models/ResetToken';
 import { User } from '../models/User';
+import CartService from './cart.service';
 import EmailService from './email.service';
 import UserService from './user.service';
 
@@ -83,6 +84,7 @@ export default class AuthService {
           password,
           userType: USER_TYPE_ENUM.STUDENT,
         });
+        await CartService.setupCart(newUser.accountId);
       } else {
         newUser = new User({
           username,
