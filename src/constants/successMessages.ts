@@ -22,6 +22,9 @@ export const COURSE_RESPONSE = {
   COURSE_UPDATE: 'Course Listing has been successfully updated',
   COURSE_DELETE: 'Course Listing has been successfully deleted',
 
+  COURSE_REQUEST_ACCEPTED: 'Course Request has been successfully accepted',
+  COURSE_REQUEST_REJECTED: 'Course Request has been successfully rejected',
+
   CONTRACT_CREATE: 'Course Contract has been successfully created',
   CONTRACT_UPDATE: 'Course Contract has been successfully updated',
   CONTRACT_DELETE: 'Course Contract has been successfully deleted',
@@ -29,6 +32,10 @@ export const COURSE_RESPONSE = {
   CONTRACT_REJECT: 'Course Contract has been successfully rejected',
 
   COMMENT_CREATE: 'Successfully commented on lesson',
+
+  ANNOUNCEMENT_CREATE: 'Announcement has been successfully written',
+  ANNOUNCEMENT_UPDATE: 'Announcement has been successfully updated',
+  ANNOUNCEMENT_DELETE: 'Announcement has been successfully deleted',
 };
 
 // ==================== MENTORSHIP RESPONSE MESSAGES ====================
@@ -70,4 +77,11 @@ export const UPLOAD_RESPONSE = {
   LESSON_VIDEO_UPLOAD: 'Successfully uploaded video',
 
   FILE_DELETED: 'Successfully deleted file',
+};
+
+// ==================== CART RESPONSE MESSAGES ====================
+export const CART_RESPONSE = {
+  ADD_TO_CART: 'Course has been successfully added to cart',
+  DELETE_FROM_CART:
+    'The selected item(s) have been successfully removed from cart',
 };

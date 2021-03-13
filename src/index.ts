@@ -1,23 +1,21 @@
-import * as bodyParser from 'body-parser';
+import cors from 'cors';
 import express from 'express';
-
-import { BASE, CHILD_FOLDERS } from './constants/constants';
-import indexRoute from './routes/index.route';
-import joiErrorHandler from './middlewares/joiErrorHandler';
-import * as errorHandler from './middlewares/apiErrorHandler';
+import fileUpload from 'express-fileupload';
+import fs from 'fs';
+import passport from 'passport';
 import { sequelize } from './config/db';
 import logger from './config/logger';
-import passport from 'passport';
-import fileUpload from 'express-fileupload';
-import cors from 'cors';
-import fs from 'fs';
+import { BASE, CHILD_FOLDERS } from './constants/constants';
+import * as errorHandler from './middlewares/apiErrorHandler';
+import joiErrorHandler from './middlewares/joiErrorHandler';
+import indexRoute from './routes/index.route';
 
 const PORT = process.env.PORT || 5000;
 require('./config/auth/passport')(passport);
 
 const app = express();
 
-app.use(bodyParser.json());
+app.use(express.json());
 
 sequelize
   .sync()

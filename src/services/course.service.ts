@@ -5,8 +5,9 @@ import {
   LEVEL_ENUM,
   USER_TYPE_ENUM,
   VISIBILITY_ENUM,
+  STATUS_ENUM,
 } from '../constants/enum';
-import { COURSE_ERRORS, ERRORS } from '../constants/errors';
+import { COURSE_ERRORS, ERRORS, AUTH_ERRORS } from '../constants/errors';
 import { Category } from '../models/Category';
 import { Comment } from '../models/Comment';
 import { Course } from '../models/Course';
@@ -14,6 +15,8 @@ import { CourseContract } from '../models/CourseContract';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { Lesson } from '../models/Lesson';
 import { User } from '../models/User';
+import { Announcement } from '../models/Announcement';
+import EmailService from './email.service';
 
 type newCourseType = {
   title?: string;
@@ -209,7 +212,6 @@ export default class CourseService {
   public static async getCourseWithAssociations({
     courseId,
     extraModels,
-    // withCourseContract: boolean,
     inclSoftDelete, // true to return rows that are soft deleted. False otherwise
   }) {
     return await Course.findByPk(courseId, {
@@ -335,6 +337,164 @@ export default class CourseService {
     });
   }
 
+  // ======================================== ANNOUNCEMENTS ========================================
+  public static async createAnnouncement(
+    courseId: string,
+    accountId: string,
+    announcement: {
+      title: string;
+      description: string;
+    }
+  ): Promise<Announcement> {
+    const course = await Course.findByPk(courseId);
+    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+    const user = await User.findByPk(accountId);
+    if (user.accountId !== course.accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    const { title, description } = announcement;
+
+    const newAnnouncement = new Announcement({
+      courseId,
+      title,
+      description,
+      accountId,
+    });
+
+    await newAnnouncement.save();
+    return newAnnouncement;
+  }
+
+  public static async updateAnnouncement(
+    announcementId: string,
+    accountId: string,
+    updateAnnouncement
+  ): Promise<Announcement> {
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) throw new Error(COURSE_ERRORS.ANNOUNCEMENT_MISSING);
+
+    // Check if user sending the request is the sensei who created the announcement
+    if (announcement.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    return await announcement.update(updateAnnouncement);
+  }
+
+  public static async deleteAnnouncement(
+    announcementId: string,
+    accountId: string
+  ): Promise<void> {
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) throw new Error(COURSE_ERRORS.ANNOUNCEMENT_MISSING);
+
+    // Check if user sending the request is the sensei who created the announcemnet
+    if (announcement.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    await Announcement.destroy({
+      where: {
+        announcementId,
+      },
+    });
+  }
+
+  public static async getAllAnnouncements(courseId, accountId) {
+    const course = await Course.findByPk(courseId);
+    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    // Check if user sending the request is the sensei who created the course
+    if (
+      user.userType === USER_TYPE_ENUM.SENSEI &&
+      course.accountId !== accountId
+    ) {
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    }
+    //Check if user sending the request is the student who has bought this course
+    if (user.userType === USER_TYPE_ENUM.STUDENT) {
+      const courseContract = await CourseContract.findOne({
+        where: {
+          courseId,
+          accountId,
+        },
+      });
+      if (!courseContract)
+        throw new Error(
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+        );
+    }
+    const courseAnnouncements = Announcement.findAll({
+      where: {
+        courseId,
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl'],
+        },
+      ],
+    });
+    return courseAnnouncements;
+  }
+
+  public static async getAnnouncement(
+    announcementId: string,
+    accountId: string
+  ): Promise<Announcement> {
+    const announcement = await Announcement.findByPk(announcementId);
+    if (!announcement) throw new Error(COURSE_ERRORS.ANNOUNCEMENT_MISSING);
+
+    const course = await Course.findByPk(announcement.courseId);
+    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    // Check if user sending the request is the sensei who created announcement
+    if (
+      user.userType === USER_TYPE_ENUM.SENSEI &&
+      announcement.accountId !== accountId
+    ) {
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    }
+    //Check if user sending the request is the student who has bought this course
+    if (user.userType === USER_TYPE_ENUM.STUDENT) {
+      const courseContract = await CourseContract.findOne({
+        where: {
+          courseId: course.courseId,
+          accountId,
+        },
+      });
+      if (!courseContract)
+        throw new Error(
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+        );
+    }
+
+    const courseAnnouncement = await Announcement.findOne({
+      where: {
+        announcementId,
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl'],
+        },
+      ],
+    });
+    return courseAnnouncement;
+  }
   // ======================================== COURSE CONTRACT ========================================
   public static async createContract(
     accountId: string,
@@ -380,6 +540,97 @@ export default class CourseService {
         courseId,
       },
     });
+  }
+
+  public static async getAllPurchasedCourses(userId, accountId) {
+    if (userId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    const purchasedCourses = await Course.findAll({
+      include: [{ model: CourseContract, where: { accountId } }],
+    });
+
+    return purchasedCourses;
+  }
+
+  // ======================================== COURSE REQUESTS ========================================
+  public static async getAllRequests() {
+    const courseRequests = Course.findAll({
+      where: {
+        adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
+      },
+    });
+    return courseRequests;
+  }
+
+  public static async getRequest(courseId: string): Promise<Course> {
+    const courseRequest = await Course.findByPk(courseId);
+    if (!courseRequest) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+
+    return courseRequest;
+  }
+
+  public static async acceptCourseRequest(courseId) {
+    const courseRequest = await Course.findOne({
+      where: {
+        courseId,
+      },
+    });
+
+    if (!courseRequest) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+
+    // Check that sensei still exists
+    const sensei = await User.findByPk(courseRequest.accountId);
+    if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+
+    if (sensei.status === STATUS_ENUM.BANNED)
+      throw new Error(AUTH_ERRORS.USER_BANNED);
+
+    if (sensei.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED)
+      throw new Error(COURSE_ERRORS.USER_NOT_VERIFIED);
+
+    const acceptedCourse = await courseRequest.update({
+      adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
+    });
+
+    const courseName = courseRequest.title;
+    const additional = { courseName };
+
+    // Send Email to inform acceptance of course request
+    await EmailService.sendEmail(sensei.email, 'acceptCourse', additional);
+
+    return acceptedCourse;
+  }
+
+  public static async rejectCourseRequest(courseId) {
+    const courseRequest = await Course.findOne({
+      where: {
+        courseId,
+      },
+    });
+
+    if (!courseRequest) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+
+    // Check that sensei still exists
+    const sensei = await User.findByPk(courseRequest.accountId);
+    if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+
+    if (sensei.status === STATUS_ENUM.BANNED)
+      throw new Error(AUTH_ERRORS.USER_BANNED);
+
+    const rejectedCourse = await courseRequest.update({
+      adminVerified: ADMIN_VERIFIED_ENUM.REJECTED,
+    });
+
+    const courseName = courseRequest.title;
+    const additional = { courseName };
+
+    // Send Email to inform acceptance of course request
+    await EmailService.sendEmail(sensei.email, 'rejectCourse', additional);
+
+    return rejectedCourse;
   }
 
   // ======================================== COMMENTS ========================================

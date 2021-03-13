@@ -18,6 +18,15 @@ export const AUTH_ERRORS = {
 
   USER_EXISTS: 'Email/Username already exists',
   ADMIN_EXISTS: 'Email already exists',
+
+  USER_BANNED: 'User has been banned',
+};
+
+export const CART_ERRORS = {
+  CART_MISSING: 'Shopping Cart is already empty',
+  COURSE_ALREADY_ADDED: 'Course has already been added to shopping cart',
+  MENTORSHIP_CONTRACT_ADDED:
+    'Mentorship Listing has already been added to shopping cart',
 };
 
 export const COURSE_ERRORS = {
@@ -28,6 +37,7 @@ export const COURSE_ERRORS = {
   CONTRACT_MISSING:
     'Course contract does not exist. Please sign up for the course first.',
   LESSON_MISSING: 'Lesson does not exist',
+  ANNOUNCEMENT_MISSING: 'Annoucement does not exist',
   USER_NOT_VERIFIED:
     'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your course or submitting your course request for approval.',
   COURSE_NOT_VERIFIED:

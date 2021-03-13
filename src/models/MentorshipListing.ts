@@ -13,8 +13,8 @@ import {
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Category } from './Category';
-import { MentorshipListingToCategory } from './MentorshipListingToCategory';
 import { MentorshipContract } from './MentorshipContract';
+import { MentorshipListingToCategory } from './MentorshipListingToCategory';
 import { User } from './User';
 
 @Table
@@ -41,6 +41,10 @@ export class MentorshipListing extends BaseEntity {
   @Default('10.0') //Pend change - arbitrary value
   @Column(DataType.FLOAT)
   rating: number;
+
+  @AllowNull(false)
+  @Column(DataType.FLOAT)
+  priceAmount: number;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')
