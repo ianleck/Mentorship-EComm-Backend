@@ -45,6 +45,13 @@ export default {
   lessonIdP: joi.object({
     lessonId: joi.string().required(),
   }),
+  announcementIdP: joi.object({
+    announcementId: joi.string().required(),
+  }), 
+  studentIdP: joi.object({
+    accountId: joi.string().required(),
+  }),
+
   getFilter: joi.object({
     adminVerified: joi.string().valid(...Object.values(ADMIN_VERIFIED_ENUM)),
     visibility: joi.string().valid(...Object.values(VISIBILITY_ENUM)),
@@ -71,6 +78,14 @@ export default {
   }),
   updateLessonB: joi.object({
     updateLesson: joi
+      .object({
+        title: joi.string().optional(),
+        description: joi.string().optional(),
+      })
+      .required(),
+  }),
+  updateAnnouncementB: joi.object({
+    updateAnnouncement: joi
       .object({
         title: joi.string().optional(),
         description: joi.string().optional(),
