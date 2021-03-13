@@ -20,7 +20,13 @@ export const AUTH_ERRORS = {
   ADMIN_EXISTS: 'Email already exists',
 
   USER_BANNED: 'User has been banned',
+};
 
+export const CART_ERRORS = {
+  CART_MISSING: 'Shopping Cart is already empty',
+  COURSE_ALREADY_ADDED: 'Course has already been added to shopping cart',
+  MENTORSHIP_CONTRACT_ADDED:
+    'Mentorship Listing has already been added to shopping cart',
 };
 
 export const COURSE_ERRORS = {

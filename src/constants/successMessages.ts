@@ -33,10 +33,9 @@ export const COURSE_RESPONSE = {
 
   COMMENT_CREATE: 'Successfully commented on lesson',
 
-  ANNOUNCEMENT_CREATE: "Announcement has been successfully written",
-  ANNOUNCEMENT_UPDATE: "Announcement has been successfully updated",  
-  ANNOUNCEMENT_DELETE: "Announcement has been successfully deleted",  
-
+  ANNOUNCEMENT_CREATE: 'Announcement has been successfully written',
+  ANNOUNCEMENT_UPDATE: 'Announcement has been successfully updated',
+  ANNOUNCEMENT_DELETE: 'Announcement has been successfully deleted',
 };
 
 // ==================== MENTORSHIP RESPONSE MESSAGES ====================
@@ -73,4 +72,11 @@ export const UPLOAD_RESPONSE = {
   CV_UPLOAD: 'CV has been successfully uploaded',
   TRANSCRIPT_UPLOAD: 'Transcript has been successfully uploaded',
   PROFILE_PIC_UPLOAD: 'Profile Pic has been successfully uploaded',
+};
+
+// ==================== CART RESPONSE MESSAGES ====================
+export const CART_RESPONSE = {
+  ADD_TO_CART: 'Course has been successfully added to cart',
+  DELETE_FROM_CART:
+    'The selected item(s) have been successfully removed from cart',
 };
