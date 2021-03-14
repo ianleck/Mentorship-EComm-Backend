@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import {
   ADMIN_VERIFIED_ENUM,
   CONTRACT_PROGRESS_ENUM,
@@ -12,7 +13,7 @@ import {
 } from '../constants/errors';
 import { Cart } from '../models/Cart';
 import { CartToCourse } from '../models/CartToCourse';
-import { CartToMentorshipContract } from '../models/CartToMentorshipContract';
+import { CartToMentorshipListing } from '../models/CartToMentorshipListing';
 import { Course } from '../models/Course';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
@@ -27,41 +28,28 @@ export default class CartService {
       where: {
         courseId,
         visibility: VISIBILITY_ENUM.PUBLISHED,
-        adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED, // Need to add that published too once that is up
+        adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
+        publishedAt: { [Op.not]: null },
       },
     });
-    if (!course) throw new Error(COURSE_ERRORS.CONTRACT_MISSING);
+    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
 
     const cart = await this.setupCart(studentId);
     const cartId = cart.cartId;
 
-    const addedCourse = CartToCourse.findOne({ where: { cartId, courseId } });
+    const addedCourse = await CartToCourse.findOne({
+      where: { cartId, courseId },
+    });
     if (addedCourse) throw new Error(CART_ERRORS.COURSE_ALREADY_ADDED);
 
     await new CartToCourse({ cartId, courseId }).save();
 
     return await Cart.findByPk(cartId, {
-      include: [
-        Course,
-        {
-          model: MentorshipContract,
-          include: [
-            {
-              model: MentorshipListing,
-              attributes: [
-                'mentorshipListingId',
-                'name',
-                'description',
-                'priceAmount',
-              ],
-            },
-          ],
-        },
-      ],
+      include: [Course, MentorshipListing],
     });
   }
 
-  public static async addMentorshipContract(
+  public static async addMentorshipListing(
     mentorshipContractId: string,
     studentId: string
   ) {
@@ -82,32 +70,19 @@ export default class CartService {
 
     const cartId = cart.cartId;
 
-    await new CartToMentorshipContract({ cartId, mentorshipContractId }).save();
+    await new CartToMentorshipListing({
+      cartId,
+      mentorshipListingId: mentorshipContract.mentorshipListingId,
+    }).save();
 
     return await Cart.findByPk(cartId, {
-      include: [
-        Course,
-        {
-          model: MentorshipContract,
-          include: [
-            {
-              model: MentorshipListing,
-              attributes: [
-                'mentorshipListingId',
-                'name',
-                'description',
-                'priceAmount',
-              ],
-            },
-          ],
-        },
-      ],
+      include: [Course, MentorshipListing],
     });
   }
 
   public static async deleteItems(
     courseIds: string[],
-    mentorshipContractIds: string[],
+    mentorshipListingIds: string[],
     studentId: string
   ) {
     const student = await User.findByPk(studentId);
@@ -137,13 +112,13 @@ export default class CartService {
       );
     }
 
-    if (mentorshipContractIds.length > 0) {
+    if (mentorshipListingIds.length > 0) {
       await Promise.all(
-        mentorshipContractIds.map(async (mentorshipContractId) => {
-          await CartToMentorshipContract.destroy({
+        mentorshipListingIds.map(async (mentorshipListingId) => {
+          await CartToMentorshipListing.destroy({
             where: {
               cartId,
-              mentorshipContractId,
+              mentorshipListingId,
             },
           });
         })
@@ -151,23 +126,7 @@ export default class CartService {
     }
 
     return await Cart.findByPk(cartId, {
-      include: [
-        Course,
-        {
-          model: MentorshipContract,
-          include: [
-            {
-              model: MentorshipListing,
-              attributes: [
-                'mentorshipListingId',
-                'name',
-                'description',
-                'priceAmount',
-              ],
-            },
-          ],
-        },
-      ],
+      include: [Course, MentorshipListing],
     });
   }
 
@@ -187,23 +146,7 @@ export default class CartService {
 
     const cartId = cart.cartId;
     return await Cart.findByPk(cartId, {
-      include: [
-        Course,
-        {
-          model: MentorshipContract,
-          include: [
-            {
-              model: MentorshipListing,
-              attributes: [
-                'mentorshipListingId',
-                'name',
-                'description',
-                'priceAmount',
-              ],
-            },
-          ],
-        },
-      ],
+      include: [Course, MentorshipListing],
     });
   }
 }

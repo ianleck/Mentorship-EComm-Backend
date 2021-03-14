@@ -6,15 +6,15 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { Cart } from './Cart';
-import { MentorshipContract } from './MentorshipContract';
+import { MentorshipListing } from './MentorshipListing';
 
 @Table
-export class CartToMentorshipContract extends Model<CartToMentorshipContract> {
+export class CartToMentorshipListing extends Model<CartToMentorshipListing> {
   @ForeignKey(() => Cart)
   @Column(DataType.UUID)
   cartId: string;
 
-  @ForeignKey(() => MentorshipContract)
+  @ForeignKey(() => MentorshipListing)
   @Column(DataType.UUID)
-  mentorshipContractId: string;
+  mentorshipListingId: string;
 }

@@ -10,9 +10,9 @@ import {
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
 import { CartToCourse } from './CartToCourse';
-import { CartToMentorshipContract } from './CartToMentorshipContract';
+import { CartToMentorshipListing } from './CartToMentorshipListing';
 import { Course } from './Course';
-import { MentorshipContract } from './MentorshipContract';
+import { MentorshipListing } from './MentorshipListing';
 
 @Table
 export class Cart extends BaseEntity {
@@ -28,11 +28,11 @@ export class Cart extends BaseEntity {
 
   // ==================== RELATIONSHIP MAPPINGS ====================
 
-  @BelongsToMany(() => MentorshipContract, {
-    through: () => CartToMentorshipContract,
+  @BelongsToMany(() => MentorshipListing, {
+    through: () => CartToMentorshipListing,
     foreignKey: 'cartId',
   })
-  MentorshipApplications: MentorshipContract[];
+  MentorshipApplications: MentorshipListing[];
 
   @BelongsToMany(() => Course, {
     through: () => CartToCourse,
