@@ -6,7 +6,7 @@ import passport from 'passport';
 import paypal from 'paypal-rest-sdk';
 import { sequelize } from './config/db';
 import logger from './config/logger';
-import { BASE } from './constants/constants';
+import { BASE, CHILD_FOLDERS } from './constants/constants';
 import * as errorHandler from './middlewares/apiErrorHandler';
 import joiErrorHandler from './middlewares/joiErrorHandler';
 import indexRoute from './routes/index.route';
@@ -42,17 +42,16 @@ sequelize
       );
       next();
     });
-    app.use(fileUpload());
+    app.use(fileUpload({ useTempFiles: true, tempFileDir: '/tmp/' }));
     app.use(cors(corsOptions));
 
     // init dev upload folders
     const uploadDir = './uploads';
-    const childDir = ['/transcript', '/dp', '/cv'];
 
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir);
     }
-    childDir.forEach((dir) => {
+    CHILD_FOLDERS.forEach((dir) => {
       if (!fs.existsSync(uploadDir + dir)) {
         fs.mkdirSync(uploadDir + dir);
       }

@@ -1,9 +1,11 @@
 import express from 'express';
+import { FileController } from '../controllers/file.controller';
 import { downloadAuthentication } from '../middlewares/authenticationMiddleware';
 const path = require('path');
 
 const passport = require('passport');
 const router = express.Router();
+const fs = require('fs');
 
 // ================================ TRANSCRIPTS ================================
 router.get(
@@ -23,5 +25,12 @@ router.get(
 
 // ================================ PROFILE IMG ================================
 router.get('/dp/*', express.static(path.join(__dirname, '../../uploads')));
+
+router.get('/course/*', express.static(path.join(__dirname, '../../uploads')));
+
+/**
+ * For serving lesson video, assessment video
+ */
+router.get('/course/lesson/*', FileController.serveVideo);
 
 export default router;
