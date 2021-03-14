@@ -204,7 +204,7 @@ export default class UploadService {
     return new Promise((resolve, reject) => {
       return file.mv(saveFilePath, async (err) => {
         if (err) {
-          reject(new Error(UPLOAD_ERRORS.FAILED_IMAGE_SAVE));
+          reject(new Error(UPLOAD_ERRORS.FAILED_FILE_SAVE));
         } else {
           lesson = await lesson.update({ lessonFileUrl: saveName });
           resolve(lesson);
@@ -246,7 +246,7 @@ export default class UploadService {
     return new Promise((resolve, reject) => {
       return file.mv(saveFilePath, async (err) => {
         if (err) {
-          reject(new Error(UPLOAD_ERRORS.FAILED_IMAGE_SAVE));
+          reject(new Error(UPLOAD_ERRORS.FAILED_VIDEO_SAVE));
         } else {
           lesson = await lesson.update({ [lessonAttribute]: saveName });
           resolve(lesson);
