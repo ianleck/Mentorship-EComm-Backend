@@ -11,12 +11,12 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
+import { VISIBILITY_ENUM } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Category } from './Category';
 import { MentorshipContract } from './MentorshipContract';
 import { MentorshipListingToCategory } from './MentorshipListingToCategory';
 import { User } from './User';
-
 @Table
 export class MentorshipListing extends BaseEntity {
   @PrimaryKey
@@ -38,13 +38,21 @@ export class MentorshipListing extends BaseEntity {
 
   @Min(1)
   @Max(10)
-  @Default('10.0') //Pend change - arbitrary value
+  @Default('5.0') //Pend change - arbitrary value
   @Column(DataType.FLOAT)
   rating: number;
 
   @AllowNull(false)
   @Column(DataType.FLOAT)
   priceAmount: number;
+
+  @Column({
+    allowNull: false,
+    type: DataType.ENUM,
+    values: Object.values(VISIBILITY_ENUM),
+    defaultValue: VISIBILITY_ENUM.HIDDEN,
+  })
+  visibility: VISIBILITY_ENUM;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')

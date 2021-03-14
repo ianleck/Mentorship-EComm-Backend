@@ -24,15 +24,12 @@ export default class MentorshipService {
       name: string;
       description: string;
       categories: string[];
+      priceAmount: number;
     }
   ): Promise<MentorshipListing> {
     const { name, categories, description } = mentorshipListing;
 
-    const newListing = new MentorshipListing({
-      name,
-      accountId,
-      description,
-    });
+    const newListing = new MentorshipListing(mentorshipListing);
 
     await newListing.save();
 
