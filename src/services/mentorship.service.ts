@@ -5,6 +5,7 @@ import {
   CONTRACT_PROGRESS_ENUM,
   MENTORSHIP_CONTRACT_APPROVAL,
   USER_TYPE_ENUM,
+  VISIBILITY_ENUM,
 } from '../constants/enum';
 import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
 import { Category } from '../models/Category';
@@ -24,15 +25,13 @@ export default class MentorshipService {
       name: string;
       description: string;
       categories: string[];
+      priceAmount: number;
+      visibility: VISIBILITY_ENUM;
     }
   ): Promise<MentorshipListing> {
-    const { name, categories, description } = mentorshipListing;
+    const { categories, ...listingWithoutCategories } = mentorshipListing;
 
-    const newListing = new MentorshipListing({
-      name,
-      accountId,
-      description,
-    });
+    const newListing = new MentorshipListing(listingWithoutCategories);
 
     await newListing.save();
 
@@ -86,15 +85,15 @@ export default class MentorshipService {
       name: string;
       description: string;
       categories: string[];
+      priceAmount: number;
+      visibility: VISIBILITY_ENUM;
     }
   ): Promise<MentorshipListing> {
+    const { categories, ...listingWithoutCategories } = mentorshipListing;
     const currListing = await MentorshipListing.findByPk(mentorshipListingId);
     if (!currListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
 
-    await currListing.update({
-      name: mentorshipListing.name,
-      description: mentorshipListing.description,
-    });
+    await currListing.update(listingWithoutCategories);
 
     // Find all category associations with listing
     const listingCategories: MentorshipListingToCategory[] = await MentorshipListingToCategory.findAll(
