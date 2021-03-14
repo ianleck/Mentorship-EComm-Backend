@@ -1,8 +1,9 @@
 import joi from 'joi';
 
 export default {
-  createOrderB: joi.object({
-    value: joi.string().required(),
-    payment_method: joi.string().required(),
+  captureOrderQ: joi.object({
+    paymentId: joi.string().required(),
+    token: joi.string().required(),
+    PayerID: joi.string().required(),
   }),
 };

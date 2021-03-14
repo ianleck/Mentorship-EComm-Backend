@@ -10,4 +10,6 @@ export const RESET_PASSWORD_URL = 'http://localhost:3000/auth';
 
 export const CURRENCY = 'SGD';
 export const ORDER_INTENT = 'sale';
-export const STARTING_BALANCE = '0.00';
+export const PAYMENT_METHOD = 'paypal';
+export const STARTING_BALANCE = 0.0;
+export const MARKET_FEE = 0.05; // 5%

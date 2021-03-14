@@ -3,6 +3,7 @@ import express from 'express';
 import fileUpload from 'express-fileupload';
 import fs from 'fs';
 import passport from 'passport';
+import paypal from 'paypal-rest-sdk';
 import { sequelize } from './config/db';
 import logger from './config/logger';
 import { BASE } from './constants/constants';
@@ -16,6 +17,13 @@ require('./config/auth/passport')(passport);
 const app = express();
 
 app.use(express.json());
+
+const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET } = process.env;
+paypal.configure({
+  mode: 'sandbox',
+  client_id: PAYPAL_CLIENT_ID,
+  client_secret: PAYPAL_CLIENT_SECRET,
+});
 
 sequelize
   .sync()

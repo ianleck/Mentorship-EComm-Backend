@@ -23,8 +23,8 @@ export class CartController {
           message: e.message,
         });
       } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
         });
       }
     }
@@ -32,11 +32,11 @@ export class CartController {
 
   public static async deleteItems(req, res) {
     try {
-      const { courseIds, mentorshipContractIds } = req.body;
+      const { courseIds, mentorshipListingIds } = req.body;
       const { user } = req;
       const updatedCart = await CartService.deleteItems(
         courseIds,
-        mentorshipContractIds,
+        mentorshipListingIds,
         user.accountId
       );
       return apiResponse.result(
@@ -51,8 +51,8 @@ export class CartController {
           message: e.message,
         });
       } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
         });
       }
     }

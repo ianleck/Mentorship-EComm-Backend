@@ -28,7 +28,7 @@ router.delete(
   '/',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.body(cart.deleteItemsB),
+  schemaValidator.body(cart.courseAndContractIdsB),
   Utility.asyncHandler(CartController.deleteItems)
 );
 

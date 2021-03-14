@@ -1,18 +1,30 @@
 import paypal from 'paypal-rest-sdk';
-import { CURRENCY, ORDER_INTENT } from '../constants/constants';
+import { Op } from 'sequelize';
+import {
+  CURRENCY,
+  ORDER_INTENT,
+  PAYMENT_METHOD,
+  STARTING_BALANCE,
+} from '../constants/constants';
+import { Course } from '../models/Course';
+import { MentorshipListing } from '../models/MentorshipListing';
 import { SubscriptionPlan } from '../models/SubscriptionPlan';
-
 export default class PaypalService {
-  // Should eventually only need to pass in courseId[],
-  public static async createOrder(value: string, payment_method: string) {
-    //Initialize
-    await this.setupPaypal();
-
-    const courseTransactions = await this.populateCourseTransactions(value); // To be replaced with coursesId
+  public static async captureOrder(paymentId: string, payerId: string) {
+    // Add billing logic - Next PR after integrating wallet
+  }
+  public static async createOrder(
+    courseIds: string[],
+    mentorshipListingIds: string[]
+  ) {
+    const courseTransactions = await this.populateCourseTransactions(
+      courseIds,
+      mentorshipListingIds
+    );
 
     const payment = {
       intent: `${ORDER_INTENT}`,
-      payer: { payment_method: `${payment_method}` },
+      payer: { payment_method: `${PAYMENT_METHOD}` },
       redirect_urls: {
         return_url: 'http://localhost:3000/success', //placeholder
         cancel_url: 'http://localhost:3000/err', //placeholder
@@ -20,68 +32,66 @@ export default class PaypalService {
       transactions: courseTransactions,
     };
 
-    await paypal.payment.create(payment, function (error, payment) {
-      if (error) {
-        console.error(error);
-      } else {
-        //capture HATEOAS links
-        var links = {};
-        payment.links.forEach(function (linkObj) {
-          links[linkObj.rel] = {
-            href: linkObj.href,
-            method: linkObj.method,
-          };
-        });
-
-        //if redirect url present, redirect user
-        if (links.hasOwnProperty('approval_url')) {
-          console.log(links['approval_url'].href, 'link');
-          return links['approval_url'].href;
-        } else {
-          console.error('no redirect URI present');
-        }
-      }
-    });
+    return await { paypal, payment };
   }
 
-  public static async populateCourseTransactions(value: string) {
-    const courseTransaction = [
+  public static async populateCourseTransactions(
+    courseIds: string[],
+    mentorshipListingIds: string[]
+  ) {
+    const courses = await Course.findAll({
+      where: {
+        courseId: { [Op.in]: courseIds },
+      },
+    });
+
+    const mentorshipListings = await MentorshipListing.findAll({
+      where: {
+        mentorshipListingId: { [Op.in]: mentorshipListingIds },
+      },
+    });
+
+    const items = [];
+    let totalPrice = STARTING_BALANCE;
+
+    if (courses.length > 0) {
+      courses.map((course: Course) => {
+        items.push({
+          name: course.title,
+          description: course.description,
+          quantity: '1',
+          price: `${course.priceAmount}`,
+          currency: course.currency,
+        });
+        totalPrice += course.priceAmount;
+      });
+    }
+
+    if (mentorshipListings.length > 0) {
+      mentorshipListings.map((mentorshipListing: MentorshipListing) => {
+        items.push({
+          name: mentorshipListing.name,
+          description: mentorshipListing.description,
+          quantity: '1',
+          price: `${mentorshipListing.priceAmount}`,
+          currency: `${CURRENCY}`,
+        });
+        totalPrice += mentorshipListing.priceAmount;
+      });
+    }
+
+    const populatedTransactions = [
       {
-        amount: { total: `30.0`, currency: `${CURRENCY}` },
-        description: 'testing api',
+        amount: { total: `${totalPrice}`, currency: `${CURRENCY}` },
+        description: `DigiDojo Order Checkout`,
         item_list: {
-          items: [
-            {
-              name: 'test1',
-              description: 'test1',
-              quantity: '1',
-              price: `${value}`,
-              currency: `${CURRENCY}`,
-            },
-            {
-              name: 'test2',
-              description: 'test2',
-              quantity: '1',
-              price: `${value}`,
-              currency: `${CURRENCY}`,
-            },
-            {
-              name: 'test3',
-              description: 'test3',
-              quantity: '1',
-              price: `${value}`,
-              currency: `${CURRENCY}`,
-            },
-          ],
+          items,
         },
       },
-      // {
-      //   amount: { total: `${value}`, currency: `${CURRENCY}` },
-      //   description: 'testing api 2 ',
-      // },
     ];
-    return courseTransaction;
-  } // Get course description // Get course cost // Find courses this order is for
+
+    return populatedTransactions;
+  }
 
   // Pass in subscriptionPlan Id
   public static async populateBillingPlanAttributes(

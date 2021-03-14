@@ -239,7 +239,7 @@ export default class MentorshipService {
     const mentorshipName = mentorshipListing.name;
     const additional = { mentorshipName };
 
-    await CartService.addMentorshipContract(
+    await CartService.addMentorshipListing(
       acceptedApplication.mentorshipContractId,
       student.accountId
     );
