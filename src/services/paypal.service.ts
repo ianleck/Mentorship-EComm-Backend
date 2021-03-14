@@ -10,7 +10,9 @@ import { Course } from '../models/Course';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { SubscriptionPlan } from '../models/SubscriptionPlan';
 export default class PaypalService {
-  public static async captureOrder(paymentId: string, payerId: string) {}
+  public static async captureOrder(paymentId: string, payerId: string) {
+    // Add billing logic - Next PR after integrating wallet
+  }
   public static async createOrder(
     courseIds: string[],
     mentorshipListingIds: string[]
