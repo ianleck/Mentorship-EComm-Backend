@@ -31,7 +31,10 @@ export default class MentorshipService {
   ): Promise<MentorshipListing> {
     const { categories, ...listingWithoutCategories } = mentorshipListing;
 
-    const newListing = new MentorshipListing(listingWithoutCategories);
+    const newListing = new MentorshipListing({
+      accountId,
+      ...listingWithoutCategories,
+    });
 
     await newListing.save();
 
