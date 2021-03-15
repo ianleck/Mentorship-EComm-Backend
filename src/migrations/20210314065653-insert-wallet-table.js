@@ -15,10 +15,6 @@ module.exports = {
             allowNull: false,
             unique: true,
             type: Sequelize.UUID,
-            references: {
-              model: 'Admin',
-              key: 'walletId',
-            },
           },
           pendingAmount: {
             allowNull: false,
