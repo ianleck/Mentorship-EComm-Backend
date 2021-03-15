@@ -2,6 +2,8 @@ import {
   AllowNull,
   BelongsTo,
   Column,
+  CreatedAt,
+  UpdatedAt,
   DataType,
   Default,
   Model,
@@ -42,6 +44,14 @@ export class Experience extends Model<Experience> {
 
   @Column(DataType.TEXT)
   companyUrl: string;
+
+  @CreatedAt
+  @Column
+  createdAt: Date;
+
+  @UpdatedAt
+  @Column
+  updatedAt: Date;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, {

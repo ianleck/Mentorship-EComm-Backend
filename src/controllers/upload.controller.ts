@@ -171,7 +171,7 @@ export class UploadController {
       const file = req.files.file;
       const folder = 'course/lesson/video';
       const lessonAttribute = 'videoUrl';
-      const course = await UploadService.uploadLessonVideo(
+      const lesson = await UploadService.uploadLessonVideo(
         file,
         accountId,
         lessonId,
@@ -180,7 +180,7 @@ export class UploadController {
       );
       return apiResponse.result(
         res,
-        { message: UPLOAD_RESPONSE.LESSON_VIDEO_UPLOAD, course },
+        { message: UPLOAD_RESPONSE.LESSON_VIDEO_UPLOAD, lesson },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -217,7 +217,7 @@ export class UploadController {
       const file = req.files.file;
       const folder = 'course/lesson/assessment-video';
       const lessonAttribute = 'assessmentUrl';
-      const course = await UploadService.uploadLessonVideo(
+      const lesson = await UploadService.uploadLessonVideo(
         file,
         accountId,
         lessonId,
@@ -226,7 +226,7 @@ export class UploadController {
       );
       return apiResponse.result(
         res,
-        { message: UPLOAD_RESPONSE.LESSON_VIDEO_UPLOAD, course },
+        { message: UPLOAD_RESPONSE.LESSON_VIDEO_UPLOAD, lesson },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -297,14 +297,14 @@ export class UploadController {
     const { lessonId } = req.params;
 
     try {
-      const course = await UploadService.deleteLessonFile(
+      const lesson = await UploadService.deleteLessonFile(
         accountId,
         lessonId,
         'videoUrl'
       );
       return apiResponse.result(
         res,
-        { message: UPLOAD_RESPONSE.FILE_DELETED, course },
+        { message: UPLOAD_RESPONSE.FILE_DELETED, lesson },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -332,14 +332,14 @@ export class UploadController {
     const { lessonId } = req.params;
 
     try {
-      const course = await UploadService.deleteLessonFile(
+      const lesson = await UploadService.deleteLessonFile(
         accountId,
         lessonId,
         'assessmentUrl'
       );
       return apiResponse.result(
         res,
-        { message: UPLOAD_RESPONSE.FILE_DELETED, course },
+        { message: UPLOAD_RESPONSE.FILE_DELETED, lesson },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -367,14 +367,14 @@ export class UploadController {
     const { lessonId } = req.params;
 
     try {
-      const course = await UploadService.deleteLessonFile(
+      const lesson = await UploadService.deleteLessonFile(
         accountId,
         lessonId,
         'lessonFileUrl'
       );
       return apiResponse.result(
         res,
-        { message: UPLOAD_RESPONSE.FILE_DELETED, course },
+        { message: UPLOAD_RESPONSE.FILE_DELETED, lesson },
         httpStatusCodes.OK
       );
     } catch (e) {
