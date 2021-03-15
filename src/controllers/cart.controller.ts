@@ -30,6 +30,33 @@ export class CartController {
     }
   }
 
+  public static async addMentorshipListing(req, res) {
+    try {
+      const { mentorshipContractId } = req.body;
+      const { user } = req;
+      const updatedCart = await CartService.addMentorshipListing(
+        mentorshipContractId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        { message: CART_RESPONSE.ADD_TO_CART, updatedCart },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[cartController.addMentorshipListing]:' + e.message);
+      if (e.message === ERRORS.STUDENT_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+    }
+  }
+
   public static async deleteItems(req, res) {
     try {
       const { courseIds, mentorshipListingIds } = req.body;
