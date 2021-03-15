@@ -1,6 +1,11 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { COURSE_ERRORS, ERRORS, RESPONSE_ERROR, AUTH_ERRORS } from '../constants/errors';
+import {
+  COURSE_ERRORS,
+  ERRORS,
+  RESPONSE_ERROR,
+  AUTH_ERRORS,
+} from '../constants/errors';
 import { COURSE_RESPONSE } from '../constants/successMessages';
 import CourseService from '../services/course.service';
 import apiResponse from '../utilities/apiResponse';
@@ -218,10 +223,7 @@ export class CourseController {
     const { user } = req;
     const { lessonId } = req.params;
     try {
-      const updatedLesson = await CourseService.deleteLesson(
-        lessonId,
-        user.accountId
-      );
+      await CourseService.deleteLesson(lessonId, user.accountId);
       return apiResponse.result(
         res,
         { message: COURSE_RESPONSE.COURSE_DELETE },
@@ -245,167 +247,174 @@ export class CourseController {
   }
 
   // ======================================== ANNOUNCEMENTS ========================================
-  public static async createAnnouncement(req,res) {
+  public static async createAnnouncement(req, res) {
     const { user } = req;
     const { courseId } = req.params;
     const { newAnnouncement } = req.body;
 
     try {
       const createdAnnouncement = await CourseService.createAnnouncement(
-        courseId, 
+        courseId,
         user.accountId,
-        newAnnouncement,  
-        );                           
-        return apiResponse.result(
-          res,
-          { message: COURSE_RESPONSE.ANNOUNCEMENT_CREATE, announcement: createdAnnouncement },
-          httpStatusCodes.CREATED
-        );
-      } catch (e) {
-        logger.error('[courseController.createAnnouncement]:' + e.message);
-        if (
-          e.message ===
-            httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
-          e.message === COURSE_ERRORS.COURSE_MISSING
-        ) {
-          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-            message: e.message,
-          });
-        }
+        newAnnouncement
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: COURSE_RESPONSE.ANNOUNCEMENT_CREATE,
+          announcement: createdAnnouncement,
+        },
+        httpStatusCodes.CREATED
+      );
+    } catch (e) {
+      logger.error('[courseController.createAnnouncement]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === COURSE_ERRORS.COURSE_MISSING
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async updateAnnouncement(req, res) {
+    const { user } = req;
+    const { announcementId } = req.params;
+    const { updateAnnouncement } = req.body;
+    try {
+      const updatedAnnouncement = await CourseService.updateAnnouncement(
+        announcementId,
+        user.accountId,
+        updateAnnouncement
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: COURSE_RESPONSE.COURSE_UPDATE,
+          announcement: updatedAnnouncement,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.updateAnnouncement]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === COURSE_ERRORS.ANNOUNCEMENT_MISSING
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async deleteAnnouncement(req, res) {
+    const { user } = req;
+    const { announcementId } = req.params;
+    try {
+      await CourseService.deleteAnnouncement(announcementId, user.accountId);
+      return apiResponse.result(
+        res,
+        { message: COURSE_RESPONSE.ANNOUNCEMENT_DELETE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.deleteAnnouncement]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === COURSE_ERRORS.ANNOUNCEMENT_MISSING
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getAllAnnouncements(req, res) {
+    const { courseId } = req.params;
+    const { user } = req;
+    try {
+      const announcements = await CourseService.getAllAnnouncements(
+        courseId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          announcements,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.getAllAnnouncements]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === COURSE_ERRORS.COURSE_MISSING ||
+        e.message === ERRORS.USER_DOES_NOT_EXIST
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
         return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
           message: RESPONSE_ERROR.RES_ERROR,
         });
       }
     }
+  }
 
-    public static async updateAnnouncement(req, res) {
-      const { user } = req;
-      const { announcementId } = req.params;
-      const { updateAnnouncement } = req.body;
-      try {
-        const updatedAnnouncement = await CourseService.updateAnnouncement(
-          announcementId,
-          user.accountId,
-          updateAnnouncement
-        );
-        return apiResponse.result(
-          res,
-          { message: COURSE_RESPONSE.COURSE_UPDATE, announcement: updatedAnnouncement },
-          httpStatusCodes.OK
-        );
-      } catch (e) {
-        logger.error('[courseController.updateAnnouncement]:' + e.message);
-        if (
-          e.message ===
-            httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
-          e.message === COURSE_ERRORS.ANNOUNCEMENT_MISSING
-        ) {
-          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-            message: e.message,
-          });
-        }
+  public static async getAnnouncement(req, res) {
+    const { announcementId } = req.params;
+    const { user } = req;
+    try {
+      const announcement = await CourseService.getAnnouncement(
+        announcementId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          announcement,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.getAnnouncement]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === COURSE_ERRORS.ANNOUNCEMENT_MISSING ||
+        e.message === COURSE_ERRORS.COURSE_MISSING ||
+        e.message === ERRORS.USER_DOES_NOT_EXIST
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
         return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
           message: RESPONSE_ERROR.RES_ERROR,
         });
       }
     }
-
-    public static async deleteAnnouncement(req, res) {
-      const { user } = req;
-      const { announcementId } = req.params;
-      try {
-        const updatedAnnouncement = await CourseService.deleteAnnouncement(
-          announcementId,
-          user.accountId
-        );
-        return apiResponse.result(
-          res,
-          { message: COURSE_RESPONSE.ANNOUNCEMENT_DELETE },
-          httpStatusCodes.OK
-        );
-      } catch (e) {
-        logger.error('[courseController.deleteAnnouncement]:' + e.message);
-        if (
-          e.message ===
-            httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
-          e.message === COURSE_ERRORS.ANNOUNCEMENT_MISSING
-        ) {
-          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-            message: e.message,
-          });
-        }
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
-    }
-
-    public static async getAllAnnouncements(req, res) {
-      const { courseId } = req.params;
-      const { user } = req; 
-      try {
-        const announcements = await CourseService.getAllAnnouncements(courseId, user.accountId);
-        return apiResponse.result(
-          res,
-          {
-            message: 'success',
-            announcements, 
-          },
-          httpStatusCodes.OK
-        );
-      } catch (e) {
-        logger.error(
-          '[courseController.getAllAnnouncements]:' + e.message
-        );
-        if (
-          e.message ===
-            httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
-            e.message === COURSE_ERRORS.COURSE_MISSING ||
-            e.message === ERRORS.USER_DOES_NOT_EXIST ) {
-          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-            message: e.message,
-          });
-        } else {
-          return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-            message: RESPONSE_ERROR.RES_ERROR,
-          });
-        }
-      }
-    }
-  
-    public static async getAnnouncement(req,res) {
-      const { announcementId } = req.params; 
-      const { user } = req; 
-      try {
-        const announcement = await CourseService.getAnnouncement(announcementId, user.accountId);
-        return apiResponse.result(
-          res, 
-          {
-            message: 'success',
-            announcement, 
-          },
-          httpStatusCodes.OK
-        );
-      } catch (e) {
-        logger.error('[courseController.getAnnouncement]:' + e.message);
-        if (
-          e.message ===
-            httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
-            e.message === COURSE_ERRORS.ANNOUNCEMENT_MISSING ||
-            e.message === COURSE_ERRORS.COURSE_MISSING ||
-            e.message === ERRORS.USER_DOES_NOT_EXIST 
-            ) {
-          return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-            message: e.message,
-          });
-        } else {
-          return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-            message: RESPONSE_ERROR.RES_ERROR,
-          });
-        }
-      }
-    }
-
+  }
 
   // ======================================== COURSE REQUESTS ========================================
   public static async getAllRequests(req, res) {
@@ -415,29 +424,27 @@ export class CourseController {
         res,
         {
           message: 'success',
-          requests, 
+          requests,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error(
-        '[courseController.getAllRequests]:' + e.message
-      );
-      return apiResponse.error(res,httpStatusCodes.INTERNAL_SERVER_ERROR, {
+      logger.error('[courseController.getAllRequests]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
 
-  public static async getRequest(req,res) {
-    const { courseId } = req.params; 
+  public static async getRequest(req, res) {
+    const { courseId } = req.params;
     try {
       const courseRequest = await CourseService.getRequest(courseId);
       return apiResponse.result(
-        res, 
+        res,
         {
           message: 'success',
-          courseRequest, 
+          courseRequest,
         },
         httpStatusCodes.OK
       );
@@ -455,8 +462,8 @@ export class CourseController {
     }
   }
 
-  public static async acceptCourseRequest(req,res) {
-    const { courseId } = req.params; 
+  public static async acceptCourseRequest(req, res) {
+    const { courseId } = req.params;
     try {
       const courseRequest = await CourseService.acceptCourseRequest(courseId);
       return apiResponse.result(
@@ -465,26 +472,26 @@ export class CourseController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error(
-        '[courseController.acceptCourseRequest]:' + e.message
-      ); 
-      if (e.message === COURSE_ERRORS.COURSE_MISSING || 
-          e.message === ERRORS.SENSEI_DOES_NOT_EXIST ||  
-          e.message === AUTH_ERRORS.USER_BANNED ||
-          e.message === COURSE_ERRORS.USER_NOT_VERIFIED) {
+      logger.error('[courseController.acceptCourseRequest]:' + e.message);
+      if (
+        e.message === COURSE_ERRORS.COURSE_MISSING ||
+        e.message === ERRORS.SENSEI_DOES_NOT_EXIST ||
+        e.message === AUTH_ERRORS.USER_BANNED ||
+        e.message === COURSE_ERRORS.USER_NOT_VERIFIED
+      ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
       } else {
         return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
           message: RESPONSE_ERROR.RES_ERROR,
-        }); 
+        });
       }
     }
   }
 
-  public static async rejectCourseRequest(req,res) {
-    const { courseId } = req.params; 
+  public static async rejectCourseRequest(req, res) {
+    const { courseId } = req.params;
     try {
       const courseRequest = await CourseService.rejectCourseRequest(courseId);
       return apiResponse.result(
@@ -493,13 +500,11 @@ export class CourseController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error(
-        '[courseController.rejectCourseRequest]:' + e.message
-      ); 
-      if ( 
+      logger.error('[courseController.rejectCourseRequest]:' + e.message);
+      if (
         e.message === COURSE_ERRORS.COURSE_MISSING ||
         e.message === ERRORS.SENSEI_DOES_NOT_EXIST ||
-        e.message === AUTH_ERRORS.USER_BANNED 
+        e.message === AUTH_ERRORS.USER_BANNED
       ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
@@ -507,7 +512,7 @@ export class CourseController {
       } else {
         return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
           message: RESPONSE_ERROR.RES_ERROR,
-        }); 
+        });
       }
     }
   }
@@ -545,26 +550,27 @@ export class CourseController {
 
   public static async getAllPurchasedCourses(req, res) {
     const { user } = req;
-    const { accountId} = req.params; 
+    const { accountId } = req.params;
 
     try {
-      const requests = await CourseService.getAllPurchasedCourses(user.accountId, accountId);
+      const requests = await CourseService.getAllPurchasedCourses(
+        user.accountId,
+        accountId
+      );
       return apiResponse.result(
         res,
         {
           message: 'success',
-          requests, 
+          requests,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error(
-        '[courseController.getAllPurchasedCourses]:' + e.message
-      );
+      logger.error('[courseController.getAllPurchasedCourses]:' + e.message);
       if (
         e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-          ) {
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
@@ -575,7 +581,6 @@ export class CourseController {
       }
     }
   }
-
 
   // ======================================== COMMENTS ========================================
   public static async createComment(req, res) {

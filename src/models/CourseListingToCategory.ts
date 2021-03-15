@@ -1,12 +1,14 @@
 import {
   Column,
+  CreatedAt,
   DataType,
   ForeignKey,
   Model,
   Table,
+  UpdatedAt,
 } from 'sequelize-typescript';
-import { Course } from './Course';
 import { Category } from './Category';
+import { Course } from './Course';
 
 @Table
 export class CourseListingToCategory extends Model<CourseListingToCategory> {
@@ -17,4 +19,12 @@ export class CourseListingToCategory extends Model<CourseListingToCategory> {
   @ForeignKey(() => Category)
   @Column(DataType.UUID)
   categoryId: string;
+
+  @CreatedAt
+  @Column
+  createdAt: Date;
+
+  @UpdatedAt
+  @Column
+  updatedAt: Date;
 }

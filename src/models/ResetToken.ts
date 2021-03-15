@@ -7,6 +7,7 @@ import {
   Model,
   PrimaryKey,
   Table,
+  UpdatedAt,
 } from 'sequelize-typescript';
 
 @Table
@@ -24,8 +25,12 @@ export class ResetToken extends Model<ResetToken> {
   accountId: string;
 
   @CreatedAt
-  @Column(DataType.DATE)
+  @Column
   createdAt: Date;
+
+  @UpdatedAt
+  @Column
+  updatedAt: Date;
 
   @Column(DataType.DATE)
   expiredAt: Date;

@@ -1,8 +1,15 @@
-import { Column, ForeignKey, Model, Table } from 'sequelize-typescript';
+import {
+  Column,
+  CreatedAt,
+  ForeignKey,
+  Model,
+  Table,
+  UpdatedAt,
+} from 'sequelize-typescript';
 import { User } from './User';
 
 @Table
-export class UserFollowership extends Model {
+export class UserFollowership extends Model<UserFollowership> {
   @ForeignKey(() => User)
   @Column
   followerId: string;
@@ -10,4 +17,12 @@ export class UserFollowership extends Model {
   @ForeignKey(() => User)
   @Column
   followingId: string;
+
+  @CreatedAt
+  @Column
+  createdAt: Date;
+
+  @UpdatedAt
+  @Column
+  updatedAt: Date;
 }
