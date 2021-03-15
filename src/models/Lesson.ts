@@ -12,7 +12,7 @@ import { BaseEntity } from './abstract/BaseEntity';
 import { Comment } from './Comment';
 import { Course } from './Course';
 @Table
-export class Lesson extends Model<BaseEntity> {
+export class Lesson extends BaseEntity {
   /**
    * title
    * assessmentUrl

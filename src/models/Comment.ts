@@ -4,7 +4,6 @@ import {
   Column,
   DataType,
   Default,
-  Model,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
@@ -13,7 +12,7 @@ import { Lesson } from './Lesson';
 import { User } from './User';
 
 @Table
-export class Comment extends Model<BaseEntity> {
+export class Comment extends BaseEntity {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
