@@ -42,8 +42,10 @@ export class Wallet extends BaseEntity {
   @Column(DataType.FLOAT)
   totalEarned: number; // For sensei is total earned, including what has been withdrawn. For admin is total amount that has gone through the platform
 
+  @AllowNull(false)
+  @Default(STARTING_BALANCE)
   @Column(DataType.FLOAT)
-  totalRevenue: number; // Only for admin, total revenue = totalEarned * platform fee
+  platformRevenue: number; // Only for admin, total revenue = totalEarned * platform fee
 
   @AllowNull(false)
   @Default(CURRENCY)

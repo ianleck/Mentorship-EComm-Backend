@@ -11,7 +11,7 @@ module.exports = {
             type: Sequelize.UUID,
             defaultValue: Sequelize.UUIDV4,
           },
-          ownerId: {
+          accountId: {
             allowNull: false,
             unique: true,
             type: Sequelize.UUID,
@@ -22,6 +22,16 @@ module.exports = {
             defaultValue: 0.0,
           },
           confirmedAmount: {
+            allowNull: false,
+            type: Sequelize.FLOAT,
+            defaultValue: 0.0,
+          },
+          totalEarned: {
+            allowNull: false,
+            type: Sequelize.FLOAT,
+            defaultValue: 0.0,
+          },
+          platformRevenue: {
             allowNull: false,
             type: Sequelize.FLOAT,
             defaultValue: 0.0,

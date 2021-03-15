@@ -19,13 +19,11 @@ module.exports = {
         INSERT INTO
         Wallet (
           walletId,
-          ownerId,
-          totalRevenue
+          accountId
         )
         values (
           $1,
-          $2,
-          0
+          $2
         )
         `,
         {
@@ -72,7 +70,7 @@ module.exports = {
       );
       await queryInterface.sequelize.query(
         `
-      delete from "Wallet" where ownerId = $1;
+      delete from "Wallet" where accountId = $1;
       `,
         {
           bind: [superAdminId[0][0].accountId],

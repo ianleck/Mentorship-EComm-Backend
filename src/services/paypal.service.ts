@@ -30,8 +30,8 @@ export default class PaypalService {
     });
     const adminWallet = await Wallet.findByPk(admin.walletId);
 
-    let platformEarned = 0,
-      platformRevenue = 0;
+    let newPlatformEarned = 0,
+      newPlatformRevenue = 0;
     const billingsPending = await Billing.findAll({
       where: { paypalPaymentId: paymentId },
     });
@@ -54,8 +54,8 @@ export default class PaypalService {
         const platformFee = billing.amount * MARKET_FEE;
         const paypalFee = billing.amount * PAYPAL_FEE + 0.5;
         const payable = billing.amount - paypalFee - platformFee;
-        platformEarned += billing.amount - paypalFee;
-        platformRevenue += platformFee;
+        newPlatformEarned += billing.amount - paypalFee;
+        newPlatformRevenue += platformFee;
 
         const course = await Course.findByPk(billing.courseId);
         const sensei = await User.findByPk(course.accountId);
@@ -75,16 +75,16 @@ export default class PaypalService {
     );
 
     const totalEarned = Number(
-      (adminWallet.totalEarned + platformEarned).toFixed(2)
+      (adminWallet.totalEarned + newPlatformEarned).toFixed(2)
     );
-    const totalRevenue = Number(
-      (adminWallet.totalRevenue + platformRevenue).toFixed(2)
+    const platformRevenue = Number(
+      (adminWallet.platformRevenue + newPlatformRevenue).toFixed(2)
     );
 
     // 5. Update admin wallet
     await adminWallet.update({
       totalEarned,
-      totalRevenue,
+      platformRevenue,
     });
   }
 
