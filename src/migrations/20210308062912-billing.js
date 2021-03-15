@@ -21,7 +21,15 @@ module.exports = {
         },
         paypalPaymentId: {
           type: Sequelize.STRING,
-          unique: true,
+        },
+        courseId: {
+          type: Sequelize.STRING,
+        },
+        courseContractId: {
+          type: Sequelize.STRING,
+        },
+        mentorshipListingId: {
+          type: Sequelize.STRING,
         },
         amount: {
           type: Sequelize.FLOAT,
@@ -31,6 +39,9 @@ module.exports = {
           type: Sequelize.STRING,
           default: 'SGD',
         },
+        platformFee: {
+          type: Sequelize.FLOAT,
+        },
         senderWalletId: {
           type: Sequelize.STRING,
         },
@@ -39,7 +50,20 @@ module.exports = {
         },
         status: {
           allowNull: false,
-          type: Sequelize.ENUM('SUCCESS', 'FAILED', 'PENDING', 'ADMIN'),
+          type: Sequelize.ENUM(
+            'SUCCESS',
+            'FAILED',
+            'PENDING_PAYMENT',
+            'PENDING_90_DAYS',
+            'WITHDRAWN',
+            'ADMIN'
+          ),
+        },
+        withdrawableDate: {
+          type: Sequelize.DATE,
+        },
+        withdrawnDate: {
+          type: Sequelize.DATE,
         },
         createdAt: {
           allowNull: false,

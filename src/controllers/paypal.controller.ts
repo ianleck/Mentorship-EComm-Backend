@@ -1,11 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import paypal from 'paypal-rest-sdk';
 import logger from '../config/logger';
-import {
-  BILLING_ACTION,
-  BILLING_STATUS,
-  BILLING_TYPE,
-} from '../constants/enum';
 import PaypalService from '../services/paypal.service';
 import WalletService from '../services/wallet.service';
 import apiResponse from '../utilities/apiResponse';
@@ -15,7 +10,7 @@ export class PaypalController {
       const { courseIds, mentorshipContractIds } = req.body;
       const { user } = req;
 
-      const { payment } = await PaypalService.createOrder(
+      const { payment, billings } = await PaypalService.createOrder(
         courseIds,
         mentorshipContractIds,
         user.accountId
@@ -35,6 +30,9 @@ export class PaypalController {
           });
           //if redirect url present, redirect user
           if (links.hasOwnProperty('approval_url')) {
+            const paymentId = links['self'].href.split('/')[6];
+            await WalletService.updatePaymentId(billings, paymentId);
+
             const paypalUrl = links['approval_url'].href;
             return apiResponse.result(
               res,
@@ -68,26 +66,17 @@ export class PaypalController {
             console.error(error);
           } else {
             if (payment.state == 'approved') {
-              await WalletService.addBillings(BILLING_TYPE.ORDER, {
-                accountId: user.accountId,
-                payerId: payerId.payer_id,
+              await PaypalService.captureOrder(
+                user,
                 paymentId,
-                action: BILLING_ACTION.CAPTURE,
-                status: BILLING_STATUS.SUCCESS,
-              });
+                payerId.payer_id
+              );
               return apiResponse.result(
                 res,
                 { message: 'success' },
                 httpStatusCodes.OK
               );
             } else {
-              await WalletService.addBillings(BILLING_TYPE.ORDER, {
-                accountId: user.accountId,
-                payerId: payerId.payer_id,
-                paymentId,
-                action: BILLING_ACTION.CAPTURE,
-                status: BILLING_STATUS.FAILED,
-              });
               return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
                 message: 'unsuccessful payment',
               });

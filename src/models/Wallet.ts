@@ -40,7 +40,10 @@ export class Wallet extends BaseEntity {
   @AllowNull(false)
   @Default(STARTING_BALANCE)
   @Column(DataType.FLOAT)
-  totalAmount: number;
+  totalEarned: number; // For sensei is total earned, including what has been withdrawn. For admin is total amount that has gone through the platform
+
+  @Column(DataType.FLOAT)
+  totalRevenue: number; // Only for admin, total revenue = totalEarned * platform fee
 
   @AllowNull(false)
   @Default(CURRENCY)
@@ -55,8 +58,8 @@ export class Wallet extends BaseEntity {
   AdminAccess: Admin;
 
   @HasMany(() => Billing, 'senderWalletId')
-  billingsSent: Billing[];
+  BillingsSent: Billing[];
 
   @HasMany(() => Billing, 'receiverWalletId')
-  billingsReceived: Billing[];
+  BillingsReceived: Billing[];
 }

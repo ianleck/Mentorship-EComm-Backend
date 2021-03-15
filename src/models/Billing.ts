@@ -3,13 +3,16 @@ import {
   Column,
   DataType,
   Default,
+  HasOne,
   PrimaryKey,
   Table,
-  Unique,
 } from 'sequelize-typescript';
 import { CURRENCY, STARTING_BALANCE } from '../constants/constants';
 import { BILLING_STATUS } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
+import { Course } from './Course';
+import { CourseContract } from './CourseContract';
+import { MentorshipListing } from './MentorshipListing';
 
 @Table
 export class Billing extends BaseEntity {
@@ -21,9 +24,17 @@ export class Billing extends BaseEntity {
   @Column(DataType.STRING)
   paypalPayerId: string;
 
-  @Unique
   @Column(DataType.STRING)
   paypalPaymentId: string;
+
+  @Column(DataType.STRING)
+  courseId: string;
+
+  @Column(DataType.STRING)
+  courseContractId: string;
+
+  @Column(DataType.STRING)
+  mentorshipListingId: string;
 
   @AllowNull(false)
   @Default(STARTING_BALANCE)
@@ -34,6 +45,9 @@ export class Billing extends BaseEntity {
   @Default(CURRENCY)
   @Column(DataType.STRING)
   currency: string;
+
+  @Column(DataType.FLOAT)
+  platformFee: number;
 
   @AllowNull(false)
   @Column(DataType.STRING)
@@ -50,5 +64,19 @@ export class Billing extends BaseEntity {
   })
   status: BILLING_STATUS;
 
-  // Need to think of how to add paypal receipt
+  @Column(DataType.DATE)
+  withdrawableDate: Date;
+
+  @Column(DataType.DATE)
+  withdrawnDate: Date;
+
+  // ==================== RELATIONSHIP MAPPINGS ====================
+  @HasOne(() => Course, 'courseId')
+  Course: Course;
+
+  @HasOne(() => CourseContract, 'courseContractId')
+  CourseContract: CourseContract;
+
+  @HasOne(() => MentorshipListing, 'mentorshipListingId')
+  MentorshipListing: MentorshipListing;
 }

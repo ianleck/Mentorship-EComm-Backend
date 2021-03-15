@@ -41,3 +41,5 @@ export const ORDER_INTENT = 'sale';
 export const PAYMENT_METHOD = 'paypal';
 export const STARTING_BALANCE = 0.0;
 export const MARKET_FEE = 0.05; // 5%
+export const PAYPAL_FEE = 0.034;
+export const WITHDRAWAL_DAYS = 90; // hours

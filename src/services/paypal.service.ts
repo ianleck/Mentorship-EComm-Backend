@@ -1,23 +1,93 @@
-import paypal from 'paypal-rest-sdk';
 import { Op } from 'sequelize';
 import {
   CURRENCY,
+  MARKET_FEE,
   ORDER_INTENT,
   PAYMENT_METHOD,
+  PAYPAL_FEE,
   STARTING_BALANCE,
 } from '../constants/constants';
-import {
-  BILLING_ACTION,
-  BILLING_STATUS,
-  BILLING_TYPE,
-} from '../constants/enum';
+import { BILLING_STATUS } from '../constants/enum';
 import { ERRORS } from '../constants/errors';
+import { Admin } from '../models/Admin';
+import { Billing } from '../models/Billing';
 import { Course } from '../models/Course';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { SubscriptionPlan } from '../models/SubscriptionPlan';
 import { User } from '../models/User';
+import { Wallet } from '../models/Wallet';
+import CourseService from './course.service';
 import WalletService from './wallet.service';
 export default class PaypalService {
+  public static async captureOrder(
+    user: User,
+    paymentId: string,
+    payerId: string
+  ) {
+    const studentId = user.accountId;
+    const admin = await Admin.findOne({
+      where: { walletId: { [Op.not]: null } },
+    });
+    const adminWallet = await Wallet.findByPk(admin.walletId);
+
+    let platformEarned = 0,
+      platformRevenue = 0;
+    const billingsPending = await Billing.findAll({
+      where: { paypalPaymentId: paymentId },
+    });
+    await Promise.all(
+      billingsPending.map(async (billing) => {
+        // 1. Create courseContract for user
+        const courseContract = await CourseService.createContract(
+          studentId,
+          billing.courseId
+        );
+
+        // 2. Update billing with payerId
+        await billing.update({
+          paypalPayerId: payerId,
+          courseContractId: courseContract.courseContractId,
+          status: BILLING_STATUS.SUCCESS,
+        });
+
+        // 3. Calculate Revenue + Earnings
+        const platformFee = billing.amount * MARKET_FEE;
+        const paypalFee = billing.amount * PAYPAL_FEE + 0.5;
+        const payable = billing.amount - paypalFee - platformFee;
+        platformEarned += billing.amount - paypalFee;
+        platformRevenue += platformFee;
+
+        const course = await Course.findByPk(billing.courseId);
+        const sensei = await User.findByPk(course.accountId);
+
+        // 4. Create billings from admin to sensei
+        await WalletService.createSenseiBilling(
+          Number(payable.toFixed(2)),
+          Number(platformFee.toFixed(2)),
+          billing.currency,
+          billing.courseId,
+          courseContract.courseContractId,
+          admin.walletId,
+          sensei.walletId,
+          BILLING_STATUS.PENDING_90_DAYS
+        );
+      })
+    );
+
+    const totalEarned = Number(
+      (adminWallet.totalEarned + platformEarned).toFixed(2)
+    );
+    const totalRevenue = Number(
+      (adminWallet.totalRevenue + platformRevenue).toFixed(2)
+    );
+
+    // 5. Update admin wallet
+    await adminWallet.update({
+      totalEarned,
+      totalRevenue,
+    });
+  }
+
   public static async createOrder(
     courseIds: string[],
     mentorshipListingIds: string[],
@@ -28,8 +98,12 @@ export default class PaypalService {
 
     const {
       populatedTransactions,
-      totalPrice,
-    } = await this.populateCourseTransactions(courseIds, mentorshipListingIds);
+      billings,
+    } = await this.populateCourseTransactions(
+      courseIds,
+      mentorshipListingIds,
+      accountId
+    );
 
     const payment = {
       intent: `${ORDER_INTENT}`,
@@ -41,22 +115,13 @@ export default class PaypalService {
       transactions: populatedTransactions,
     };
 
-    const billingOptions = {
-      accountId,
-      amount: totalPrice,
-      currency: CURRENCY,
-      type: BILLING_TYPE.ORDER,
-      status: BILLING_STATUS.PENDING,
-      action: BILLING_ACTION.AUTHORIZE,
-    };
-
-    await WalletService.addBillings(BILLING_TYPE.ORDER, billingOptions);
-    return await { paypal, payment };
+    return await { payment, billings };
   }
 
   public static async populateCourseTransactions(
     courseIds: string[],
-    mentorshipListingIds: string[]
+    mentorshipListingIds: string[],
+    accountId: string
   ) {
     let courses, mentorshipListings;
     if (courseIds) {
@@ -75,11 +140,12 @@ export default class PaypalService {
     }
 
     const items = [];
+    const billings: Billing[] = [];
     let totalPrice = STARTING_BALANCE;
 
     if (courses && courses.length > 0) {
       await Promise.all(
-        courses.map((course: Course) => {
+        courses.map(async (course: Course) => {
           items.push({
             name: course.title,
             description: course.description,
@@ -88,10 +154,20 @@ export default class PaypalService {
             currency: course.currency,
           });
           totalPrice += course.priceAmount;
+
+          const billing = await WalletService.createCourseBilling(
+            course.priceAmount,
+            course.currency,
+            course.courseId,
+            accountId,
+            BILLING_STATUS.PENDING_PAYMENT
+          );
+          billings.push(billing);
         })
       );
     }
 
+    // Ignore mentorshipListings for now
     if (mentorshipListings && mentorshipListings.length > 0) {
       await Promise.all(
         mentorshipListings.map((mentorshipListing: MentorshipListing) => {
@@ -117,7 +193,7 @@ export default class PaypalService {
       },
     ];
 
-    return { populatedTransactions, totalPrice };
+    return { populatedTransactions, billings };
   }
 
   // Pass in subscriptionPlan Id
@@ -134,13 +210,4 @@ export default class PaypalService {
   }
 
   public static async populateBillingPlanUpdateAttributes() {}
-
-  public static async setupPaypal() {
-    const { PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET } = process.env;
-    await paypal.configure({
-      mode: 'sandbox',
-      client_id: PAYPAL_CLIENT_ID,
-      client_secret: PAYPAL_CLIENT_SECRET,
-    });
-  }
 }

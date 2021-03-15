@@ -10,6 +10,13 @@ const router = express.Router();
 const schemaValidator = require('express-joi-validation').createValidator({});
 
 router.get(
+  '/billings',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  Utility.asyncHandler(WalletController.getAllBillings)
+);
+
+router.get(
   '/:walletId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,

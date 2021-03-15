@@ -19,11 +19,13 @@ module.exports = {
         INSERT INTO
         Wallet (
           walletId,
-          ownerId
+          ownerId,
+          totalRevenue
         )
         values (
           $1,
-          $2
+          $2,
+          0
         )
         `,
         {
@@ -74,7 +76,7 @@ module.exports = {
       `,
         {
           bind: [superAdminId[0][0].accountId],
-          type: QueryTypes.INSERT,
+          type: QueryTypes.DELETE,
           transaction,
         }
       );
