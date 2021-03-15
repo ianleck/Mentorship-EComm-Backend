@@ -65,6 +65,11 @@ module.exports = {
         withdrawnDate: {
           type: Sequelize.DATE,
         },
+        withdrawalApplication: {
+          allowNull: false,
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
+        },
         createdAt: {
           allowNull: false,
           type: Sequelize.DATE,

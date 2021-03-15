@@ -70,6 +70,11 @@ export class Billing extends BaseEntity {
   @Column(DataType.DATE)
   withdrawnDate: Date;
 
+  @AllowNull(false)
+  @Default(false)
+  @Column(DataType.BOOLEAN)
+  withdrawalApplication: Boolean;
+
   // ==================== RELATIONSHIP MAPPINGS ====================
   @HasOne(() => Course, 'courseId')
   Course: Course;
