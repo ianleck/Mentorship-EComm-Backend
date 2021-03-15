@@ -9,6 +9,7 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
+// View transaction history as admin - can view all billings
 router.get(
   '/billings',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -16,6 +17,7 @@ router.get(
   Utility.asyncHandler(WalletController.getAllBillings)
 );
 
+// View wallet, includes viewing own transaction history
 router.get(
   '/:walletId',
   passport.authenticate('isAuthenticated', { session: false }),
