@@ -43,9 +43,12 @@ export class Billing extends BaseEntity {
   @Column(DataType.STRING)
   receiverWalletId: string;
 
+  @AllowNull(false)
   @Column({
     type: DataType.ENUM,
     values: Object.values(BILLING_STATUS),
   })
   status: BILLING_STATUS;
+
+  // Need to think of how to add paypal receipt
 }

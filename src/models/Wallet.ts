@@ -38,6 +38,11 @@ export class Wallet extends BaseEntity {
   confirmedAmount: number;
 
   @AllowNull(false)
+  @Default(STARTING_BALANCE)
+  @Column(DataType.FLOAT)
+  totalAmount: number;
+
+  @AllowNull(false)
   @Default(CURRENCY)
   @Column(DataType.STRING)
   currency: string;

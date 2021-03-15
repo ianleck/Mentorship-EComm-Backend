@@ -2,7 +2,10 @@ import joi from 'joi';
 
 export default {
   walletIdP: joi.object({
-    accountId: joi.string().required(),
     walletId: joi.string().required(),
+  }),
+  billingIdP: joi.object({
+    walletId: joi.string().required(),
+    billingId: joi.string().required(),
   }),
 };

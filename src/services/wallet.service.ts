@@ -3,7 +3,9 @@ import {
   BILLING_ACTION,
   BILLING_STATUS,
   BILLING_TYPE,
+  USER_TYPE_ENUM,
 } from '../constants/enum';
+import { WALLET_ERROR } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
 import { User } from '../models/User';
@@ -65,7 +67,35 @@ export default class WalletService {
     return wallet;
   }
 
-  public static async viewWallet(walletId: string) {
+  public static async viewBilling(
+    billingId: string,
+    walletId: string,
+    accountId: string,
+    userType: USER_TYPE_ENUM
+  ) {
+    let user;
+    if (userType !== USER_TYPE_ENUM.ADMIN) {
+      user = await User.findByPk(accountId);
+    }
+    if (!user || user.walletId !== walletId)
+      throw new Error(WALLET_ERROR.UNAUTH_WALLET);
+
+    const billing = await Billing.findByPk(billingId);
+    return billing;
+  }
+
+  public static async viewWallet(
+    walletId: string,
+    accountId: string,
+    userType: USER_TYPE_ENUM
+  ) {
+    let user;
+    if (userType !== USER_TYPE_ENUM.ADMIN) {
+      user = await User.findByPk(accountId);
+    }
+    if (!user || user.walletId !== walletId)
+      throw new Error(WALLET_ERROR.UNAUTH_WALLET);
+
     return await Wallet.findByPk(walletId, {
       include: [
         { model: Billing, as: 'billingsSent' },
