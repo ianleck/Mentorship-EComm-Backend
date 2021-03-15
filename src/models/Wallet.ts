@@ -43,10 +43,10 @@ export class Wallet extends BaseEntity {
   currency: string;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
-  @BelongsTo(() => User, 'accountId')
+  @BelongsTo(() => User, 'walletId')
   WalletOwner: User;
 
-  @HasMany(() => Admin, 'accountId')
+  @HasMany(() => Admin, 'walletId')
   AdminAccess: Admin;
 
   @HasMany(() => Billing, 'senderWalletId')
