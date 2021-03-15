@@ -34,8 +34,8 @@ module.exports = {
     });
   },
 
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.sequelize.transaction(async (transaction) => {
+  down: (queryInterface, Sequelize) =>
+    queryInterface.sequelize.transaction(async (transaction) => {
       const superAdminId = await queryInterface.sequelize.query(
         `
         SELECT accountId
@@ -54,5 +54,4 @@ module.exports = {
         }
       );
     }),
-},
 };
