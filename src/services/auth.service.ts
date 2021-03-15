@@ -9,6 +9,7 @@ import { User } from '../models/User';
 import CartService from './cart.service';
 import EmailService from './email.service';
 import UserService from './user.service';
+import WalletService from './wallet.service';
 
 export default class AuthService {
   // ================================ USER AUTH ================================
@@ -77,6 +78,11 @@ export default class AuthService {
         },
         paranoid: false,
       });
+      // if user exist, return error
+      if (user) {
+        throw new Error(AUTH_ERRORS.USER_EXISTS);
+      }
+
       if (isStudent) {
         newUser = new User({
           username,
@@ -94,10 +100,7 @@ export default class AuthService {
         });
       }
 
-      // if user exist, return error
-      if (user) {
-        throw new Error(AUTH_ERRORS.USER_EXISTS);
-      }
+      await WalletService.setupWallet(newUser.accountId);
 
       // hash password
       const salt = await bcrypt.genSalt(10);

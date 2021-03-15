@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {
+  BelongsTo,
   Column,
   DataType,
   Default,
@@ -63,7 +64,7 @@ export class Admin extends Account {
   @HasOne(() => Admin, 'accountId')
   createdBy: Admin;
 
-  @HasOne(() => Wallet, 'ownerId')
+  @BelongsTo(() => Wallet, 'ownerId')
   Wallet: Wallet;
 
   // ==================== ADMIN FUNCTIONS ====================

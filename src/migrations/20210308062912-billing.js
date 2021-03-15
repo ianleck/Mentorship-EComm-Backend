@@ -31,7 +31,7 @@ module.exports = {
         senderWalletId: {
           type: Sequelize.STRING,
         },
-        reeceiverWalletId: {
+        receiverWalletId: {
           type: Sequelize.STRING,
         },
         createdAt: {

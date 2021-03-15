@@ -11,6 +11,7 @@ import {
 } from 'sequelize-typescript';
 import { CURRENCY, STARTING_BALANCE } from '../constants/constants';
 import { BaseEntity } from './abstract/BaseEntity';
+import { Admin } from './Admin';
 import { Billing } from './Billing';
 import { User } from './User';
 
@@ -44,6 +45,9 @@ export class Wallet extends BaseEntity {
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')
   WalletOwner: User;
+
+  @HasMany(() => Admin, 'accountId')
+  AdminAccess: Admin;
 
   @HasMany(() => Billing, 'senderWalletId')
   billingsSent: Billing[];
