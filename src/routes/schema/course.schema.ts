@@ -73,6 +73,7 @@ export default {
           .string()
           .valid(...Object.values(ADMIN_VERIFIED_ENUM)),
         level: joi.string().valid(...Object.values(LEVEL_ENUM)),
+        publishedAt: joi.string().optional(),
       })
       .required(),
   }),

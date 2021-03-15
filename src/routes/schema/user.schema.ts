@@ -49,6 +49,7 @@ export default {
       occupation: joi.string(),
       industry: joi.string(),
       adminVerified: joi.string().valid(...Object.values(ADMIN_VERIFIED_ENUM)),
+      profileImgUrl: joi.string().optional(),
     }),
   }),
   updateUserOccupationB: joi.object({

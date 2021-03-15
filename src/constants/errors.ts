@@ -57,10 +57,13 @@ export const MENTORSHIP_ERRORS = {
 export const UPLOAD_ERRORS = {
   INVALID_FILE_TYPE: 'Invalid File Type',
   NO_FILE_UPLOADED: 'No files were uploaded',
-
+  ZIP_FILE_ALLOWED: 'Only zip files are allowed',
   FAILED_TRANSCRIPT_SAVE: 'Failed to save transcript',
   FAILED_IMAGE_SAVE: 'Failed to save image',
   FAILED_CV_SAVE: 'Failed to save CV',
+  FAILED_VIDEO_SAVE: 'Failed to save video',
+  FILE_MISSING: 'File does not exist',
+  FAILED_FILE_SAVE: 'Failed to save file',
 };
 
 export const REGISTER_ERRORS = {
