@@ -1,29 +1,57 @@
+import { Op } from 'sequelize';
+import {
+  BILLING_ACTION,
+  BILLING_STATUS,
+  BILLING_TYPE,
+} from '../constants/enum';
+import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
+import { User } from '../models/User';
 import { Wallet } from '../models/Wallet';
-
 export default class WalletService {
-  public static async addBillings(courseId: string, studentId: string) {
-    // const student = await User.findByPk(studentId);
-    // if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
-    // const course = await Course.findOne({
-    //   where: {
-    //     courseId,
-    //     visibility: VISIBILITY_ENUM.PUBLISHED,
-    //     adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
-    //     publishedAt: { [Op.not]: null },
-    //   },
-    // });
-    // if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
-    // const wallet = await this.setupWallet(ownerId);
-    // const cartId = cart.cartId;
-    // const addedCourse = await CartToCourse.findOne({
-    //   where: { cartId, courseId },
-    // });
-    // if (addedCourse) throw new Error(CART_ERRORS.COURSE_ALREADY_ADDED);
-    // await new CartToCourse({ cartId, courseId }).save();
-    // return await Cart.findByPk(cartId, {
-    //   include: [Course, MentorshipListing],
-    // });
+  public static async addBillings(
+    type: BILLING_TYPE,
+    billingOptions: {
+      accountId?: string;
+      amount?: number;
+      currency?: string;
+      status?: BILLING_STATUS;
+      action?: BILLING_ACTION;
+      payerId?: string;
+      paymentId?: string;
+    }
+  ) {
+    if (type === BILLING_TYPE.ORDER) {
+      const sender = await User.findByPk(billingOptions.accountId);
+      const receiver = await Admin.findOne({
+        where: { walletId: { [Op.not]: null } },
+      });
+      if (billingOptions.action === BILLING_ACTION.AUTHORIZE) {
+        const newBilling = new Billing({
+          amount: billingOptions.amount,
+          currency: billingOptions.currency,
+          senderWalletId: sender.walletId,
+          receiverWalletId: receiver.walletId,
+          status: billingOptions.status,
+        });
+        return await newBilling.save();
+      }
+
+      if (billingOptions.action === BILLING_ACTION.CAPTURE) {
+        const pendBilling = await Billing.findOne({
+          where: {
+            senderWalletId: sender.walletId,
+            receiverWalletId: receiver.walletId,
+            status: BILLING_STATUS.PENDING,
+          },
+        });
+        return await pendBilling.update({
+          paypalPayerId: billingOptions.payerId,
+          paypalPaymentId: billingOptions.paymentId,
+          status: billingOptions.status,
+        });
+      }
+    }
   }
 
   public static async setupWallet(ownerId: string) {
@@ -37,10 +65,7 @@ export default class WalletService {
     return wallet;
   }
 
-  public static async viewWallet(ownerId: string) {
-    const wallet = await this.setupWallet(ownerId);
-
-    const walletId = wallet.walletId;
+  public static async viewWallet(walletId: string) {
     return await Wallet.findByPk(walletId, {
       include: [Billing],
     });

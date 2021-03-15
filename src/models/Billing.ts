@@ -8,6 +8,7 @@ import {
   Unique,
 } from 'sequelize-typescript';
 import { CURRENCY, STARTING_BALANCE } from '../constants/constants';
+import { BILLING_STATUS } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 
 @Table
@@ -17,10 +18,12 @@ export class Billing extends BaseEntity {
   @Column(DataType.UUID)
   billingId: string;
 
-  @AllowNull(false)
+  @Column(DataType.STRING)
+  paypalPayerId: string;
+
   @Unique
   @Column(DataType.STRING)
-  paypalBillingId: string;
+  paypalPaymentId: string;
 
   @AllowNull(false)
   @Default(STARTING_BALANCE)
@@ -39,4 +42,10 @@ export class Billing extends BaseEntity {
   @AllowNull(false)
   @Column(DataType.STRING)
   receiverWalletId: string;
+
+  @Column({
+    type: DataType.ENUM,
+    values: Object.values(BILLING_STATUS),
+  })
+  status: BILLING_STATUS;
 }

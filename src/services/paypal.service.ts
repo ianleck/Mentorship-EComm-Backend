@@ -6,21 +6,30 @@ import {
   PAYMENT_METHOD,
   STARTING_BALANCE,
 } from '../constants/constants';
+import {
+  BILLING_ACTION,
+  BILLING_STATUS,
+  BILLING_TYPE,
+} from '../constants/enum';
+import { ERRORS } from '../constants/errors';
 import { Course } from '../models/Course';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { SubscriptionPlan } from '../models/SubscriptionPlan';
+import { User } from '../models/User';
+import WalletService from './wallet.service';
 export default class PaypalService {
-  public static async captureOrder(paymentId: string, payerId: string) {
-    // Add billing logic - Next PR after integrating wallet
-  }
   public static async createOrder(
     courseIds: string[],
-    mentorshipListingIds: string[]
+    mentorshipListingIds: string[],
+    accountId: string
   ) {
-    const courseTransactions = await this.populateCourseTransactions(
-      courseIds,
-      mentorshipListingIds
-    );
+    const student = await User.findByPk(accountId);
+    if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
+
+    const {
+      populatedTransactions,
+      totalPrice,
+    } = await this.populateCourseTransactions(courseIds, mentorshipListingIds);
 
     const payment = {
       intent: `${ORDER_INTENT}`,
@@ -29,9 +38,19 @@ export default class PaypalService {
         return_url: 'http://localhost:3000/success', //placeholder
         cancel_url: 'http://localhost:3000/err', //placeholder
       },
-      transactions: courseTransactions,
+      transactions: populatedTransactions,
     };
 
+    const billingOptions = {
+      accountId,
+      amount: totalPrice,
+      currency: CURRENCY,
+      type: BILLING_TYPE.ORDER,
+      status: BILLING_STATUS.PENDING,
+      action: BILLING_ACTION.AUTHORIZE,
+    };
+
+    await WalletService.addBillings(BILLING_TYPE.ORDER, billingOptions);
     return await { paypal, payment };
   }
 
@@ -39,45 +58,53 @@ export default class PaypalService {
     courseIds: string[],
     mentorshipListingIds: string[]
   ) {
-    const courses = await Course.findAll({
-      where: {
-        courseId: { [Op.in]: courseIds },
-      },
-    });
-
-    const mentorshipListings = await MentorshipListing.findAll({
-      where: {
-        mentorshipListingId: { [Op.in]: mentorshipListingIds },
-      },
-    });
+    let courses, mentorshipListings;
+    if (courseIds) {
+      courses = await Course.findAll({
+        where: {
+          courseId: { [Op.in]: courseIds },
+        },
+      });
+    }
+    if (mentorshipListingIds) {
+      mentorshipListings = await MentorshipListing.findAll({
+        where: {
+          mentorshipListingId: { [Op.in]: mentorshipListingIds },
+        },
+      });
+    }
 
     const items = [];
     let totalPrice = STARTING_BALANCE;
 
-    if (courses.length > 0) {
-      courses.map((course: Course) => {
-        items.push({
-          name: course.title,
-          description: course.description,
-          quantity: '1',
-          price: `${course.priceAmount}`,
-          currency: course.currency,
-        });
-        totalPrice += course.priceAmount;
-      });
+    if (courses && courses.length > 0) {
+      await Promise.all(
+        courses.map((course: Course) => {
+          items.push({
+            name: course.title,
+            description: course.description,
+            quantity: '1',
+            price: `${course.priceAmount}`,
+            currency: course.currency,
+          });
+          totalPrice += course.priceAmount;
+        })
+      );
     }
 
-    if (mentorshipListings.length > 0) {
-      mentorshipListings.map((mentorshipListing: MentorshipListing) => {
-        items.push({
-          name: mentorshipListing.name,
-          description: mentorshipListing.description,
-          quantity: '1',
-          price: `${mentorshipListing.priceAmount}`,
-          currency: `${CURRENCY}`,
-        });
-        totalPrice += mentorshipListing.priceAmount;
-      });
+    if (mentorshipListings && mentorshipListings.length > 0) {
+      await Promise.all(
+        mentorshipListings.map((mentorshipListing: MentorshipListing) => {
+          items.push({
+            name: mentorshipListing.name,
+            description: mentorshipListing.description,
+            quantity: '1',
+            price: `${mentorshipListing.priceAmount}`,
+            currency: `${CURRENCY}`,
+          });
+          totalPrice += mentorshipListing.priceAmount;
+        })
+      );
     }
 
     const populatedTransactions = [
@@ -90,7 +117,7 @@ export default class PaypalService {
       },
     ];
 
-    return populatedTransactions;
+    return { populatedTransactions, totalPrice };
   }
 
   // Pass in subscriptionPlan Id

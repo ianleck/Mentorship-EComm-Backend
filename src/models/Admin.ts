@@ -53,7 +53,6 @@ export class Admin extends Account {
   role: ADMIN_ROLE_ENUM;
 
   // ==================== PAYMENT SETTINGS ====================
-  @Unique
   @Column(DataType.STRING)
   walletId: string;
 
@@ -64,7 +63,7 @@ export class Admin extends Account {
   @HasOne(() => Admin, 'accountId')
   createdBy: Admin;
 
-  @BelongsTo(() => Wallet, 'ownerId')
+  @BelongsTo(() => Wallet, 'accountId')
   Wallet: Wallet;
 
   // ==================== ADMIN FUNCTIONS ====================

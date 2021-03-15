@@ -1,6 +1,7 @@
 'use strict';
 
 const { QueryTypes } = require('sequelize');
+const uuid = require('uuid');
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
@@ -12,7 +13,7 @@ module.exports = {
         WHERE a.username = "superAdmin1"
         `
       );
-
+      const walletId = uuid.v4();
       await queryInterface.sequelize.query(
         `
         INSERT INTO
@@ -21,13 +22,25 @@ module.exports = {
           ownerId
         )
         values (
-          UUID(),
-          $1
+          $1,
+          $2
         )
         `,
         {
-          bind: [superAdminId[0][0].accountId],
+          bind: [walletId, superAdminId[0][0].accountId],
           type: QueryTypes.INSERT,
+          transaction,
+        }
+      );
+      await queryInterface.sequelize.query(
+        `
+        UPDATE Admin a 
+        SET walletId = $1 
+        WHERE a.accountId = $2
+        `,
+        {
+          bind: [walletId, superAdminId[0][0].accountId],
+          type: QueryTypes.UPDATE,
           transaction,
         }
       );
@@ -42,6 +55,18 @@ module.exports = {
         FROM Admin a
         WHERE a.username = "superAdmin1"
         `
+      );
+      await queryInterface.sequelize.query(
+        `
+        UPDATE Admin a 
+        SET walletId = NULL 
+        WHERE a.accountId = $1
+        `,
+        {
+          bind: [superAdminId[0][0].accountId],
+          type: QueryTypes.UPDATE,
+          transaction,
+        }
       );
       await queryInterface.sequelize.query(
         `

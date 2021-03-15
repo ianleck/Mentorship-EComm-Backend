@@ -100,7 +100,8 @@ export default class AuthService {
         });
       }
 
-      await WalletService.setupWallet(newUser.accountId);
+      const wallet = await WalletService.setupWallet(newUser.accountId);
+      newUser.walletId = wallet.walletId;
 
       // hash password
       const salt = await bcrypt.genSalt(10);

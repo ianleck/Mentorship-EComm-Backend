@@ -99,7 +99,7 @@ export default class CartService {
 
     const cartId = cart.cartId;
 
-    if (courseIds.length > 0) {
+    if (courseIds && courseIds.length > 0) {
       await Promise.all(
         courseIds.map(async (courseId) => {
           await CartToCourse.destroy({
@@ -112,7 +112,7 @@ export default class CartService {
       );
     }
 
-    if (mentorshipListingIds.length > 0) {
+    if (mentorshipListingIds && mentorshipListingIds.length > 0) {
       await Promise.all(
         mentorshipListingIds.map(async (mentorshipListingId) => {
           await CartToMentorshipListing.destroy({

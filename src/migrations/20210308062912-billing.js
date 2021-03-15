@@ -16,7 +16,10 @@ module.exports = {
           type: Sequelize.UUID,
           defaultValue: Sequelize.UUIDV4,
         },
-        paypalBillingId: {
+        paypalPayerId: {
+          type: Sequelize.STRING,
+        },
+        paypalPaymentId: {
           type: Sequelize.STRING,
           unique: true,
         },
@@ -33,6 +36,10 @@ module.exports = {
         },
         receiverWalletId: {
           type: Sequelize.STRING,
+        },
+        status: {
+          allowNull: false,
+          type: Sequelize.ENUM('SUCCESS', 'FAILED', 'PENDING', 'ADMIN'),
         },
         createdAt: {
           allowNull: false,

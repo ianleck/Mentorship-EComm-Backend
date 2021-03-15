@@ -1,6 +1,6 @@
-import { ADMIN_ROLE_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
+import { ADMIN_ROLE_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 const passport = require('passport');
 
 export const downloadAuthentication = (req, res, next) => {
@@ -89,7 +89,7 @@ export const requireSameUserOrSuperAdmin = (req, res, next) => {
 };
 
 export const requireStudent = (req, res, next) => {
-  if (req.user.userType != USER_TYPE_ENUM.STUDENT) {
+  if (req.user.userType !== USER_TYPE_ENUM.STUDENT) {
     res.status(httpStatusCodes.UNAUTHORIZED).json({
       message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
     });
@@ -99,7 +99,7 @@ export const requireStudent = (req, res, next) => {
 };
 
 export const requireSensei = (req, res, next) => {
-  if (req.user.userType != USER_TYPE_ENUM.SENSEI) {
+  if (req.user.userType !== USER_TYPE_ENUM.SENSEI) {
     res.status(httpStatusCodes.UNAUTHORIZED).json({
       message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
     });
@@ -109,7 +109,20 @@ export const requireSensei = (req, res, next) => {
 };
 
 export const requireAdmin = (req, res, next) => {
-  if (req.user.userType != USER_TYPE_ENUM.ADMIN) {
+  if (req.user.userType !== USER_TYPE_ENUM.ADMIN) {
+    res.status(httpStatusCodes.UNAUTHORIZED).json({
+      message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+    });
+  } else {
+    next();
+  }
+};
+
+export const requireFinance = (req, res, next) => {
+  if (
+    req.user.userType !== USER_TYPE_ENUM.ADMIN ||
+    req.user.role === ADMIN_ROLE_ENUM.ADMIN
+  ) {
     res.status(httpStatusCodes.UNAUTHORIZED).json({
       message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
     });
@@ -120,8 +133,8 @@ export const requireAdmin = (req, res, next) => {
 
 export const requireSuperAdmin = (req, res, next) => {
   if (
-    req.user.userType != USER_TYPE_ENUM.ADMIN ||
-    req.user.role != ADMIN_ROLE_ENUM.SUPERADMIN
+    req.user.userType !== USER_TYPE_ENUM.ADMIN ||
+    req.user.role !== ADMIN_ROLE_ENUM.SUPERADMIN
   ) {
     res.status(httpStatusCodes.UNAUTHORIZED).json({
       message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),

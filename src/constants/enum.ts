@@ -12,10 +12,23 @@ export enum ADMIN_VERIFIED_ENUM {
   DRAFT = 'DRAFT',
 }
 
-export enum BillingStatus {
+export enum BILLING_ACTION {
+  AUTHORIZE = 'AUTHORIZE',
+  CAPTURE = 'CAPTURE',
+}
+
+export enum BILLING_STATUS {
   SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
+  PENDING = 'PENDING',
   ADMIN = 'ADMIN',
+}
+
+export enum BILLING_TYPE {
+  INTERNAL = 'INTERNAL',
+  ORDER = 'ORDER',
+  REFUND = 'REFUND',
+  WITHDRAWAL = 'WITHDRAWAL',
 }
 
 export enum CONTRACT_PROGRESS_ENUM {

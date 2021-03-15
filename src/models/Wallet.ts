@@ -25,7 +25,7 @@ export class Wallet extends BaseEntity {
   @AllowNull(false)
   @Unique
   @Column(DataType.UUID)
-  ownerId: string;
+  accountId: string;
 
   @AllowNull(false)
   @Default(STARTING_BALANCE)
