@@ -118,6 +118,21 @@ export const requireAdmin = (req, res, next) => {
   }
 };
 
+// check if user is doing actions to his/her own account or if its an admin with finance/superadmin
+export const requireSameUserOrFinance = (req, res, next) => {
+  if (
+    req.user.accountId !== req.params.accountId &&
+    req.user.userType !== USER_TYPE_ENUM.ADMIN &&
+    req.user.role === ADMIN_ROLE_ENUM.ADMIN
+  ) {
+    res.status(httpStatusCodes.UNAUTHORIZED).json({
+      message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+    });
+  } else {
+    next();
+  }
+};
+
 export const requireFinance = (req, res, next) => {
   if (
     req.user.userType !== USER_TYPE_ENUM.ADMIN ||

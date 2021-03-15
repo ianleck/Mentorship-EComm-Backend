@@ -67,7 +67,10 @@ export default class WalletService {
 
   public static async viewWallet(walletId: string) {
     return await Wallet.findByPk(walletId, {
-      include: [Billing],
+      include: [
+        { model: Billing, as: 'billingsSent' },
+        { model: Billing, as: 'billingsReceived' },
+      ],
     });
   }
 }
