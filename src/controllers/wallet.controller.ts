@@ -26,11 +26,27 @@ export class WalletController {
     }
   }
 
+  public static async getAllBillings(req, res) {
+    try {
+      const billings = await WalletService.getAllBillings();
+      return apiResponse.result(
+        res,
+        { message: 'success', billings },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[walletController.getAllBillings]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
   public static async viewBilling(req, res) {
     try {
       const { user } = req;
       const { billingId, walletId } = req.params;
-      const wallet = await WalletService.viewBilling(
+      const billing = await WalletService.viewBilling(
         billingId,
         walletId,
         user.accountId,
@@ -38,11 +54,11 @@ export class WalletController {
       );
       return apiResponse.result(
         res,
-        { message: 'success', wallet },
+        { message: 'success', billing },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[walletController.viewWallet]:' + e.message);
+      logger.error('[walletController.viewBilling]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });

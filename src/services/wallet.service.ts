@@ -67,6 +67,9 @@ export default class WalletService {
     return wallet;
   }
 
+  public static async getAllBillings() {
+    return await Billing.findAll();
+  }
   public static async viewBilling(
     billingId: string,
     walletId: string,
