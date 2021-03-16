@@ -4,46 +4,47 @@ import {
   Column,
   DataType,
   Default,
-  HasOne,
+  Max,
+  Min,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Course } from './Course';
+import { MentorshipListing } from './MentorshipListing';
 import { User } from './User';
-import { CONTRACT_PROGRESS_ENUM } from '../constants/enum';
-import { Review } from './Review';
 
 @Table
-export class CourseContract extends BaseEntity {
+export class Review extends BaseEntity {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  courseContractId: string;
+  reviewId: string;
 
+  @Min(0)
+  @Max(5)
   @AllowNull(false)
+  @Column(DataType.FLOAT)
+  rating: number;
+
+  @Column(DataType.TEXT)
+  comment: string;
+
   @Column(DataType.UUID)
-  accountId: string; // studentId
+  accountId: string;
 
-  @AllowNull(false)
   @Column(DataType.UUID)
   courseId: string;
 
-  @Column({
-    allowNull: false,
-    type: DataType.ENUM,
-    values: Object.values(CONTRACT_PROGRESS_ENUM),
-    defaultValue: CONTRACT_PROGRESS_ENUM.NOT_STARTED,
-  })
-  progress: CONTRACT_PROGRESS_ENUM;
-
+  @Column(DataType.UUID)
+  mentorshipListingId: string;
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')
-  Student: User;
+  User: User;
 
   @BelongsTo(() => Course, 'courseId')
   Course: Course;
-}
 
-// one to one mapping for Review
-// has Subscription oto
+  @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
+  MentorshipListing: MentorshipListing;
+}

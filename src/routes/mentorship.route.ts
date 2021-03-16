@@ -28,7 +28,7 @@ router.put(
   '/listing/:mentorshipListingId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
-  schemaValidator.params(mentorship.mentorshipListingQ),
+  schemaValidator.params(mentorship.mentorshipListingP),
   schemaValidator.body(mentorship.mentorshipListingB),
   Utility.asyncHandler(MentorshipController.updateListing)
 );
@@ -37,14 +37,14 @@ router.delete(
   '/listing/:mentorshipListingId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
-  schemaValidator.params(mentorship.mentorshipListingQ),
+  schemaValidator.params(mentorship.mentorshipListingP),
   Utility.asyncHandler(MentorshipController.deleteListing)
 );
 
 router.get(
   '/listing/:mentorshipListingId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.mentorshipListingQ),
+  schemaValidator.params(mentorship.mentorshipListingP),
   Utility.asyncHandler(MentorshipController.getListing)
 );
 
@@ -67,7 +67,7 @@ router.post(
   '/contract/:mentorshipListingId/',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.params(mentorship.mentorshipListingQ),
+  schemaValidator.params(mentorship.mentorshipListingP),
   schemaValidator.body(mentorship.mentorshipContractB), // Should be created with subscription here
   Utility.asyncHandler(MentorshipController.createContract)
 );
@@ -76,7 +76,7 @@ router.put(
   '/contract/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.params(mentorship.mentorshipContractQ),
+  schemaValidator.params(mentorship.mentorshipContractP),
   schemaValidator.body(mentorship.mentorshipContractB), // Should be created with subscription as well
   Utility.asyncHandler(MentorshipController.updateContract)
 );
@@ -85,7 +85,7 @@ router.delete(
   '/contract/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.params(mentorship.mentorshipContractQ),
+  schemaValidator.params(mentorship.mentorshipContractP),
   Utility.asyncHandler(MentorshipController.deleteContract)
 );
 
@@ -94,7 +94,7 @@ router.put(
   '/accept/application/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
-  schemaValidator.params(mentorship.mentorshipContractQ),
+  schemaValidator.params(mentorship.mentorshipContractP),
   Utility.asyncHandler(MentorshipController.acceptMentorshipContract)
 );
 
@@ -103,7 +103,7 @@ router.put(
   '/reject/application/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
-  schemaValidator.params(mentorship.mentorshipContractQ),
+  schemaValidator.params(mentorship.mentorshipContractP),
   Utility.asyncHandler(MentorshipController.rejectMentorshipContract)
 );
 
@@ -119,7 +119,7 @@ router.get(
 router.get(
   '/contract/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.mentorshipContractQ),
+  schemaValidator.params(mentorship.mentorshipContractP),
   Utility.asyncHandler(MentorshipController.getStudentMentorshipContract)
 );
 

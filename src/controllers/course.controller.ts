@@ -1,10 +1,10 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
 import {
+  AUTH_ERRORS,
   COURSE_ERRORS,
   ERRORS,
   RESPONSE_ERROR,
-  AUTH_ERRORS,
 } from '../constants/errors';
 import { COURSE_RESPONSE } from '../constants/successMessages';
 import CourseService from '../services/course.service';
@@ -127,18 +127,19 @@ export class CourseController {
   public static async getOneCourse(req, res) {
     const { courseId } = req.params;
     const { user } = req;
+    const accountId = user ? user.accountId : null;
     try {
       const course = await CourseService.getOneCourse(courseId, user);
       const existingContract = await CourseService.getContractIfExist(
         courseId,
-        user.accountId
+        accountId
       );
       return apiResponse.result(
         res,
         {
           message: 'success',
           course,
-          courseContract: existingContract,
+          existingContract,
         },
         httpStatusCodes.OK
       );

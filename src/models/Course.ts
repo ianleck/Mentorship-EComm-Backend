@@ -25,6 +25,7 @@ import { Category } from './Category';
 import { CourseContract } from './CourseContract';
 import { CourseListingToCategory } from './CourseListingToCategory';
 import { Lesson } from './Lesson';
+import { Review } from './Review';
 import { User } from './User';
 
 @Table
@@ -70,9 +71,9 @@ export class Course extends BaseEntity {
   @Column(DataType.DATE)
   publishedAt: Date;
 
-  @Min(1)
-  @Max(10)
-  @Default('5.0') //Pend change - arbitrary value
+  @Min(0)
+  @Max(5)
+  @Default('0.0') //Pend change - arbitrary value
   @Column(DataType.FLOAT)
   rating: number;
 
@@ -124,4 +125,7 @@ export class Course extends BaseEntity {
 
   @HasMany(() => Announcement, 'courseId')
   Announcements: Announcement[];
+
+  @HasMany(() => Review, 'courseId')
+  Reviews: Review[];
 }

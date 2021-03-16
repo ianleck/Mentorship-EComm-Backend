@@ -3,19 +3,20 @@ import * as _ from 'lodash';
 import {
   ADMIN_VERIFIED_ENUM,
   LEVEL_ENUM,
+  STATUS_ENUM,
   USER_TYPE_ENUM,
   VISIBILITY_ENUM,
-  STATUS_ENUM,
 } from '../constants/enum';
-import { COURSE_ERRORS, ERRORS, AUTH_ERRORS } from '../constants/errors';
+import { AUTH_ERRORS, COURSE_ERRORS, ERRORS } from '../constants/errors';
+import { Announcement } from '../models/Announcement';
 import { Category } from '../models/Category';
 import { Comment } from '../models/Comment';
 import { Course } from '../models/Course';
 import { CourseContract } from '../models/CourseContract';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { Lesson } from '../models/Lesson';
+import { Review } from '../models/Review';
 import { User } from '../models/User';
-import { Announcement } from '../models/Announcement';
 import EmailService from './email.service';
 
 type newCourseType = {
@@ -206,14 +207,9 @@ export default class CourseService {
    * @param obj = {
    *  courseId: string,
    *  extraModels: Models[]
-   *  inclSoftDelete: boolean
    * }
    */
-  public static async getCourseWithAssociations({
-    courseId,
-    extraModels,
-    inclSoftDelete, // true to return rows that are soft deleted. False otherwise
-  }) {
+  private static async getCourseWithAssociations({ courseId, extraModels }) {
     return await Course.findByPk(courseId, {
       include: [
         Category,
@@ -223,51 +219,23 @@ export default class CourseService {
         },
         ...extraModels,
       ],
-      paranoid: !inclSoftDelete,
     });
   }
 
   public static async getOneCourse(courseId: string, user?) {
-    const _user = user ? await User.findByPk(user.accountId) : null;
-
-    // if no user, return course without contract and dont need to find deleted ones
-    let course;
-    if (!_user) {
-      // return course without contracts that are not soft deleted
-      course = await this.getCourseWithAssociations({
-        courseId,
-        extraModels: [Lesson],
-        inclSoftDelete: false,
-      });
-      if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
-      return course;
-    }
-
-    // if user and is a student, see if student has a course with the course.
-    if (_user.userType === USER_TYPE_ENUM.STUDENT) {
-      const existingContract = CourseContract.findOne({
-        where: {
-          courseId,
-          accountId: _user.accountId,
-        },
-      });
-
-      if (existingContract) {
-        // if student has bought the course, return
-      }
-    }
-    // if true, return course, else return course that isnt soft delted
     const courseWithoutContracts = await this.getCourseWithAssociations({
       courseId,
-      extraModels: [Lesson],
-      inclSoftDelete: true,
+      extraModels: [Lesson, Review],
     });
-
-    // if user is logged in but not the publishing sensei and not an admin
-    // return course without contracts
+    if (!courseWithoutContracts) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+    /** if user is not logged in
+     * OR (user is not the sensei who created the course listing AND user is not an admin)
+     * return course without contracts
+     */
     if (
-      _user.userType !== USER_TYPE_ENUM.ADMIN &&
-      _user.accountId !== courseWithoutContracts.accountId
+      !user ||
+      (user.accountId !== courseWithoutContracts.accountId &&
+        user.userType !== USER_TYPE_ENUM.ADMIN)
     ) {
       return courseWithoutContracts;
     }
@@ -275,8 +243,7 @@ export default class CourseService {
     // else return course with contract (for publishing sensei and admins)
     return this.getCourseWithAssociations({
       courseId,
-      extraModels: [Lesson, CourseContract],
-      inclSoftDelete: true,
+      extraModels: [Lesson, Review, CourseContract],
     });
   }
 
