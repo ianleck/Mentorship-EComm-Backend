@@ -43,9 +43,6 @@ export class CourseContract extends BaseEntity {
 
   @BelongsTo(() => Course, 'courseId')
   Course: Course;
-
-  @HasOne(() => Review, 'courseId')
-  Reviews: Review[];
 }
 
 // one to one mapping for Review
