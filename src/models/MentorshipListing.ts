@@ -76,7 +76,7 @@ export class MentorshipListing extends BaseEntity {
   })
   Carts: Cart[];
 
-  @HasMany(() => Review, 'courseId')
+  @HasMany(() => Review, 'mentorshipListingId')
   Reviews: Review[];
 }
 
