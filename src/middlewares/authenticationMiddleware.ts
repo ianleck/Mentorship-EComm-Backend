@@ -118,7 +118,7 @@ export const requireAdmin = (req, res, next) => {
   }
 };
 
-export const requireFinance = (req, res, next) => {
+export const requireFinanceIfAdmin = (req, res, next) => {
   if (
     req.user.userType === USER_TYPE_ENUM.ADMIN &&
     req.user.role === ADMIN_ROLE_ENUM.ADMIN
