@@ -40,7 +40,9 @@ export class PaypalController {
               httpStatusCodes.OK
             );
           } else {
-            console.error('no redirect URI present');
+            return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+              message: 'no redirect URI present',
+            });
           }
         }
       });
@@ -63,7 +65,9 @@ export class PaypalController {
         payerId,
         async function (error, payment) {
           if (error) {
-            console.error(error);
+            return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+              message: 'unsuccessful payment',
+            });
           } else {
             if (payment.state == 'approved') {
               await PaypalService.captureOrder(

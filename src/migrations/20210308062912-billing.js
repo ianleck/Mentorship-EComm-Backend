@@ -62,9 +62,6 @@ module.exports = {
         withdrawableDate: {
           type: Sequelize.DATE,
         },
-        withdrawnDate: {
-          type: Sequelize.DATE,
-        },
         withdrawalApplication: {
           allowNull: false,
           type: Sequelize.BOOLEAN,
