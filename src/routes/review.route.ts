@@ -26,4 +26,20 @@ router.post(
   Utility.asyncHandler(ReviewController.createMentorshipListingReview)
 );
 
+router.put(
+  '/course/:courseId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.courseIdP),
+  schemaValidator.body(review.reviewB),
+  Utility.asyncHandler(ReviewController.editCourseReview)
+);
+
+router.put(
+  '/mentorship/:mentorshipListingId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.mentorshipListingP),
+  schemaValidator.body(review.reviewB),
+  Utility.asyncHandler(ReviewController.editMentorshipListingReview)
+);
+
 export default router;

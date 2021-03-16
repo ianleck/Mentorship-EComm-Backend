@@ -56,6 +56,7 @@ export const MENTORSHIP_ERRORS = {
 
 export const REVIEW_ERRORS = {
   REVIEW_EXISTS: 'You have already posted a review',
+  REVIEW_MISSING: 'Review does not exist',
 };
 
 export const UPLOAD_ERRORS = {

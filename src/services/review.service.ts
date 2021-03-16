@@ -108,4 +108,84 @@ export default class ReviewService {
     });
     return review;
   }
+
+  public static async editCourseReview(
+    courseId: string,
+    accountId: string,
+    reviewB: {
+      rating: number;
+      comment?: string;
+    }
+  ): Promise<Review> {
+    // check if user has already made a review
+    const existingReview = await Review.findOne({
+      where: {
+        accountId,
+        courseId,
+      },
+    });
+    if (!existingReview) throw new Error(REVIEW_ERRORS.REVIEW_MISSING);
+
+    const originalRating = existingReview.rating;
+    await existingReview.update(reviewB);
+
+    // update course rating
+    const reviewCount = await Review.count({
+      where: {
+        courseId,
+      },
+    });
+
+    const course = await Course.findByPk(courseId);
+
+    const updatedRating =
+      (course.rating * reviewCount - originalRating + reviewB.rating) /
+      reviewCount;
+    await course.update({
+      rating: updatedRating,
+    });
+    return existingReview;
+  }
+
+  public static async editMentorshipListingReview(
+    mentorshipListingId: string,
+    accountId: string,
+    reviewB: {
+      rating: number;
+      comment?: string;
+    }
+  ): Promise<Review> {
+    // check if user has already made a review
+    const existingReview = await Review.findOne({
+      where: {
+        accountId,
+        mentorshipListingId,
+      },
+    });
+    if (!existingReview) throw new Error(REVIEW_ERRORS.REVIEW_MISSING);
+
+    const originalRating = existingReview.rating;
+    await existingReview.update(reviewB);
+
+    // update mentorshipListing rating
+    const reviewCount = await Review.count({
+      where: {
+        mentorshipListingId,
+      },
+    });
+
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipListingId
+    );
+
+    const updatedRating =
+      (mentorshipListing.rating * reviewCount -
+        originalRating +
+        reviewB.rating) /
+      reviewCount;
+    await mentorshipListing.update({
+      rating: updatedRating,
+    });
+    return existingReview;
+  }
 }
