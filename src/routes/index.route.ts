@@ -10,6 +10,7 @@ import mentorshipRoute from './mentorship.route';
 import paypalRoute from './paypal.route';
 import uploadRoute from './upload.route';
 import userRoute from './user.route';
+import walletRoute from './wallet.route';
 
 const router = express.Router();
 
@@ -24,5 +25,6 @@ router.use('/mentorship', mentorshipRoute);
 router.use('/paypal', paypalRoute);
 router.use('/upload', uploadRoute);
 router.use('/user', userRoute);
+router.use('/wallet', walletRoute);
 
 export default router;

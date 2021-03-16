@@ -40,7 +40,7 @@ module.exports = {
             type: Sequelize.STRING,
           },
           walletId: {
-            type: Sequelize.STRING,
+            type: Sequelize.UUID,
           },
           status: {
             type: Sequelize.ENUM('ACTIVE', 'BANNED'),

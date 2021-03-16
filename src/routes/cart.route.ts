@@ -17,11 +17,19 @@ router.get(
 );
 
 router.post(
-  '/',
+  '/course/',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.body(cart.addItemsB),
+  schemaValidator.body(cart.addCourseB),
   Utility.asyncHandler(CartController.addCourse)
+);
+
+router.post(
+  '/mentorshipListing/',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.body(cart.addMentorshipListingB),
+  Utility.asyncHandler(CartController.addMentorshipListing)
 );
 
 router.delete(

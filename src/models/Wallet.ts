@@ -11,6 +11,7 @@ import {
 } from 'sequelize-typescript';
 import { CURRENCY, STARTING_BALANCE } from '../constants/constants';
 import { BaseEntity } from './abstract/BaseEntity';
+import { Admin } from './Admin';
 import { Billing } from './Billing';
 import { User } from './User';
 
@@ -24,7 +25,7 @@ export class Wallet extends BaseEntity {
   @AllowNull(false)
   @Unique
   @Column(DataType.UUID)
-  ownerId: string;
+  accountId: string;
 
   @AllowNull(false)
   @Default(STARTING_BALANCE)
@@ -37,17 +38,30 @@ export class Wallet extends BaseEntity {
   confirmedAmount: number;
 
   @AllowNull(false)
+  @Default(STARTING_BALANCE)
+  @Column(DataType.FLOAT)
+  totalEarned: number; // For sensei is total earned, including what has been withdrawn. For admin is total amount that has gone through the platform
+
+  @AllowNull(false)
+  @Default(STARTING_BALANCE)
+  @Column(DataType.FLOAT)
+  platformRevenue: number; // Only for admin, total revenue = totalEarned * platform fee
+
+  @AllowNull(false)
   @Default(CURRENCY)
   @Column(DataType.STRING)
   currency: string;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
-  @BelongsTo(() => User, 'accountId')
+  @BelongsTo(() => User, 'walletId')
   WalletOwner: User;
 
+  @HasMany(() => Admin, 'walletId')
+  AdminAccess: Admin;
+
   @HasMany(() => Billing, 'senderWalletId')
-  billingsSent: Billing[];
+  BillingsSent: Billing[];
 
   @HasMany(() => Billing, 'receiverWalletId')
-  billingsReceived: Billing[];
+  BillingsReceived: Billing[];
 }

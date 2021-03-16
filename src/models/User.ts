@@ -124,7 +124,7 @@ export class User extends Account {
   @HasMany(() => MentorshipContract, 'accountId')
   MentorshipContracts: MentorshipContract[];
 
-  @HasOne(() => Wallet, 'ownerId')
+  @HasOne(() => Wallet, 'accountId')
   Wallet: Wallet;
 
   // @Column
