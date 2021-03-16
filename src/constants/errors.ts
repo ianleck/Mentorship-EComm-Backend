@@ -51,7 +51,11 @@ export const MENTORSHIP_ERRORS = {
   CONTRACT_EXISTS:
     'A mentorship contract has already been made for this mentor. Please edit existing mentorship contract.',
   CONTRACT_MISSING:
-    'No pending mentorship contract found. Please create a mentorship contract',
+    'Mentorship contract does not exist. Please sign up for a mentorship listing first.',
+};
+
+export const REVIEW_ERRORS = {
+  REVIEW_EXISTS: 'You have already posted a review',
 };
 
 export const UPLOAD_ERRORS = {

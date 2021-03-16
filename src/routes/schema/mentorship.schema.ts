@@ -16,11 +16,11 @@ export default {
       .required(),
   }),
 
-  mentorshipListingQ: joi.object({
+  mentorshipListingP: joi.object({
     mentorshipListingId: joi.string().required(),
   }),
 
-  mentorshipContractQ: joi.object({
+  mentorshipContractP: joi.object({
     mentorshipContractId: joi.string().required(),
   }),
 

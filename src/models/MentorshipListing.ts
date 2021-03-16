@@ -38,8 +38,8 @@ export class MentorshipListing extends BaseEntity {
   @Column(DataType.TEXT)
   description: string;
 
-  @Min(1)
-  @Max(10)
+  @Min(0)
+  @Max(5)
   @Default('5.0') //Pend change - arbitrary value
   @Column(DataType.FLOAT)
   rating: number;

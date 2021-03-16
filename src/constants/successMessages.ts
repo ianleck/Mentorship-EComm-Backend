@@ -56,6 +56,12 @@ export const PAYPAL_RESPONSE = {
   ORDER_CREATE: 'Order has been successfully created',
 };
 
+// ==================== REVIEW RESPONSE MESSAGES ====================
+export const REVIEW_RESPONSE = {
+  REVIEW_CREATE: 'Review has been successfully posted',
+  REVIEW_UPDATE: 'Review has been successfully updated',
+};
+
 // ==================== USER RESPONSE MESSAGES ====================
 
 export const USER_RESPONSE = {
@@ -64,7 +70,7 @@ export const USER_RESPONSE = {
 
   EXPERIENCE_CREATE: 'Experience has been successfully created',
   EXPERIENCE_DELETE: 'Experience has been successfully deleted',
-  EXPERIENCE_UPDATE: 'Experience has been successfully deleted',
+  EXPERIENCE_UPDATE: 'Experience has been successfully updated',
 };
 
 // ==================== UPLOAD RESPONSE MESSAGES ====================
