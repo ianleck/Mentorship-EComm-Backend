@@ -1,9 +1,9 @@
 import {
   AllowNull,
+  BelongsTo,
   Column,
   DataType,
   Default,
-  HasOne,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
@@ -81,12 +81,12 @@ export class Billing extends BaseEntity {
   withdrawalApplication: Boolean;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
-  @HasOne(() => Course, 'courseId')
+  @BelongsTo(() => Course, 'courseId')
   Course: Course;
 
-  @HasOne(() => CourseContract, 'courseContractId')
+  @BelongsTo(() => CourseContract, 'courseContractId')
   CourseContract: CourseContract;
 
-  @HasOne(() => MentorshipListing, 'mentorshipListingId')
+  @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
   MentorshipListing: MentorshipListing;
 }
