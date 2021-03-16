@@ -166,11 +166,23 @@ export default class AdminService {
     const admin = await Admin.findByPk(accountId);
     const superAdmin = await Admin.findByPk(superAdminId);
 
+    const role = adminAccount.role;
     if (admin) {
-      return await admin.update({
-        role: adminAccount.role,
-        updatedBy: superAdmin,
-      });
+      if (
+        role === ADMIN_ROLE_ENUM.FINANCE ||
+        role === ADMIN_ROLE_ENUM.SUPERADMIN
+      ) {
+        return await admin.update({
+          role,
+          walletId: superAdmin.walletId,
+          updatedBy: superAdmin,
+        });
+      } else {
+        return await admin.update({
+          role,
+          updatedBy: superAdmin,
+        });
+      }
     } else {
       throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
     }

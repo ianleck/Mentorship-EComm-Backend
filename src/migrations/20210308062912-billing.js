@@ -16,9 +16,20 @@ module.exports = {
           type: Sequelize.UUID,
           defaultValue: Sequelize.UUIDV4,
         },
-        paypalBillingId: {
+        paypalPayerId: {
           type: Sequelize.STRING,
-          unique: true,
+        },
+        paypalPaymentId: {
+          type: Sequelize.STRING,
+        },
+        courseId: {
+          type: Sequelize.STRING,
+        },
+        courseContractId: {
+          type: Sequelize.STRING,
+        },
+        mentorshipListingId: {
+          type: Sequelize.STRING,
         },
         amount: {
           type: Sequelize.FLOAT,
@@ -28,11 +39,33 @@ module.exports = {
           type: Sequelize.STRING,
           default: 'SGD',
         },
+        platformFee: {
+          type: Sequelize.FLOAT,
+        },
         senderWalletId: {
           type: Sequelize.STRING,
         },
-        reeceiverWalletId: {
+        receiverWalletId: {
           type: Sequelize.STRING,
+        },
+        status: {
+          allowNull: false,
+          type: Sequelize.ENUM(
+            'SUCCESS',
+            'FAILED',
+            'PENDING_PAYMENT',
+            'PENDING_90_DAYS',
+            'WITHDRAWN',
+            'ADMIN'
+          ),
+        },
+        withdrawableDate: {
+          type: Sequelize.DATE,
+        },
+        withdrawalApplication: {
+          allowNull: false,
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
         },
         createdAt: {
           allowNull: false,

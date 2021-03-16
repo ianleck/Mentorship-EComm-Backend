@@ -78,3 +78,7 @@ export const REGISTER_ERRORS = {
 export const RESPONSE_ERROR = {
   RES_ERROR: 'Unable to perform request',
 };
+
+export const WALLET_ERROR = {
+  UNAUTH_WALLET: 'User does not have access to requested wallet',
+};

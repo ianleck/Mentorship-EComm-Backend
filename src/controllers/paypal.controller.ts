@@ -2,15 +2,18 @@ import httpStatusCodes from 'http-status-codes';
 import paypal from 'paypal-rest-sdk';
 import logger from '../config/logger';
 import PaypalService from '../services/paypal.service';
+import WalletService from '../services/wallet.service';
 import apiResponse from '../utilities/apiResponse';
 export class PaypalController {
   public static async createOrder(req, res) {
     try {
       const { courseIds, mentorshipContractIds } = req.body;
+      const { user } = req;
 
-      const { payment } = await PaypalService.createOrder(
+      const { payment, billings } = await PaypalService.createOrder(
         courseIds,
-        mentorshipContractIds
+        mentorshipContractIds,
+        user.accountId
       );
 
       await paypal.payment.create(payment, async function (error, payment) {
@@ -27,6 +30,9 @@ export class PaypalController {
           });
           //if redirect url present, redirect user
           if (links.hasOwnProperty('approval_url')) {
+            const paymentId = links['self'].href.split('/')[6];
+            await WalletService.updatePaymentId(billings, paymentId);
+
             const paypalUrl = links['approval_url'].href;
             return apiResponse.result(
               res,
@@ -34,7 +40,9 @@ export class PaypalController {
               httpStatusCodes.OK
             );
           } else {
-            console.error('no redirect URI present');
+            return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+              message: 'no redirect URI present',
+            });
           }
         }
       });
@@ -48,6 +56,7 @@ export class PaypalController {
 
   public static async captureOrder(req, res) {
     try {
+      const { user } = req;
       const { paymentId } = req.query;
       const payerId = { payer_id: req.query.PayerID };
 
@@ -56,10 +65,16 @@ export class PaypalController {
         payerId,
         async function (error, payment) {
           if (error) {
-            console.error(error);
+            return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+              message: 'unsuccessful payment',
+            });
           } else {
             if (payment.state == 'approved') {
-              await PaypalService.captureOrder(paymentId, payerId.payer_id);
+              await PaypalService.captureOrder(
+                user,
+                paymentId,
+                payerId.payer_id
+              );
               return apiResponse.result(
                 res,
                 { message: 'success' },
