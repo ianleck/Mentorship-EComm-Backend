@@ -75,11 +75,11 @@ export default class WalletService {
     );
   }
 
-  public static async setupWallet(ownerId: string) {
-    let wallet = await Wallet.findOne({ where: { ownerId } });
+  public static async setupWallet(accountId: string) {
+    let wallet = await Wallet.findOne({ where: { accountId } });
     if (!wallet) {
       wallet = new Wallet({
-        ownerId,
+        accountId,
       });
       await wallet.save();
     }
