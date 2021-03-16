@@ -73,7 +73,7 @@ export class Course extends BaseEntity {
 
   @Min(0)
   @Max(5)
-  @Default('5.0') //Pend change - arbitrary value
+  @Default('0.0') //Pend change - arbitrary value
   @Column(DataType.FLOAT)
   rating: number;
 

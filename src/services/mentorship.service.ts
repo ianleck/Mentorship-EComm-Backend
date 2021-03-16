@@ -12,6 +12,7 @@ import { Category } from '../models/Category';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
+import { Review } from '../models/Review';
 import { User } from '../models/User';
 import CartService from './cart.service';
 import EmailService from './email.service';
@@ -150,6 +151,62 @@ export default class MentorshipService {
       ],
     });
     return mentorshipListings;
+  }
+
+  /**
+   * @param obj = {
+   *  mentorshipListingId: string,
+   *  extraModels: Models[]
+   * }
+   */
+  private static async getListingWithAssociations({
+    mentorshipListingId,
+    extraModels,
+  }) {
+    return await MentorshipListing.findByPk(mentorshipListingId, {
+      include: [
+        Category,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+        ...extraModels,
+      ],
+    });
+  }
+
+  // get one listing
+  // if student, return without listing.contracts
+  // if sensei/admin return whole obj
+
+  //get all mentorship contracts (for admin)
+  public static async getListing(
+    mentorshipListingId: string,
+    user?
+  ): Promise<MentorshipListing> {
+    const listingWithoutContracts = await this.getListingWithAssociations({
+      mentorshipListingId,
+      extraModels: [Review],
+    });
+
+    if (!listingWithoutContracts)
+      throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+    /** if user is not logged in
+     * OR (user is not the sensei who created the mentorship listing AND user is not an admin)
+     * Return listing without contracts
+     */
+    if (
+      !user ||
+      (user.accountId !== listingWithoutContracts.accountId &&
+        user.userType !== USER_TYPE_ENUM.ADMIN)
+    ) {
+      return listingWithoutContracts;
+    }
+
+    // else return listing with contract
+    return MentorshipListing.findByPk(mentorshipListingId, {
+      include: [Review, MentorshipContract],
+    });
   }
 
   // ==================== MENTORSHIP CONTRACTS ====================
@@ -309,22 +366,6 @@ export default class MentorshipService {
     });
   }
 
-  // get one listing
-  // if student, return without listing.contracts
-  // if sensei/admin return whole obj
-
-  //get all mentorship contracts (for admin)
-  public static async getListing(
-    mentorshipListingId: string
-  ): Promise<MentorshipListing> {
-    const listing = await MentorshipListing.findByPk(mentorshipListingId, {
-      include: [MentorshipContract],
-    });
-    if (!listing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
-
-    return listing;
-  }
-
   public static async getAllMentorshipContracts() {
     const mentorshipContracts = await MentorshipContract.findAll();
     return mentorshipContracts;
@@ -345,22 +386,18 @@ export default class MentorshipService {
     return mentorshipContracts;
   }
 
-  //get ALL mentorship contracts of ONE sensei for ONE listing
-  // public static async getSenseiListingMentorshipContracts(
-  //   accountId,
-  //   mentorshipListingId
-  // ) {
-  //   const mentorshipContracts = await MentorshipContract.findAll({
-  //     include: [
-  //       {
-  //         model: MentorshipListing,
-  //         where: { accountId, mentorshipListingId },
-  //       },
-  //     ],
-  //   });
-
-  //   return mentorshipContracts;
-  // }
+  // if student is viewing the page, returns the existing contract if it exist. Else return null
+  public static async getContractIfExist(
+    mentorshipListingId: string,
+    accountId: string
+  ) {
+    return await MentorshipContract.findOne({
+      where: {
+        accountId,
+        mentorshipListingId,
+      },
+    });
+  }
 
   //get ONE mentorship contract of ONE student
   public static async getStudentMentorshipContract(

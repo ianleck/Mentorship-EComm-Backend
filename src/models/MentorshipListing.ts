@@ -18,6 +18,7 @@ import { CartToMentorshipListing } from './CartToMentorshipListing';
 import { Category } from './Category';
 import { MentorshipContract } from './MentorshipContract';
 import { MentorshipListingToCategory } from './MentorshipListingToCategory';
+import { Review } from './Review';
 import { User } from './User';
 @Table
 export class MentorshipListing extends BaseEntity {
@@ -40,7 +41,7 @@ export class MentorshipListing extends BaseEntity {
 
   @Min(0)
   @Max(5)
-  @Default('5.0') //Pend change - arbitrary value
+  @Default('0.0') //Pend change - arbitrary value
   @Column(DataType.FLOAT)
   rating: number;
 
@@ -74,6 +75,9 @@ export class MentorshipListing extends BaseEntity {
     foreignKey: 'mentorshipListingId',
   })
   Carts: Cart[];
+
+  @HasMany(() => Review, 'courseId')
+  Reviews: Review[];
 }
 
 // MentorshipListing.hasMany(Review, { foreignKey: 'reviewId' })

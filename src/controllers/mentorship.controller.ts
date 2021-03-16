@@ -130,19 +130,19 @@ export class MentorshipController {
   public static async getListing(req, res) {
     const { mentorshipListingId } = req.params;
     const { user } = req;
-
+    const accountId = user ? user.accountId : null;
     try {
-      const listing = await MentorshipService.getListing(mentorshipListingId);
+      const listing = await MentorshipService.getListing(
+        mentorshipListingId,
+        user
+      );
+      const existingContract = await MentorshipService.getContractIfExist(
+        mentorshipListingId,
+        accountId
+      );
       const experiences = await UserService.getExperienceByAccountId(
         listing.accountId
       );
-      // remove contracts if request user is not the owner of the listing and not an admin
-      if (
-        listing.accountId !== user.accountId &&
-        user.userType !== USER_TYPE_ENUM.ADMIN
-      ) {
-        listing.MentorshipContracts = null;
-      }
 
       return apiResponse.result(
         res,
@@ -150,6 +150,7 @@ export class MentorshipController {
           message: 'success',
           mentorshipListing: listing,
           experience: experiences,
+          existingContract,
         },
         httpStatusCodes.OK
       );
