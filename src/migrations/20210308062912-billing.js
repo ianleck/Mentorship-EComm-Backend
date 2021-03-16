@@ -54,7 +54,7 @@ module.exports = {
             'SUCCESS',
             'FAILED',
             'PENDING_PAYMENT',
-            'PENDING_90_DAYS',
+            'PENDING_120_DAYS',
             'WITHDRAWN',
             'ADMIN'
           ),
