@@ -331,6 +331,14 @@ export default class CourseService {
     });
 
     await newAnnouncement.save();
+
+    //const announcementContent = newAnnouncement.description;
+    //const additional = { announcementContent };
+
+    // Send Email to all students in course 
+    //Need to search course contract for all students with this Course then get that user then that email address 
+    //await EmailService.sendEmail(email, 'newAnnouncement', additional);
+    
     return newAnnouncement;
   }
 

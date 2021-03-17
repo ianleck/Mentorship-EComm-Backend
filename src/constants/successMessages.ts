@@ -91,3 +91,10 @@ export const CART_RESPONSE = {
   DELETE_FROM_CART:
     'The selected item(s) have been successfully removed from cart',
 };
+
+// ==================== SOCIAL RESPONSE MESSAGES ====================
+export const SOCIAL_RESPONSE = { 
+  POST_CREATE: 'Post has been successfully created', 
+}; 
+
+

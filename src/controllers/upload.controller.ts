@@ -4,7 +4,7 @@ import {
   COURSE_ERRORS,
   ERRORS,
   RESPONSE_ERROR,
-  UPLOAD_ERRORS,
+  UPLOAD_ERRORS
 } from '../constants/errors';
 import { UPLOAD_RESPONSE } from '../constants/successMessages';
 import UploadService from '../services/uploadService';
