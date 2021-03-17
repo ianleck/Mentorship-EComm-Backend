@@ -13,6 +13,7 @@ import {
 } from 'sequelize-typescript';
 import { VISIBILITY_ENUM } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
+import { Billing } from './Billing';
 import { Cart } from './Cart';
 import { CartToMentorshipListing } from './CartToMentorshipListing';
 import { Category } from './Category';
@@ -78,6 +79,9 @@ export class MentorshipListing extends BaseEntity {
 
   @HasMany(() => Review, 'mentorshipListingId')
   Reviews: Review[];
+
+  @HasMany(() => Billing, 'mentorshipListingId')
+  Billing: Billing;
 }
 
 // MentorshipListing.hasMany(Review, { foreignKey: 'reviewId' })

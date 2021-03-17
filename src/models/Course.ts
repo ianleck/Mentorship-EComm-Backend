@@ -19,6 +19,7 @@ import {
 } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Announcement } from './Announcement';
+import { Billing } from './Billing';
 import { Cart } from './Cart';
 import { CartToCourse } from './CartToCourse';
 import { Category } from './Category';
@@ -128,4 +129,7 @@ export class Course extends BaseEntity {
 
   @HasMany(() => Review, 'courseId')
   Reviews: Review[];
+
+  @HasMany(() => Billing, 'courseId')
+  Billing: Billing;
 }

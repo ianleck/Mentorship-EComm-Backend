@@ -8,11 +8,11 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
+import { CONTRACT_PROGRESS_ENUM } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
+import { Billing } from './Billing';
 import { Course } from './Course';
 import { User } from './User';
-import { CONTRACT_PROGRESS_ENUM } from '../constants/enum';
-import { Review } from './Review';
 
 @Table
 export class CourseContract extends BaseEntity {
@@ -43,6 +43,9 @@ export class CourseContract extends BaseEntity {
 
   @BelongsTo(() => Course, 'courseId')
   Course: Course;
+
+  @HasOne(() => Billing, 'courseContractId')
+  Billing: Billing;
 }
 
 // one to one mapping for Review
