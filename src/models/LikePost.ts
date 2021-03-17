@@ -2,30 +2,25 @@ import {
   Column,
   CreatedAt,
   DataType,
+  ForeignKey,
+  Model,
   Table,
   UpdatedAt,
-  PrimaryKey,
-  Default,
-  AllowNull,
 } from 'sequelize-typescript';
-import { BaseEntity } from './abstract/BaseEntity';
+import { User } from './User';
+import { Post } from './Post';
 
 
   
   @Table
-  export class LikePost extends BaseEntity {
-    @PrimaryKey
-    @Default(DataType.UUIDV4)
-    @Column(DataType.UUID)
-    likePostId: string;
-    
-    @AllowNull(false)
-    @Column(DataType.UUID)
-    accountId: string;
-  
-    @AllowNull(false)
+  export class LikePost extends Model<LikePost> {
+    @ForeignKey(() => Post)
     @Column(DataType.UUID)
     postId: string;
+
+    @ForeignKey(() => User)
+    @Column(DataType.UUID)
+    accountId: string;
   
     @CreatedAt
     @Column
