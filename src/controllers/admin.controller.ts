@@ -1,7 +1,12 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
+import { STATUS_ENUM } from '../constants/enum';
 import { AUTH_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
-import { ADMIN_RESPONSE, AUTH_RESPONSE } from '../constants/successMessages';
+import {
+  ADMIN_RESPONSE,
+  AUTH_RESPONSE,
+  USER_RESPONSE,
+} from '../constants/successMessages';
 import AdminService from '../services/admin.service';
 import UserService from '../services/user.service';
 import apiResponse from '../utilities/apiResponse';
@@ -216,6 +221,35 @@ export class AdminController {
     } catch (e) {
       logger.error('[adminController.resetPassword]:' + e.message);
       if (e.message === AUTH_ERRORS.NEW_PASSWORD_MISMATCH) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
+  public static async toggleUserStatus(req, res) {
+    const { accountId } = req.params;
+    try {
+      const updatedUser = await UserService.toggleUserStatus(accountId);
+      return apiResponse.result(
+        res,
+        {
+          message:
+            updatedUser.status === STATUS_ENUM.ACTIVE
+              ? USER_RESPONSE.USER_UNBANNED
+              : USER_RESPONSE.USER_BANNED,
+          user: updatedUser,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.toggleUserStatus]:' + e.message);
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
