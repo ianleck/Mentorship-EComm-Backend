@@ -18,6 +18,7 @@ import {
 } from '../constants/enum';
 import { Account } from './abstract/Account';
 import { Experience } from './Experience';
+import { LikePost } from './LikePost';
 import { MentorshipContract } from './MentorshipContract';
 import { Post } from './Post';
 import { UserFollowership } from './UserFollowership';
@@ -130,6 +131,7 @@ export class User extends Account {
 
   @HasMany(() => Post, 'accountId')
   Posts: Post[]; 
+
 
   // @Column
   // achievements: Achievement;

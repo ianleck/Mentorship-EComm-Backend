@@ -10,6 +10,8 @@ import {
 import { BaseEntity } from './abstract/BaseEntity';
 import { Lesson } from './Lesson';
 import { User } from './User';
+import { Post } from './Post';
+
 
 @Table
 export class Comment extends BaseEntity {
@@ -41,4 +43,9 @@ export class Comment extends BaseEntity {
 
   @BelongsTo(() => User, 'accountId')
   User: User;
+
+  @BelongsTo(() => Post, 'postId')
+  Post: Post;
+
+
 }

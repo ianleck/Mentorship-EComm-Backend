@@ -99,5 +99,9 @@ export const CART_RESPONSE = {
 export const SOCIAL_RESPONSE = {
   POST_CREATE: 'Post has been successfully created',
   POST_UPDATE: 'Post has been successfully updated',
-  POST_DELETE: 'Post has been successfully deleted',
-};
+  POST_DELETE: 'Post has been successfully deleted', 
+  POST_LIKED: 'Post has been successfully liked',  
+  POST_UNLIKED: 'Post has been successfully unliked',  
+}; 
+
+

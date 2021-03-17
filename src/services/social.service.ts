@@ -2,6 +2,8 @@ import httpStatusCodes from 'http-status-codes';
 import { ERRORS, SOCIAL_ERRORS } from '../constants/errors';
 import { Post } from '../models/Post';
 import { User } from '../models/User';
+import { LikePost } from '../models/LikePost';
+
 export default class SocialService {
   // ======================================== POSTS ========================================
   public static async createPost(
@@ -61,4 +63,40 @@ export default class SocialService {
     });
   }
 
+  public static async likePost(
+      postId: string,
+      accountId: string
+  ): Promise<LikePost> {
+      const post = await Post.findByPk(postId);
+      if (!post) throw new Error(SOCIAL_ERRORS.POST_MISSING);
+
+      const user = await User.findByPk(accountId);
+      if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+      const likedPost = new LikePost({
+        accountId,
+        postId 
+      });
+
+      await likedPost.save();
+
+      return likedPost; 
+  }
+
+  public static async unlikePost(
+    postId: string,
+    accountId: string
+): Promise<void> {
+    const post = await Post.findByPk(postId);
+    if (!post) throw new Error(SOCIAL_ERRORS.POST_MISSING);
+
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    await LikePost.destroy({
+        where: {
+          postId,
+        },
+      });
+    }
 }
