@@ -13,7 +13,7 @@ export class SocialController {
         try {
           const createdPost = await SocialService.createPost(
             accountId,
-            newPost 
+            newPost,
           );
           return apiResponse.result(
             res,
@@ -97,5 +97,59 @@ export class SocialController {
           });
         }
       }
-        
+
+      public static async likePost(req,res) {
+          const { postId } = req.params; 
+          const { user } = req; 
+
+          try {
+              await SocialService.likePost(postId, user.accountId); 
+              return apiResponse.result(
+                  res, 
+                  { message: SOCIAL_RESPONSE.POST_LIKED},
+                  httpStatusCodes.OK
+              );
+          } catch (e) {
+            logger.error('[socialController.likePost]:' + e.message);
+            if (
+              e.message === SOCIAL_ERRORS.POST_MISSING ||
+              e.message === ERRORS.USER_DOES_NOT_EXIST 
+            ) {
+              return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+                message: e.message,
+              });
+            }
+            return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+              message: RESPONSE_ERROR.RES_ERROR,
+            });
+          }
+        }
+
+        public static async unlikePost(req,res) {
+            const { postId } = req.params; 
+            const { user } = req; 
+  
+            try {
+                await SocialService.unlikePost(postId, user.accountId); 
+                return apiResponse.result(
+                    res, 
+                    { message: SOCIAL_RESPONSE.POST_UNLIKED},
+                    httpStatusCodes.OK
+                );
+            } catch (e) {
+              logger.error('[socialController.unlikePost]:' + e.message);
+              if (
+                e.message === SOCIAL_ERRORS.POST_MISSING ||
+                e.message === ERRORS.USER_DOES_NOT_EXIST 
+              ) {
+                return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+                  message: e.message,
+                });
+              }
+              return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+                message: RESPONSE_ERROR.RES_ERROR,
+              });
+            }
+          }
+      
     }

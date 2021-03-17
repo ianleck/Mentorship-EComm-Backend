@@ -4,10 +4,13 @@ import {
     DataType,
     Default,
     PrimaryKey,
+    HasMany,
     Table
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
 import { User } from './User';
+import { Comment } from './Comment';
+
   
   @Table
   export class Post extends BaseEntity {
@@ -28,6 +31,9 @@ import { User } from './User';
     
     @BelongsTo(() => User, 'accountId')
     Sensei: User;
+
+    @HasMany(() => Comment, 'postId')
+    Comments: Comment[];
 
 }
   
