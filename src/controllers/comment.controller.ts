@@ -26,7 +26,8 @@ export class CommentController {
           logger.error('[commentController.createLessonComment]:' + e.message);
           if (
             e.message === COURSE_ERRORS.COURSE_MISSING ||
-            e.message === COURSE_ERRORS.CONTRACT_EXISTS
+            e.message === COURSE_ERRORS.CONTRACT_EXISTS || 
+            e.message === COURSE_ERRORS.LESSON_MISSING
           ) {
             return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
               message: e.message,
