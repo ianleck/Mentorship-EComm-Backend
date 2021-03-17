@@ -14,10 +14,25 @@ const schemaValidator = require('express-joi-validation').createValidator({});
 router.post(
   '/post/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireSameUser, 
+  requireSameUser,
   schemaValidator.params(user.accountIdP), 
   schemaValidator.body(social.createPostB),
   Utility.asyncHandler(SocialController.createPost)
 );
+
+router.put(
+    '/post/:postId',
+    passport.authenticate('isAuthenticated', { session: false }),
+    schemaValidator.params(social.postIdP),
+    schemaValidator.body(social.editPostB),
+    Utility.asyncHandler(SocialController.editPost)
+  );
+  
+router.delete(
+    '/post/:postId',
+    passport.authenticate('isAuthenticated', { session: false }),
+    schemaValidator.params(social.postIdP),
+    Utility.asyncHandler(SocialController.deletePost)
+  );
 
 export default router;

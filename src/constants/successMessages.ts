@@ -94,7 +94,9 @@ export const CART_RESPONSE = {
 
 // ==================== SOCIAL RESPONSE MESSAGES ====================
 export const SOCIAL_RESPONSE = { 
-  POST_CREATE: 'Post has been successfully created', 
+  POST_CREATE: 'Post has been successfully created',
+  POST_UPDATE: 'Post has been successfully updated',
+  POST_DELETE: 'Post has been successfully deleted',  
 }; 
 
 
