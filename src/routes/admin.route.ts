@@ -154,6 +154,15 @@ router.put(
   Utility.asyncHandler(AdminController.rejectSenseiProfile)
 );
 
+// toggle user status
+router.put(
+  '/ban/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(AdminController.toggleUserStatus)
+);
+
 /*** END OF PUT REQUESTS ***/
 
 /*** DEL REQUESTS ***/

@@ -71,6 +71,9 @@ export const USER_RESPONSE = {
   EXPERIENCE_CREATE: 'Experience has been successfully created',
   EXPERIENCE_DELETE: 'Experience has been successfully deleted',
   EXPERIENCE_UPDATE: 'Experience has been successfully updated',
+
+  USER_BANNED: 'User has been successfully banned',
+  USER_UNBANNED: 'User has been successfully unbanned',
 };
 
 // ==================== UPLOAD RESPONSE MESSAGES ====================
@@ -93,7 +96,7 @@ export const CART_RESPONSE = {
 };
 
 // ==================== SOCIAL RESPONSE MESSAGES ====================
-export const SOCIAL_RESPONSE = { 
+export const SOCIAL_RESPONSE = {
   POST_CREATE: 'Post has been successfully created',
   POST_UPDATE: 'Post has been successfully updated',
   POST_DELETE: 'Post has been successfully deleted', 
