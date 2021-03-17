@@ -1,6 +1,7 @@
 import express from 'express';
 import Utility from '../constants/utility';
 import { CourseController } from '../controllers/course.controller';
+
 import {
   optionalAuth,
   requireSameUserOrAdmin,
@@ -173,20 +174,5 @@ router.get(
   Utility.asyncHandler(CourseController.getAllPurchasedCourses)
 );
 
-// ======================================== COMMENTS ========================================
-router.post(
-  '/comment/lesson/:lessonId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(course.lessonIdP),
-  schemaValidator.body(course.createCommentB),
-  Utility.asyncHandler(CourseController.createComment)
-);
-
-router.get(
-  '/comment/lesson/:lessonId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(course.lessonIdP),
-  Utility.asyncHandler(CourseController.getLessonComments)
-);
 
 export default router;

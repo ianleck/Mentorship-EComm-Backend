@@ -10,7 +10,6 @@ import {
 import { AUTH_ERRORS, COURSE_ERRORS, ERRORS } from '../constants/errors';
 import { Announcement } from '../models/Announcement';
 import { Category } from '../models/Category';
-import { Comment } from '../models/Comment';
 import { Course } from '../models/Course';
 import { CourseContract } from '../models/CourseContract';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
@@ -608,38 +607,9 @@ export default class CourseService {
     return rejectedCourse;
   }
 
-  // ======================================== COMMENTS ========================================
-  public static async createComment(
-    accountId: string,
-    lessonId: string,
-    bodyText: string
-  ): Promise<Comment> {
-    const lesson = await Lesson.findByPk(lessonId);
-    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
-    const comment = new Comment({
-      accountId,
-      lessonId,
-      body: bodyText,
-    });
-
-    await comment.save();
-    return comment;
-  }
-
-  public static async getLessonComments(lessonId: string): Promise<Comment[]> {
-    return Comment.findAll({
-      where: {
-        lessonId,
-      },
-      include: [
-        {
-          model: User,
-          attributes: ['firstName', 'lastName', 'profileImgUrl'],
-        },
-      ],
-    });
-  }
 }
+
+
 
 /**
  * Existing course draft
@@ -650,3 +620,5 @@ export default class CourseService {
  * - update course, change adminverified -> approved.
  *
  */
+
+

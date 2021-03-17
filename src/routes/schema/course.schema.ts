@@ -6,13 +6,6 @@ import {
 } from '../../constants/enum';
 
 export default {
-  createCommentB: joi.object({
-    comment: joi
-      .object({
-        body: joi.string().required(),
-      })
-      .required(),
-  }),
 
   createAnnouncement: joi.object({
     newAnnouncement: joi.object({
