@@ -83,3 +83,7 @@ export const RESPONSE_ERROR = {
 export const WALLET_ERROR = {
   UNAUTH_WALLET: 'User does not have access to requested wallet',
 };
+
+export const SOCIAL_ERRORS = {
+  POST_MISSING: 'Post does not exist', 
+}; 
