@@ -19,6 +19,7 @@ import {
 import { Account } from './abstract/Account';
 import { Experience } from './Experience';
 import { MentorshipContract } from './MentorshipContract';
+import { Post } from './Post';
 import { UserFollowership } from './UserFollowership';
 import { Wallet } from './Wallet';
 @Table
@@ -126,6 +127,9 @@ export class User extends Account {
 
   @HasOne(() => Wallet, 'accountId')
   Wallet: Wallet;
+
+  @HasMany(() => Post, 'accountId')
+  Posts: Post[]; 
 
   // @Column
   // achievements: Achievement;
