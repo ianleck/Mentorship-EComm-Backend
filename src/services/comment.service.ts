@@ -49,7 +49,6 @@ public static async createPostComment(
     accountId: string,
     postId: string,
     bodyText: string,
-    lessonId?: string,
   ): Promise<Comment> {
     const post = await Post.findByPk(postId);
     if (!post) throw new Error(SOCIAL_ERRORS.POST_MISSING);
@@ -57,7 +56,6 @@ public static async createPostComment(
         accountId,
         postId,
         body: bodyText,
- //       lessonId
     });
 
     await comment.save();

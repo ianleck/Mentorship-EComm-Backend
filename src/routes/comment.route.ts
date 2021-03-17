@@ -3,8 +3,8 @@ import Utility from '../constants/utility';
 import { CommentController } from '../controllers/comment.controller';
 
 import course from './schema/course.schema';
-import comment from './schema/comment.schema';
 import social from './schema/social.schema';
+import comment from './schema/comment.schema'; 
 
 
 const passport = require('passport');

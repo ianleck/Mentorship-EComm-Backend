@@ -73,7 +73,6 @@ public static async createPostComment(req, res) {
       );
     } catch (e) {
       logger.error('[commentController.createPostComment]:' + e.message);
-      console.log(e); 
       if (
         e.message === SOCIAL_ERRORS.POST_MISSING 
       ) {
