@@ -1,5 +1,9 @@
 import joi, { string } from 'joi';
-import { PRIVACY_PERMISSIONS_ENUM } from '../../constants/enum';
+import {
+  PRIVACY_PERMISSIONS_ENUM,
+  STATUS_ENUM,
+  USER_TYPE_ENUM,
+} from '../../constants/enum';
 import { ADMIN_VERIFIED_ENUM } from '../../constants/enum';
 
 export default {
@@ -20,6 +24,25 @@ export default {
   deleteExperienceParams: joi.object({
     accountId: joi.string().required(),
     experienceId: joi.string().required(),
+  }),
+  getFilter: joi.object({
+    username: joi.string().optional(),
+    firstName: joi.string().optional(),
+    email: joi.string().optional(),
+    contactNumber: joi.string().optional(),
+    emailVerified: joi.boolean().optional(),
+    status: joi
+      .string()
+      .valid(...Object.values(STATUS_ENUM))
+      .optional(),
+    userType: joi
+      .string()
+      .valid(...Object.values(USER_TYPE_ENUM))
+      .optional(),
+    adminVerified: joi
+      .string()
+      .valid(...Object.values(ADMIN_VERIFIED_ENUM))
+      .optional(),
   }),
   updateExperienceB: joi.object({
     experience: joi.object({

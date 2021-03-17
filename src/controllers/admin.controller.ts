@@ -3,7 +3,9 @@ import logger from '../config/logger';
 import { AUTH_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { ADMIN_RESPONSE, AUTH_RESPONSE } from '../constants/successMessages';
 import AdminService from '../services/admin.service';
+import UserService from '../services/user.service';
 import apiResponse from '../utilities/apiResponse';
+
 const passport = require('passport');
 
 export class AdminController {
@@ -33,7 +35,6 @@ export class AdminController {
   }
 
   public static async getAdmin(req, res) {
-    const { user } = req; //user is the user who is making the request
     const { accountId } = req.params; //accountId of the admin who is being updatred
 
     /*
@@ -79,6 +80,26 @@ export class AdminController {
       );
     } catch (e) {
       logger.error('[adminController.getAllAdmins]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getUsersByFilter(req, res) {
+    const filter = req.query;
+    try {
+      const users = await UserService.getUsersByFilter(filter);
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          users,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.getUsersByFilter]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });

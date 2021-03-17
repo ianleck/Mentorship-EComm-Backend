@@ -1,5 +1,9 @@
 import { Op } from 'sequelize';
-import { STATUS_ENUM, USER_TYPE_ENUM } from '../constants/enum';
+import {
+  STATUS_ENUM,
+  USER_TYPE_ENUM,
+  ADMIN_VERIFIED_ENUM,
+} from '../constants/enum';
 import { ERRORS } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Experience } from '../models/Experience';
@@ -48,6 +52,33 @@ export default class UserService {
     }
   }
 
+  public static async getUsersByFilter(filter: {
+    username?: string;
+    firstName?: string;
+    email?: string;
+    contactNumber?: string;
+    emailVerified?: boolean;
+    status?: STATUS_ENUM;
+    userType?: USER_TYPE_ENUM;
+    adminVerified?: ADMIN_VERIFIED_ENUM;
+  }) {
+    // exact: emailVerified, userType, adminVerified
+    // like: username, firstname, contactNumber, email,
+    const likeKeys = ['username', 'firstName', 'contactNumber', 'email'];
+    let where = {};
+    Object.keys(filter).forEach((key) => {
+      if (likeKeys.indexOf(key) != -1) {
+        where[key] = {
+          [Op.like]: `%${filter[key]}%`,
+        };
+      } else {
+        where[key] = filter[key];
+      }
+    });
+    return await User.findAll({
+      where,
+    });
+  }
   // get all users with userType = STUDENT
   public static async getAllActiveStudents() {
     const students = User.findAll({
