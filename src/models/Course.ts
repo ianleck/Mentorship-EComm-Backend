@@ -130,6 +130,6 @@ export class Course extends BaseEntity {
   @HasMany(() => Review, 'courseId')
   Reviews: Review[];
 
-  @HasMany(() => Billing, 'courseId')
-  Billing: Billing;
+  @HasMany(() => Billing, 'productId')
+  Billings: Billing;
 }

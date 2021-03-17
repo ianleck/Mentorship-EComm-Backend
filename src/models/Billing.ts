@@ -27,17 +27,13 @@ export class Billing extends BaseEntity {
   @Column(DataType.STRING)
   paypalPaymentId: string;
 
-  // Needed for courseContract creation during capture order
-  @Column(DataType.STRING)
-  courseId: string;
+  // Id of Course/Mentorshiplisting
+  @Column(DataType.UUID)
+  productId: string;
 
-  // Needed to link billing to student through course contract
-  @Column(DataType.STRING)
-  courseContractId: string;
-
-  // Needed for mentorshipContract creation
-  @Column(DataType.STRING)
-  mentorshipListingId: string;
+  // Id of CourseContract/MentorshipContract
+  @Column(DataType.UUID)
+  contractId: string;
 
   // Price of course
   @AllowNull(false)
@@ -80,13 +76,24 @@ export class Billing extends BaseEntity {
   @Column(DataType.BOOLEAN)
   withdrawalApplication: Boolean;
 
+  @AllowNull(false)
+  @Default(true)
+  @Column(DataType.BOOLEAN)
+  isCourseBilling: Boolean;
+
   // ==================== RELATIONSHIP MAPPINGS ====================
-  @BelongsTo(() => Course, 'courseId')
+  @BelongsTo(() => Course, { foreignKey: 'productId', targetKey: 'courseId' })
   Course: Course;
 
-  @BelongsTo(() => CourseContract, 'courseContractId')
+  @BelongsTo(() => CourseContract, {
+    foreignKey: 'contractId',
+    targetKey: 'courseContractId',
+  })
   CourseContract: CourseContract;
 
-  @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
+  @BelongsTo(() => MentorshipListing, {
+    foreignKey: 'productId',
+    targetKey: 'mentorshipListingId',
+  })
   MentorshipListing: MentorshipListing;
 }

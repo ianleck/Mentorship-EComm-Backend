@@ -20,7 +20,7 @@ export default class WalletService {
     });
 
     const newBilling = new Billing({
-      courseId,
+      productId: courseId,
       amount: amount,
       currency: currency,
       senderWalletId: student.walletId,
@@ -51,8 +51,8 @@ export default class WalletService {
     withdrawableDate.setDate(withdrawableDate.getDate() + WITHDRAWAL_DAYS);
 
     const newBilling = new Billing({
-      courseId,
-      courseContractId,
+      productId: courseId,
+      contractId: courseContractId,
       amount: amount,
       currency: currency,
       platformFee,
