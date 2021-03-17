@@ -60,7 +60,6 @@ export default {
       firstName: joi.string(),
       lastName: joi.string(),
       contactNumber: joi.number(),
-      status: joi.string(),
       headline: joi.string(),
       bio: joi.string(),
       chatPrivacy: joi

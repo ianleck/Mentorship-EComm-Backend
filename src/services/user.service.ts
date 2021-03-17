@@ -101,6 +101,19 @@ export default class UserService {
     return senseis;
   }
 
+  public static async toggleUserStatus(accountId: string): Promise<User> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    let newStatus = STATUS_ENUM.ACTIVE;
+    if (user.status === STATUS_ENUM.ACTIVE) {
+      newStatus = STATUS_ENUM.BANNED;
+    }
+    return user.update({
+      status: newStatus,
+    });
+  }
+
   public static async updateUser(
     accountId: string,
     fields: { [key: string]: string }
