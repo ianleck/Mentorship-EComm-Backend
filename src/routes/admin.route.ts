@@ -66,6 +66,15 @@ router.get(
   Utility.asyncHandler(AdminController.getAllAdmins)
 );
 
+// get list of students by filter
+router.get(
+  '/all/user',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  schemaValidator.query(user.getFilter),
+  Utility.asyncHandler(AdminController.getUsersByFilter)
+);
+
 //get list of banned students
 router.get(
   '/ban/student',
