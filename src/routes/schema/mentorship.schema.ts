@@ -27,4 +27,23 @@ export default {
   mentorshipContractB: joi.object({
     statement: joi.string().required(),
   }),
+
+  addTestimonialB: joi.object({
+    newTestimonial: joi.object({
+        body: joi.string().required(),
+    }).required(),
+  }),
+
+  editTestimonialB: joi.object({
+    editedTestimonial: joi.object({
+        body: joi.string().required(),
+    }).required(),
+  }),
+
+
+
+  testimonialP: joi.object({
+    testimonialId: joi.string().required(),
+  }),
+
 };

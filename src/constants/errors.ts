@@ -52,6 +52,13 @@ export const MENTORSHIP_ERRORS = {
     'A mentorship contract has already been made for this mentor. Please edit existing mentorship contract.',
   CONTRACT_MISSING:
     'Mentorship contract does not exist. Please sign up for a mentorship listing first.',
+  TESTIMONIAL_EXISTS:
+    'A testimonial has already been made for this mentee. Please edit existing testimonial.',
+  TESTIMONIAL_MISSING: 'Testimonial does not exist',
+  CONTRACT_NOT_COMPLETED: 
+   'Mentorship contract has not been completed. Please complete mentorship first before adding a testimonial.'
+
+  
 };
 
 export const REVIEW_ERRORS = {

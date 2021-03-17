@@ -8,7 +8,7 @@ import UserService from '../services/user.service';
 import apiResponse from '../utilities/apiResponse';
 
 export class MentorshipController {
-  // ==================== MENTORSHIP LISTINGS ====================
+  // ====================================== MENTORSHIP LISTINGS ======================================
   public static async createListing(req, res) {
     const { user } = req;
     const { mentorshipListing } = req.body;
@@ -171,7 +171,7 @@ export class MentorshipController {
     }
   }
 
-  // ==================== MENTORSHIP CONTRACTS ====================
+  // ====================================== MENTORSHIP CONTRACTS ======================================
   public static async createContract(req, res) {
     const { mentorshipListingId } = req.params;
     const { accountId } = req.user;
@@ -444,4 +444,77 @@ export class MentorshipController {
       });
     }
   }
+
+  // ============================= TESTIMONIALS =================================================
+  public static async addTestimonial(req, res) {
+    const { user } = req;
+    const { newTestimonial } = req.body;
+    const { mentorshipContractId } = req.params; 
+
+    try {
+      const createdTestimonial = await MentorshipService.addTestimonial(
+        user.accountId,
+        mentorshipContractId,
+        newTestimonial, 
+      );
+      return apiResponse.result(
+        res,
+        { message: MENTORSHIP_RESPONSE.TESTIMONIAL_CREATE, createdTestimonial },
+        httpStatusCodes.CREATED
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.addTestimonial]:' + e.message);
+      if (
+        e.message === MENTORSHIP_ERRORS.TESTIMONIAL_EXISTS ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_NOT_COMPLETED ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+
+        ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
+  public static async editTestimonial(req, res) {
+    const { testimonialId } = req.params;
+    const { editedTestimonial } = req.body;
+    const { user } = req; 
+
+    try {
+      const updatedTestimonial = await MentorshipService.editTestimonial(
+        user.accountId, 
+        testimonialId,
+        editedTestimonial
+      );
+      return apiResponse.result(
+        res,
+        { message: MENTORSHIP_RESPONSE.TESTIMONIAL_EDIT, updatedTestimonial },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.editTestimonial]:' + e.message);
+      if (
+        e.message === MENTORSHIP_ERRORS.TESTIMONIAL_MISSING || 
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+        ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
 }

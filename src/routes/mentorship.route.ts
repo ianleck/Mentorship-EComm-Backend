@@ -140,4 +140,25 @@ router.get(
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(MentorshipController.getSenseiMentorshipContracts)
 );
+
+// ==================================== TESTIMONIALS ====================================
+router.post(
+  '/testimonial/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.mentorshipContractP),
+  schemaValidator.body(mentorship.addTestimonialB),
+  Utility.asyncHandler(MentorshipController.addTestimonial)
+);
+
+router.put(
+  '/testimonial/:testimonialId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.testimonialP),
+  schemaValidator.body(mentorship.editTestimonialB), 
+  Utility.asyncHandler(MentorshipController.editTestimonial)
+);
+
+
 export default router;

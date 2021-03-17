@@ -14,6 +14,7 @@ import { MentorshipListing } from '../models/MentorshipListing';
 import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
 import { Review } from '../models/Review';
 import { User } from '../models/User';
+import { Testimonial } from '../models/Testimonial';
 import CartService from './cart.service';
 import EmailService from './email.service';
 
@@ -437,4 +438,78 @@ export default class MentorshipService {
     });
     return mentorshipContracts;
   }
+
+  // ============================== TESTIMONIAL ==============================
+  public static async addTestimonial(
+    accountId: string,
+    mentorshipContractId: string,
+    testimonial: {
+      body: string, 
+    }
+  ): Promise<Testimonial> {
+
+    const existingTestimonial = await Testimonial.findOne({
+      where: {
+        mentorshipContractId,
+        accountId,
+      },
+    });
+
+    if (existingTestimonial)
+      throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_EXISTS);
+    
+    //Check if sensei adding testimonial is the sensei on the mentorshipContract
+    const mentorshipContract = await MentorshipContract.findOne({
+      where: {
+        mentorshipContractId, 
+        progress:
+          CONTRACT_PROGRESS_ENUM.COMPLETED
+      }
+    }); 
+    if (!mentorshipContract) {
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_NOT_COMPLETED); 
+    }
+
+    const mentorshipListing = await MentorshipListing.findByPk(mentorshipContract.mentorshipListingId)
+    if (!mentorshipListing) {
+      throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING); 
+    }
+
+    if (mentorshipListing.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    const { body } = testimonial;
+
+    const newTestimonial = new Testimonial({
+      mentorshipContractId,
+      accountId,
+      body,
+    });
+
+    await newTestimonial.save();
+
+    return newTestimonial;
+  }
+
+  public static async editTestimonial(
+    accountId: string, 
+    testimonialId: string,
+    editedTestimonial, 
+  ): Promise<Testimonial> {
+    const existingTestimonial = await Testimonial.findByPk(testimonialId);
+    if (!existingTestimonial) throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
+    
+    //Check if the mentor editing the testimonial is the one who wrote the testimonial 
+    if (existingTestimonial.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    return await existingTestimonial.update(editedTestimonial);
+  }
+
+  
+
 }
