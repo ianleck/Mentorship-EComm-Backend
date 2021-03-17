@@ -31,14 +31,7 @@ export class Comment extends BaseEntity {
   accountId: string;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
-  @BelongsTo(() => Lesson, {
-    onDelete: 'CASCADE',
-    onUpdate: 'no action',
-    foreignKey: {
-      name: 'lessonId',
-      allowNull: false,
-    },
-  })
+  @BelongsTo(() => Lesson, 'lessonId')
   Lesson: Lesson;
 
   @BelongsTo(() => User, 'accountId')

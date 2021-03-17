@@ -1,10 +1,10 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
 import { COMMENT_ERRORS, COURSE_ERRORS, RESPONSE_ERROR, SOCIAL_ERRORS } from '../constants/errors';
-//import { COMMENT_RESPONSE } from '../constants/successMessages';
-//import CommentService from '../services/comment.service';
+import { COMMENT_RESPONSE } from '../constants/successMessages';
+import CommentService from '../services/comment.service';
 import apiResponse from '../utilities/apiResponse';
-/*
+
 export class CommentController {
 // ======================================== COMMENTS FOR LESSON ========================================
     public static async createLessonComment(req, res) {
@@ -26,7 +26,8 @@ export class CommentController {
           logger.error('[commentController.createLessonComment]:' + e.message);
           if (
             e.message === COURSE_ERRORS.COURSE_MISSING ||
-            e.message === COURSE_ERRORS.CONTRACT_EXISTS
+            e.message === COURSE_ERRORS.CONTRACT_EXISTS || 
+            e.message === COURSE_ERRORS.LESSON_MISSING
           ) {
             return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
               message: e.message,
@@ -73,7 +74,6 @@ public static async createPostComment(req, res) {
       );
     } catch (e) {
       logger.error('[commentController.createPostComment]:' + e.message);
-      console.log(e); 
       if (
         e.message === SOCIAL_ERRORS.POST_MISSING 
       ) {
@@ -153,6 +153,4 @@ public static async editPostComment(req, res) {
 
 
     }
-
-    */
 

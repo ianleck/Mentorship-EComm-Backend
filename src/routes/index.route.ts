@@ -12,7 +12,8 @@ import reviewRoute from './review.route';
 import uploadRoute from './upload.route';
 import userRoute from './user.route';
 import walletRoute from './wallet.route';
-import socialRoute from './social.route'; 
+import socialRoute from './social.route';
+import commentRoute from './comment.route'; 
 
 const router = express.Router();
 
@@ -30,5 +31,6 @@ router.use('/upload', uploadRoute);
 router.use('/user', userRoute);
 router.use('/wallet', walletRoute);
 router.use('/social', socialRoute); 
+router.use('/comment', commentRoute); 
 
 export default router;

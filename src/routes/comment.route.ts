@@ -1,4 +1,4 @@
-/*import express from 'express';
+import express from 'express';
 import Utility from '../constants/utility';
 import { CommentController } from '../controllers/comment.controller';
 
@@ -61,5 +61,4 @@ router.delete(
 
 
 export default router;
-*/
   

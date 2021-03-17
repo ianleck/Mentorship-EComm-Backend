@@ -87,3 +87,7 @@ export const WALLET_ERROR = {
 export const SOCIAL_ERRORS = {
   POST_MISSING: 'Post does not exist', 
 }; 
+
+export const COMMENT_ERRORS = {
+  COMMENT_MISSING: 'Comment does not exist', 
+}; 
