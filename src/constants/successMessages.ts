@@ -47,6 +47,10 @@ export const MENTORSHIP_RESPONSE = {
   CONTRACT_DELETE: 'Mentorship Contract has been successfully deleted',
   CONTRACT_ACCEPT: 'Mentorship Contract has been successfully accepted',
   CONTRACT_REJECT: 'Mentorship Contract has been successfully rejected',
+
+  TESTIMONIAL_CREATE: 'Testimonial has been successfully created', 
+  TESTIMONIAL_EDIT: 'Testimonial has been successfully edited',
+  
 };
 
 // ==================== PAYPAL RESPONSE MESSAGES ====================
