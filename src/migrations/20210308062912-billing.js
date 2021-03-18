@@ -22,14 +22,11 @@ module.exports = {
         paypalPaymentId: {
           type: Sequelize.STRING,
         },
-        courseId: {
-          type: Sequelize.STRING,
+        productId: {
+          type: Sequelize.UUID,
         },
-        courseContractId: {
-          type: Sequelize.STRING,
-        },
-        mentorshipListingId: {
-          type: Sequelize.STRING,
+        contractId: {
+          type: Sequelize.UUID,
         },
         amount: {
           type: Sequelize.FLOAT,
@@ -66,6 +63,11 @@ module.exports = {
           allowNull: false,
           type: Sequelize.BOOLEAN,
           defaultValue: false,
+        },
+        isCourseBilling: {
+          allowNull: false,
+          type: Sequelize.BOOLEAN,
+          defaultValue: true,
         },
         createdAt: {
           allowNull: false,

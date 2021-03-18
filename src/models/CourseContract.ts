@@ -44,7 +44,7 @@ export class CourseContract extends BaseEntity {
   @BelongsTo(() => Course, 'courseId')
   Course: Course;
 
-  @HasOne(() => Billing, 'courseContractId')
+  @HasOne(() => Billing, 'contractId')
   Billing: Billing;
 }
 

@@ -31,8 +31,6 @@ export const COURSE_RESPONSE = {
   CONTRACT_ACCEPT: 'Course Contract has been successfully accepted',
   CONTRACT_REJECT: 'Course Contract has been successfully rejected',
 
-  COMMENT_CREATE: 'Successfully commented on lesson',
-
   ANNOUNCEMENT_CREATE: 'Announcement has been successfully written',
   ANNOUNCEMENT_UPDATE: 'Announcement has been successfully updated',
   ANNOUNCEMENT_DELETE: 'Announcement has been successfully deleted',
@@ -103,5 +101,15 @@ export const SOCIAL_RESPONSE = {
   POST_LIKED: 'Post has been successfully liked',  
   POST_UNLIKED: 'Post has been successfully unliked',  
 }; 
+
+// ==================== COMMENT RESPONSE MESSAGES ====================
+export const COMMENT_RESPONSE = {
+COMMENT_LESSON_CREATE: 'Successfully commented on lesson',
+
+COMMENT_POST_CREATE: 'Successfully commented on post',
+COMMENT_POST_EDIT: 'Successfully edited comment on post',
+COMMENT_POST_DELETE: 'Successfully deleted comment from post',
+
+};
 
 
