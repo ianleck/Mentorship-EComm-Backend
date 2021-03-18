@@ -451,7 +451,6 @@ export default class MentorshipService {
     const existingTestimonial = await Testimonial.findOne({
       where: {
         mentorshipContractId,
-        accountId,
       },
     });
 
@@ -516,29 +515,28 @@ export default class MentorshipService {
   //get ONE testimonial 
   public static async getTestimonial(
     testimonialId: string,
-    accountId: string,
+    accountId: string 
   ) {
-    const testimonial = await Testimonial.findByPk(
-      testimonialId,
-      {
-        include: [MentorshipContract],
-      }
-    );
+    const testimonial = await Testimonial.findByPk(testimonialId);
+
+    if (!testimonial)
+      throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
+
+    const mentorshipContract = await MentorshipContract.findByPk(testimonial.mentorshipContractId); 
+    if (!mentorshipContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING); 
 
     if (
-      accountId !== testimonial.accountId || //check if user is mentor who added testimonial 
-      accountId !== testimonial.MentorshipContract.accountId  // check if user is student in testimonial 
+      accountId !== testimonial.accountId && //check if user is mentor who added testimonial 
+      accountId !== mentorshipContract.accountId  // check if user is student in testimonial 
     )
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
 
-    if (!testimonial)
-      throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
+    
 
     return testimonial;
   }
 
-  
 
 }
