@@ -7,14 +7,14 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
-import { Complain } from './Complain';
+import { Complaint } from './Complaint';
 
 @Table
-export class ComplainReason extends Model<ComplainReason> {
+export class ComplaintReason extends Model<ComplaintReason> {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
-  complainReasonId: string;
+  complaintReasonId: string;
 
   @Column(DataType.STRING)
   reason: string;
@@ -22,10 +22,7 @@ export class ComplainReason extends Model<ComplainReason> {
   @Column(DataType.TEXT)
   description: string;
 
-  @Column(DataType.UUID)
-  complainId: string;
-
   // ==================== RELATIONSHIP MAPPINGS ====================
-  @HasMany(() => Complain, 'complainReasonId')
-  Complains: Complain[];
+  @HasMany(() => Complaint, 'complaintReasonId')
+  Complains: Complaint[];
 }

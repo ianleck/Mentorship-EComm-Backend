@@ -40,6 +40,10 @@ export enum CONTRACT_PROGRESS_ENUM {
   COMPLETED = 'COMPLETED',
 }
 
+export enum COMPLAINT_TYPE_ENUM {
+  COMMENT = 'COMMENT',
+}
+
 export enum INTERVAL_UNIT {
   DAILY = 'DAY',
   WEEKLY = 'WEEK',

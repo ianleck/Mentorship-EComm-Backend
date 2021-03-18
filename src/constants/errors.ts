@@ -85,9 +85,16 @@ export const WALLET_ERROR = {
 };
 
 export const SOCIAL_ERRORS = {
-  POST_MISSING: 'Post does not exist', 
-}; 
+  POST_MISSING: 'Post does not exist',
+};
 
 export const COMMENT_ERRORS = {
-  COMMENT_MISSING: 'Comment does not exist', 
-}; 
+  COMMENT_MISSING: 'Comment does not exist',
+};
+
+export const COMPLAINT_ERRORS = {
+  COMPLAINT_REASON_EXISTS: 'Similar complaint reason already exists',
+
+  COMPLAINT_MISSING: 'Complaint does not exist',
+  COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
+};
