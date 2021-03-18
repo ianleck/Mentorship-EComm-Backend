@@ -131,6 +131,9 @@ export class User extends Account {
   @HasMany(() => Post, 'accountId')
   Posts: Post[];
 
+  //@HasMany(() => Testimonial, 'testimonialId')
+  //Testimonials: Testimonial[];
+
   // @Column
   // achievements: Achievement;
 

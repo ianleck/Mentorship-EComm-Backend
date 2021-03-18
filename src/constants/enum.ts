@@ -83,3 +83,9 @@ export enum USER_TYPE_ENUM {
   SENSEI = 'SENSEI',
   ADMIN = 'ADMIN',
 }
+
+export enum FOLLOWING_ENUM {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED', 
+}
