@@ -52,6 +52,8 @@ module.exports = {
             'FAILED',
             'PENDING_PAYMENT',
             'PENDING_120_DAYS',
+            'PENDING_WITHDRAWAL',
+            'CONFIRMED',
             'WITHDRAWN',
             'ADMIN'
           ),
@@ -59,15 +61,15 @@ module.exports = {
         withdrawableDate: {
           type: Sequelize.DATE,
         },
-        withdrawalApplication: {
+        billingType: {
           allowNull: false,
-          type: Sequelize.BOOLEAN,
-          defaultValue: false,
-        },
-        isCourseBilling: {
-          allowNull: false,
-          type: Sequelize.BOOLEAN,
-          defaultValue: true,
+          type: Sequelize.ENUM(
+            'INTERNAL',
+            'COURSE',
+            'SUBSCRIPTION',
+            'REFUND',
+            'WITHDRAWAL'
+          ),
         },
         createdAt: {
           allowNull: false,

@@ -9,6 +9,7 @@ import {
 } from '../constants/successMessages';
 import AdminService from '../services/admin.service';
 import UserService from '../services/user.service';
+import WalletService from '../services/wallet.service';
 import apiResponse from '../utilities/apiResponse';
 
 const passport = require('passport');
@@ -365,6 +366,49 @@ export class AdminController {
       );
     } catch (e) {
       logger.error('[adminController.getBannedSenseis]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  // ============================== Finance ==============================
+
+  public static async viewPendingWithdrawals(req, res) {
+    try {
+      const withdrawalApplications = await WalletService.viewPendingWithdrawals();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          withdrawalApplications,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.viewPendingWithdrawals]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async approveWithdrawal(req, res) {
+    try {
+      const { billingId } = req.params;
+      const withdrawalApplications = await WalletService.approveWithdrawal(
+        billingId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          withdrawalApplications,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.approveWithdrawal]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
