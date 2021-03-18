@@ -517,4 +517,33 @@ export class MentorshipController {
     }
   }
 
+  //get ONE testimonial 
+  public static async getTestimonial(req, res) {
+    const { user } = req; 
+    const { testimonialId } = req.params;
+
+    try {
+      const testimonial = await MentorshipService.getTestimonial(
+        testimonialId, 
+        user.accountId,
+      );
+
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          testimonial,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.getTestimonial]:' + e.toString()
+      );
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
 }

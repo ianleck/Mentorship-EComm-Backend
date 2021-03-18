@@ -455,10 +455,11 @@ export default class MentorshipService {
       },
     });
 
+    //Check if testimonial has been created 
     if (existingTestimonial)
       throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_EXISTS);
     
-    //Check if sensei adding testimonial is the sensei on the mentorshipContract
+    //Check if mentorship has been completed before testimonial is created 
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
         mentorshipContractId, 
@@ -475,6 +476,7 @@ export default class MentorshipService {
       throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING); 
     }
 
+    //Check if mentor adding testimonial is the mentor on the mentorshipContract
     if (mentorshipListing.accountId !== accountId)
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
@@ -499,6 +501,7 @@ export default class MentorshipService {
     editedTestimonial, 
   ): Promise<Testimonial> {
     const existingTestimonial = await Testimonial.findByPk(testimonialId);
+
     if (!existingTestimonial) throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
     
     //Check if the mentor editing the testimonial is the one who wrote the testimonial 
@@ -508,6 +511,32 @@ export default class MentorshipService {
       );
 
     return await existingTestimonial.update(editedTestimonial);
+  }
+
+  //get ONE testimonial 
+  public static async getTestimonial(
+    testimonialId: string,
+    accountId: string,
+  ) {
+    const testimonial = await Testimonial.findByPk(
+      testimonialId,
+      {
+        include: [MentorshipContract],
+      }
+    );
+
+    if (
+      accountId !== testimonial.accountId || //check if user is mentor who added testimonial 
+      accountId !== testimonial.MentorshipContract.accountId && // check if user is student in testimonial 
+    )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    if (!testimonial)
+      throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
+
+    return testimonial;
   }
 
   

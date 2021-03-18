@@ -21,11 +21,11 @@ import {
   
     @AllowNull(false)
     @Column(DataType.UUID)
-    mentorshipContractId: string; //approved mentorship applications 
+    mentorshipContractId: string; 
 
     @AllowNull(false)
     @Column(DataType.UUID)
-    accountId: string; // mentorId 
+    accountId: string; // senseiId 
   
     @AllowNull(false)
     @Column(DataType.TEXT)

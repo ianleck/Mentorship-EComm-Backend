@@ -40,8 +40,6 @@ export default {
     }).required(),
   }),
 
-
-
   testimonialP: joi.object({
     testimonialId: joi.string().required(),
   }),
