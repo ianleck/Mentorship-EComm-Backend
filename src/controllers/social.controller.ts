@@ -154,6 +154,38 @@ export class SocialController {
               });
             }
           }
+          
+          public static async getUserFeed(req, res) {
+            const { accountId } = req.params; 
+          
+            try {
+              const listOfPost = await SocialService.getUserFeed(
+                accountId
+              );
+              return apiResponse.result(
+                res,
+                {
+                  message: 'success',
+                  listOfPost,
+                },
+                httpStatusCodes.OK
+              );
+            } catch (e) {
+              logger.error(
+                '[socialService.getUserFeed]:' + e.toString()
+              );
+              if (
+                e.message === SOCIAL_ERRORS.PRIVATE_USER
+              ) {
+                return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+                  message: e.message,
+              }); 
+            } 
+            return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+              message: RESPONSE_ERROR.RES_ERROR,
+            }); 
+          }
+          }
 
 //================================== FOLLOWING =============================================
 public static async requestFollowing(req,res) {
@@ -262,6 +294,42 @@ public static async removeUserFromFollowingList(req,res) {
     });
   }
 }
+
+public static async getFollowingList(req, res) {
+  const { accountId } = req.params; 
+  const { user } = req; 
+
+  try {
+    const followingList = await SocialService.getFollowingList(
+      accountId,
+      user.accountId 
+    );
+    return apiResponse.result(
+      res,
+      {
+        message: 'success',
+        followingList,
+      },
+      httpStatusCodes.OK
+    );
+  } catch (e) {
+    logger.error(
+      '[socialService.getFollowingList]:' + e.toString()
+    );
+    if (
+      e.message ===
+              httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) 
+    ) {
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+    return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+      message: RESPONSE_ERROR.RES_ERROR,
+    });
+  }
+}
+
 
 
 

@@ -1,11 +1,12 @@
 import httpStatusCodes from 'http-status-codes';
+import { Op } from 'sequelize';
+import { FOLLOWING_ENUM, PRIVACY_PERMISSIONS_ENUM } from '../constants/enum';
 import { ERRORS, SOCIAL_ERRORS } from '../constants/errors';
-import { FOLLOWING_ENUM } from '../constants/enum';
+import { LikePost } from '../models/LikePost';
 import { Post } from '../models/Post';
 import { User } from '../models/User';
-import { LikePost } from '../models/LikePost';
 import { UserFollowership } from '../models/UserFollowership';
-import EmailService from './email.service';
+
 
 
 export default class SocialService {
@@ -104,6 +105,18 @@ export default class SocialService {
       });
     }
 
+  public static async getUserFeed(accountId: string) {
+    const user = await User.findByPk(accountId); 
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST); 
+
+    if (user.isPrivateProfile === true) throw new Error (SOCIAL_ERRORS.PRIVATE_USER)
+    
+    const listOfPost = Post.findAll({
+        where: { accountId },
+      });
+      return listOfPost;
+    }
+
 
 // ======================================== FOLLOWING ========================================
 
@@ -199,6 +212,15 @@ public static async addUserToFollowingList(
     
         }
 
-      
+        public static async getFollowingList(accountId: string, userId: string) {
+          if (accountId !== userId)
+          throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
 
+          const followingList = UserFollowership.findAll({
+            where: { followerId: { [Op.eq]: accountId }, followingStatus: FOLLOWING_ENUM.APPROVED },
+          });
+          return followingList;
+        }
   }

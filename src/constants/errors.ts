@@ -96,6 +96,8 @@ export const SOCIAL_ERRORS = {
 
   FOLLOWING_REQUEST_MISSING: 'Request does not exist', 
   FOLLOWING_MISSING: 'User is not following', 
+
+  PRIVATE_USER: 'User account is private'
 }; 
 
 export const COMMENT_ERRORS = {

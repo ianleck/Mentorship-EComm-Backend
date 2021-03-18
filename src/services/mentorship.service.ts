@@ -521,9 +521,7 @@ export default class MentorshipService {
     testimonialId: string,
     accountId: string 
   ) {
-    const testimonial = await Testimonial.findByPk(testimonialId, {
-      include: [MentorshipContract],
-    });
+    const testimonial = await Testimonial.findByPk(testimonialId);
 
     if (!testimonial)
       throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
