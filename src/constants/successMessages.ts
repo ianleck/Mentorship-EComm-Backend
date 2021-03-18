@@ -66,6 +66,9 @@ export const MENTORSHIP_RESPONSE = {
   CONTRACT_DELETE: 'Mentorship Contract has been successfully deleted',
   CONTRACT_ACCEPT: 'Mentorship Contract has been successfully accepted',
   CONTRACT_REJECT: 'Mentorship Contract has been successfully rejected',
+
+  TESTIMONIAL_CREATE: 'Testimonial has been successfully created',
+  TESTIMONIAL_EDIT: 'Testimonial has been successfully edited',
 };
 
 // ==================== PAYPAL RESPONSE MESSAGES ====================
@@ -112,6 +115,18 @@ export const SOCIAL_RESPONSE = {
   POST_DELETE: 'Post has been successfully deleted',
   POST_LIKED: 'Post has been successfully liked',
   POST_UNLIKED: 'Post has been successfully unliked',
+
+  FOLLOWING_ADDED: 'User has been successfully added to following list',
+  FOLLOWING_REMOVED: 'User has been successfullly removed from following list',
+
+  FOLLOWING_REQUEST_CREATED:
+    'Request to follow user has been successfully created',
+  FOLLOWING_REQUEST_CANCELLED:
+    'Request to follow user has been successfully cancelled',
+  FOLLOWING_REQUEST_ACCEPTED:
+    'Request to follow user has been successfully accepted',
+  FOLLOWING_REQUEST_REJECTED:
+    'Request to follow user has been successfully rejected',
 };
 
 // ==================== COMMENT RESPONSE MESSAGES ====================
