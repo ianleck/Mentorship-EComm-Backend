@@ -16,71 +16,13 @@ const router = express.Router();
 const passport = require('passport');
 const schemaValidator = require('express-joi-validation').createValidator({});
 
+// ======================================== ADMIN AUTH ========================================
 router.post(
   '/login',
   schemaValidator.body(auth.login),
   Utility.asyncHandler(AdminController.login)
 );
 
-router.get(
-  '/pending/sensei',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  Utility.asyncHandler(AdminController.getAllPendingSenseis)
-);
-
-//get admin
-router.get(
-  '/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireSameUserOrSuperAdmin,
-  schemaValidator.params(user.accountIdP),
-  Utility.asyncHandler(AdminController.getAdmin)
-);
-
-//get list of admins
-router.get(
-  '/',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireSuperAdmin,
-  Utility.asyncHandler(AdminController.getAllAdmins)
-);
-
-// get list of students by filter
-router.get(
-  '/all/user',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  schemaValidator.query(user.getFilter),
-  Utility.asyncHandler(AdminController.getUsersByFilter)
-);
-
-//get list of banned students
-router.get(
-  '/ban/student',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  Utility.asyncHandler(AdminController.getBannedStudents)
-);
-
-//get list of banned senseis
-router.get(
-  '/ban/sensei',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  Utility.asyncHandler(AdminController.getBannedSenseis)
-);
-
-router.get(
-  'withdrawals',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireFinance,
-  Utility.asyncHandler(AdminController.viewWithdrawals)
-);
-
-/*** END OF GET REQUESTS ***/
-
-/*** POST REQUESTS ***/
 //create admin account
 router.post(
   '/register',
@@ -90,9 +32,6 @@ router.post(
   Utility.asyncHandler(AdminController.registerAdmin)
 );
 
-/*** END OF POST REQUESTS ***/
-
-/*** PUT REQUESTS ***/
 //suepradmin changes admin password
 router.put(
   '/password/:accountId',
@@ -102,6 +41,8 @@ router.put(
   schemaValidator.body(admin.resetPassword),
   Utility.asyncHandler(AdminController.resetPassword)
 );
+
+// ======================================== ADMIN ========================================
 
 //update an admin account
 router.put(
@@ -123,6 +64,32 @@ router.put(
   Utility.asyncHandler(AdminController.updateAdminRole)
 );
 
+router.delete(
+  '/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrSuperAdmin,
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(AdminController.deactivateAdmin)
+);
+
+//get admin
+router.get(
+  '/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrSuperAdmin,
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(AdminController.getAdmin)
+);
+
+//get list of admins
+router.get(
+  '/',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
+  Utility.asyncHandler(AdminController.getAllAdmins)
+);
+
+// ======================================== USERS ========================================
 //accept sensei profile
 router.put(
   '/accept/sensei/:accountId',
@@ -160,17 +127,36 @@ router.put(
 );
 
 /*** END OF PUT REQUESTS ***/
-
-/*** DEL REQUESTS ***/
-
-router.delete(
-  '/:accountId',
+// get list of students by filter
+router.get(
+  '/all/user',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireSameUserOrSuperAdmin,
-  schemaValidator.params(user.accountIdP),
-  Utility.asyncHandler(AdminController.deactivateAdmin)
+  requireAdmin,
+  schemaValidator.query(user.getFilter),
+  Utility.asyncHandler(AdminController.getUsersByFilter)
 );
 
-/*** END OF DEL REQUESTS ***/
+router.get(
+  '/pending/sensei',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  Utility.asyncHandler(AdminController.getAllPendingSenseis)
+);
+
+//get list of banned students
+router.get(
+  '/ban/student',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  Utility.asyncHandler(AdminController.getBannedStudents)
+);
+
+//get list of banned senseis
+router.get(
+  '/ban/sensei',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  Utility.asyncHandler(AdminController.getBannedSenseis)
+);
 
 export default router;
