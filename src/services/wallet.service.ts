@@ -156,7 +156,39 @@ export default class WalletService {
     });
   }
 
-  public static async viewWithdrawals() {
+  public static async viewCompletedWithdrawals(
+    walletId: string,
+    accountId: string,
+    userType: USER_TYPE_ENUM
+  ) {
+    const user = await User.findByPk(accountId);
+
+    if (!user || user.walletId !== walletId)
+      throw new Error(WALLET_ERROR.UNAUTH_WALLET);
+
+    let whereOptions = {};
+    if (userType === USER_TYPE_ENUM.ADMIN) {
+      whereOptions = {
+        where: {
+          status: BILLING_STATUS.WITHDRAWN,
+          billingType: BILLING_TYPE.WITHDRAWAL,
+        },
+      };
+    }
+    if (userType !== USER_TYPE_ENUM.ADMIN) {
+      whereOptions = {
+        where: {
+          receiverWalletId: walletId,
+          status: BILLING_STATUS.WITHDRAWN,
+          billingType: BILLING_TYPE.WITHDRAWAL,
+        },
+      };
+    }
+
+    return await Billing.findAll(whereOptions);
+  }
+
+  public static async viewPendingWithdrawals() {
     return await Billing.findAll({
       where: { status: BILLING_STATUS.PENDING_WITHDRAWAL },
     });

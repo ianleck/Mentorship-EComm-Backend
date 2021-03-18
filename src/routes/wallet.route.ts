@@ -46,6 +46,14 @@ router.put(
 // );
 
 router.get(
+  '/withdrawals/:walletId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinanceIfAdmin,
+  schemaValidator.params(wallet.walletIdP),
+  Utility.asyncHandler(WalletController.viewCompletedWithdrawals)
+);
+
+router.get(
   '/:walletId/:billingId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinanceIfAdmin,

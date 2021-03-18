@@ -374,7 +374,7 @@ export class AdminController {
 
   public static async viewWithdrawals(req, res) {
     try {
-      const withdrawalApplications = await WalletService.viewWithdrawals();
+      const withdrawalApplications = await WalletService.viewPendingWithdrawals();
       return apiResponse.result(
         res,
         {
@@ -384,7 +384,7 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[adminController.viewWithdrawals]:' + e.message);
+      logger.error('[adminController.viewPendingWithdrawals]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });

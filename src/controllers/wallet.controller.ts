@@ -37,6 +37,28 @@ export class WalletController {
     }
   }
 
+  public static async viewCompletedWithdrawals(req, res) {
+    try {
+      const { user } = req;
+      const { walletId } = req.params;
+      const completedWithdrawals = await WalletService.viewCompletedWithdrawals(
+        walletId,
+        user.accountId,
+        user.userType
+      );
+      return apiResponse.result(
+        res,
+        { message: 'success', completedWithdrawals },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[walletController.viewCompletedWithdrawals]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
   public static async viewWallet(req, res) {
     try {
       const { user } = req;
