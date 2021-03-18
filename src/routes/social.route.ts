@@ -11,6 +11,7 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
+//================================== POSTS =============================================
 router.post(
   '/post/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -50,5 +51,15 @@ router.delete(
     schemaValidator.params(social.postIdP),
     Utility.asyncHandler(SocialController.unlikePost) 
 )
+/*
+//================================== FOLLOWING =============================================
+//Student accepts request of a user's following 
+router.post(
+  '/following/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), 
+  schemaValidator.body(social.createPostB),
+  Utility.asyncHandler(SocialController.createPost)
+);*/
 
 export default router;

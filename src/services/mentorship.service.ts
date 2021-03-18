@@ -470,10 +470,14 @@ export default class MentorshipService {
       throw new Error(MENTORSHIP_ERRORS.CONTRACT_NOT_COMPLETED); 
     }
 
-    const mentorshipListing = await MentorshipListing.findByPk(mentorshipContract.mentorshipListingId)
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId,
+      { paranoid: false }); 
+
     if (!mentorshipListing) {
       throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING); 
     }
+
 
     //Check if mentor adding testimonial is the mentor on the mentorshipContract
     if (mentorshipListing.accountId !== accountId)
