@@ -557,4 +557,43 @@ export class MentorshipController {
     }
   }
 
+  //get list of testimonials  
+  public static async getAllTestimonial(req, res) {
+    const { user } = req; 
+    const { accountId } = req.params;
+
+    try {
+      const testimonials = await MentorshipService.getAllTestimonial(
+        user.accountId, 
+        accountId,
+      );
+
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          testimonials,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.getAllTestimonial]:' + e.toString()
+      );
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+        ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
 }

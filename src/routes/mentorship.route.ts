@@ -168,9 +168,12 @@ router.get(
   Utility.asyncHandler(MentorshipController.getTestimonial)
 );
 
-//View List of Testimonials as Student 
-
-//View List of Testimonials as Sensei 
-
+//View List of Testimonials as Sensei/Student  
+router.get(
+  '/testimonial/list/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), 
+  Utility.asyncHandler(MentorshipController.getAllTestimonial)
+);
 
 export default router;
