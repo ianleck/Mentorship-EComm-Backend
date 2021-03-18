@@ -527,7 +527,7 @@ export default class MentorshipService {
 
     if (
       accountId !== testimonial.accountId || //check if user is mentor who added testimonial 
-      accountId !== testimonial.MentorshipContract.accountId && // check if user is student in testimonial 
+      accountId !== testimonial.MentorshipContract.accountId  // check if user is student in testimonial 
     )
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
