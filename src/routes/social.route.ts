@@ -51,15 +51,38 @@ router.delete(
     schemaValidator.params(social.postIdP),
     Utility.asyncHandler(SocialController.unlikePost) 
 )
-/*
+
 //================================== FOLLOWING =============================================
-//Student accepts request of a user's following 
+//Request to Follow a User 
 router.post(
-  '/following/:accountId',
+  '/following/request/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdP), 
-  schemaValidator.body(social.createPostB),
-  Utility.asyncHandler(SocialController.createPost)
-);*/
+  schemaValidator.params(user.accountIdP), //accountId of following
+  Utility.asyncHandler(SocialController.requestFollowing)
+); 
+
+//Cancel Request to Follow a User 
+router.put(
+  '/following/request/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), //accountId of following
+  Utility.asyncHandler(SocialController.removeRequest)
+);
+
+//Add user to following list 
+router.put(
+  '/following/add/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), //accountId of follower
+  Utility.asyncHandler(SocialController.addUserToFollowingList)
+);
+
+//Remove user from Following list 
+router.put(
+'/following/remove/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), //accountId of follower
+  Utility.asyncHandler(SocialController.removeUserFromFollowingList)
+);
 
 export default router;

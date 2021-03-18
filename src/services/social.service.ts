@@ -1,8 +1,12 @@
 import httpStatusCodes from 'http-status-codes';
 import { ERRORS, SOCIAL_ERRORS } from '../constants/errors';
+import { FOLLOWING_ENUM } from '../constants/enum';
 import { Post } from '../models/Post';
 import { User } from '../models/User';
 import { LikePost } from '../models/LikePost';
+import { UserFollowership } from '../models/UserFollowership';
+import EmailService from './email.service';
+
 
 export default class SocialService {
   // ======================================== POSTS ========================================
@@ -99,4 +103,102 @@ export default class SocialService {
         },
       });
     }
+
+
+// ======================================== FOLLOWING ========================================
+
+public static async requestFollowing(
+  followingId: string,
+  followerId: string
+) {
+  const followingUser = await User.findByPk(followingId);
+  if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+  const followerUser = await User.findByPk(followerId);
+  if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+  const followership = new UserFollowership({
+    followingId,
+    followerId,  
+  });
+
+  await followership.save();
+
+  return followership; 
 }
+
+public static async removeRequest(
+  followingId: string,
+  followerId: string
+) {
+  const followingUser = await User.findByPk(followingId);
+  if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+  const followerUser = await User.findByPk(followerId);
+  if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+  const followership = await UserFollowership.findOne({
+    where : { followerId, followingId, followingStatus: FOLLOWING_ENUM.PENDING },
+  }); 
+
+  if (!followership) throw new Error (SOCIAL_ERRORS.FOLLOWING_REQUEST_MISSING); 
+
+  await UserFollowership.destroy({
+    where: {
+      followerId,
+      followingId, 
+    },
+  });
+}
+
+
+public static async addUserToFollowingList(
+  followerId: string,
+  followingId: string
+  ) {
+      const followerUser = await User.findByPk(followerId);
+      if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+      const followingUser = await User.findByPk(followingId);
+      if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+      const followership = await UserFollowership.findOne({
+        where : { followerId, followingId, followingStatus: FOLLOWING_ENUM.PENDING },
+      }); 
+
+      if (!followership) throw new Error (SOCIAL_ERRORS.FOLLOWING_REQUEST_MISSING); 
+
+      await followership.update({
+        followingStatus: FOLLOWING_ENUM.APPROVED, 
+      }); 
+
+    }
+
+    public static async removeUserFromFollowingList(
+      followerId: string,
+      followingId: string
+      ) {
+        const followerUser = await User.findByPk(followerId);
+        if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+  
+        const followingUser = await User.findByPk(followingId);
+        if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+          const followership = await UserFollowership.findOne({
+            where : { followerId, followingId, followingStatus: FOLLOWING_ENUM.APPROVED },
+          }); 
+    
+          if (!followership) throw new Error (SOCIAL_ERRORS.FOLLOWING_REQUEST_MISSING); 
+    
+          await UserFollowership.destroy({
+            where: {
+              followerId,
+              followingId, 
+            },
+          });
+    
+        }
+
+      
+
+  }
