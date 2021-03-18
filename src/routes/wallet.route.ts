@@ -2,7 +2,10 @@ import express from 'express';
 import passport from 'passport';
 import Utility from '../constants/utility';
 import { WalletController } from '../controllers/wallet.controller';
-import { requireFinanceIfAdmin } from '../middlewares/authenticationMiddleware';
+import {
+  requireFinanceIfAdmin,
+  requireSensei,
+} from '../middlewares/authenticationMiddleware';
 import wallet from './schema/wallet.schema';
 
 const router = express.Router();
@@ -26,11 +29,27 @@ router.get(
   Utility.asyncHandler(WalletController.viewWallet)
 );
 
+router.put(
+  '/:walletId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(wallet.walletIdP),
+  Utility.asyncHandler(WalletController.withdrawBalance)
+);
+
+// endpoint to test. Ignore because I will remove it
+// router.put(
+//   '/test/:walletId',
+//   passport.authenticate('isAuthenticated', { session: false }),
+//   schemaValidator.params(wallet.walletIdP),
+//   Utility.asyncHandler(WalletController.test)
+// );
+
 router.get(
   '/:walletId/:billingId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinanceIfAdmin,
-  schemaValidator.params(wallet.billingIdP),
+  schemaValidator.params(wallet.walletBillingIdP),
   Utility.asyncHandler(WalletController.viewBilling)
 );
 
