@@ -161,7 +161,9 @@ export default class WalletService {
     accountId: string,
     userType: USER_TYPE_ENUM
   ) {
-    const user = await User.findByPk(accountId);
+    let user;
+    if (userType !== USER_TYPE_ENUM.ADMIN)
+      user = await User.findByPk(accountId);
 
     if (
       userType === USER_TYPE_ENUM.STUDENT ||
