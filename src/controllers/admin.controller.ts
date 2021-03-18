@@ -374,7 +374,7 @@ export class AdminController {
 
   // ============================== Finance ==============================
 
-  public static async viewWithdrawals(req, res) {
+  public static async viewPendingWithdrawals(req, res) {
     try {
       const withdrawalApplications = await WalletService.viewPendingWithdrawals();
       return apiResponse.result(

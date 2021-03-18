@@ -163,7 +163,10 @@ export default class WalletService {
   ) {
     const user = await User.findByPk(accountId);
 
-    if (!user || user.walletId !== walletId)
+    if (
+      userType === USER_TYPE_ENUM.STUDENT ||
+      (userType === USER_TYPE_ENUM.SENSEI && user.walletId !== walletId)
+    )
       throw new Error(WALLET_ERROR.UNAUTH_WALLET);
 
     let whereOptions = {};
@@ -175,7 +178,7 @@ export default class WalletService {
         },
       };
     }
-    if (userType !== USER_TYPE_ENUM.ADMIN) {
+    if (userType === USER_TYPE_ENUM.SENSEI) {
       whereOptions = {
         where: {
           receiverWalletId: walletId,

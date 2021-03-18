@@ -117,15 +117,6 @@ router.put(
   Utility.asyncHandler(AdminController.toggleUserStatus)
 );
 
-// approve withdrawal
-router.put(
-  '/withdrawal/:billingId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireFinance,
-  schemaValidator.params(wallet.billingIdP),
-  Utility.asyncHandler(AdminController.approveWithdrawal)
-);
-
 /*** END OF PUT REQUESTS ***/
 // get list of students by filter
 router.get(
@@ -159,4 +150,22 @@ router.get(
   Utility.asyncHandler(AdminController.getBannedSenseis)
 );
 
+// ======================================== FINANCE ========================================
+
+// view pending withdrawals
+router.get(
+  'withdrawals',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  Utility.asyncHandler(AdminController.viewPendingWithdrawals)
+);
+
+// approve withdrawal
+router.put(
+  '/withdrawal/:billingId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  schemaValidator.params(wallet.billingIdP),
+  Utility.asyncHandler(AdminController.approveWithdrawal)
+);
 export default router;
