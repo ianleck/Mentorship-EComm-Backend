@@ -80,8 +80,8 @@ export class MentorshipListing extends BaseEntity {
   @HasMany(() => Review, 'mentorshipListingId')
   Reviews: Review[];
 
-  @HasMany(() => Billing, 'mentorshipListingId')
-  Billing: Billing;
+  @HasMany(() => Billing, 'productId')
+  Billings: Billing;
 }
 
 // MentorshipListing.hasMany(Review, { foreignKey: 'reviewId' })

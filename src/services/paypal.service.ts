@@ -32,45 +32,49 @@ export default class PaypalService {
 
     let newPlatformEarned = 0,
       newPlatformRevenue = 0;
+
     const billingsPending = await Billing.findAll({
       where: { paypalPaymentId: paymentId },
     });
+
     await Promise.all(
       billingsPending.map(async (billing) => {
-        // 1. Create courseContract for user
-        const courseContract = await CourseService.createContract(
-          studentId,
-          billing.courseId
-        );
+        if (billing.isCourseBilling) {
+          // 1. Create courseContract for user
+          const courseContract = await CourseService.createContract(
+            studentId,
+            billing.productId
+          );
 
-        // 2. Update billing with payerId
-        await billing.update({
-          paypalPayerId: payerId,
-          courseContractId: courseContract.courseContractId,
-          status: BILLING_STATUS.SUCCESS,
-        });
+          // 2. Update billing with payerId
+          await billing.update({
+            paypalPayerId: payerId,
+            contractId: courseContract.courseContractId,
+            status: BILLING_STATUS.SUCCESS,
+          });
 
-        // 3. Calculate Revenue + Earnings
-        const platformFee = billing.amount * MARKET_FEE;
-        const paypalFee = billing.amount * PAYPAL_FEE + 0.5;
-        const payable = billing.amount - paypalFee - platformFee;
-        newPlatformEarned += billing.amount - paypalFee;
-        newPlatformRevenue += platformFee;
+          // 3. Calculate Revenue + Earnings
+          const platformFee = billing.amount * MARKET_FEE;
+          const paypalFee = billing.amount * PAYPAL_FEE + 0.5;
+          const payable = billing.amount - paypalFee - platformFee;
+          newPlatformEarned += billing.amount - paypalFee;
+          newPlatformRevenue += platformFee;
 
-        const course = await Course.findByPk(billing.courseId);
-        const sensei = await User.findByPk(course.accountId);
+          const course = await Course.findByPk(billing.productId);
+          const sensei = await User.findByPk(course.accountId);
 
-        // 4. Create billings from admin to sensei
-        await WalletService.createSenseiBilling(
-          Number(payable.toFixed(2)),
-          Number(platformFee.toFixed(2)),
-          billing.currency,
-          billing.courseId,
-          courseContract.courseContractId,
-          admin.walletId,
-          sensei.walletId,
-          BILLING_STATUS.PENDING_120_DAYS
-        );
+          // 4. Create billings from admin to sensei
+          await WalletService.createSenseiBilling(
+            Number(payable.toFixed(2)),
+            Number(platformFee.toFixed(2)),
+            billing.currency,
+            billing.productId,
+            courseContract.courseContractId,
+            admin.walletId,
+            sensei.walletId,
+            BILLING_STATUS.PENDING_120_DAYS
+          );
+        } // else for subscription
       })
     );
 
