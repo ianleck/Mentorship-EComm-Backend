@@ -55,10 +55,8 @@ export const MENTORSHIP_ERRORS = {
   TESTIMONIAL_EXISTS:
     'A testimonial has already been made for this mentee. Please edit existing testimonial.',
   TESTIMONIAL_MISSING: 'Testimonial does not exist',
-  CONTRACT_NOT_COMPLETED: 
-   'Mentorship contract has not been completed. Please complete mentorship first before adding a testimonial.'
-
-  
+  CONTRACT_NOT_COMPLETED:
+    'Mentorship contract has not been completed. Please complete mentorship first before adding a testimonial.',
 };
 
 export const REVIEW_ERRORS = {
@@ -92,12 +90,19 @@ export const WALLET_ERROR = {
 };
 
 export const SOCIAL_ERRORS = {
-  POST_MISSING: 'Post does not exist', 
+  POST_MISSING: 'Post does not exist',
 
-  FOLLOWING_REQUEST_MISSING: 'Request does not exist', 
-  FOLLOWING_MISSING: 'User is not following', 
-}; 
+  FOLLOWING_REQUEST_MISSING: 'Request does not exist',
+  FOLLOWING_MISSING: 'User is not following',
+};
 
 export const COMMENT_ERRORS = {
-  COMMENT_MISSING: 'Comment does not exist', 
-}; 
+  COMMENT_MISSING: 'Comment does not exist',
+};
+
+export const COMPLAINT_ERRORS = {
+  COMPLAINT_REASON_EXISTS: 'Similar complaint reason already exists',
+
+  COMPLAINT_MISSING: 'Complaint does not exist',
+  COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
+};
