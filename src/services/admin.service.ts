@@ -11,68 +11,7 @@ import { Admin } from '../models/Admin';
 import { User } from '../models/User';
 import EmailService from './email.service';
 export default class AdminService {
-  public static async deactivateAdmin(
-    accountId: string,
-    superAdminId: string
-  ): Promise<void> {
-    const superAdmin = await Admin.findByPk(superAdminId);
-    const admin = await Admin.findByPk(accountId);
-    if (!admin) throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
-    await admin.update({
-      updatedBy: superAdmin,
-    });
-    await admin.destroy();
-  }
-
-  public static async findAdminById(accountId: string) {
-    const admin = await Admin.findByPk(accountId);
-    if (!admin) throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
-    return admin;
-  }
-
-  public static async getAllAdmins() {
-    const admins = Admin.findAll();
-    return admins;
-  }
-
-  public static async getAllBannedStudents() {
-    const students = User.findAll({
-      where: {
-        status: { [Op.eq]: STATUS_ENUM.BANNED },
-        userType: USER_TYPE_ENUM.STUDENT,
-      },
-    });
-    return students;
-  }
-
-  public static async getAllBannedSenseis() {
-    const senseis = User.findAll({
-      where: {
-        status: { [Op.eq]: STATUS_ENUM.BANNED },
-        userType: USER_TYPE_ENUM.SENSEI,
-      },
-    });
-    return senseis;
-  }
-
-  public static async getAllPendingSenseis() {
-    const senseis = User.findAll({
-      where: {
-        adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
-        userType: USER_TYPE_ENUM.SENSEI,
-      },
-    });
-    return senseis;
-  }
-
-  /*
-
-  public static async getAllMentorshipContracts() {
-    const mentorshipContracts = MentorshipContract.findAll();
-    return mentorshipContracts;
-  }
-  */
-
+  // ======================================== ADMIN AUTH ========================================
   public static async registerAdmin(
     registerBody: {
       username: string;
@@ -148,7 +87,7 @@ export default class AdminService {
       throw e;
     }
   }
-
+  // ======================================== ADMIN ========================================
   public static async updateAdmin(accountId, adminAccount) {
     const admin = await Admin.findByPk(accountId);
     if (admin) {
@@ -188,6 +127,29 @@ export default class AdminService {
     }
   }
 
+  public static async deactivateAdmin(
+    accountId: string,
+    superAdminId: string
+  ): Promise<void> {
+    const superAdmin = await Admin.findByPk(superAdminId);
+    const admin = await Admin.findByPk(accountId);
+    if (!admin) throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
+    await admin.update({
+      updatedBy: superAdmin,
+    });
+    await admin.destroy();
+  }
+  public static async findAdminById(accountId: string) {
+    const admin = await Admin.findByPk(accountId);
+    if (!admin) throw new Error(ERRORS.ADMIN_DOES_NOT_EXIST);
+    return admin;
+  }
+
+  public static async getAllAdmins() {
+    const admins = Admin.findAll();
+    return admins;
+  }
+  // ======================================== USERS ========================================
   public static async acceptSenseiProfile(accountId) {
     const sensei = await User.findOne({
       where: { accountId, adminVerified: ADMIN_VERIFIED_ENUM.PENDING },
@@ -218,5 +180,35 @@ export default class AdminService {
     }
 
     return sensei;
+  }
+
+  public static async getAllBannedStudents() {
+    const students = User.findAll({
+      where: {
+        status: { [Op.eq]: STATUS_ENUM.BANNED },
+        userType: USER_TYPE_ENUM.STUDENT,
+      },
+    });
+    return students;
+  }
+
+  public static async getAllBannedSenseis() {
+    const senseis = User.findAll({
+      where: {
+        status: { [Op.eq]: STATUS_ENUM.BANNED },
+        userType: USER_TYPE_ENUM.SENSEI,
+      },
+    });
+    return senseis;
+  }
+
+  public static async getAllPendingSenseis() {
+    const senseis = User.findAll({
+      where: {
+        adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
+        userType: USER_TYPE_ENUM.SENSEI,
+      },
+    });
+    return senseis;
   }
 }
