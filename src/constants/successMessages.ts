@@ -117,8 +117,8 @@ export const SOCIAL_RESPONSE = {
 // ==================== COMMENT RESPONSE MESSAGES ====================
 export const COMMENT_RESPONSE = {
   COMMENT_LESSON_CREATE: 'Successfully commented on lesson',
+  COMMENT_DELETE: 'Successfully deleted comment',
 
   COMMENT_POST_CREATE: 'Successfully commented on post',
   COMMENT_POST_EDIT: 'Successfully edited comment on post',
-  COMMENT_POST_DELETE: 'Successfully deleted comment from post',
 };
