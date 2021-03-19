@@ -39,6 +39,9 @@ import {
     @BelongsTo(() => MentorshipContract, 'mentorshipContractId')
     MentorshipContract: MentorshipContract;
   }
+
+  //Block - Cannot view profile at all 
+  //Can block anyone 
   
 
   
