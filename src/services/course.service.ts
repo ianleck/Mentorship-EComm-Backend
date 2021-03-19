@@ -1,5 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
+import { Op } from 'sequelize';
 import {
   ADMIN_VERIFIED_ENUM,
   LEVEL_ENUM,
@@ -334,10 +335,10 @@ export default class CourseService {
     //const announcementContent = newAnnouncement.description;
     //const additional = { announcementContent };
 
-    // Send Email to all students in course 
-    //Need to search course contract for all students with this Course then get that user then that email address 
+    // Send Email to all students in course
+    //Need to search course contract for all students with this Course then get that user then that email address
     //await EmailService.sendEmail(email, 'newAnnouncement', additional);
-    
+
     return newAnnouncement;
   }
 
@@ -533,7 +534,13 @@ export default class CourseService {
   public static async getAllRequests() {
     const courseRequests = Course.findAll({
       where: {
-        adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
+        adminVerified: {
+          [Op.or]: [
+            ADMIN_VERIFIED_ENUM.ACCEPTED,
+            ADMIN_VERIFIED_ENUM.PENDING,
+            ADMIN_VERIFIED_ENUM.REJECTED,
+          ],
+        },
       },
     });
     return courseRequests;
@@ -606,10 +613,7 @@ export default class CourseService {
 
     return rejectedCourse;
   }
-
 }
-
-
 
 /**
  * Existing course draft
@@ -620,5 +624,3 @@ export default class CourseService {
  * - update course, change adminverified -> approved.
  *
  */
-
-
