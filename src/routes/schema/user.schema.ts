@@ -25,6 +25,9 @@ export default {
     accountId: joi.string().required(),
     experienceId: joi.string().required(),
   }),
+  deleteTypeP: joi.object({
+    type: joi.string().valid('cv', 'dp', 'transcript').required(),
+  }),
   getFilter: joi.object({
     username: joi.string().optional(),
     firstName: joi.string().optional(),

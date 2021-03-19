@@ -4,7 +4,7 @@ import {
   COURSE_ERRORS,
   ERRORS,
   RESPONSE_ERROR,
-  UPLOAD_ERRORS
+  UPLOAD_ERRORS,
 } from '../constants/errors';
 import { UPLOAD_RESPONSE } from '../constants/successMessages';
 import UploadService from '../services/uploadService';
@@ -103,6 +103,33 @@ export class UploadController {
         e.message === UPLOAD_ERRORS.FAILED_IMAGE_SAVE ||
         e.message ===
           httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async deleteUserProfileFile(req, res) {
+    const { accountId } = req.user;
+    const { type } = req.params;
+    try {
+      const user = await UploadService.deleteUserProfileFile(accountId, type);
+      return apiResponse.result(
+        res,
+        { message: UPLOAD_RESPONSE.FILE_DELETED, user },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[uploadController.deleteUserProfileFile]:' + e.message);
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === UPLOAD_ERRORS.FILE_MISSING
       ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
