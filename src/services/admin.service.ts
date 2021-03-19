@@ -215,7 +215,7 @@ export default class AdminService {
     return senseis;
   }
 
-  // ======================================== COMMENTS ========================================
+  // ======================================== COMPLAINTS ========================================
   public static async deleteOffensiveComment(commentId: string, user) {
     const comment = await Comment.findByPk(commentId);
     await CommentService.deleteComment(commentId, user);

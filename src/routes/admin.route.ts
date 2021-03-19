@@ -1,37 +1,17 @@
-/*
- Routes identify specific URL paths, which can be targeted in the application logic 
- and which allow you to specify the information to be sent to the client. 
-
- If the /contact path can respond to POST and GET requests, for example, 
- your code will route to the appropriate function as soon as the request’s method is identified
-
- When you call get or post, you need to pass the URL of the route and the function you want to execute when that route is reached. 
- These functions register your routes by adding them to the routes object, where they can be reached and used by the handle function.
-
- To recap, to register a route, I need to state the following:
-
-Whether the request is a GET or a POST request
-The URL’s path
-The name of the file to return
-An HTTP status code
-The type of the file being returned (as the content type)
-
-*/
-
 import express from 'express';
-
+import Utility from '../constants/utility';
 import { AdminController } from '../controllers/admin.controller';
+import {
+  requireAdmin,
+  requireFinance,
+  requireSameUserOrSuperAdmin,
+  requireSuperAdmin,
+} from '../middlewares/authenticationMiddleware';
+import comment from './schema/comment.schema';
 import admin from './schema/admin.schema';
 import auth from './schema/auth.schema';
 import user from './schema/user.schema';
-
-import Utility from '../constants/utility';
-import {
-  requireSuperAdmin,
-  requireAdmin,
-  requireSameUserOrSuperAdmin,
-} from '../middlewares/authenticationMiddleware';
-import comment from './schema/comment.schema';
+import wallet from './schema/wallet.schema';
 
 const router = express.Router();
 const passport = require('passport');
@@ -138,6 +118,7 @@ router.put(
   Utility.asyncHandler(AdminController.toggleUserStatus)
 );
 
+/*** END OF PUT REQUESTS ***/
 // get list of students by filter
 router.get(
   '/all/user',
@@ -170,12 +151,30 @@ router.get(
   Utility.asyncHandler(AdminController.getBannedSenseis)
 );
 
-// ======================================== COMMENTS ========================================
+// ======================================== COMPLAINTS ========================================
 router.delete(
   '/comment/:commentId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireAdmin,
   schemaValidator.params(comment.commentIdP),
   Utility.asyncHandler(AdminController.deleteOffensiveComment)
+);
+// ======================================== FINANCE ========================================
+
+// view pending withdrawals
+router.get(
+  'withdrawals',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  Utility.asyncHandler(AdminController.viewPendingWithdrawals)
+);
+
+// approve withdrawal
+router.put(
+  '/withdrawal/:billingId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  schemaValidator.params(wallet.billingIdP),
+  Utility.asyncHandler(AdminController.approveWithdrawal)
 );
 export default router;

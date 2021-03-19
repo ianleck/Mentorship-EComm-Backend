@@ -7,7 +7,7 @@ import {
   PAYPAL_FEE,
   STARTING_BALANCE,
 } from '../constants/constants';
-import { BILLING_STATUS } from '../constants/enum';
+import { BILLING_STATUS, BILLING_TYPE } from '../constants/enum';
 import { ERRORS } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
@@ -39,7 +39,7 @@ export default class PaypalService {
 
     await Promise.all(
       billingsPending.map(async (billing) => {
-        if (billing.isCourseBilling) {
+        if (billing.billingType === BILLING_TYPE.COURSE) {
           // 1. Create courseContract for user
           const courseContract = await CourseService.createContract(
             studentId,
