@@ -8,7 +8,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { CURRENCY, STARTING_BALANCE } from '../constants/constants';
-import { BILLING_STATUS } from '../constants/enum';
+import { BILLING_STATUS, BILLING_TYPE } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Course } from './Course';
 import { CourseContract } from './CourseContract';
@@ -70,16 +70,13 @@ export class Billing extends BaseEntity {
   @Column(DataType.DATE)
   withdrawableDate: Date;
 
-  // Filter for withdrawals, which will also be reflected as a billing
+  // Flag for billing type - whether it is course/mentorship/withdrawal application/refund
   @AllowNull(false)
-  @Default(false)
-  @Column(DataType.BOOLEAN)
-  withdrawalApplication: Boolean;
-
-  @AllowNull(false)
-  @Default(true)
-  @Column(DataType.BOOLEAN)
-  isCourseBilling: Boolean;
+  @Column({
+    type: DataType.ENUM,
+    values: Object.values(BILLING_TYPE),
+  })
+  billingType: BILLING_TYPE;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => Course, { foreignKey: 'productId', targetKey: 'courseId' })

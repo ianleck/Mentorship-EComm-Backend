@@ -1,99 +1,29 @@
-/*
- Routes identify specific URL paths, which can be targeted in the application logic 
- and which allow you to specify the information to be sent to the client. 
-
- If the /contact path can respond to POST and GET requests, for example, 
- your code will route to the appropriate function as soon as the request’s method is identified
-
- When you call get or post, you need to pass the URL of the route and the function you want to execute when that route is reached. 
- These functions register your routes by adding them to the routes object, where they can be reached and used by the handle function.
-
- To recap, to register a route, I need to state the following:
-
-Whether the request is a GET or a POST request
-The URL’s path
-The name of the file to return
-An HTTP status code
-The type of the file being returned (as the content type)
-
-*/
-
 import express from 'express';
-
+import Utility from '../constants/utility';
 import { AdminController } from '../controllers/admin.controller';
+import {
+  requireAdmin,
+  requireFinance,
+  requireSameUserOrSuperAdmin,
+  requireSuperAdmin,
+} from '../middlewares/authenticationMiddleware';
+import comment from './schema/comment.schema';
 import admin from './schema/admin.schema';
 import auth from './schema/auth.schema';
 import user from './schema/user.schema';
-
-import Utility from '../constants/utility';
-import {
-  requireSuperAdmin,
-  requireAdmin,
-  requireSameUserOrSuperAdmin,
-} from '../middlewares/authenticationMiddleware';
+import wallet from './schema/wallet.schema';
 
 const router = express.Router();
 const passport = require('passport');
 const schemaValidator = require('express-joi-validation').createValidator({});
 
+// ======================================== ADMIN AUTH ========================================
 router.post(
   '/login',
   schemaValidator.body(auth.login),
   Utility.asyncHandler(AdminController.login)
 );
 
-router.get(
-  '/pending/sensei',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  Utility.asyncHandler(AdminController.getAllPendingSenseis)
-);
-
-//get admin
-router.get(
-  '/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireSameUserOrSuperAdmin,
-  schemaValidator.params(user.accountIdP),
-  Utility.asyncHandler(AdminController.getAdmin)
-);
-
-//get list of admins
-router.get(
-  '/',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireSuperAdmin,
-  Utility.asyncHandler(AdminController.getAllAdmins)
-);
-
-// get list of students by filter
-router.get(
-  '/all/user',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  schemaValidator.query(user.getFilter),
-  Utility.asyncHandler(AdminController.getUsersByFilter)
-);
-
-//get list of banned students
-router.get(
-  '/ban/student',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  Utility.asyncHandler(AdminController.getBannedStudents)
-);
-
-//get list of banned senseis
-router.get(
-  '/ban/sensei',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
-  Utility.asyncHandler(AdminController.getBannedSenseis)
-);
-
-/*** END OF GET REQUESTS ***/
-
-/*** POST REQUESTS ***/
 //create admin account
 router.post(
   '/register',
@@ -103,9 +33,6 @@ router.post(
   Utility.asyncHandler(AdminController.registerAdmin)
 );
 
-/*** END OF POST REQUESTS ***/
-
-/*** PUT REQUESTS ***/
 //suepradmin changes admin password
 router.put(
   '/password/:accountId',
@@ -115,6 +42,8 @@ router.put(
   schemaValidator.body(admin.resetPassword),
   Utility.asyncHandler(AdminController.resetPassword)
 );
+
+// ======================================== ADMIN ========================================
 
 //update an admin account
 router.put(
@@ -136,6 +65,32 @@ router.put(
   Utility.asyncHandler(AdminController.updateAdminRole)
 );
 
+router.delete(
+  '/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrSuperAdmin,
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(AdminController.deactivateAdmin)
+);
+
+//get admin
+router.get(
+  '/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrSuperAdmin,
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(AdminController.getAdmin)
+);
+
+//get list of admins
+router.get(
+  '/',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSuperAdmin,
+  Utility.asyncHandler(AdminController.getAllAdmins)
+);
+
+// ======================================== USERS ========================================
 //accept sensei profile
 router.put(
   '/accept/sensei/:accountId',
@@ -164,17 +119,62 @@ router.put(
 );
 
 /*** END OF PUT REQUESTS ***/
-
-/*** DEL REQUESTS ***/
-
-router.delete(
-  '/:accountId',
+// get list of students by filter
+router.get(
+  '/all/user',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireSameUserOrSuperAdmin,
-  schemaValidator.params(user.accountIdP),
-  Utility.asyncHandler(AdminController.deactivateAdmin)
+  requireAdmin,
+  schemaValidator.query(user.getFilter),
+  Utility.asyncHandler(AdminController.getUsersByFilter)
 );
 
-/*** END OF DEL REQUESTS ***/
+router.get(
+  '/pending/sensei',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  Utility.asyncHandler(AdminController.getAllPendingSenseis)
+);
 
+//get list of banned students
+router.get(
+  '/ban/student',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  Utility.asyncHandler(AdminController.getBannedStudents)
+);
+
+//get list of banned senseis
+router.get(
+  '/ban/sensei',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  Utility.asyncHandler(AdminController.getBannedSenseis)
+);
+
+// ======================================== COMPLAINTS ========================================
+router.delete(
+  '/comment/:commentId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  schemaValidator.params(comment.commentIdP),
+  Utility.asyncHandler(AdminController.deleteOffensiveComment)
+);
+// ======================================== FINANCE ========================================
+
+// view pending withdrawals
+router.get(
+  'withdrawals',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  Utility.asyncHandler(AdminController.viewPendingWithdrawals)
+);
+
+// approve withdrawal
+router.put(
+  '/withdrawal/:billingId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  schemaValidator.params(wallet.billingIdP),
+  Utility.asyncHandler(AdminController.approveWithdrawal)
+);
 export default router;

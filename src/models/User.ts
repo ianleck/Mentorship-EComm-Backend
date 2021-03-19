@@ -24,6 +24,11 @@ import { UserFollowership } from './UserFollowership';
 import { Wallet } from './Wallet';
 @Table
 export class User extends Account {
+  // ==================== PAYMENT SETTINGS ====================
+  @Unique
+  @Column(DataType.STRING)
+  walletId: string;
+
   // ==================== PERSONAL INFORMATION ====================
   @Unique
   @Column(DataType.STRING)
@@ -105,11 +110,6 @@ export class User extends Account {
     defaultValue: ADMIN_VERIFIED_ENUM.SHELL,
   })
   adminVerified: ADMIN_VERIFIED_ENUM;
-
-  // ==================== PAYMENT SETTINGS ====================
-  @Unique
-  @Column(DataType.STRING)
-  walletId: string;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
 

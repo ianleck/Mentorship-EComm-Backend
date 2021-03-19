@@ -87,6 +87,11 @@ export const RESPONSE_ERROR = {
 
 export const WALLET_ERROR = {
   UNAUTH_WALLET: 'User does not have access to requested wallet',
+  EXISTING_WITHDRAWAL:
+    'An existing withdrawal application has been made. Please wait while we process your withdrawal application.',
+  MISSING_BILLING: 'No such billing exists in the system',
+  NO_MONEY:
+    'Unable to withdraw as confirmed amount is still 0. Please note that 120 days have to elapse before pending amount is converted to confirmed amount due to our user refund policies',
 };
 
 export const SOCIAL_ERRORS = {
@@ -99,3 +104,13 @@ export const SOCIAL_ERRORS = {
 export const COMMENT_ERRORS = {
   COMMENT_MISSING: 'Comment does not exist',
 };
+<<<<<<< HEAD
+=======
+
+export const COMPLAINT_ERRORS = {
+  COMPLAINT_REASON_EXISTS: 'Similar complaint reason already exists',
+
+  COMPLAINT_MISSING: 'Complaint does not exist',
+  COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
+};
+>>>>>>> develop
