@@ -104,8 +104,6 @@ export const SOCIAL_ERRORS = {
 export const COMMENT_ERRORS = {
   COMMENT_MISSING: 'Comment does not exist',
 };
-<<<<<<< HEAD
-=======
 
 export const COMPLAINT_ERRORS = {
   COMPLAINT_REASON_EXISTS: 'Similar complaint reason already exists',
@@ -113,4 +111,3 @@ export const COMPLAINT_ERRORS = {
   COMPLAINT_MISSING: 'Complaint does not exist',
   COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
 };
->>>>>>> develop
