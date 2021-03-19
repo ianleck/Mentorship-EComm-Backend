@@ -7,6 +7,7 @@ import {
   requireSameUserOrSuperAdmin,
   requireSuperAdmin,
 } from '../middlewares/authenticationMiddleware';
+import comment from './schema/comment.schema';
 import admin from './schema/admin.schema';
 import auth from './schema/auth.schema';
 import user from './schema/user.schema';
@@ -150,6 +151,14 @@ router.get(
   Utility.asyncHandler(AdminController.getBannedSenseis)
 );
 
+// ======================================== COMPLAINTS ========================================
+router.delete(
+  '/comment/:commentId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  schemaValidator.params(comment.commentIdP),
+  Utility.asyncHandler(AdminController.deleteOffensiveComment)
+);
 // ======================================== FINANCE ========================================
 
 // view pending withdrawals
