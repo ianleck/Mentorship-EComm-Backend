@@ -29,19 +29,32 @@ export default {
   }),
 
   addTestimonialB: joi.object({
-    newTestimonial: joi.object({
+    newTestimonial: joi
+      .object({
         body: joi.string().required(),
-    }).required(),
+      })
+      .required(),
   }),
 
   editTestimonialB: joi.object({
-    editedTestimonial: joi.object({
+    editedTestimonial: joi
+      .object({
         body: joi.string().required(),
-    }).required(),
+      })
+      .required(),
   }),
 
   testimonialP: joi.object({
     testimonialId: joi.string().required(),
   }),
 
+  getFilter: joi.object({
+    mentorshipListingId: joi.string().optional(),
+    accountId: joi.string().optional(),
+  }),
+
+  createTestimonialParams: joi.object({
+    mentorshipListingId: joi.string().required(),
+    accountId: joi.string().required(),
+  }),
 };

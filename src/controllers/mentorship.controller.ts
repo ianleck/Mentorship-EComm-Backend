@@ -1,6 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { USER_TYPE_ENUM } from '../constants/enum';
 import { ERRORS, MENTORSHIP_ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { MENTORSHIP_RESPONSE } from '../constants/successMessages';
 import MentorshipService from '../services/mentorship.service';
@@ -449,13 +448,14 @@ export class MentorshipController {
   public static async addTestimonial(req, res) {
     const { user } = req;
     const { newTestimonial } = req.body;
-    const { mentorshipContractId } = req.params; 
+    const { mentorshipListingId, accountId } = req.params;
 
     try {
       const createdTestimonial = await MentorshipService.addTestimonial(
         user.accountId,
-        mentorshipContractId,
-        newTestimonial, 
+        accountId,
+        mentorshipListingId,
+        newTestimonial
       );
       return apiResponse.result(
         res,
@@ -470,8 +470,7 @@ export class MentorshipController {
         e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
         e.message ===
           httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-
-        ) {
+      ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
@@ -486,11 +485,11 @@ export class MentorshipController {
   public static async editTestimonial(req, res) {
     const { testimonialId } = req.params;
     const { editedTestimonial } = req.body;
-    const { user } = req; 
+    const { user } = req;
 
     try {
       const updatedTestimonial = await MentorshipService.editTestimonial(
-        user.accountId, 
+        user.accountId,
         testimonialId,
         editedTestimonial
       );
@@ -502,10 +501,11 @@ export class MentorshipController {
     } catch (e) {
       logger.error('[mentorshipController.editTestimonial]:' + e.message);
       if (
-        e.message === MENTORSHIP_ERRORS.TESTIMONIAL_MISSING || 
+        e.message === MENTORSHIP_ERRORS.TESTIMONIAL_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
         e.message ===
           httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-        ) {
+      ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
@@ -517,44 +517,30 @@ export class MentorshipController {
     }
   }
 
-  //get ONE testimonial 
-  public static async getTestimonial(req, res) {
-    const { user } = req; 
-    const { testimonialId } = req.params;
+  //get list of testimonials
+  public static async getTestimonialsByFilter(req, res) {
+    const filter = req.query;
 
     try {
-      const testimonial = await MentorshipService.getTestimonial(
-        testimonialId, 
-        user.accountId,
+      const testimonials = await MentorshipService.getTestimonialsByFilter(
+        filter
       );
 
       return apiResponse.result(
         res,
         {
           message: 'success',
-          testimonial,
+          testimonials,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error(
-        '[mentorshipController.getTestimonial]:' + e.toString()
+        '[mentorshipController.getTestimonialByFilter]:' + e.toString()
       );
-      if (
-        e.message === MENTORSHIP_ERRORS.TESTIMONIAL_MISSING ||
-        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-        ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
     }
   }
-
 }
