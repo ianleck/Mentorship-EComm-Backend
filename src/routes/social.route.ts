@@ -51,6 +51,14 @@ router.delete(
   Utility.asyncHandler(SocialController.unlikePost)
 );
 
+//anyone who is logged in can access this
+router.get(
+  '/post/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), 
+  Utility.asyncHandler(SocialController.getUserFeed) 
+  )
+
 //================================== FOLLOWING =============================================
 //Request to Follow a User 
 router.post(
@@ -83,5 +91,13 @@ router.put(
   schemaValidator.params(user.accountIdP), //accountId of follower
   Utility.asyncHandler(SocialController.removeUserFromFollowingList)
 );
+
+//View Following List 
+router.get(
+  '/following/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), 
+  Utility.asyncHandler(SocialController.getFollowingList)
+)
 
 export default router;
