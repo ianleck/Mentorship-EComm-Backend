@@ -165,7 +165,7 @@ router.get(
   '/testimonial/list',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.query(mentorship.getFilter),
-  Utility.asyncHandler(MentorshipController.getTestimonialByFilter)
+  Utility.asyncHandler(MentorshipController.getTestimonialsByFilter)
 );
 
 export default router;

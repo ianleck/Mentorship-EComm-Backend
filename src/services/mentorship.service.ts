@@ -534,7 +534,7 @@ export default class MentorshipService {
   }
 
   //get list of testimonials by filter
-  public static async getTestimonialByFilter(filter: {
+  public static async getTestimonialsByFilter(filter: {
     accountId?: string;
     mentorshipListingId?: string;
   }) {

@@ -518,11 +518,11 @@ export class MentorshipController {
   }
 
   //get list of testimonials
-  public static async getTestimonialByFilter(req, res) {
+  public static async getTestimonialsByFilter(req, res) {
     const filter = req.query;
 
     try {
-      const testimonials = await MentorshipService.getTestimonialByFilter(
+      const testimonials = await MentorshipService.getTestimonialsByFilter(
         filter
       );
 
