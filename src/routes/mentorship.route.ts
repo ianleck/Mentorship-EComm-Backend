@@ -3,9 +3,9 @@ import Utility from '../constants/utility';
 import { MentorshipController } from '../controllers/mentorship.controller';
 import {
   requireAdmin,
+  requireSameUserOrAdmin,
   requireSensei,
   requireStudent,
-  requireSameUserOrAdmin,
 } from '../middlewares/authenticationMiddleware';
 import mentorship from './schema/mentorship.schema';
 import user from './schema/user.schema';
@@ -156,21 +156,24 @@ router.put(
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(mentorship.testimonialP),
-  schemaValidator.body(mentorship.editTestimonialB), 
+  schemaValidator.body(mentorship.editTestimonialB),
   Utility.asyncHandler(MentorshipController.editTestimonial)
 );
 
-//get ONE testimonial (View Testimonial) 
+//get list of testimonials by listings (View Testimonials)
 router.get(
-  '/testimonial/:testimonialId',
+  '/testimonial/:mentorshipListingId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.testimonialP), 
+  schemaValidator.params(mentorship.mentorshipListingP),
   Utility.asyncHandler(MentorshipController.getTestimonial)
 );
-
-//View List of Testimonials as Student 
-
-//View List of Testimonials as Sensei 
-
+/*
+//View List of Testimonials By Filter 
+router.get(
+  '/testimonial/list',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.query(mentorship.getFilter),
+  Utility.asyncHandler(MentorshipController.getAllTestimonial)
+);*/
 
 export default router;
