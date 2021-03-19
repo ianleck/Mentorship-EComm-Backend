@@ -160,20 +160,4 @@ router.put(
   Utility.asyncHandler(MentorshipController.editTestimonial)
 );
 
-//get list of testimonials by listings (View Testimonials)
-router.get(
-  '/testimonial/:mentorshipListingId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.mentorshipListingP),
-  Utility.asyncHandler(MentorshipController.getTestimonial)
-);
-/*
-//View List of Testimonials By Filter 
-router.get(
-  '/testimonial/list',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.query(mentorship.getFilter),
-  Utility.asyncHandler(MentorshipController.getAllTestimonial)
-);*/
-
 export default router;

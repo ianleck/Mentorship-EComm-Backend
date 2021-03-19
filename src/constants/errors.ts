@@ -97,9 +97,11 @@ export const WALLET_ERROR = {
 export const SOCIAL_ERRORS = {
   POST_MISSING: 'Post does not exist',
 
-  FOLLOWING_REQUEST_MISSING: 'Request does not exist',
-  FOLLOWING_MISSING: 'User is not following',
-};
+  FOLLOWING_REQUEST_MISSING: 'Request does not exist', 
+  FOLLOWING_MISSING: 'User is not following', 
+
+  PRIVATE_USER: 'User account is private'
+}; 
 
 export const COMMENT_ERRORS = {
   COMMENT_MISSING: 'Comment does not exist',
