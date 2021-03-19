@@ -8,11 +8,11 @@ import {
 } from '../constants/enum';
 import { AUTH_ERRORS, ERRORS } from '../constants/errors';
 import { Admin } from '../models/Admin';
-import { User } from '../models/User';
 import { Comment } from '../models/Comment';
-
+import { User } from '../models/User';
 import CommentService from './comment.service';
 import EmailService from './email.service';
+
 export default class AdminService {
   // ======================================== ADMIN AUTH ========================================
   public static async registerAdmin(
