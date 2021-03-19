@@ -447,15 +447,16 @@ export default class MentorshipService {
 
   // ============================== TESTIMONIAL ==============================
   public static async addTestimonial(
-    accountId: string,
-    mentorshipContractId: string,
+    userId: string,
+    accountId: string, //studentId
+    mentorshipListingId: string,
     testimonial: {
       body: string;
     }
   ): Promise<Testimonial> {
     const existingTestimonial = await Testimonial.findOne({
       where: {
-        mentorshipContractId,
+        mentorshipListingId,
       },
     });
 
@@ -466,7 +467,7 @@ export default class MentorshipService {
     //Check if mentorship has been completed before testimonial is created
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
-        mentorshipContractId,
+        mentorshipListingId,
         progress: CONTRACT_PROGRESS_ENUM.COMPLETED,
       },
     });
@@ -475,7 +476,7 @@ export default class MentorshipService {
     }
 
     const mentorshipListing = await MentorshipListing.findByPk(
-      mentorshipContract.mentorshipListingId,
+      mentorshipListingId,
       { paranoid: false }
     );
 
@@ -484,7 +485,7 @@ export default class MentorshipService {
     }
 
     //Check if mentor adding testimonial is the mentor on the mentorshipContract
-    if (mentorshipListing.accountId !== accountId)
+    if (mentorshipListing.accountId !== userId)
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
@@ -492,7 +493,7 @@ export default class MentorshipService {
     const { body } = testimonial;
 
     const newTestimonial = new Testimonial({
-      mentorshipContractId,
+      mentorshipListingId,
       accountId,
       body,
     });
@@ -503,7 +504,7 @@ export default class MentorshipService {
   }
 
   public static async editTestimonial(
-    accountId: string,
+    accountId: string, //accountId of sensei
     testimonialId: string,
     editedTestimonial
   ): Promise<Testimonial> {
@@ -512,8 +513,19 @@ export default class MentorshipService {
     if (!existingTestimonial)
       throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
 
+    const mentorshipListing = await MentorshipListing.findOne({
+      where: {
+        mentorshipListingId: existingTestimonial.mentorshipListingId,
+      },
+      paranoid: false,
+    });
+
+    if (!mentorshipListing) {
+      throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+    }
+
     //Check if the mentor editing the testimonial is the one who wrote the testimonial
-    if (existingTestimonial.accountId !== accountId)
+    if (accountId !== mentorshipListing.accountId)
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
@@ -521,36 +533,17 @@ export default class MentorshipService {
     return await existingTestimonial.update(editedTestimonial);
   }
 
-  //get list of testimonials by mentorship listing for Sensei
-  public static async getTestimonial(mentorshipListingId: string) {
-    const testimonials = await Testimonial.findAll({
-      include: [{ model: MentorshipContract, where: { mentorshipListingId } }],
-    });
-    return testimonials;
-  }
-  /*
-  //get list of testimonials for student
-  public static async getAllTestimonial(filter: {
-    accountId?: string; //accountId of sensei for students to search?
+  //get list of testimonials by filter
+  public static async getTestimonialByFilter(filter: {
+    accountId?: string;
+    mentorshipListingId?: string;
   }) {
-    const user = await User.findByPk(accountId);
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-
-    //If user is a sensei, findAll by accountId
-    if (user.userType === USER_TYPE_ENUM.SENSEI) {
-      const testimonials = await Testimonial.findAll({
-        where: {
-          accountId: { [Op.eq]: accountId },
-        },
-      });
-
-      return testimonials;
-    } else if (user.userType === USER_TYPE_ENUM.STUDENT) {
-      const testimonials = await Testimonial.findAll({
-        include: [{ model: MentorshipContract, where: { accountId } }],
-      });
-
-      return testimonials;
-    }
-  }*/
+    let where = {};
+    Object.keys(filter).forEach((key) => {
+      where[key] = filter[key];
+    });
+    return await Testimonial.findAll({
+      where,
+    });
+  }
 }

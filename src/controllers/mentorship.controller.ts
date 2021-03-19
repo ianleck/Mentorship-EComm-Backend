@@ -448,12 +448,13 @@ export class MentorshipController {
   public static async addTestimonial(req, res) {
     const { user } = req;
     const { newTestimonial } = req.body;
-    const { mentorshipContractId } = req.params;
+    const { mentorshipListingId, accountId } = req.params;
 
     try {
       const createdTestimonial = await MentorshipService.addTestimonial(
         user.accountId,
-        mentorshipContractId,
+        accountId,
+        mentorshipListingId,
         newTestimonial
       );
       return apiResponse.result(
@@ -501,6 +502,7 @@ export class MentorshipController {
       logger.error('[mentorshipController.editTestimonial]:' + e.message);
       if (
         e.message === MENTORSHIP_ERRORS.TESTIMONIAL_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
         e.message ===
           httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       ) {
@@ -515,51 +517,13 @@ export class MentorshipController {
     }
   }
 
-  //get all testimonial from one listing
-  public static async getTestimonial(req, res) {
-    const { mentorshipListingId } = req.params;
+  //get list of testimonials
+  public static async getTestimonialByFilter(req, res) {
+    const filter = req.query;
 
     try {
-      const testimonial = await MentorshipService.getTestimonial(
-        mentorshipListingId
-      );
-
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          testimonial,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[mentorshipController.getTestimonial]:' + e.toString());
-      if (
-        e.message === MENTORSHIP_ERRORS.TESTIMONIAL_MISSING ||
-        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
-    }
-  }
-}
-/*
-  //get list of testimonials  
-  public static async getAllTestimonial(req, res) {
-    const { user } = req; 
-    const { accountId } = req.params;
-
-    try {
-      const testimonials = await MentorshipService.getAllTestimonial(
-        filter 
+      const testimonials = await MentorshipService.getTestimonialByFilter(
+        filter
       );
 
       return apiResponse.result(
@@ -572,23 +536,11 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error(
-        '[mentorshipController.getAllTestimonial]:' + e.toString()
+        '[mentorshipController.getTestimonialByFilter]:' + e.toString()
       );
-      if (
-        e.message === ERRORS.USER_DOES_NOT_EXIST ||
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-        ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
     }
   }
-
 }
-*/

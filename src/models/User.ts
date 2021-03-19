@@ -18,10 +18,8 @@ import {
 } from '../constants/enum';
 import { Account } from './abstract/Account';
 import { Experience } from './Experience';
-import { LikePost } from './LikePost';
 import { MentorshipContract } from './MentorshipContract';
 import { Post } from './Post';
-import { Testimonial } from './Testimonial';
 import { UserFollowership } from './UserFollowership';
 import { Wallet } from './Wallet';
 @Table
@@ -131,7 +129,7 @@ export class User extends Account {
   Wallet: Wallet;
 
   @HasMany(() => Post, 'accountId')
-  Posts: Post[]; 
+  Posts: Post[];
 
   //@HasMany(() => Testimonial, 'testimonialId')
   //Testimonials: Testimonial[];
