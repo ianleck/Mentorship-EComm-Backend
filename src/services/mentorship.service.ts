@@ -13,10 +13,16 @@ import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
 import { Review } from '../models/Review';
-import { User } from '../models/User';
 import { Testimonial } from '../models/Testimonial';
+import { User } from '../models/User';
 import CartService from './cart.service';
 import EmailService from './email.service';
+/*type getFilter = {
+  where: {
+    adminVerified: ADMIN_VERIFIED_ENUM;
+    visibility: VISIBILITY_ENUM;
+  };
+};*/
 
 export default class MentorshipService {
   // ==================== Mentorship Listings ====================
@@ -444,40 +450,38 @@ export default class MentorshipService {
     accountId: string,
     mentorshipContractId: string,
     testimonial: {
-      body: string, 
+      body: string;
     }
   ): Promise<Testimonial> {
-
     const existingTestimonial = await Testimonial.findOne({
       where: {
         mentorshipContractId,
       },
     });
 
-    //Check if testimonial has been created 
+    //Check if testimonial has been created
     if (existingTestimonial)
       throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_EXISTS);
-    
-    //Check if mentorship has been completed before testimonial is created 
+
+    //Check if mentorship has been completed before testimonial is created
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
-        mentorshipContractId, 
-        progress:
-          CONTRACT_PROGRESS_ENUM.COMPLETED
-      }
-    }); 
+        mentorshipContractId,
+        progress: CONTRACT_PROGRESS_ENUM.COMPLETED,
+      },
+    });
     if (!mentorshipContract) {
-      throw new Error(MENTORSHIP_ERRORS.CONTRACT_NOT_COMPLETED); 
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_NOT_COMPLETED);
     }
 
     const mentorshipListing = await MentorshipListing.findByPk(
       mentorshipContract.mentorshipListingId,
-      { paranoid: false }); 
+      { paranoid: false }
+    );
 
     if (!mentorshipListing) {
-      throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING); 
+      throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
     }
-
 
     //Check if mentor adding testimonial is the mentor on the mentorshipContract
     if (mentorshipListing.accountId !== accountId)
@@ -499,15 +503,16 @@ export default class MentorshipService {
   }
 
   public static async editTestimonial(
-    accountId: string, 
+    accountId: string,
     testimonialId: string,
-    editedTestimonial, 
+    editedTestimonial
   ): Promise<Testimonial> {
     const existingTestimonial = await Testimonial.findByPk(testimonialId);
 
-    if (!existingTestimonial) throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
-    
-    //Check if the mentor editing the testimonial is the one who wrote the testimonial 
+    if (!existingTestimonial)
+      throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
+
+    //Check if the mentor editing the testimonial is the one who wrote the testimonial
     if (existingTestimonial.accountId !== accountId)
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
@@ -516,67 +521,37 @@ export default class MentorshipService {
     return await existingTestimonial.update(editedTestimonial);
   }
 
-  //get ONE testimonial 
-  public static async getTestimonial(
-    testimonialId: string,
-    accountId: string 
-  ) {
-    const testimonial = await Testimonial.findByPk(testimonialId);
-
-    if (!testimonial)
-      throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
-
-    const mentorshipContract = await MentorshipContract.findByPk(testimonial.mentorshipContractId); 
-    if (!mentorshipContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING); 
-
-    if (
-      accountId !== testimonial.accountId && //check if user is mentor who added testimonial 
-      accountId !== mentorshipContract.accountId  // check if user is student in testimonial 
-    )
-      throw new Error(
-        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      );
-
-    
-
-    return testimonial;
+  //get list of testimonials by mentorship listing for Sensei
+  public static async getTestimonial(mentorshipListingId: string) {
+    const testimonials = await Testimonial.findAll({
+      include: [{ model: MentorshipContract, where: { mentorshipListingId } }],
+    });
+    return testimonials;
   }
 
-//get list of testimonials 
-public static async getAllTestimonial(
-  userId: string, //user requesting for testimonials 
-  accountId: string 
-) {
+  /*
+  //get list of testimonials for student
+  public static async getAllTestimonial(filter: {
+    accountId?: string; //accountId of sensei for students to search?
+  }) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
-  const user = await User.findByPk(accountId); 
-  if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-  
-  if (userId !== accountId)  
-    throw new Error(
-      httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-    );
-  
+    //If user is a sensei, findAll by accountId
+    if (user.userType === USER_TYPE_ENUM.SENSEI) {
+      const testimonials = await Testimonial.findAll({
+        where: {
+          accountId: { [Op.eq]: accountId },
+        },
+      });
 
-  //If user is a sensei, findAll by accountId
-  if (user.userType === USER_TYPE_ENUM.SENSEI) {
-    const testimonials = await Testimonial.findAll({
-      where: {
-        accountId: { [Op.eq]: accountId },
-      }, 
-    }); 
+      return testimonials;
+    } else if (user.userType === USER_TYPE_ENUM.STUDENT) {
+      const testimonials = await Testimonial.findAll({
+        include: [{ model: MentorshipContract, where: { accountId } }],
+      });
 
-    return testimonials; 
-  } else if (user.userType === USER_TYPE_ENUM.STUDENT) {
-    const testimonials = await Testimonial.findAll({
-      include: [
-        { model: MentorshipContract, where: { accountId } }, 
-      ], 
-  }); 
-
-  return testimonials; 
+      return testimonials;
+    }
+  }*/
 }
-
-}
-
-}
-

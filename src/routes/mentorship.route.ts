@@ -3,9 +3,9 @@ import Utility from '../constants/utility';
 import { MentorshipController } from '../controllers/mentorship.controller';
 import {
   requireAdmin,
+  requireSameUserOrAdmin,
   requireSensei,
   requireStudent,
-  requireSameUserOrAdmin,
 } from '../middlewares/authenticationMiddleware';
 import mentorship from './schema/mentorship.schema';
 import user from './schema/user.schema';
@@ -156,24 +156,24 @@ router.put(
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(mentorship.testimonialP),
-  schemaValidator.body(mentorship.editTestimonialB), 
+  schemaValidator.body(mentorship.editTestimonialB),
   Utility.asyncHandler(MentorshipController.editTestimonial)
 );
 
-//get ONE testimonial (View Testimonial) 
+//get ONE testimonial (View Testimonial)
 router.get(
   '/testimonial/:testimonialId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.testimonialP), 
+  schemaValidator.params(mentorship.testimonialP),
   Utility.asyncHandler(MentorshipController.getTestimonial)
 );
-
+/*
 //View List of Testimonials as Sensei/Student  
 router.get(
   '/testimonial/list/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP), 
   Utility.asyncHandler(MentorshipController.getAllTestimonial)
-);
+);*/
 
 export default router;
