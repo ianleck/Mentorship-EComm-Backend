@@ -143,10 +143,10 @@ router.get(
 
 // ==================================== TESTIMONIALS ====================================
 router.post(
-  '/testimonial/:mentorshipContractId',
+  '/testimonial/:mentorshipListingId/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
-  schemaValidator.params(mentorship.mentorshipContractP),
+  schemaValidator.params(mentorship.createTestimonialParams),
   schemaValidator.body(mentorship.addTestimonialB),
   Utility.asyncHandler(MentorshipController.addTestimonial)
 );
@@ -158,6 +158,14 @@ router.put(
   schemaValidator.params(mentorship.testimonialP),
   schemaValidator.body(mentorship.editTestimonialB),
   Utility.asyncHandler(MentorshipController.editTestimonial)
+);
+
+//View List of Testimonials By Filter - sensei can search by mentorshipListing and accountId
+router.get(
+  '/testimonial/list',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.query(mentorship.getFilter),
+  Utility.asyncHandler(MentorshipController.getTestimonialsByFilter)
 );
 
 export default router;

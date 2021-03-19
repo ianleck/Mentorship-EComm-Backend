@@ -7,9 +7,9 @@ import {
   requireSameUserOrSuperAdmin,
   requireSuperAdmin,
 } from '../middlewares/authenticationMiddleware';
-import comment from './schema/comment.schema';
 import admin from './schema/admin.schema';
 import auth from './schema/auth.schema';
+import comment from './schema/comment.schema';
 import user from './schema/user.schema';
 import wallet from './schema/wallet.schema';
 

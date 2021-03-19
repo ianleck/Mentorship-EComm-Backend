@@ -6,7 +6,6 @@ import {
   Default,
   PrimaryKey,
   Table,
-  HasOne, 
 } from 'sequelize-typescript';
 import {
   CONTRACT_PROGRESS_ENUM,
@@ -14,7 +13,6 @@ import {
 } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { MentorshipListing } from './MentorshipListing';
-import { Testimonial } from './Testimonial';
 import { User } from './User';
 
 @Table
@@ -57,11 +55,6 @@ export class MentorshipContract extends BaseEntity {
 
   @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
   MentorshipListing: MentorshipListing;
-
-  @HasOne(() => Testimonial, 'mentorshipContractId')
-  Testimonial: Testimonial;
-
-
 }
 
 // one to one mapping for Review

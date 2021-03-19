@@ -47,24 +47,14 @@ export default {
   testimonialP: joi.object({
     testimonialId: joi.string().required(),
   }),
-  /*
+
   getFilter: joi.object({
-    username: joi.string().optional(),
-    firstName: joi.string().optional(),
-    email: joi.string().optional(),
-    contactNumber: joi.string().optional(),
-    emailVerified: joi.boolean().optional(),
-    status: joi
-      .string()
-      .valid(...Object.values(STATUS_ENUM))
-      .optional(),
-    userType: joi
-      .string()
-      .valid(...Object.values(USER_TYPE_ENUM))
-      .optional(),
-    adminVerified: joi
-      .string()
-      .valid(...Object.values(ADMIN_VERIFIED_ENUM))
-      .optional(),
-  }),*/
+    mentorshipListingId: joi.string().optional(),
+    accountId: joi.string().optional(),
+  }),
+
+  createTestimonialParams: joi.object({
+    mentorshipListingId: joi.string().required(),
+    accountId: joi.string().required(),
+  }),
 };
