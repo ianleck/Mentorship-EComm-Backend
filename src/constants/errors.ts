@@ -41,7 +41,9 @@ export const COURSE_ERRORS = {
   USER_NOT_VERIFIED:
     'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your course or submitting your course request for approval.',
   COURSE_NOT_VERIFIED:
-    'Course have not been approved yet. Please submit your course for approval before publishing it.',
+    'Course has not been approved yet. Please submit your course for approval before publishing it.',
+  COURSE_NOT_ACCEPTED:
+    'Course has not been approved yet. Please submit your course for approval before creating an announcement.',
 };
 
 export const MENTORSHIP_ERRORS = {
@@ -97,11 +99,11 @@ export const WALLET_ERROR = {
 export const SOCIAL_ERRORS = {
   POST_MISSING: 'Post does not exist',
 
-  FOLLOWING_REQUEST_MISSING: 'Request does not exist', 
-  FOLLOWING_MISSING: 'User is not following', 
+  FOLLOWING_REQUEST_MISSING: 'Request does not exist',
+  FOLLOWING_MISSING: 'User is not following',
 
-  PRIVATE_USER: 'User account is private'
-}; 
+  PRIVATE_USER: 'User account is private',
+};
 
 export const COMMENT_ERRORS = {
   COMMENT_MISSING: 'Comment does not exist',

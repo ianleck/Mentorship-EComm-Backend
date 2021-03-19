@@ -1,6 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
-import { Op } from 'sequelize';
 import {
   ADMIN_VERIFIED_ENUM,
   LEVEL_ENUM,
@@ -321,6 +320,10 @@ export default class CourseService {
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
 
+    if (course.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED) {
+      throw new Error(COURSE_ERRORS.COURSE_NOT_VERIFIED);
+    }
+
     const { title, description } = announcement;
 
     const newAnnouncement = new Announcement({
@@ -383,30 +386,31 @@ export default class CourseService {
     if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
 
     const user = await User.findByPk(accountId);
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-
-    // Check if user sending the request is the sensei who created the course
-    if (
-      user.userType === USER_TYPE_ENUM.SENSEI &&
-      course.accountId !== accountId
-    ) {
-      throw new Error(
-        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      );
-    }
-    //Check if user sending the request is the student who has bought this course
-    if (user.userType === USER_TYPE_ENUM.STUDENT) {
-      const courseContract = await CourseContract.findOne({
-        where: {
-          courseId,
-          accountId,
-        },
-      });
-      if (!courseContract)
+    if (user) {
+      // Check if user sending the request is the sensei who created the course
+      if (
+        user.userType === USER_TYPE_ENUM.SENSEI &&
+        course.accountId !== accountId
+      ) {
         throw new Error(
           httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
         );
+      }
+      //Check if user sending the request is the student who has bought this course
+      if (user.userType === USER_TYPE_ENUM.STUDENT) {
+        const courseContract = await CourseContract.findOne({
+          where: {
+            courseId,
+            accountId,
+          },
+        });
+        if (!courseContract)
+          throw new Error(
+            httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+          );
+      }
     }
+
     const courseAnnouncements = Announcement.findAll({
       where: {
         courseId,
@@ -432,29 +436,29 @@ export default class CourseService {
     if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
 
     const user = await User.findByPk(accountId);
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-
-    // Check if user sending the request is the sensei who created announcement
-    if (
-      user.userType === USER_TYPE_ENUM.SENSEI &&
-      announcement.accountId !== accountId
-    ) {
-      throw new Error(
-        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      );
-    }
-    //Check if user sending the request is the student who has bought this course
-    if (user.userType === USER_TYPE_ENUM.STUDENT) {
-      const courseContract = await CourseContract.findOne({
-        where: {
-          courseId: course.courseId,
-          accountId,
-        },
-      });
-      if (!courseContract)
+    if (user) {
+      // Check if user sending the request is the sensei who created announcement
+      if (
+        user.userType === USER_TYPE_ENUM.SENSEI &&
+        announcement.accountId !== accountId
+      ) {
         throw new Error(
           httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
         );
+      }
+      //Check if user sending the request is the student who has bought this course
+      if (user.userType === USER_TYPE_ENUM.STUDENT) {
+        const courseContract = await CourseContract.findOne({
+          where: {
+            courseId: course.courseId,
+            accountId,
+          },
+        });
+        if (!courseContract)
+          throw new Error(
+            httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+          );
+      }
     }
 
     const courseAnnouncement = await Announcement.findOne({
@@ -534,13 +538,7 @@ export default class CourseService {
   public static async getAllRequests() {
     const courseRequests = Course.findAll({
       where: {
-        adminVerified: {
-          [Op.or]: [
-            ADMIN_VERIFIED_ENUM.ACCEPTED,
-            ADMIN_VERIFIED_ENUM.PENDING,
-            ADMIN_VERIFIED_ENUM.REJECTED,
-          ],
-        },
+        adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
       },
     });
     return courseRequests;
