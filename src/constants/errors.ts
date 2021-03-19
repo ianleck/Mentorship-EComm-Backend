@@ -55,10 +55,8 @@ export const MENTORSHIP_ERRORS = {
   TESTIMONIAL_EXISTS:
     'A testimonial has already been made for this mentee. Please edit existing testimonial.',
   TESTIMONIAL_MISSING: 'Testimonial does not exist',
-  CONTRACT_NOT_COMPLETED: 
-   'Mentorship contract has not been completed. Please complete mentorship first before adding a testimonial.'
-
-  
+  CONTRACT_NOT_COMPLETED:
+    'Mentorship contract has not been completed. Please complete mentorship first before adding a testimonial.',
 };
 
 export const REVIEW_ERRORS = {
@@ -89,15 +87,27 @@ export const RESPONSE_ERROR = {
 
 export const WALLET_ERROR = {
   UNAUTH_WALLET: 'User does not have access to requested wallet',
+  EXISTING_WITHDRAWAL:
+    'An existing withdrawal application has been made. Please wait while we process your withdrawal application.',
+  MISSING_BILLING: 'No such billing exists in the system',
+  NO_MONEY:
+    'Unable to withdraw as confirmed amount is still 0. Please note that 120 days have to elapse before pending amount is converted to confirmed amount due to our user refund policies',
 };
 
 export const SOCIAL_ERRORS = {
-  POST_MISSING: 'Post does not exist', 
+  POST_MISSING: 'Post does not exist',
 
-  FOLLOWING_REQUEST_MISSING: 'Request does not exist', 
-  FOLLOWING_MISSING: 'User is not following', 
-}; 
+  FOLLOWING_REQUEST_MISSING: 'Request does not exist',
+  FOLLOWING_MISSING: 'User is not following',
+};
 
 export const COMMENT_ERRORS = {
-  COMMENT_MISSING: 'Comment does not exist', 
-}; 
+  COMMENT_MISSING: 'Comment does not exist',
+};
+
+export const COMPLAINT_ERRORS = {
+  COMPLAINT_REASON_EXISTS: 'Similar complaint reason already exists',
+
+  COMPLAINT_MISSING: 'Complaint does not exist',
+  COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
+};

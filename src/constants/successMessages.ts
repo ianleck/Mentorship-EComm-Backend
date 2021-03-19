@@ -16,11 +16,22 @@ export const AUTH_RESPONSE = {
   SUCCESSFULLY_CHANGED_PASSWORD: 'Successfully Changed Password',
 };
 
+// ==================== CART RESPONSE MESSAGES ====================
+export const CART_RESPONSE = {
+  ADD_TO_CART: 'Course has been successfully added to cart',
+  DELETE_FROM_CART:
+    'The selected item(s) have been successfully removed from cart',
+};
+
 // ==================== COURSE RESPONSE MESSAGES ====================
 export const COURSE_RESPONSE = {
   COURSE_CREATE: 'Course Listing has been successfully created',
   COURSE_UPDATE: 'Course Listing has been successfully updated',
   COURSE_DELETE: 'Course Listing has been successfully deleted',
+
+  LESSON_CREATE: 'Lesson has been successfully created',
+  LESSON_UPDATE: 'Lesson has been successfully updated',
+  LESSON_DELETE: 'Lesson has been successfully deleted',
 
   COURSE_REQUEST_ACCEPTED: 'Course Request has been successfully accepted',
   COURSE_REQUEST_REJECTED: 'Course Request has been successfully rejected',
@@ -37,6 +48,14 @@ export const COURSE_RESPONSE = {
 };
 
 // ==================== MENTORSHIP RESPONSE MESSAGES ====================
+export const COMPLAINT_RESPONSE = {
+  COMPLAINT_REASON_CREATE: 'Successfully added complaint reason',
+
+  COMPLAINT_CREATE: 'Your complaint has been received',
+  COMPLAINT_RESOLVED: 'Complaint has been successfully resolved',
+};
+
+// ==================== MENTORSHIP RESPONSE MESSAGES ====================
 export const MENTORSHIP_RESPONSE = {
   LISTING_CREATE: 'Mentorship Listing has been successfully created',
   LISTING_UPDATE: 'Mentorship Listing has been successfully updated',
@@ -48,9 +67,8 @@ export const MENTORSHIP_RESPONSE = {
   CONTRACT_ACCEPT: 'Mentorship Contract has been successfully accepted',
   CONTRACT_REJECT: 'Mentorship Contract has been successfully rejected',
 
-  TESTIMONIAL_CREATE: 'Testimonial has been successfully created', 
+  TESTIMONIAL_CREATE: 'Testimonial has been successfully created',
   TESTIMONIAL_EDIT: 'Testimonial has been successfully edited',
-  
 };
 
 // ==================== PAYPAL RESPONSE MESSAGES ====================
@@ -90,39 +108,32 @@ export const UPLOAD_RESPONSE = {
   FILE_DELETED: 'Successfully deleted file',
 };
 
-// ==================== CART RESPONSE MESSAGES ====================
-export const CART_RESPONSE = {
-  ADD_TO_CART: 'Course has been successfully added to cart',
-  DELETE_FROM_CART:
-    'The selected item(s) have been successfully removed from cart',
-};
-
 // ==================== SOCIAL RESPONSE MESSAGES ====================
 export const SOCIAL_RESPONSE = {
   POST_CREATE: 'Post has been successfully created',
   POST_UPDATE: 'Post has been successfully updated',
-  POST_DELETE: 'Post has been successfully deleted', 
-  POST_LIKED: 'Post has been successfully liked',  
-  POST_UNLIKED: 'Post has been successfully unliked',  
+  POST_DELETE: 'Post has been successfully deleted',
+  POST_LIKED: 'Post has been successfully liked',
+  POST_UNLIKED: 'Post has been successfully unliked',
 
   FOLLOWING_ADDED: 'User has been successfully added to following list',
   FOLLOWING_REMOVED: 'User has been successfullly removed from following list',
-  
-  FOLLOWING_REQUEST_CREATED: 'Request to follow user has been successfully created', 
-  FOLLOWING_REQUEST_CANCELLED: 'Request to follow user has been successfully cancelled', 
-  FOLLOWING_REQUEST_ACCEPTED: 'Request to follow user has been successfully accepted',
-  FOLLOWING_REQUEST_REJECTED: 'Request to follow user has been successfully rejected',
 
-}; 
+  FOLLOWING_REQUEST_CREATED:
+    'Request to follow user has been successfully created',
+  FOLLOWING_REQUEST_CANCELLED:
+    'Request to follow user has been successfully cancelled',
+  FOLLOWING_REQUEST_ACCEPTED:
+    'Request to follow user has been successfully accepted',
+  FOLLOWING_REQUEST_REJECTED:
+    'Request to follow user has been successfully rejected',
+};
 
 // ==================== COMMENT RESPONSE MESSAGES ====================
 export const COMMENT_RESPONSE = {
-COMMENT_LESSON_CREATE: 'Successfully commented on lesson',
+  COMMENT_LESSON_CREATE: 'Successfully commented on lesson',
+  COMMENT_DELETE: 'Successfully deleted comment',
 
-COMMENT_POST_CREATE: 'Successfully commented on post',
-COMMENT_POST_EDIT: 'Successfully edited comment on post',
-COMMENT_POST_DELETE: 'Successfully deleted comment from post',
-
+  COMMENT_POST_CREATE: 'Successfully commented on post',
+  COMMENT_POST_EDIT: 'Successfully edited comment on post',
 };
-
-

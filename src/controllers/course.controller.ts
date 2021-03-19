@@ -168,7 +168,7 @@ export class CourseController {
       );
       return apiResponse.result(
         res,
-        { message: COURSE_RESPONSE.COURSE_CREATE, lesson: createdLesson },
+        { message: COURSE_RESPONSE.LESSON_CREATE, lesson: createdLesson },
         httpStatusCodes.CREATED
       );
     } catch (e) {
@@ -200,7 +200,7 @@ export class CourseController {
       );
       return apiResponse.result(
         res,
-        { message: COURSE_RESPONSE.COURSE_UPDATE, lesson: updatedLesson },
+        { message: COURSE_RESPONSE.LESSON_UPDATE, lesson: updatedLesson },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -227,7 +227,7 @@ export class CourseController {
       await CourseService.deleteLesson(lessonId, user.accountId);
       return apiResponse.result(
         res,
-        { message: COURSE_RESPONSE.COURSE_DELETE },
+        { message: COURSE_RESPONSE.LESSON_DELETE },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -582,5 +582,4 @@ export class CourseController {
       }
     }
   }
-
 }
