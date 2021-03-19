@@ -457,6 +457,7 @@ export default class MentorshipService {
     const existingTestimonial = await Testimonial.findOne({
       where: {
         mentorshipListingId,
+        accountId,
       },
     });
 
@@ -468,6 +469,7 @@ export default class MentorshipService {
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
         mentorshipListingId,
+        accountId,
         progress: CONTRACT_PROGRESS_ENUM.COMPLETED,
       },
     });
@@ -538,12 +540,6 @@ export default class MentorshipService {
     accountId?: string;
     mentorshipListingId?: string;
   }) {
-    let where = {};
-    Object.keys(filter).forEach((key) => {
-      where[key] = filter[key];
-    });
-    return await Testimonial.findAll({
-      where,
-    });
+    return await Testimonial.findAll({ where: filter });
   }
 }
