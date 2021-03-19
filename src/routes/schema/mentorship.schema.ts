@@ -29,19 +29,42 @@ export default {
   }),
 
   addTestimonialB: joi.object({
-    newTestimonial: joi.object({
+    newTestimonial: joi
+      .object({
         body: joi.string().required(),
-    }).required(),
+      })
+      .required(),
   }),
 
   editTestimonialB: joi.object({
-    editedTestimonial: joi.object({
+    editedTestimonial: joi
+      .object({
         body: joi.string().required(),
-    }).required(),
+      })
+      .required(),
   }),
 
   testimonialP: joi.object({
     testimonialId: joi.string().required(),
   }),
-
+  /*
+  getFilter: joi.object({
+    username: joi.string().optional(),
+    firstName: joi.string().optional(),
+    email: joi.string().optional(),
+    contactNumber: joi.string().optional(),
+    emailVerified: joi.boolean().optional(),
+    status: joi
+      .string()
+      .valid(...Object.values(STATUS_ENUM))
+      .optional(),
+    userType: joi
+      .string()
+      .valid(...Object.values(USER_TYPE_ENUM))
+      .optional(),
+    adminVerified: joi
+      .string()
+      .valid(...Object.values(ADMIN_VERIFIED_ENUM))
+      .optional(),
+  }),*/
 };

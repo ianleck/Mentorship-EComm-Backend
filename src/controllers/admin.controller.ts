@@ -1,14 +1,21 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
 import { STATUS_ENUM } from '../constants/enum';
-import { AUTH_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
+import {
+  AUTH_ERRORS,
+  COMMENT_ERRORS,
+  ERRORS,
+  RESPONSE_ERROR,
+} from '../constants/errors';
 import {
   ADMIN_RESPONSE,
   AUTH_RESPONSE,
+  COMMENT_RESPONSE,
   USER_RESPONSE,
 } from '../constants/successMessages';
 import AdminService from '../services/admin.service';
 import UserService from '../services/user.service';
+import WalletService from '../services/wallet.service';
 import apiResponse from '../utilities/apiResponse';
 
 const passport = require('passport');
@@ -365,6 +372,79 @@ export class AdminController {
       );
     } catch (e) {
       logger.error('[adminController.getBannedSenseis]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  // ======================================== COMPLAINTS ========================================
+  public static async deleteOffensiveComment(req, res) {
+    const { user } = req;
+    const { commentId } = req.params;
+
+    try {
+      await AdminService.deleteOffensiveComment(commentId, user);
+      return apiResponse.result(
+        res,
+        {
+          message: COMMENT_RESPONSE.COMMENT_DELETE,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.deleteOffensiveComment]:' + e.message);
+      if (
+        e.message === COMMENT_ERRORS.COMMENT_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+  // ============================== Finance ==============================
+
+  public static async viewPendingWithdrawals(req, res) {
+    try {
+      const withdrawalApplications = await WalletService.viewPendingWithdrawals();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          withdrawalApplications,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.viewPendingWithdrawals]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async approveWithdrawal(req, res) {
+    try {
+      const { billingId } = req.params;
+      const withdrawalApplications = await WalletService.approveWithdrawal(
+        billingId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          withdrawalApplications,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[adminController.approveWithdrawal]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });

@@ -12,7 +12,8 @@ export default class EmailService {
     additional?: {
       url?: string;
       mentorshipName?: string;
-      courseName?: string; 
+      courseName?: string;
+      commentBody?: string;
     }
   ) {
     try {
@@ -69,7 +70,8 @@ export default class EmailService {
     additional?: {
       url?: string;
       mentorshipName?: string;
-      courseName?: string; 
+      courseName?: string;
+      commentBody?: string;
     }
   ) {
     const name = `${user.firstName} ${user.lastName}`;
@@ -81,6 +83,7 @@ export default class EmailService {
     );
 
     switch (template) {
+      // AUTH
       case 'register':
         const placeHolder = 'https://www.google.com';
         return await ejs.renderFile(filePath, {
@@ -100,16 +103,26 @@ export default class EmailService {
           name,
         });
 
-      case 'acceptSensei':
+      // COMMENTS
+      case 'deleteOffensiveComment':
         return await ejs.renderFile(filePath, {
           name,
+          commentBody: additional.commentBody,
         });
-
-      case 'rejectSensei':
+      // COURSE
+      case 'acceptCourse':
         return await ejs.renderFile(filePath, {
           name,
+          courseName: additional.courseName,
         });
 
+      case 'rejectCourse':
+        return await ejs.renderFile(filePath, {
+          name,
+          courseName: additional.courseName,
+        });
+
+      // MENTORSHIPCONTRACTS
       case 'acceptContract':
         return await ejs.renderFile(filePath, {
           name,
@@ -122,17 +135,16 @@ export default class EmailService {
           mentorshipName: additional.mentorshipName,
         });
 
-        case 'acceptCourse':
+      // SENSEI
+      case 'acceptSensei':
         return await ejs.renderFile(filePath, {
           name,
-          courseName: additional.courseName, 
         });
 
-      case 'rejectCourse':
+      case 'rejectSensei':
         return await ejs.renderFile(filePath, {
           name,
-          courseName: additional.courseName, 
-        }); 
+        });
     }
   }
 }
