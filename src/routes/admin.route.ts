@@ -31,6 +31,7 @@ import {
   requireAdmin,
   requireSameUserOrSuperAdmin,
 } from '../middlewares/authenticationMiddleware';
+import comment from './schema/comment.schema';
 
 const router = express.Router();
 const passport = require('passport');
@@ -169,4 +170,12 @@ router.get(
   Utility.asyncHandler(AdminController.getBannedSenseis)
 );
 
+// ======================================== COMMENTS ========================================
+router.delete(
+  '/comment/:commentId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireAdmin,
+  schemaValidator.params(comment.commentIdP),
+  Utility.asyncHandler(AdminController.deleteOffensiveComment)
+);
 export default router;

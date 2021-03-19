@@ -9,6 +9,9 @@ import {
 import { AUTH_ERRORS, ERRORS } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { User } from '../models/User';
+import { Comment } from '../models/Comment';
+
+import CommentService from './comment.service';
 import EmailService from './email.service';
 export default class AdminService {
   // ======================================== ADMIN AUTH ========================================
@@ -210,5 +213,20 @@ export default class AdminService {
       },
     });
     return senseis;
+  }
+
+  // ======================================== COMMENTS ========================================
+  public static async deleteOffensiveComment(commentId: string, user) {
+    const comment = await Comment.findByPk(commentId);
+    await CommentService.deleteComment(commentId, user);
+    const commentUser = await User.findByPk(comment.accountId);
+
+    if (!commentUser) {
+      // user has been deleted
+      return;
+    }
+    await EmailService.sendEmail(commentUser.email, 'deleteOffensiveComment', {
+      commentBody: comment.body,
+    });
   }
 }

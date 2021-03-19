@@ -1,4 +1,5 @@
 export const TEMPLATES = {
+  // ======================================== AUTH ========================================
   register: {
     fileName: 'register.ejs',
     subject: '[DigiDojo] Welcome to DigiDojo!',
@@ -7,12 +8,28 @@ export const TEMPLATES = {
     fileName: 'forgotPassword.ejs',
     subject: '[DigiDojo] Password Reset Request',
   },
-
   passwordReset: {
     fileName: `passwordReset.ejs`,
     subject: '[DigiDojo] Password has been successfully reset!',
   },
 
+  // ======================================== COMMENTS ========================================
+  deleteOffensiveComment: {
+    fileName: 'deleteOffensiveComment.ejs',
+    subject:
+      '[DigiDojo] Your comment has been deemed offensive and has been deleted',
+  },
+  // ======================================== COURSE ========================================
+  acceptCourse: {
+    fileName: 'acceptCourse.ejs',
+    subject: '[DigiDojo] Congratulations! Your Course has been approved!',
+  },
+  rejectCourse: {
+    fileName: 'rejectCourse.ejs',
+    subject: '[DigiDojo] Course Rejected',
+  },
+
+  // ======================================== MENTORSHIP CONTRACTS ========================================
   acceptContract: {
     fileName: 'acceptContract.ejs',
     subject:
@@ -23,23 +40,14 @@ export const TEMPLATES = {
     subject: '[DigiDojo] Mentorship Application Rejected',
   },
 
+  // ======================================== SENSEI ========================================
+
   acceptSensei: {
     fileName: 'acceptSensei.ejs',
     subject: '[DigiDojo] Congratulations! You have been approved as a Sensei!',
   },
-
   rejectSensei: {
     fileName: 'rejectSensei.ejs',
     subject: '[DigiDojo] Sensei Profile Rejected',
-  },
-
-  acceptCourse: {
-    fileName: 'acceptCourse.ejs',
-    subject:
-      '[DigiDojo] Congratulations! Your Course has been approved!',
-  },
-  rejectCourse: {
-    fileName: 'rejectCourse.ejs',
-    subject: '[DigiDojo] Course Rejected',
   },
 };
