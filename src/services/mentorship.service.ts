@@ -520,38 +520,4 @@ export default class MentorshipService {
 
     return await existingTestimonial.update(editedTestimonial);
   }
-
-  //get list of testimonials by mentorship listing for Sensei
-  public static async getTestimonial(mentorshipListingId: string) {
-    const testimonials = await Testimonial.findAll({
-      include: [{ model: MentorshipContract, where: { mentorshipListingId } }],
-    });
-    return testimonials;
-  }
-
-  /*
-  //get list of testimonials for student
-  public static async getAllTestimonial(filter: {
-    accountId?: string; //accountId of sensei for students to search?
-  }) {
-    const user = await User.findByPk(accountId);
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-
-    //If user is a sensei, findAll by accountId
-    if (user.userType === USER_TYPE_ENUM.SENSEI) {
-      const testimonials = await Testimonial.findAll({
-        where: {
-          accountId: { [Op.eq]: accountId },
-        },
-      });
-
-      return testimonials;
-    } else if (user.userType === USER_TYPE_ENUM.STUDENT) {
-      const testimonials = await Testimonial.findAll({
-        include: [{ model: MentorshipContract, where: { accountId } }],
-      });
-
-      return testimonials;
-    }
-  }*/
 }
