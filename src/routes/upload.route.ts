@@ -2,22 +2,23 @@ import express from 'express';
 import Utility from '../constants/utility';
 import { UploadController } from '../controllers/upload.controller';
 import course from './schema/course.schema';
+import user from './schema/user.schema';
 const passport = require('passport');
 const router = express.Router();
 const schemaValidator = require('express-joi-validation').createValidator({});
-// ================================ TRANSCRIPTS ================================
+
+// ================================ USER RELATED UPLOADS ================================
 router.post(
   '/transcript',
   passport.authenticate('isAuthenticated', { session: false }),
   Utility.asyncHandler(UploadController.uploadTranscript)
 );
-// ================================ CV ================================
+
 router.post(
   '/cv',
   passport.authenticate('isAuthenticated', { session: false }),
   Utility.asyncHandler(UploadController.uploadCv)
 );
-// ================================ PROFILE IMG ================================
 
 router.post(
   '/dp',
@@ -25,6 +26,14 @@ router.post(
   Utility.asyncHandler(UploadController.uploadProfilePic)
 );
 
+router.delete(
+  '/user/:type',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.deleteTypeP),
+  Utility.asyncHandler(UploadController.deleteUserProfileFile)
+);
+
+// ================================ COURSE RELATED UPLOADS ================================
 router.post(
   '/course/:courseId',
   passport.authenticate('isAuthenticated', { session: false }),

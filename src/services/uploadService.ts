@@ -144,6 +144,36 @@ export default class UploadService {
     });
   }
 
+  public static async deleteUserProfileFile(accountId: string, type: string) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    let userAttribute;
+    if (type === 'cv') {
+      userAttribute = 'cvUrl';
+    } else if (type === 'dp') {
+      userAttribute = 'profileImgUrl';
+    } else {
+      userAttribute = 'transcriptUrl';
+    }
+
+    const url = user[userAttribute];
+    if (!url) throw new Error(UPLOAD_ERRORS.FILE_MISSING);
+    const relativePath = url.substring(url.indexOf('file') + 5); // +5 to get string after 'file/<path we want>'
+    const path = `${__dirname}/../../uploads/${relativePath}`; // file path to delete
+    return new Promise<User>((res, rej) => {
+      fs.unlink(path, async (err) => {
+        if (err) {
+          rej(err);
+        } else {
+          const _user = await user.update({
+            [userAttribute]: null,
+          });
+          res(_user);
+        }
+      });
+    });
+  }
+
   // ================================ COURSE RELATED UPLOADS ================================
   public static async uploadCoursePic(
     file,
