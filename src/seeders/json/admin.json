@@ -5,7 +5,6 @@
     "password": "password",
     "emailVerified": true,
     "email": "superadmin@gmail.com",
-    "status": "ACTIVE",
     "userType": "ADMIN",
     "role": "SUPERADMIN"
   }

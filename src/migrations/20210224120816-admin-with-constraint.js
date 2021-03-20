@@ -42,13 +42,6 @@ module.exports = {
           walletId: {
             type: Sequelize.UUID,
           },
-          status: {
-            type: Sequelize.ENUM('ACTIVE', 'BANNED'),
-            defaultValue: 'ACTIVE',
-          },
-          paypalId: {
-            type: Sequelize.STRING,
-          },
           createdAt: {
             allowNull: false,
             type: Sequelize.DATE,
