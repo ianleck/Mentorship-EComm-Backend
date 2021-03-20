@@ -37,14 +37,6 @@ router.put(
   Utility.asyncHandler(WalletController.withdrawBalance)
 );
 
-// endpoint to test. Ignore because I will remove it
-// router.put(
-//   '/test/:walletId',
-//   passport.authenticate('isAuthenticated', { session: false }),
-//   schemaValidator.params(wallet.walletIdP),
-//   Utility.asyncHandler(WalletController.test)
-// );
-
 router.get(
   '/withdrawals/:walletId',
   passport.authenticate('isAuthenticated', { session: false }),

@@ -1,4 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
+import paypal from 'paypal-rest-sdk';
 import logger from '../config/logger';
 import { STATUS_ENUM } from '../constants/enum';
 import {
@@ -6,6 +7,7 @@ import {
   COMMENT_ERRORS,
   ERRORS,
   RESPONSE_ERROR,
+  WALLET_ERROR,
 } from '../constants/errors';
 import {
   ADMIN_RESPONSE,
@@ -14,6 +16,7 @@ import {
   USER_RESPONSE,
 } from '../constants/successMessages';
 import AdminService from '../services/admin.service';
+import PaypalService from '../services/paypal.service';
 import UserService from '../services/user.service';
 import WalletService from '../services/wallet.service';
 import apiResponse from '../utilities/apiResponse';
@@ -432,21 +435,63 @@ export class AdminController {
   public static async approveWithdrawal(req, res) {
     try {
       const { billingId } = req.params;
-      const withdrawalApplications = await WalletService.approveWithdrawal(
+
+      const { payout_json, billing } = await WalletService.approveWithdrawal(
         billingId
       );
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          withdrawalApplications,
-        },
-        httpStatusCodes.OK
-      );
+
+      await paypal.payout.create(payout_json, async function (error, payout) {
+        if (error) {
+          console.log('error', error);
+          throw new Error(error);
+        } else {
+          console.log('Create Single Payout Response', payout);
+          const payout_batch_id = payout.batch_header.payout_batch_id;
+
+          await WalletService.postWithdrawalHelper(billing, payout_batch_id);
+
+          const pendingWithdrawals = WalletService.viewPendingWithdrawals();
+          return apiResponse.result(
+            res,
+            { message: 'success', pendingWithdrawals },
+            httpStatusCodes.OK
+          );
+        }
+      });
     } catch (e) {
+      if (e.message === WALLET_ERROR.PAID_OUT) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
       logger.error('[adminController.approveWithdrawal]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async createRefund(req, res) {
+    try {
+      const { billingId } = req.params;
+      const payout_json = await PaypalService.createRefund();
+      await paypal.payout.create(payout_json, function (error, payout) {
+        if (error) {
+          console.log('error', error);
+          throw new Error(error);
+        } else {
+          console.log('Create Single Payout Response');
+          return apiResponse.result(
+            res,
+            { message: 'success', payout },
+            httpStatusCodes.OK
+          );
+        }
+      });
+    } catch (e) {
+      logger.error('[PaypalController.createRefund]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
       });
     }
   }

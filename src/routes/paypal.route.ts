@@ -25,4 +25,11 @@ router.post(
   schemaValidator.query(paypal.captureOrderQ),
   Utility.asyncHandler(PaypalController.captureOrder)
 );
+
+router.get(
+  '/payout/:payoutId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(paypal.payoutIdP),
+  Utility.asyncHandler(PaypalController.viewPayout)
+);
 export default router;

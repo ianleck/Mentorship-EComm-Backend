@@ -18,7 +18,7 @@ export class PaypalController {
 
       await paypal.payment.create(payment, async function (error, payment) {
         if (error) {
-          console.error(error);
+          throw new Error(error);
         } else {
           //capture HATEOAS links
           let links = {};
@@ -48,6 +48,29 @@ export class PaypalController {
       });
     } catch (e) {
       logger.error('[PaypalController.createOrder]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async viewPayout(req, res) {
+    try {
+      const { payoutId } = req.params;
+
+      await paypal.payout.get(payoutId, function (error, payout) {
+        if (error) {
+          throw new Error(error);
+        } else {
+          return apiResponse.result(
+            res,
+            { message: 'success', payout },
+            httpStatusCodes.OK
+          );
+        }
+      });
+    } catch (e) {
+      logger.error('[PaypalController.viewPayout]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });

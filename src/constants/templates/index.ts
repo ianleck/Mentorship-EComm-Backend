@@ -50,4 +50,12 @@ export const TEMPLATES = {
     fileName: 'rejectSensei.ejs',
     subject: '[DigiDojo] Sensei Profile Rejected',
   },
+
+  // ======================================== FINANCE ========================================
+
+  withdrawalSuccess: {
+    fileName: 'withdrawalSuccess.ejs',
+    subject:
+      '[DigiDojo] Your withdrawal application has been successfully approved!',
+  },
 };
