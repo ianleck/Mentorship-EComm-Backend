@@ -25,6 +25,7 @@ export const AUTH_ERRORS = {
 export const CART_ERRORS = {
   CART_MISSING: 'Shopping Cart is already empty',
   COURSE_ALREADY_ADDED: 'Course has already been added to shopping cart',
+  COURSE_PURCHASED: 'Course has already been purchased',
   MENTORSHIP_CONTRACT_ADDED:
     'Mentorship Listing has already been added to shopping cart',
 };

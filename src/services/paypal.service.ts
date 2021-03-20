@@ -152,8 +152,6 @@ export default class PaypalService {
 
   public static async createRefund() {}
 
-  public static async getPayoutId() {}
-
   public static async populateCourseTransactions(
     courseIds: string[],
     mentorshipListingIds: string[],

@@ -15,6 +15,7 @@ import { Cart } from '../models/Cart';
 import { CartToCourse } from '../models/CartToCourse';
 import { CartToMentorshipListing } from '../models/CartToMentorshipListing';
 import { Course } from '../models/Course';
+import { CourseContract } from '../models/CourseContract';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { User } from '../models/User';
@@ -33,6 +34,11 @@ export default class CartService {
       },
     });
     if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
+
+    const purchasedCourse = CourseContract.findOne({
+      where: { accountId: studentId, courseId },
+    });
+    if (purchasedCourse) throw new Error(CART_ERRORS.COURSE_PURCHASED);
 
     const cart = await this.setupCart(studentId);
     const cartId = cart.cartId;
