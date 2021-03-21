@@ -5,7 +5,9 @@ import {
   ORDER_INTENT,
   PAYMENT_METHOD,
   PAYPAL_FEE,
+  RECIPIENT_TYPE,
   STARTING_BALANCE,
+  WITHDRAWAL_TITLE,
 } from '../constants/constants';
 import { BILLING_STATUS, BILLING_TYPE } from '../constants/enum';
 import { ERRORS } from '../constants/errors';
@@ -121,6 +123,34 @@ export default class PaypalService {
 
     return await { payment, billings };
   }
+
+  public static async createPayout(application: Billing, email: string) {
+    const unixTime = Date.now();
+    const sender_batch_id =
+      application.senderWalletId + application.receiverWalletId + unixTime;
+    const note = `Withdrawal for billingId: ${application.billingId} has been successfully approved. Please expect the payment to your paypal account at email address: ${email} shortly.`;
+    const payout_json = {
+      sender_batch_header: {
+        sender_batch_id: `${sender_batch_id}`,
+        email_subject: `${WITHDRAWAL_TITLE}`,
+      },
+      items: [
+        {
+          recipient_type: `${RECIPIENT_TYPE}`,
+          amount: {
+            value: application.amount,
+            currency: application.currency,
+          },
+          receiver: `${email}`,
+          note: `${note}`,
+        },
+      ],
+    };
+
+    return payout_json;
+  }
+
+  public static async createRefund() {}
 
   public static async populateCourseTransactions(
     courseIds: string[],

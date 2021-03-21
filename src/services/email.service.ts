@@ -145,6 +145,12 @@ export default class EmailService {
         return await ejs.renderFile(filePath, {
           name,
         });
+
+      // FINANCE
+      case 'withdrawalSuccess':
+        return await ejs.renderFile(filePath, {
+          name,
+        });
     }
   }
 }

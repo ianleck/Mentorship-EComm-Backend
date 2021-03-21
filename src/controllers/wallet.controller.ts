@@ -4,23 +4,6 @@ import WalletService from '../services/wallet.service';
 import apiResponse from '../utilities/apiResponse';
 
 export class WalletController {
-  // Test controller. Ignore because I will remove it
-  // public static async test(req, res) {
-  //   try {
-  //     await WalletService.checkPendingSenseiBillings();
-  //     return apiResponse.result(
-  //       res,
-  //       { message: 'success' },
-  //       httpStatusCodes.OK
-  //     );
-  //   } catch (e) {
-  //     logger.error('[walletController.test]:' + e.message);
-  //     return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-  //       message: e.message,
-  //     });
-  //   }
-  // }
-
   public static async getAllBillings(req, res) {
     try {
       const billings = await WalletService.getAllBillings();

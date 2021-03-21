@@ -10,6 +10,8 @@ import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
 import { User } from '../models/User';
 import { Wallet } from '../models/Wallet';
+import EmailService from './email.service';
+import PaypalService from './paypal.service';
 export default class WalletService {
   // ============================== Billings ==============================
   public static async createCourseBilling(
@@ -139,21 +141,46 @@ export default class WalletService {
 
   public static async approveWithdrawal(billingId: string) {
     const existingApplication = await Billing.findByPk(billingId);
-    if (!existingApplication) throw new Error(WALLET_ERROR.MISSING_BILLING);
+    if (
+      !existingApplication ||
+      existingApplication.billingType !== BILLING_TYPE.WITHDRAWAL
+    )
+      throw new Error(WALLET_ERROR.MISSING_BILLING);
+
+    if (existingApplication.status !== BILLING_STATUS.PENDING_WITHDRAWAL) {
+      throw new Error(WALLET_ERROR.PAID_OUT);
+    }
 
     const sensei = await User.findOne({
       where: { walletId: existingApplication.receiverWalletId },
     });
-    const senseiWallet = await Wallet.findByPk(
-      existingApplication.receiverWalletId
+    const payout_json = await PaypalService.createPayout(
+      existingApplication,
+      sensei.email
     );
 
-    // Perform payout. Will leave for next PR
-    // Set confirmedAmount to 0
+    return { payout_json, billing: existingApplication };
+  }
 
-    return await Billing.findAll({
-      where: { status: BILLING_STATUS.PENDING_WITHDRAWAL },
+  public static async postWithdrawalHelper(
+    billing: Billing,
+    paymentId: string
+  ) {
+    const wallet = await Wallet.findByPk(billing.receiverWalletId);
+    const receiver = await User.findOne({
+      where: { walletId: wallet.walletId },
     });
+
+    await billing.update({
+      paypalPaymentId: paymentId,
+      status: BILLING_STATUS.WITHDRAWN,
+    });
+
+    await wallet.update({
+      confirmedAmount: 0,
+    });
+
+    await EmailService.sendEmail(receiver.email, 'withdrawalSuccess');
   }
 
   public static async viewCompletedWithdrawals(

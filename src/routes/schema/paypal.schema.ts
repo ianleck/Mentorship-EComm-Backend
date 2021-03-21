@@ -6,4 +6,7 @@ export default {
     token: joi.string().required(),
     PayerID: joi.string().required(),
   }),
+  payoutIdP: joi.object({
+    payoutId: joi.string().required(),
+  }),
 };

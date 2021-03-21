@@ -25,6 +25,7 @@ export const AUTH_ERRORS = {
 export const CART_ERRORS = {
   CART_MISSING: 'Shopping Cart is already empty',
   COURSE_ALREADY_ADDED: 'Course has already been added to shopping cart',
+  COURSE_PURCHASED: 'Course has already been purchased',
   MENTORSHIP_CONTRACT_ADDED:
     'Mentorship Listing has already been added to shopping cart',
 };
@@ -94,6 +95,7 @@ export const WALLET_ERROR = {
   MISSING_BILLING: 'No such billing exists in the system',
   NO_MONEY:
     'Unable to withdraw as confirmed amount is still 0. Please note that 120 days have to elapse before pending amount is converted to confirmed amount due to our user refund policies',
+  PAID_OUT: 'This withdrawal application has already been approved.',
 };
 
 export const SOCIAL_ERRORS = {
