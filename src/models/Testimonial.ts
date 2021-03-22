@@ -32,7 +32,7 @@ export class Testimonial extends BaseEntity {
 
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')
-  Sensei: User;
+  Student: User;
 
   @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
   MentorshipListing: MentorshipListing;
