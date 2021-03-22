@@ -55,20 +55,20 @@ router.delete(
 router.get(
   '/post/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdP), 
-  Utility.asyncHandler(SocialController.getUserFeed) 
-  )
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getUserFeed)
+);
 
 //================================== FOLLOWING =============================================
-//Request to Follow a User 
+//Request to Follow a User
 router.post(
   '/following/request/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP), //accountId of following
   Utility.asyncHandler(SocialController.requestFollowing)
-); 
+);
 
-//Cancel Request to Follow a User 
+//Cancel Request to Follow a User
 router.put(
   '/following/request/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -76,7 +76,7 @@ router.put(
   Utility.asyncHandler(SocialController.removeRequest)
 );
 
-//Add user to following list 
+//Add user to following list - user accepted the follow request
 router.put(
   '/following/add/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -84,20 +84,20 @@ router.put(
   Utility.asyncHandler(SocialController.addUserToFollowingList)
 );
 
-//Remove user from Following list 
+//Remove user from Following list
 router.put(
-'/following/remove/:accountId',
+  '/following/remove/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP), //accountId of follower
   Utility.asyncHandler(SocialController.removeUserFromFollowingList)
 );
 
-//View Following List 
+//View Following List
 router.get(
   '/following/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdP), 
+  schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(SocialController.getFollowingList)
-)
+);
 
 export default router;
