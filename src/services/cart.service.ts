@@ -35,7 +35,7 @@ export default class CartService {
     });
     if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
 
-    const purchasedCourse = CourseContract.findOne({
+    const purchasedCourse = await CourseContract.findOne({
       where: { accountId: studentId, courseId },
     });
     if (purchasedCourse) throw new Error(CART_ERRORS.COURSE_PURCHASED);
