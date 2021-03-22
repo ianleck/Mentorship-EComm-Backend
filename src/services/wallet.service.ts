@@ -226,6 +226,16 @@ export default class WalletService {
     });
   }
 
+  public static async viewWithdrawalsByFilter(filter: {
+    walletId?: string;
+    status?: BILLING_STATUS;
+    billingType?: BILLING_TYPE;
+  }) {
+    return await Billing.findAll({
+      where: filter,
+    });
+  }
+
   public static async withdrawBalance(walletId: string, accountId: string) {
     const user = await User.findByPk(accountId);
     const admin = await Admin.findOne({
