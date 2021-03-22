@@ -1,5 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
+import { Op } from 'sequelize';
 import {
   ADMIN_VERIFIED_ENUM,
   LEVEL_ENUM,
@@ -320,10 +321,6 @@ export default class CourseService {
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
 
-    if (course.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED) {
-      throw new Error(COURSE_ERRORS.COURSE_NOT_VERIFIED);
-    }
-
     const { title, description } = announcement;
 
     const newAnnouncement = new Announcement({
@@ -538,7 +535,13 @@ export default class CourseService {
   public static async getAllRequests() {
     const courseRequests = Course.findAll({
       where: {
-        adminVerified: ADMIN_VERIFIED_ENUM.PENDING,
+        adminVerified: {
+          [Op.or]: [
+            ADMIN_VERIFIED_ENUM.ACCEPTED,
+            ADMIN_VERIFIED_ENUM.PENDING,
+            ADMIN_VERIFIED_ENUM.REJECTED,
+          ],
+        },
       },
     });
     return courseRequests;
