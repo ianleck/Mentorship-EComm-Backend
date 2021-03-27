@@ -233,22 +233,103 @@ export class SocialController {
     }
   }
 
-  public static async addUserToFollowingList(req, res) {
+  public static async acceptFollowingRequest(req, res) {
     const { accountId } = req.params; //accountId of follower
     const { user } = req; //following
 
     try {
-      await SocialService.addUserToFollowingList(accountId, user.accountId);
+      await SocialService.acceptFollowingRequest(accountId, user.accountId);
+      return apiResponse.result(
+        res,
+        { message: SOCIAL_RESPONSE.FOLLOWING_REQUEST_ACCEPTED },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialController.acceptFollowingRequest]:' + e.message);
+      if (
+        e.message === SOCIAL_ERRORS.FOLLOWING_REQUEST_MISSING ||
+        e.message === ERRORS.USER_DOES_NOT_EXIST
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async rejectFollowingRequest(req, res) {
+    const { accountId } = req.params; //accountId of follower
+    const { user } = req; //following
+
+    try {
+      await SocialService.rejectFollowingRequest(accountId, user.accountId);
+      return apiResponse.result(
+        res,
+        { message: SOCIAL_RESPONSE.FOLLOWING_REQUEST_REJECTED },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialController.rejectFollowingRequest]:' + e.message);
+      if (
+        e.message === SOCIAL_ERRORS.FOLLOWING_REQUEST_MISSING ||
+        e.message === ERRORS.USER_DOES_NOT_EXIST
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async followUser(req, res) {
+    const { accountId } = req.params; //accountId of following
+    const { user } = req; //follower
+
+    try {
+      await SocialService.followUser(accountId, user.accountId);
       return apiResponse.result(
         res,
         { message: SOCIAL_RESPONSE.FOLLOWING_ADDED },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[socialController.addUserToFollowingList]:' + e.message);
+      logger.error('[socialController.followUser]:' + e.message);
       if (
-        e.message === SOCIAL_ERRORS.FOLLOWING_REQUEST_MISSING ||
-        e.message === ERRORS.USER_DOES_NOT_EXIST
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === SOCIAL_ERRORS.PRIVATE_USER
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async unfollowUser(req, res) {
+    const { accountId } = req.params; //accountId of following
+    const { user } = req; //follower
+
+    try {
+      await SocialService.unfollowUser(accountId, user.accountId);
+      return apiResponse.result(
+        res,
+        { message: SOCIAL_RESPONSE.FOLLOWING_REMOVED },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialController.unfollowUser]:' + e.message);
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === SOCIAL_ERRORS.FOLLOWING_MISSING
       ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,

@@ -1,6 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { ERRORS, RESPONSE_ERROR } from '../constants/errors';
+import { ERRORS, RESPONSE_ERROR, SOCIAL_ERRORS } from '../constants/errors';
 import { USER_RESPONSE } from '../constants/successMessages';
 import UserService from '../services/user.service';
 import apiResponse from '../utilities/apiResponse';
@@ -33,19 +33,26 @@ export class UserController {
 
   public static async getUser(req, res) {
     const { accountId } = req.params;
+    const { user } = req;
     try {
-      const user = await UserService.findUserById(accountId);
+      const userProfile = await UserService.findUserById(
+        accountId,
+        user.accountId
+      );
       return apiResponse.result(
         res,
         {
           message: 'success',
-          user,
+          userProfile,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[userController.getUser]:' + e.message);
-      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === SOCIAL_ERRORS.PRIVATE_USER
+      ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });

@@ -126,6 +126,7 @@ export default class SocialService {
 
   // ======================================== FOLLOWING ========================================
 
+  //Request to follow a user
   public static async requestFollowing(
     followingId: string,
     followerId: string
@@ -146,6 +147,7 @@ export default class SocialService {
     return followership;
   }
 
+  //Cancel request to follow a user
   public static async removeRequest(followingId: string, followerId: string) {
     const followingUser = await User.findByPk(followingId);
     if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
@@ -171,7 +173,8 @@ export default class SocialService {
     });
   }
 
-  public static async addUserToFollowingList(
+  //Approve user follow request
+  public static async acceptFollowingRequest(
     followerId: string,
     followingId: string
   ) {
@@ -196,6 +199,84 @@ export default class SocialService {
     });
   }
 
+  //Reject user follow request (user can request again in future)
+  public static async rejectFollowingRequest(
+    followerId: string,
+    followingId: string
+  ) {
+    const followerUser = await User.findByPk(followerId);
+    if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const followingUser = await User.findByPk(followingId);
+    if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const followership = await UserFollowership.findOne({
+      where: {
+        followerId,
+        followingId,
+        followingStatus: FOLLOWING_ENUM.PENDING,
+      },
+    });
+
+    if (!followership) throw new Error(SOCIAL_ERRORS.FOLLOWING_REQUEST_MISSING);
+
+    await UserFollowership.destroy({
+      where: {
+        followerId,
+        followingId,
+      },
+    });
+  }
+
+  //Follow a user (without request, user is not private)
+  public static async followUser(followingId: string, followerId: string) {
+    const followingUser = await User.findByPk(followingId);
+    if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const followerUser = await User.findByPk(followerId);
+    if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    if (followingUser.isPrivateProfile === true)
+      throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
+
+    const followership = new UserFollowership({
+      followingId,
+      followerId,
+      followingStatus: FOLLOWING_ENUM.APPROVED,
+    });
+
+    await followership.save();
+
+    return followership;
+  }
+
+  //Unfollow a user (done by user who is following)
+  public static async unfollowUser(followingId: string, followerId: string) {
+    const followingUser = await User.findByPk(followingId);
+    if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const followerUser = await User.findByPk(followerId);
+    if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const followership = await UserFollowership.findOne({
+      where: {
+        followerId,
+        followingId,
+        followingStatus: FOLLOWING_ENUM.APPROVED,
+      },
+    });
+
+    if (!followership) throw new Error(SOCIAL_ERRORS.FOLLOWING_MISSING);
+
+    await UserFollowership.destroy({
+      where: {
+        followerId,
+        followingId,
+      },
+    });
+  }
+
+  //Remove User (done by user who is being followed)
   public static async removeUserFromFollowingList(
     followerId: string,
     followingId: string
@@ -214,7 +295,7 @@ export default class SocialService {
       },
     });
 
-    if (!followership) throw new Error(SOCIAL_ERRORS.FOLLOWING_REQUEST_MISSING);
+    if (!followership) throw new Error(SOCIAL_ERRORS.FOLLOWING_MISSING);
 
     await UserFollowership.destroy({
       where: {

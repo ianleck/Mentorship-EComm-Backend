@@ -69,23 +69,47 @@ router.post(
 );
 
 //Cancel Request to Follow a User
-router.put(
+router.delete(
   '/following/request/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP), //accountId of following
   Utility.asyncHandler(SocialController.removeRequest)
 );
 
-//Add user to following list - user accepted the follow request
+//Accept Following Request
 router.put(
-  '/following/add/:accountId',
+  '/following/accept/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP), //accountId of follower
-  Utility.asyncHandler(SocialController.addUserToFollowingList)
+  Utility.asyncHandler(SocialController.acceptFollowingRequest)
 );
 
-//Remove user from Following list
-router.put(
+//Reject Following Request
+router.delete(
+  '/following/reject/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), //accountId of follower
+  Utility.asyncHandler(SocialController.rejectFollowingRequest)
+);
+
+//Follow User (user's account NOT private) - user requesting is the follower
+router.post(
+  '/following/follow/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), //accountId of following
+  Utility.asyncHandler(SocialController.followUser)
+);
+
+//Unfollow User (Done by user who is following)
+router.delete(
+  '/following/unfollow/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), //accountId of following
+  Utility.asyncHandler(SocialController.unfollowUser)
+);
+
+//Remove user from Following list (Done by user who is being followed)
+router.delete(
   '/following/remove/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP), //accountId of follower

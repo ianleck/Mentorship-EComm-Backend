@@ -91,5 +91,4 @@ export enum USER_TYPE_ENUM {
 export enum FOLLOWING_ENUM {
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
 }

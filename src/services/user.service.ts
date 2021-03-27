@@ -1,13 +1,16 @@
 import { Op } from 'sequelize';
 import {
+  ADMIN_VERIFIED_ENUM,
+  FOLLOWING_ENUM,
   STATUS_ENUM,
   USER_TYPE_ENUM,
-  ADMIN_VERIFIED_ENUM,
 } from '../constants/enum';
-import { ERRORS } from '../constants/errors';
+import { ERRORS, SOCIAL_ERRORS } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Experience } from '../models/Experience';
 import { User } from '../models/User';
+import { UserFollowership } from '../models/UserFollowership';
+
 export default class UserService {
   // ================================ USER ================================
 
@@ -24,11 +27,31 @@ export default class UserService {
     }
   }
 
-  public static async findUserById(accountId: string): Promise<User> {
+  public static async findUserById(accountId: string, userId: string) {
     const user = await User.findByPk(accountId, {
       include: [Experience],
     });
     if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const userReq = await User.findByPk(userId);
+    //Admin
+    if (!userReq) {
+      return user;
+    }
+
+    //if user's account is private AND not following and requestor is NOT Admin/own account, return error
+    if (userReq.accountId !== accountId && user.isPrivateProfile === true) {
+      //try to find a followership
+      const followership = await UserFollowership.findOne({
+        where: {
+          followerId: userId,
+          followingId: accountId,
+          followingStatus: FOLLOWING_ENUM.APPROVED,
+        },
+      });
+      if (!followership) throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
+    }
+
     return user;
   }
 

@@ -1,12 +1,12 @@
 import express from 'express';
 import Utility from '../constants/utility';
 import { UserController } from '../controllers/user.controller';
-import { requireAdmin } from '../middlewares/authenticationMiddleware';
-import user from './schema/user.schema';
 import {
+  requireAdmin,
   requireSameUser,
   requireSameUserOrAdmin,
 } from '../middlewares/authenticationMiddleware';
+import user from './schema/user.schema';
 
 const passport = require('passport');
 
@@ -19,6 +19,7 @@ const schemaValidator = require('express-joi-validation').createValidator({});
 // get user (student/sensei)
 router.get(
   '/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(UserController.getUser)
 );
