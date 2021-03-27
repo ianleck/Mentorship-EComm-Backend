@@ -27,7 +27,10 @@ export default class UserService {
     }
   }
 
-  public static async findUserById(accountId: string, userId: string) {
+  public static async findUserById(
+    accountId: string,
+    userId: string
+  ): Promise<User> {
     const user = await User.findByPk(accountId, {
       include: [Experience],
     });
