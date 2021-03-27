@@ -4,6 +4,7 @@ import {
   Column,
   DataType,
   Default,
+  HasMany,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
@@ -13,6 +14,7 @@ import {
 } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { MentorshipListing } from './MentorshipListing';
+import { TaskBucket } from './TaskBucket';
 import { User } from './User';
 
 @Table
@@ -55,6 +57,9 @@ export class MentorshipContract extends BaseEntity {
 
   @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
   MentorshipListing: MentorshipListing;
+
+  @HasMany(() => TaskBucket, 'mentorshipContractId')
+  TaskBuckets: TaskBucket[];
 }
 
 // one to one mapping for Review

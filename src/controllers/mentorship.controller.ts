@@ -543,4 +543,95 @@ export class MentorshipController {
       });
     }
   }
+
+  // ====================================== TASKS ======================================
+  public static async addTaskBucket(req, res) {
+    const { user } = req; //need to check that user adding task bucket is the sensei who created this mentorshipListing
+    const { newTaskBucket } = req.body;
+    const { mentorshipContractId } = req.params;
+
+    try {
+      const newBucket = await MentorshipService.addTaskBucket(
+        user.accountId,
+        mentorshipContractId,
+        newTaskBucket
+      );
+      return apiResponse.result(
+        res,
+        { message: MENTORSHIP_RESPONSE.TASK_BUCKET_CREATE, newBucket },
+        httpStatusCodes.CREATED
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.addTaskBucket]:' + e.message);
+      if (
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
+  public static async editTaskBucket(req, res) {
+    const { taskBucketId } = req.params;
+    const { editedTaskBucket } = req.body;
+    const { user } = req;
+
+    try {
+      const updatedTaskBucket = await MentorshipService.editTaskBucket(
+        user.accountId,
+        taskBucketId,
+        editedTaskBucket
+      );
+      return apiResponse.result(
+        res,
+        { message: MENTORSHIP_RESPONSE.TASK_BUCKET_EDIT, updatedTaskBucket },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.editTaskBucket]:' + e.message);
+      if (
+        e.message === MENTORSHIP_ERRORS.TASK_BUCKET_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
+  public static async deleteTaskBucket(req, res) {
+    const { taskBucketId } = req.params;
+    const { user } = req;
+
+    try {
+      await MentorshipService.deleteTaskBucket(taskBucketId, user.accountId);
+      return apiResponse.result(
+        res,
+        { message: MENTORSHIP_RESPONSE.TASK_BUCKET_DELETE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.deleteTaskBucket]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
 }

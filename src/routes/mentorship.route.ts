@@ -168,4 +168,35 @@ router.get(
   Utility.asyncHandler(MentorshipController.getTestimonialsByFilter)
 );
 
+// ==================================== TASKS ====================================
+
+//Create Task Bucket (add task to mentorship)
+router.post(
+  '/task/bucket/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.mentorshipContractP),
+  schemaValidator.body(mentorship.addTaskBucketB),
+  Utility.asyncHandler(MentorshipController.addTaskBucket)
+);
+
+//Update Task Bucket (update task in mentorship)
+router.put(
+  '/task/bucket/:taskBucketId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.taskBucketP),
+  schemaValidator.body(mentorship.editTaskBucketB),
+  Utility.asyncHandler(MentorshipController.editTaskBucket)
+);
+
+//Remove Task Bucket (remove task in mentorship)
+router.delete(
+  '/task/bucket/:taskBucketId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.taskBucketP),
+  Utility.asyncHandler(MentorshipController.deleteTaskBucket)
+);
+
 export default router;
