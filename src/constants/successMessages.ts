@@ -116,8 +116,8 @@ export const SOCIAL_RESPONSE = {
   POST_LIKED: 'Post has been successfully liked',
   POST_UNLIKED: 'Post has been successfully unliked',
 
-  FOLLOWING_ADDED: 'User has been successfully added to following list',
-  FOLLOWING_REMOVED: 'User has been successfullly removed from following list',
+  FOLLOWING_ADDED: 'User has been successfully followed',
+  FOLLOWING_REMOVED: 'User has been successfullly unfollowed',
 
   FOLLOWING_REQUEST_CREATED:
     'Request to follow user has been successfully created',

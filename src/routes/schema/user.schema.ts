@@ -1,10 +1,10 @@
-import joi, { string } from 'joi';
+import joi from 'joi';
 import {
+  ADMIN_VERIFIED_ENUM,
   PRIVACY_PERMISSIONS_ENUM,
   STATUS_ENUM,
   USER_TYPE_ENUM,
 } from '../../constants/enum';
-import { ADMIN_VERIFIED_ENUM } from '../../constants/enum';
 
 export default {
   accountIdP: joi.object({
