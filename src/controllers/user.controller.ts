@@ -31,7 +31,7 @@ export class UserController {
     }
   }
 
-  public static async getUser(req, res) {
+  public static async getUserProfile(req, res) {
     const { accountId } = req.params;
     const { user } = req;
     try {

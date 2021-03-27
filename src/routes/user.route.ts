@@ -21,7 +21,7 @@ router.get(
   '/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP),
-  Utility.asyncHandler(UserController.getUser)
+  Utility.asyncHandler(UserController.getUserProfile)
 );
 
 // get all senseis
