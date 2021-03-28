@@ -69,6 +69,14 @@ export const MENTORSHIP_RESPONSE = {
 
   TESTIMONIAL_CREATE: 'Testimonial has been successfully created',
   TESTIMONIAL_EDIT: 'Testimonial has been successfully edited',
+
+  TASK_BUCKET_CREATE: 'Task Bucket has been successfully created',
+  TASK_BUCKET_EDIT: 'Task Bucket has been successfully edited',
+  TASK_BUCKET_DELETE: 'Task Bucket has been successfully deleted',
+
+  TASK_CREATE: 'Task has been successfully created',
+  TASK_EDIT: 'Task has been successfully edited',
+  TASK_DELETE: 'Task has been successfully deleted',
 };
 
 // ==================== PAYPAL RESPONSE MESSAGES ====================

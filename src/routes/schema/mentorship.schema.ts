@@ -57,4 +57,24 @@ export default {
     mentorshipListingId: joi.string().required(),
     accountId: joi.string().required(),
   }),
+
+  addTaskBucketB: joi.object({
+    newTaskBucket: joi
+      .object({
+        title: joi.string().required(),
+      })
+      .required(),
+  }),
+
+  taskBucketP: joi.object({
+    taskBucketId: joi.string().required(),
+  }),
+
+  editTaskBucketB: joi.object({
+    editedTaskBucket: joi
+      .object({
+        title: joi.string().required(),
+      })
+      .required(),
+  }),
 };
