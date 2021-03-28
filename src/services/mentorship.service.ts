@@ -553,6 +553,9 @@ export default class MentorshipService {
       title: string;
     }
   ): Promise<TaskBucket> {
+    const user = await User.findByPk(userId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
     const mentorshipContract = await MentorshipContract.findByPk(
       mentorshipContractId
     );
@@ -564,8 +567,13 @@ export default class MentorshipService {
     );
     if (!mentorshipListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
 
-    //Check if mentor adding bucket is the mentor on the mentorshipContract
-    if (mentorshipListing.accountId !== userId)
+    //Check if mentor adding bucket is the mentor on the mentorshipContract or if mentee adding is mentee on mentorshipContract
+    if (
+      (user.userType === USER_TYPE_ENUM.SENSEI &&
+        mentorshipListing.accountId !== userId) ||
+      (user.userType === USER_TYPE_ENUM.STUDENT &&
+        mentorshipContract.accountId !== userId)
+    )
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
@@ -583,10 +591,13 @@ export default class MentorshipService {
   }
 
   public static async editTaskBucket(
-    accountId: string, //accountId of sensei
+    accountId: string,
     taskBucketId: string,
     editedTaskBucket
   ): Promise<TaskBucket> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
     const existingTaskBucket = await TaskBucket.findByPk(taskBucketId);
 
     if (!existingTaskBucket)
@@ -611,8 +622,13 @@ export default class MentorshipService {
       throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
     }
 
-    //Check if the mentor editing the bucket is the one who created the bucket
-    if (accountId !== mentorshipListing.accountId)
+    //Check if the mentor/mentee editing the bucket is the one who created the bucket
+    if (
+      (user.userType === USER_TYPE_ENUM.SENSEI &&
+        mentorshipListing.accountId !== accountId) ||
+      (user.userType === USER_TYPE_ENUM.STUDENT &&
+        mentorshipContract.accountId !== accountId)
+    )
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
@@ -624,6 +640,9 @@ export default class MentorshipService {
     taskBucketId: string,
     accountId: string
   ): Promise<void> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
     const existingTaskBucket = await TaskBucket.findByPk(taskBucketId);
     if (!existingTaskBucket)
       throw new Error(MENTORSHIP_ERRORS.TASK_BUCKET_MISSING);
@@ -647,8 +666,12 @@ export default class MentorshipService {
       throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
     }
 
-    //Check if the mentor deleting the bucket is the one who created the bucket
-    if (accountId !== mentorshipListing.accountId)
+    if (
+      (user.userType === USER_TYPE_ENUM.SENSEI &&
+        mentorshipListing.accountId !== accountId) ||
+      (user.userType === USER_TYPE_ENUM.STUDENT &&
+        mentorshipContract.accountId !== accountId)
+    )
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );

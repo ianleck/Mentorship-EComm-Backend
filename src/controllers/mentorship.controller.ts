@@ -564,6 +564,7 @@ export class MentorshipController {
     } catch (e) {
       logger.error('[mentorshipController.addTaskBucket]:' + e.message);
       if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
         e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
         e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
         e.message ===
@@ -599,6 +600,7 @@ export class MentorshipController {
     } catch (e) {
       logger.error('[mentorshipController.editTaskBucket]:' + e.message);
       if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
         e.message === MENTORSHIP_ERRORS.TASK_BUCKET_MISSING ||
         e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
         e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
@@ -629,9 +631,22 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.deleteTaskBucket]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === MENTORSHIP_ERRORS.TASK_BUCKET_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
     }
   }
 }
