@@ -545,8 +545,10 @@ export class MentorshipController {
   }
 
   // ====================================== TASKS ======================================
+
+  //================= TASK BUCKET =====================
   public static async addTaskBucket(req, res) {
-    const { user } = req; //need to check that user adding task bucket is the sensei who created this mentorshipListing
+    const { user } = req;
     const { newTaskBucket } = req.body;
     const { mentorshipContractId } = req.params;
 
@@ -647,6 +649,183 @@ export class MentorshipController {
           message: RESPONSE_ERROR.RES_ERROR,
         });
       }
+    }
+  }
+
+  //get all task buckets of mentorship contract
+  public static async getTaskBuckets(req, res) {
+    const { mentorshipContractId } = req.params;
+
+    try {
+      const taskBuckets = await MentorshipService.getTaskBuckets(
+        mentorshipContractId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          taskBuckets,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.getTaskBuckets]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  //================= TASK =====================
+  public static async addTask(req, res) {
+    const { user } = req;
+    const { newTask } = req.body;
+    const { taskBucketId } = req.params;
+
+    try {
+      const createdTask = await MentorshipService.addTask(
+        user.accountId,
+        taskBucketId,
+        newTask
+      );
+      return apiResponse.result(
+        res,
+        { message: MENTORSHIP_RESPONSE.TASK_CREATE, createdTask },
+        httpStatusCodes.CREATED
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.addTask]:' + e.message);
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === MENTORSHIP_ERRORS.TASK_BUCKET_MISSING ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
+  public static async editTask(req, res) {
+    const { taskId } = req.params;
+    const { editedTask } = req.body;
+    const { user } = req;
+
+    try {
+      const updatedTask = await MentorshipService.editTask(
+        user.accountId,
+        taskId,
+        editedTask
+      );
+      return apiResponse.result(
+        res,
+        { message: MENTORSHIP_RESPONSE.TASK_EDIT, updatedTask },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.editTask]:' + e.message);
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === MENTORSHIP_ERRORS.TASK_MISSING ||
+        e.message === MENTORSHIP_ERRORS.TASK_BUCKET_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
+  public static async deleteTask(req, res) {
+    const { taskBucketId } = req.params;
+    const { user } = req;
+
+    try {
+      await MentorshipService.deleteTask(taskBucketId, user.accountId);
+      return apiResponse.result(
+        res,
+        { message: MENTORSHIP_RESPONSE.TASK_DELETE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.deleteTask]:' + e.message);
+      if (
+        e.message === ERRORS.USER_DOES_NOT_EXIST ||
+        e.message === MENTORSHIP_ERRORS.TASK_MISSING ||
+        e.message === MENTORSHIP_ERRORS.TASK_BUCKET_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
+  //get all tasks in task bucket
+  public static async getTasks(req, res) {
+    const { taskBucketId } = req.params;
+
+    try {
+      const tasks = await MentorshipService.getTasks(taskBucketId);
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          tasks,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.getTasks]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  //get A task
+  public static async getTask(req, res) {
+    const { taskId } = req.params;
+
+    try {
+      const task = await MentorshipService.getTask(taskId);
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          task,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.getTask]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
     }
   }
 }

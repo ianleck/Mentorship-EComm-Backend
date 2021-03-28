@@ -13,6 +13,7 @@ import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
 import { Review } from '../models/Review';
+import { Task } from '../models/Task';
 import { TaskBucket } from '../models/TaskBucket';
 import { Testimonial } from '../models/Testimonial';
 import { User } from '../models/User';
@@ -546,6 +547,8 @@ export default class MentorshipService {
   }
 
   // =========================================== TASKS ====================================================
+
+  //====================== TASK BUCKET =======================
   public static async addTaskBucket(
     userId: string,
     mentorshipContractId: string,
@@ -681,5 +684,156 @@ export default class MentorshipService {
         taskBucketId,
       },
     });
+  }
+
+  public static async getTaskBuckets(mentorshipContractId: string) {
+    return TaskBucket.findAll({
+      where: { mentorshipContractId },
+    });
+  }
+
+  //====================== TASK =======================
+  public static async addTask(
+    userId: string,
+    taskBucketId: string,
+    task: {
+      body: string;
+      attachmentUrl?: string;
+      dueAt?: string;
+    }
+  ): Promise<Task> {
+    const user = await User.findByPk(userId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const taskBucket = await TaskBucket.findByPk(taskBucketId);
+    if (!taskBucket) throw new Error(MENTORSHIP_ERRORS.TASK_BUCKET_MISSING);
+
+    const mentorshipContract = await MentorshipContract.findByPk(
+      taskBucket.mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+    if (!mentorshipListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+
+    //Check if mentor adding task is the mentor on the mentorshipContract or if mentee adding is mentee on mentorshipContract
+    if (
+      (user.userType === USER_TYPE_ENUM.SENSEI &&
+        mentorshipListing.accountId !== userId) ||
+      (user.userType === USER_TYPE_ENUM.STUDENT &&
+        mentorshipContract.accountId !== userId)
+    )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    const newTask = new Task({
+      taskBucketId,
+      task,
+    });
+
+    await newTask.save();
+
+    return newTask;
+  }
+
+  public static async editTask(
+    accountId: string,
+    taskId: string,
+    editedTask
+  ): Promise<Task> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const existingTask = await Task.findByPk(taskId);
+    if (!existingTask) throw new Error(MENTORSHIP_ERRORS.TASK_MISSING);
+
+    const taskBucket = await TaskBucket.findByPk(existingTask.taskBucketId);
+    if (!taskBucket) throw new Error(MENTORSHIP_ERRORS.TASK_BUCKET_MISSING);
+
+    const mentorshipContract = await MentorshipContract.findByPk(
+      taskBucket.mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+    if (!mentorshipListing) {
+      throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+    }
+
+    //Check if the mentor/mentee editing the taks is the one who created the task
+    if (
+      (user.userType === USER_TYPE_ENUM.SENSEI &&
+        mentorshipListing.accountId !== accountId) ||
+      (user.userType === USER_TYPE_ENUM.STUDENT &&
+        mentorshipContract.accountId !== accountId)
+    )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    return await existingTask.update(editedTask);
+  }
+
+  public static async deleteTask(
+    taskId: string,
+    accountId: string
+  ): Promise<void> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const existingTask = await Task.findByPk(taskId);
+    if (!existingTask) throw new Error(MENTORSHIP_ERRORS.TASK_MISSING);
+
+    const existingTaskBucket = await TaskBucket.findByPk(
+      existingTask.taskBucketId
+    );
+    if (!existingTaskBucket)
+      throw new Error(MENTORSHIP_ERRORS.TASK_BUCKET_MISSING);
+
+    const mentorshipContract = await MentorshipContract.findByPk(
+      existingTaskBucket.mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+    if (!mentorshipListing) {
+      throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+    }
+
+    if (
+      (user.userType === USER_TYPE_ENUM.SENSEI &&
+        mentorshipListing.accountId !== accountId) ||
+      (user.userType === USER_TYPE_ENUM.STUDENT &&
+        mentorshipContract.accountId !== accountId)
+    )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    await Task.destroy({
+      where: {
+        taskId,
+      },
+    });
+  }
+
+  public static async getTasks(taskBucketId: string) {
+    return Task.findAll({
+      where: { taskBucketId },
+    });
+  }
+
+  public static async getTask(taskId: string) {
+    return Task.findByPk(taskId);
   }
 }

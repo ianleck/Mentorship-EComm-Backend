@@ -170,6 +170,7 @@ router.get(
 
 // ==================================== TASKS ====================================
 
+//===================== TASK BUCKET =============================
 //Create Task Bucket
 router.post(
   '/task/bucket/:mentorshipContractId',
@@ -194,6 +195,57 @@ router.delete(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.taskBucketP),
   Utility.asyncHandler(MentorshipController.deleteTaskBucket)
+);
+
+//Get all task buckets of mentorship contract
+router.get(
+  '/task/buckets/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.mentorshipContractP),
+  Utility.asyncHandler(MentorshipController.getTaskBuckets)
+);
+
+//===================== TASK =============================
+//Create Task
+router.post(
+  '/task/:taskBucketId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.taskBucketP),
+  schemaValidator.body(mentorship.addTaskB),
+  Utility.asyncHandler(MentorshipController.addTask)
+);
+
+//Update Task
+router.put(
+  '/task/bucket/:taskId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.taskP),
+  schemaValidator.body(mentorship.editTaskB),
+  Utility.asyncHandler(MentorshipController.editTask)
+);
+
+//Remove Task
+router.delete(
+  '/task/:taskId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.taskP),
+  Utility.asyncHandler(MentorshipController.deleteTask)
+);
+
+//Get all tasks in task bucket
+router.get(
+  '/task/:taskBucketId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.taskBucketP),
+  Utility.asyncHandler(MentorshipController.getTasks)
+);
+
+//Get A task
+router.get(
+  '/task/:taskId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.taskP),
+  Utility.asyncHandler(MentorshipController.getTask)
 );
 
 export default router;
