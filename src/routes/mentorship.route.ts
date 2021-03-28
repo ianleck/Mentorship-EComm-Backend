@@ -173,7 +173,7 @@ router.get(
 //===================== TASK BUCKET =============================
 //Create Task Bucket
 router.post(
-  '/task/bucket/:mentorshipContractId',
+  '/task-bucket/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.mentorshipContractP),
   schemaValidator.body(mentorship.addTaskBucketB),
@@ -182,7 +182,7 @@ router.post(
 
 //Update Task Bucket
 router.put(
-  '/task/bucket/:taskBucketId',
+  '/task-bucket/:taskBucketId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.taskBucketP),
   schemaValidator.body(mentorship.editTaskBucketB),
@@ -191,7 +191,7 @@ router.put(
 
 //Remove Task Bucket
 router.delete(
-  '/task/bucket/:taskBucketId',
+  '/task-bucket/:taskBucketId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.taskBucketP),
   Utility.asyncHandler(MentorshipController.deleteTaskBucket)
@@ -199,7 +199,7 @@ router.delete(
 
 //Get all task buckets of mentorship contract
 router.get(
-  '/task/buckets/:mentorshipContractId',
+  '/task-bucket/all/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.mentorshipContractP),
   Utility.asyncHandler(MentorshipController.getTaskBuckets)
@@ -208,7 +208,7 @@ router.get(
 //===================== TASK =============================
 //Create Task
 router.post(
-  '/task/:taskBucketId',
+  '/task-bucket/task/:taskBucketId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.taskBucketP),
   schemaValidator.body(mentorship.addTaskB),
@@ -217,7 +217,7 @@ router.post(
 
 //Update Task
 router.put(
-  '/task/bucket/:taskId',
+  '/task-bucket/task/:taskId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.taskP),
   schemaValidator.body(mentorship.editTaskB),
@@ -226,7 +226,7 @@ router.put(
 
 //Remove Task
 router.delete(
-  '/task/:taskId',
+  '/task-bucket/task/:taskId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.taskP),
   Utility.asyncHandler(MentorshipController.deleteTask)
@@ -234,18 +234,10 @@ router.delete(
 
 //Get all tasks in task bucket
 router.get(
-  '/task/:taskBucketId',
+  '/task-bucket/task/all/:taskBucketId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.taskBucketP),
   Utility.asyncHandler(MentorshipController.getTasks)
-);
-
-//Get A task
-router.get(
-  '/task/:taskId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(mentorship.taskP),
-  Utility.asyncHandler(MentorshipController.getTask)
 );
 
 export default router;

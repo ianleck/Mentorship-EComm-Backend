@@ -655,10 +655,12 @@ export class MentorshipController {
   //get all task buckets of mentorship contract
   public static async getTaskBuckets(req, res) {
     const { mentorshipContractId } = req.params;
+    const { user } = req;
 
     try {
       const taskBuckets = await MentorshipService.getTaskBuckets(
-        mentorshipContractId
+        mentorshipContractId,
+        user.accountId
       );
       return apiResponse.result(
         res,
@@ -670,9 +672,18 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.getTaskBuckets]:' + e.toString());
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
+      if (
+        e.message ===
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
     }
   }
 
@@ -788,9 +799,13 @@ export class MentorshipController {
   //get all tasks in task bucket
   public static async getTasks(req, res) {
     const { taskBucketId } = req.params;
+    const { user } = req;
 
     try {
-      const tasks = await MentorshipService.getTasks(taskBucketId);
+      const tasks = await MentorshipService.getTasks(
+        taskBucketId,
+        user.accountId
+      );
       return apiResponse.result(
         res,
         {
@@ -801,31 +816,18 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.getTasks]:' + e.toString());
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
-    }
-  }
-
-  //get A task
-  public static async getTask(req, res) {
-    const { taskId } = req.params;
-
-    try {
-      const task = await MentorshipService.getTask(taskId);
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          task,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[mentorshipController.getTask]:' + e.toString());
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
+      if (
+        e.message ===
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
     }
   }
 }

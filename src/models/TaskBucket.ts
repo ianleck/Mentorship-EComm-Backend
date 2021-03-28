@@ -31,6 +31,6 @@ export class TaskBucket extends BaseEntity {
   @BelongsTo(() => MentorshipContract, 'mentorshipContractId')
   MentorshipContract: MentorshipContract;
 
-  @HasMany(() => Task, 'taskId')
+  @HasMany(() => Task, 'taskBucketId')
   Tasks: Task[];
 }
