@@ -170,9 +170,10 @@ router.get(
 
 // ==================================== TASKS ====================================
 
+//===================== TASK BUCKET =============================
 //Create Task Bucket
 router.post(
-  '/task/bucket/:mentorshipContractId',
+  '/task-bucket/:mentorshipContractId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.mentorshipContractP),
   schemaValidator.body(mentorship.addTaskBucketB),
@@ -181,7 +182,7 @@ router.post(
 
 //Update Task Bucket
 router.put(
-  '/task/bucket/:taskBucketId',
+  '/task-bucket/:taskBucketId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.taskBucketP),
   schemaValidator.body(mentorship.editTaskBucketB),
@@ -190,10 +191,53 @@ router.put(
 
 //Remove Task Bucket
 router.delete(
-  '/task/bucket/:taskBucketId',
+  '/task-bucket/:taskBucketId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.taskBucketP),
   Utility.asyncHandler(MentorshipController.deleteTaskBucket)
+);
+
+//Get all task buckets of mentorship contract
+router.get(
+  '/task-bucket/all/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.mentorshipContractP),
+  Utility.asyncHandler(MentorshipController.getTaskBuckets)
+);
+
+//===================== TASK =============================
+//Create Task
+router.post(
+  '/task-bucket/task/:taskBucketId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.taskBucketP),
+  schemaValidator.body(mentorship.addTaskB),
+  Utility.asyncHandler(MentorshipController.addTask)
+);
+
+//Update Task
+router.put(
+  '/task-bucket/task/:taskId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.taskP),
+  schemaValidator.body(mentorship.editTaskB),
+  Utility.asyncHandler(MentorshipController.editTask)
+);
+
+//Remove Task
+router.delete(
+  '/task-bucket/task/:taskId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.taskP),
+  Utility.asyncHandler(MentorshipController.deleteTask)
+);
+
+//Get all tasks in task bucket
+router.get(
+  '/task-bucket/task/all/:taskBucketId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.taskBucketP),
+  Utility.asyncHandler(MentorshipController.getTasks)
 );
 
 export default router;

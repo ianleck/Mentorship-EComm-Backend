@@ -20,6 +20,10 @@ export class Task extends BaseEntity {
   taskId: string;
 
   @AllowNull(false)
+  @Column(DataType.UUID)
+  taskBucketId: string;
+
+  @AllowNull(false)
   @Column(DataType.TEXT)
   body: string;
 

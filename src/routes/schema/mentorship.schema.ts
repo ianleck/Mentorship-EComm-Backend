@@ -1,5 +1,5 @@
 import joi from 'joi';
-import { VISIBILITY_ENUM } from '../../constants/enum';
+import { CONTRACT_PROGRESS_ENUM, VISIBILITY_ENUM } from '../../constants/enum';
 export default {
   mentorshipListingB: joi.object({
     mentorshipListing: joi
@@ -58,6 +58,10 @@ export default {
     accountId: joi.string().required(),
   }),
 
+  taskBucketP: joi.object({
+    taskBucketId: joi.string().required(),
+  }),
+
   addTaskBucketB: joi.object({
     newTaskBucket: joi
       .object({
@@ -66,14 +70,36 @@ export default {
       .required(),
   }),
 
-  taskBucketP: joi.object({
-    taskBucketId: joi.string().required(),
-  }),
-
   editTaskBucketB: joi.object({
     editedTaskBucket: joi
       .object({
         title: joi.string().required(),
+      })
+      .required(),
+  }),
+
+  taskP: joi.object({
+    taskId: joi.string().required(),
+  }),
+
+  addTaskB: joi.object({
+    newTask: joi
+      .object({
+        body: joi.string().required(),
+        dueAt: joi.date().optional(),
+      })
+      .required(),
+  }),
+
+  editTaskB: joi.object({
+    editedTask: joi
+      .object({
+        body: joi.string().required(),
+        dueAt: joi.date().optional(),
+        progress: joi
+          .string()
+          .valid(...Object.values(CONTRACT_PROGRESS_ENUM))
+          .optional(),
       })
       .required(),
   }),
