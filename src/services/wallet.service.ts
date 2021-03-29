@@ -187,7 +187,7 @@ export default class WalletService {
 
   public static async viewListOfWallets() {
     return await User.findAll({
-      include: [{ model: Wallet, as: 'WalletOwner' }],
+      include: [{ model: Wallet }],
     });
   }
   // ============================== Withdrawals ==============================

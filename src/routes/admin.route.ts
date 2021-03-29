@@ -166,7 +166,7 @@ router.delete(
 // View a sensei's withdrawal request = where billingId
 // View completed withdrawal requests = where status = confirmed
 router.get(
-  '/withdrawals',
+  '/withdrawals/filter',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.body(wallet.billingFilterB),
@@ -175,7 +175,7 @@ router.get(
 
 // View list of all sensei wallets
 router.get(
-  '/wallets',
+  '/wallets/sensei',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   Utility.asyncHandler(WalletController.viewListOfWallets)
