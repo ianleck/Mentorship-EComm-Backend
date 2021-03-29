@@ -37,6 +37,8 @@ export const COURSE_ERRORS = {
     'A course contract has already been made for this course. Please edit existing course contract.',
   CONTRACT_MISSING:
     'Course contract does not exist. Please sign up for the course first.',
+  DELETE_DISALLOWED:
+    'Digi Dojo does not allow any deletion of published courses',
   LESSON_MISSING: 'Lesson does not exist',
   ANNOUNCEMENT_MISSING: 'Annoucement does not exist',
   USER_NOT_VERIFIED:

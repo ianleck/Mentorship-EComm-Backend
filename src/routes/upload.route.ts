@@ -74,4 +74,11 @@ router.delete(
   schemaValidator.params(course.lessonIdP),
   Utility.asyncHandler(UploadController.deleteAssessmentVideo)
 );
+
+router.delete(
+  '/lesson/file/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.lessonIdP),
+  Utility.asyncHandler(UploadController.deleteLessonFile)
+);
 export default router;
