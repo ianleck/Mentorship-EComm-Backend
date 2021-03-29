@@ -1,4 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
+import Utility from '../constants/utility';
 import logger from '../config/logger';
 import { ERRORS, MENTORSHIP_ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { MENTORSHIP_RESPONSE } from '../constants/successMessages';
@@ -31,12 +32,14 @@ export class MentorshipController {
   }
 
   public static async updateListing(req, res) {
+    const { accountId } = req.user;
     const { mentorshipListingId } = req.params;
     const { mentorshipListing } = req.body;
 
     try {
       const updatedListing = await MentorshipService.updateListing(
         mentorshipListingId,
+        accountId,
         mentorshipListing
       );
       return apiResponse.result(
@@ -46,15 +49,11 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.updateListing]:' + e.message);
-      if (e.message === MENTORSHIP_ERRORS.LISTING_MISSING) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.LISTING_MISSING,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+        MENTORSHIP_ERRORS.USER_NOT_VERIFIED,
+      ]);
     }
   }
 

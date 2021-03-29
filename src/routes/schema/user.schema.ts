@@ -62,7 +62,7 @@ export default {
     user: joi.object({
       firstName: joi.string(),
       lastName: joi.string(),
-      contactNumber: joi.number(),
+      contactNumber: joi.number().allow(null, ''),
       headline: joi.string(),
       bio: joi.string(),
       chatPrivacy: joi
