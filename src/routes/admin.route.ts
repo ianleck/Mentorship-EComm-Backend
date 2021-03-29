@@ -1,6 +1,7 @@
 import express from 'express';
 import Utility from '../constants/utility';
 import { AdminController } from '../controllers/admin.controller';
+import { WalletController } from '../controllers/wallet.controller';
 import {
   requireAdmin,
   requireFinance,
@@ -161,12 +162,24 @@ router.delete(
 );
 // ======================================== FINANCE ========================================
 
-// view pending withdrawals
+// view list of all withdrawal requests : billingType = WITHDRAWAL *impt for FE
+// view list of pending withdrawal requests : billingType = WITHDRAWAL && status = PENDING_WITHDRAWAL
+// view list of completed withdrawal requests : billingType = WITHDRAWAL && status = WITHDRAWN
+// view a sensei's withdrawal request : billingId = withdrawal billingId, billingType = WITHDRAWAL
 router.get(
-  'withdrawals',
+  '/withdrawals/filter',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
-  Utility.asyncHandler(AdminController.viewPendingWithdrawals)
+  schemaValidator.body(wallet.billingFilterB),
+  Utility.asyncHandler(WalletController.viewBillingsByFilter)
+);
+
+// View list of all sensei wallets
+router.get(
+  '/wallets/sensei',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  Utility.asyncHandler(WalletController.viewListOfWallets)
 );
 
 // approve withdrawal
@@ -176,5 +189,13 @@ router.put(
   requireFinance,
   schemaValidator.params(wallet.billingIdP),
   Utility.asyncHandler(AdminController.approveWithdrawal)
+);
+
+router.delete(
+  '/withdrawal/:billingId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  schemaValidator.params(wallet.billingIdP),
+  Utility.asyncHandler(AdminController.rejectWithdrawal)
 );
 export default router;
