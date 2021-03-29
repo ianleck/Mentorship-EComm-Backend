@@ -162,9 +162,10 @@ router.delete(
 );
 // ======================================== FINANCE ========================================
 
-// View list of withdrawal requests = where status = pending_withdrawal
-// View a sensei's withdrawal request = where billingId
-// View completed withdrawal requests = where status = confirmed
+// view list of all withdrawal requests : billingType = WITHDRAWAL *impt for FE
+// view list of pending withdrawal requests : billingType = WITHDRAWAL && status = PENDING_WITHDRAWAL
+// view list of completed withdrawal requests : billingType = WITHDRAWAL && status = WITHDRAWN
+// view a sensei's withdrawal request : billingId = withdrawal billingId, billingType = WITHDRAWAL
 router.get(
   '/withdrawals/filter',
   passport.authenticate('isAuthenticated', { session: false }),
