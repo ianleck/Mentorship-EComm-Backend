@@ -1,17 +1,26 @@
 import { reject } from 'bluebird';
 import httpStatusCodes from 'http-status-codes';
-import { Lesson } from '../models/Lesson';
 import {
+  ALLOWED_ATTACHEMENT_TYPES,
   ALLOWED_DOCUMENT_FILE_TYPES,
   ALLOWED_IMG_FILE_TYPES,
   ALLOWED_VIDEO_FILE_TYPES,
-  BACKEND_API,
   ALLOWED_ZIP_FILE,
+  BACKEND_API,
 } from '../constants/constants';
-import { COURSE_ERRORS, ERRORS, UPLOAD_ERRORS } from '../constants/errors';
+import {
+  COURSE_ERRORS,
+  ERRORS,
+  MENTORSHIP_ERRORS,
+  UPLOAD_ERRORS,
+} from '../constants/errors';
 import Utility from '../constants/utility';
 import { Course } from '../models/Course';
+import { Lesson } from '../models/Lesson';
+import { Task } from '../models/Task';
+import { TaskBucket } from '../models/TaskBucket';
 import { User } from '../models/User';
+import MentorshipService from '../services/mentorship.service';
 
 const fs = require('fs');
 export default class UploadService {
@@ -318,6 +327,80 @@ export default class UploadService {
             [lessonAttribute]: null,
           });
           res(_lesson);
+        }
+      });
+    });
+  }
+
+  // ================================ MENTORSHIP RELATED UPLOADS ================================
+  public static async uploadTaskAttachment(
+    file,
+    accountId: string,
+    taskId: string
+  ): Promise<Task> {
+    const fileType = Utility.getFileType(file.name);
+    const folder = 'mentorship/task-bucket/task/attachment';
+    // if fileType is not .zip / .docx/ .pdf / .doc, return error;
+    if (ALLOWED_ATTACHEMENT_TYPES.indexOf(fileType) == -1) {
+      throw new Error(UPLOAD_ERRORS.INVALID_ATTACHMENT_TYPE);
+    }
+
+    const saveName = this.getSaveName(folder, taskId, fileType);
+    const saveFilePath = this.getSaveFilePath(folder, taskId, fileType);
+    let task: any = await Task.findByPk(taskId);
+    if (!task) reject(new Error(MENTORSHIP_ERRORS.TASK_MISSING));
+
+    const taskBucket = await TaskBucket.findByPk(task.taskBucketId); //mentorshipContractId
+
+    //Check if the user uploading an attachment is mentor/mentee in mentorship contract
+    await MentorshipService.authorizationCheck(
+      taskBucket.mentorshipContractId,
+      accountId
+    );
+
+    return new Promise((resolve, reject) => {
+      return file.mv(saveFilePath, async (err) => {
+        if (err) {
+          reject(new Error(UPLOAD_ERRORS.FAILED_ATTACHMENT_SAVE));
+        } else {
+          task = await task.update({ attachmentUrl: saveName });
+          resolve(task);
+        }
+      });
+    });
+  }
+
+  public static async deleteTaskAttachment(
+    accountId: string,
+    taskId: string,
+    type: string
+  ) {
+    // check if task and attachment exist
+    const task = await Task.findByPk(taskId);
+    if (!task) throw new Error(MENTORSHIP_ERRORS.TASK_MISSING);
+
+    const taskBucket = await TaskBucket.findByPk(task.taskBucketId);
+    if (!taskBucket) throw new Error(MENTORSHIP_ERRORS.TASK_BUCKET_MISSING);
+
+    await MentorshipService.authorizationCheck(
+      taskBucket.mentorshipContractId,
+      accountId
+    );
+
+    const url = task[type];
+    if (!url) throw new Error(UPLOAD_ERRORS.ATTACHMENT_MISSING);
+    const relativePath = url.substring(url.indexOf('file') + 5); // +5 to get string after 'file/<path we want>'
+    const path = `${__dirname}/../../uploads/${relativePath}`; // file path to delete
+
+    return new Promise<Task>((res, rej) => {
+      fs.unlink(path, async (err) => {
+        if (err) {
+          rej(err);
+        } else {
+          const _task = await task.update({
+            [type]: null,
+          });
+          res(_task);
         }
       });
     });

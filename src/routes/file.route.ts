@@ -33,4 +33,10 @@ router.get('/course/*', express.static(path.join(__dirname, '../../uploads')));
  */
 router.get('/course/lesson/*', FileController.serveVideo);
 
+// ================================ TASK ATTACHMENT ================================
+router.get(
+  '/mentorship/task-bucket/task/attachment/:documentName',
+  express.static(path.join(__dirname, '../../uploads'))
+);
+
 export default router;
