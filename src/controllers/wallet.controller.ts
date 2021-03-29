@@ -15,30 +15,9 @@ export class WalletController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[walletController.viewBilling]:' + e.message);
+      logger.error('[walletController.viewBillingsByFilter]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
-      });
-    }
-  }
-
-  public static async viewWithdrawalsByFilter(req, res) {
-    try {
-      const { filter } = req.body;
-      const withdrawals = await WalletService.viewWithdrawalsByFilter(filter);
-
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          withdrawals,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[walletController.viewWithdrawalsByFilter]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }

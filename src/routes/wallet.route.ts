@@ -29,14 +29,6 @@ router.put(
   Utility.asyncHandler(WalletController.withdrawBalance)
 );
 
-router.get(
-  '/withdrawals',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireSensei,
-  schemaValidator.body(wallet.billingFilterB),
-  Utility.asyncHandler(WalletController.viewWithdrawalsByFilter)
-);
-
 // View all billings
 // view list of all sensei billings = where billingType = confirmed + pending 120 days
 router.get(

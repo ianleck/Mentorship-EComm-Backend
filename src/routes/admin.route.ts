@@ -162,15 +162,15 @@ router.delete(
 );
 // ======================================== FINANCE ========================================
 
-// View list of withdrawal requests = where billingType = pending_withdrawal
+// View list of withdrawal requests = where status = pending_withdrawal
 // View a sensei's withdrawal request = where billingId
-// View completed withdrawal requests
+// View completed withdrawal requests = where status = confirmed
 router.get(
   '/withdrawals',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.body(wallet.billingFilterB),
-  Utility.asyncHandler(WalletController.viewWithdrawalsByFilter)
+  Utility.asyncHandler(WalletController.viewBillingsByFilter)
 );
 
 // View list of all sensei wallets

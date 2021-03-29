@@ -436,9 +436,7 @@ export class AdminController {
             billingType: BILLING_TYPE.WITHDRAWAL,
           };
 
-          const pendingWithdrawals = WalletService.viewWithdrawalsByFilter(
-            filter
-          );
+          const pendingWithdrawals = WalletService.viewBillingsByFilter(filter);
           return apiResponse.result(
             res,
             { message: 'success', pendingWithdrawals },
@@ -470,7 +468,7 @@ export class AdminController {
         billingType: BILLING_TYPE.WITHDRAWAL,
       };
 
-      const pendingWithdrawals = WalletService.viewWithdrawalsByFilter(filter);
+      const pendingWithdrawals = WalletService.viewBillingsByFilter(filter);
 
       return apiResponse.result(
         res,

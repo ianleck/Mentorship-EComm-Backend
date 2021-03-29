@@ -8,6 +8,8 @@ import {
 import { WALLET_ERROR } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
+import { Course } from '../models/Course';
+import { MentorshipListing } from '../models/MentorshipListing';
 import { User } from '../models/User';
 import { Wallet } from '../models/Wallet';
 import EmailService from './email.service';
@@ -89,9 +91,64 @@ export default class WalletService {
     receiverWalletId?: string;
     status?: BILLING_STATUS;
     billingType?: BILLING_TYPE;
+    paypalPaymentId?: string;
   }) {
+    if (filter.billingId) {
+      // View a sensei's withdrawal request
+      if (filter.billingType === BILLING_TYPE.WITHDRAWAL) {
+        const withdrawals = await Billing.findAll({
+          where: {
+            status: BILLING_STATUS.WITHDRAWN,
+            billingType: BILLING_TYPE.WITHDRAWAL,
+          },
+          order: [['createdAt', 'DESC']],
+        });
+
+        const currWithdrawal = await Billing.findByPk(filter.billingId);
+
+        let createdCheck = withdrawals[0]
+          ? {
+              [Op.between]: [
+                withdrawals[0].createdAt,
+                currWithdrawal.createdAt,
+              ],
+            }
+          : { [Op.lte]: currWithdrawal.createdAt };
+
+        return await Billing.findAll({
+          where: {
+            receiverWalletId: currWithdrawal.receiverWalletId,
+            status: BILLING_STATUS.CONFIRMED,
+            createdAt: createdCheck,
+          },
+        });
+      }
+      if (filter.billingType === BILLING_TYPE.COURSE) {
+        return await Billing.findByPk(filter.billingId, {
+          include: [{ model: Course, as: 'Course' }],
+        });
+      }
+
+      if (filter.billingType === BILLING_TYPE.SUBSCRIPTION) {
+        return await Billing.findByPk(filter.billingId, {
+          include: [{ model: MentorshipListing, as: 'MentorshipListing' }],
+        });
+      }
+    }
+
+    if (filter.paypalPaymentId) {
+      return await Billing.findAll({
+        where: { paypalPaymentId: filter.paypalPaymentId },
+        include: [
+          { model: Course, as: 'Course' },
+          { model: MentorshipListing, as: 'MentorshipListing' },
+        ],
+      });
+    }
+
     return await Billing.findAll({
       where: filter,
+      paranoid: false,
     });
   }
 
@@ -194,42 +251,6 @@ export default class WalletService {
     }
 
     return await existingApplication.destroy();
-  }
-
-  public static async viewWithdrawalsByFilter(filter: {
-    billingId?: string;
-    receiverWalletId?: string;
-    status?: BILLING_STATUS;
-    billingType?: BILLING_TYPE;
-  }) {
-    // View a sensei's withdrawal request
-    if (filter.billingId) {
-      const withdrawals = await Billing.findAll({
-        where: {
-          status: BILLING_STATUS.WITHDRAWN,
-          billingType: BILLING_TYPE.WITHDRAWAL,
-        },
-        order: [['createdAt', 'DESC']],
-      });
-
-      const currWithdrawal = await Billing.findByPk(filter.billingId);
-
-      let createdCheck = withdrawals[0]
-        ? { [Op.between]: [withdrawals[0].createdAt, currWithdrawal.createdAt] }
-        : { [Op.lte]: currWithdrawal.createdAt };
-
-      return await Billing.findAll({
-        where: {
-          receiverWalletId: currWithdrawal.receiverWalletId,
-          status: BILLING_STATUS.CONFIRMED,
-          createdAt: createdCheck,
-        },
-      });
-    }
-    return await Billing.findAll({
-      where: filter,
-      paranoid: false,
-    });
   }
 
   public static async withdrawBalance(walletId: string, accountId: string) {
