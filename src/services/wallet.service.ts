@@ -197,6 +197,7 @@ export default class WalletService {
 
   public static async viewListOfWallets() {
     return await User.findAll({
+      where: { userType: USER_TYPE_ENUM.SENSEI },
       include: [{ model: Wallet }],
     });
   }
