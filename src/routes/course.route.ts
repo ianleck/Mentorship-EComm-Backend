@@ -1,13 +1,12 @@
 import express from 'express';
 import Utility from '../constants/utility';
 import { CourseController } from '../controllers/course.controller';
-
 import {
   optionalAuth,
+  requireAdmin,
   requireSameUserOrAdmin,
   requireSensei,
-  requireAdmin,
-  requireStudent, 
+  requireStudent,
 } from '../middlewares/authenticationMiddleware';
 import course from './schema/course.schema';
 import user from './schema/user.schema';
@@ -81,11 +80,38 @@ router.delete(
   Utility.asyncHandler(CourseController.deleteLesson)
 );
 
+// ======================================== NOTES ========================================
+router.post(
+  '/note/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(course.lessonIdP),
+  schemaValidator.body(course.createNoteB),
+  Utility.asyncHandler(CourseController.addNoteToLesson)
+);
+
+router.put(
+  '/note/:noteId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(course.noteIdP),
+  schemaValidator.body(course.updateNoteB),
+  Utility.asyncHandler(CourseController.editNoteInLesson)
+);
+
+//Get ALL notes added for lesson
+router.get(
+  '/note/all/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.lessonIdP),
+  Utility.asyncHandler(CourseController.getAllNotes)
+);
+
 // ======================================== ANNOUNCEMENTS ========================================
 router.post(
   '/announcement/:courseId',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireSensei, 
+  requireSensei,
   schemaValidator.params(course.courseIdP),
   schemaValidator.body(course.createAnnouncement),
   Utility.asyncHandler(CourseController.createAnnouncement)
@@ -108,39 +134,38 @@ router.delete(
   Utility.asyncHandler(CourseController.deleteAnnouncement)
 );
 
-//view all announcements in one course 
-//only students doing course and sensei who created course can access 
+//view all announcements in one course
+//only students doing course and sensei who created course can access
 router.get(
   '/all/announcement/:courseId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(course.courseIdP),
   Utility.asyncHandler(CourseController.getAllAnnouncements)
-); 
+);
 
 router.get(
   '/announcement/:announcementId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(course.announcementIdP),
   Utility.asyncHandler(CourseController.getAnnouncement)
-); 
-
+);
 
 // ======================================== COURSE REQUESTS ========================================
-//only admin can see pending courses 
+//only admin can see pending courses
 router.get(
   '/all/request',
   passport.authenticate('isAuthenticated', { session: false }),
   requireAdmin,
   Utility.asyncHandler(CourseController.getAllRequests)
-); 
+);
 
 router.get(
   '/request/:courseId',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin, 
+  requireAdmin,
   schemaValidator.params(course.courseIdP),
   Utility.asyncHandler(CourseController.getRequest)
-); 
+);
 
 router.put(
   '/accept/request/:courseId',
@@ -148,7 +173,7 @@ router.put(
   requireAdmin,
   schemaValidator.params(course.courseIdP),
   Utility.asyncHandler(CourseController.acceptCourseRequest)
-); 
+);
 
 router.put(
   '/reject/request/:courseId',
@@ -169,10 +194,9 @@ router.post(
 router.get(
   '/contract/student/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireStudent, 
+  requireStudent,
   schemaValidator.params(course.studentIdP),
   Utility.asyncHandler(CourseController.getAllPurchasedCourses)
 );
-
 
 export default router;
