@@ -49,7 +49,8 @@ export default class WalletService {
     courseContractId: string,
     adminWalletId: string,
     senseiWalletId: string,
-    status: BILLING_STATUS
+    status: BILLING_STATUS,
+    billingType: BILLING_TYPE
   ) {
     const senseiWallet = await Wallet.findByPk(senseiWalletId);
     const pendingAmount = senseiWallet.pendingAmount + amount;
@@ -70,7 +71,7 @@ export default class WalletService {
       receiverWalletId: senseiWalletId,
       status,
       withdrawableDate,
-      billingType: BILLING_TYPE.INTERNAL,
+      billingType,
     });
 
     return await newBilling.save();
@@ -96,6 +97,17 @@ export default class WalletService {
     },
     deleted?: boolean
   ) {
+    // Student billing
+    if (filter.paypalPaymentId) {
+      return await Billing.findAll({
+        where: { paypalPaymentId: filter.paypalPaymentId },
+        include: [
+          { model: Course, as: 'Course' },
+          { model: MentorshipListing, as: 'MentorshipListing' },
+        ],
+      });
+    }
+
     if (filter.billingId) {
       // View a sensei's withdrawal request
       if (filter.billingType === BILLING_TYPE.WITHDRAWAL) {
@@ -137,16 +149,6 @@ export default class WalletService {
           include: [{ model: MentorshipListing, as: 'MentorshipListing' }],
         });
       }
-    }
-
-    if (filter.paypalPaymentId) {
-      return await Billing.findAll({
-        where: { paypalPaymentId: filter.paypalPaymentId },
-        include: [
-          { model: Course, as: 'Course' },
-          { model: MentorshipListing, as: 'MentorshipListing' },
-        ],
-      });
     }
 
     if (deleted) {

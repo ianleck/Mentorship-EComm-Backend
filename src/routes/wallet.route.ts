@@ -35,8 +35,10 @@ router.get(
   '/billings/filter',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinanceIfAdmin,
-  schemaValidator.body(wallet.billingFilterB),
+  schemaValidator.query(wallet.billingFilterQ),
   Utility.asyncHandler(WalletController.viewBillingsByFilter)
 );
 
+// Interim trigger to update billings to confirmed if date has passed
+router.post('/chronjob', Utility.asyncHandler(WalletController.manualChronjob));
 export default router;
