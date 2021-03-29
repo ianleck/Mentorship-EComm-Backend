@@ -27,6 +27,5 @@ export default {
         .optional(),
       paypalPaymentId: joi.string().optional(),
     }),
-    deleted: joi.boolean().optional(),
   }),
 };

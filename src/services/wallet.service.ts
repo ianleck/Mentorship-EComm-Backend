@@ -87,16 +87,13 @@ export default class WalletService {
     );
   }
 
-  public static async viewBillingsByFilter(
-    filter: {
-      billingId?: string;
-      receiverWalletId?: string;
-      status?: BILLING_STATUS;
-      billingType?: BILLING_TYPE;
-      paypalPaymentId?: string;
-    },
-    deleted?: boolean
-  ) {
+  public static async viewBillingsByFilter(filter: {
+    billingId?: string;
+    receiverWalletId?: string;
+    status?: BILLING_STATUS;
+    billingType?: BILLING_TYPE;
+    paypalPaymentId?: string;
+  }) {
     // Student billing
     if (filter.paypalPaymentId) {
       return await Billing.findAll({
@@ -144,23 +141,15 @@ export default class WalletService {
         });
       }
 
-      if (filter.billingType === BILLING_TYPE.SUBSCRIPTION) {
+      if (filter.billingType === BILLING_TYPE.MENTORSHIP) {
         return await Billing.findByPk(filter.billingId, {
           include: [{ model: MentorshipListing, as: 'MentorshipListing' }],
         });
       }
     }
 
-    if (deleted) {
-      return await Billing.findAll({
-        where: { ...filter, deletedAt: { [Op.not]: null } },
-        paranoid: false,
-      });
-    }
-
     return await Billing.findAll({
       where: filter,
-      paranoid: false,
     });
   }
 
@@ -266,8 +255,9 @@ export default class WalletService {
     const receiver = await User.findByPk(wallet.accountId);
 
     await EmailService.sendEmail(receiver.email, 'withdrawalFailure');
-
-    return await existingApplication.destroy();
+    return await existingApplication.update({
+      status: BILLING_STATUS.REJECTED,
+    });
   }
 
   public static async withdrawBalance(walletId: string, accountId: string) {
