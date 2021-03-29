@@ -25,6 +25,7 @@ export default {
         .string()
         .valid(...Object.values(BILLING_TYPE))
         .optional(),
+      paypalPaymentId: joi.string().optional(),
     }),
   }),
 };
