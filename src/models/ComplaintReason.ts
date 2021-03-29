@@ -1,11 +1,13 @@
 import {
   Column,
+  CreatedAt,
   DataType,
   Default,
   HasMany,
   Model,
   PrimaryKey,
   Table,
+  UpdatedAt,
 } from 'sequelize-typescript';
 import { Complaint } from './Complaint';
 
@@ -21,6 +23,14 @@ export class ComplaintReason extends Model<ComplaintReason> {
 
   @Column(DataType.TEXT)
   description: string;
+
+  @CreatedAt
+  @Column
+  createdAt: Date;
+
+  @UpdatedAt
+  @Column
+  updatedAt: Date;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
   @HasMany(() => Complaint, 'complaintReasonId')
