@@ -438,7 +438,16 @@ export default class MentorshipService {
         accountId,
         mentorshipListingId,
       },
-      include: [TaskBucket, Task],
+      include: [
+        {
+          model: TaskBucket,
+          include: [
+            {
+              model: Task,
+            },
+          ],
+        },
+      ],
     });
   }
 
@@ -451,7 +460,17 @@ export default class MentorshipService {
     const mentorshipContract = await MentorshipContract.findByPk(
       mentorshipContractId,
       {
-        include: [MentorshipListing, TaskBucket, Task],
+        include: [
+          MentorshipListing,
+          {
+            model: TaskBucket,
+            include: [
+              {
+                model: Task,
+              },
+            ],
+          },
+        ],
       }
     );
 
