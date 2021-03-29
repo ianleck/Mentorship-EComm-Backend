@@ -35,7 +35,7 @@ router.get('/course/lesson/*', FileController.serveVideo);
 
 // ================================ TASK ATTACHMENT ================================
 router.get(
-  '/mentorship/task-bucket/task/attachment/:documentName',
+  '/mentorship/task/:documentName',
   express.static(path.join(__dirname, '../../uploads'))
 );
 

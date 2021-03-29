@@ -622,7 +622,6 @@ export default class MentorshipService {
     taskBucketId: string,
     task: {
       body: string;
-      attachmentUrl?: string;
       dueAt?: string;
     }
   ): Promise<Task> {
@@ -634,12 +633,11 @@ export default class MentorshipService {
       userId
     );
 
-    const { body, attachmentUrl, dueAt } = task;
+    const { body, dueAt } = task;
 
     const newTask = new Task({
       taskBucketId,
       body,
-      attachmentUrl,
       dueAt,
     });
 
