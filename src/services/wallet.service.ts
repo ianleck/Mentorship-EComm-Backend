@@ -125,9 +125,9 @@ export default class WalletService {
     let user;
     if (userType !== USER_TYPE_ENUM.ADMIN) {
       user = await User.findByPk(accountId);
+      if (!user || user.walletId !== walletId)
+        throw new Error(WALLET_ERROR.UNAUTH_WALLET);
     }
-    if (!user || user.walletId !== walletId)
-      throw new Error(WALLET_ERROR.UNAUTH_WALLET);
 
     return await Wallet.findByPk(walletId, {
       include: [
