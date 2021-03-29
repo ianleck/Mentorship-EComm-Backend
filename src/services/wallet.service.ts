@@ -86,13 +86,16 @@ export default class WalletService {
     );
   }
 
-  public static async viewBillingsByFilter(filter: {
-    billingId?: string;
-    receiverWalletId?: string;
-    status?: BILLING_STATUS;
-    billingType?: BILLING_TYPE;
-    paypalPaymentId?: string;
-  }) {
+  public static async viewBillingsByFilter(
+    filter: {
+      billingId?: string;
+      receiverWalletId?: string;
+      status?: BILLING_STATUS;
+      billingType?: BILLING_TYPE;
+      paypalPaymentId?: string;
+    },
+    deleted?: boolean
+  ) {
     if (filter.billingId) {
       // View a sensei's withdrawal request
       if (filter.billingType === BILLING_TYPE.WITHDRAWAL) {
@@ -143,6 +146,13 @@ export default class WalletService {
           { model: Course, as: 'Course' },
           { model: MentorshipListing, as: 'MentorshipListing' },
         ],
+      });
+    }
+
+    if (deleted) {
+      return await Billing.findAll({
+        where: { ...filter, deletedAt: { [Op.not]: null } },
+        paranoid: false,
       });
     }
 
