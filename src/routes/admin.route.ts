@@ -175,7 +175,7 @@ router.get(
 
 // View list of all sensei wallets
 router.get(
-  '/',
+  '/wallets',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   Utility.asyncHandler(WalletController.viewListOfWallets)
