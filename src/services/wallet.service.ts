@@ -231,9 +231,7 @@ export default class WalletService {
     paymentId: string
   ) {
     const wallet = await Wallet.findByPk(billing.receiverWalletId);
-    const receiver = await User.findOne({
-      where: { walletId: wallet.walletId },
-    });
+    const receiver = await User.findByPk(wallet.accountId);
 
     await billing.update({
       paypalPaymentId: paymentId,
@@ -260,6 +258,12 @@ export default class WalletService {
     if (existingApplication.status !== BILLING_STATUS.PENDING_WITHDRAWAL) {
       throw new Error(WALLET_ERROR.PAID_OUT);
     }
+
+    const billing = await Billing.findByPk(billingId);
+    const wallet = await Wallet.findByPk(billing.receiverWalletId);
+    const receiver = await User.findByPk(wallet.accountId);
+
+    await EmailService.sendEmail(receiver.email, 'withdrawalFailure');
 
     return await existingApplication.destroy();
   }
