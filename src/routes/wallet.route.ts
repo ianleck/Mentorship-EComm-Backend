@@ -12,14 +12,6 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
-// View transaction history as admin - can view all billings
-router.get(
-  '/billings',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireFinanceIfAdmin,
-  Utility.asyncHandler(WalletController.getAllBillings)
-);
-
 // View wallet, includes viewing own transaction history
 router.get(
   '/:walletId',
@@ -38,19 +30,21 @@ router.put(
 );
 
 router.get(
-  '/withdrawals/:walletId',
+  '/withdrawals',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireFinanceIfAdmin,
-  schemaValidator.params(wallet.walletIdP),
-  Utility.asyncHandler(WalletController.viewCompletedWithdrawals)
+  requireSensei,
+  schemaValidator.body(wallet.billingFilterB),
+  Utility.asyncHandler(WalletController.viewWithdrawalsByFilter)
 );
 
+// View all billings
+// view list of all sensei billings = where billingType = confirmed + pending 120 days
 router.get(
-  '/:walletId/:billingId',
+  '/billings',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinanceIfAdmin,
-  schemaValidator.params(wallet.walletBillingIdP),
-  Utility.asyncHandler(WalletController.viewBilling)
+  schemaValidator.body(wallet.billingFilterB),
+  Utility.asyncHandler(WalletController.viewBillingsByFilter)
 );
 
 export default router;

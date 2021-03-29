@@ -413,50 +413,6 @@ export class AdminController {
   }
   // ============================== Finance ==============================
 
-  public static async viewPendingWithdrawals(req, res) {
-    try {
-      const filter = { status: BILLING_STATUS.PENDING_WITHDRAWAL };
-      const withdrawalApplications = await WalletService.viewBillingsByFilter(
-        filter
-      );
-
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          withdrawalApplications,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[adminController.viewPendingWithdrawals]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
-    }
-  }
-
-  public static async viewWithdrawalsByFilter(req, res) {
-    try {
-      const { filter } = req.body;
-      const withdrawals = await WalletService.viewWithdrawalsByFilter(filter);
-
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          withdrawals,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[adminController.viewWithdrawalsByFilter]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
-    }
-  }
-
   public static async approveWithdrawal(req, res) {
     try {
       const { billingId } = req.params;

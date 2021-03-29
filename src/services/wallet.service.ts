@@ -84,26 +84,17 @@ export default class WalletService {
     );
   }
 
-  public static async getAllBillings() {
-    return await Billing.findAll();
+  public static async viewBillingsByFilter(filter: {
+    billingId?: string;
+    receiverWalletId?: string;
+    status?: BILLING_STATUS;
+    billingType?: BILLING_TYPE;
+  }) {
+    return await Billing.findAll({
+      where: filter,
+    });
   }
 
-  public static async viewBilling(
-    billingId: string,
-    walletId: string,
-    accountId: string,
-    userType: USER_TYPE_ENUM
-  ) {
-    let user;
-    if (userType !== USER_TYPE_ENUM.ADMIN) {
-      user = await User.findByPk(accountId);
-    }
-    if (!user || user.walletId !== walletId)
-      throw new Error(WALLET_ERROR.UNAUTH_WALLET);
-
-    const billing = await Billing.findByPk(billingId);
-    return billing;
-  }
   // ============================== Wallet ==============================
 
   public static async setupWallet(accountId: string) {
@@ -137,6 +128,11 @@ export default class WalletService {
     });
   }
 
+  public static async viewListOfWallets() {
+    return await User.findAll({
+      include: [{ model: Wallet, as: 'WalletOwner' }],
+    });
+  }
   // ============================== Withdrawals ==============================
 
   public static async approveWithdrawal(billingId: string) {
@@ -200,43 +196,6 @@ export default class WalletService {
     return await existingApplication.destroy();
   }
 
-  public static async viewCompletedWithdrawals(
-    walletId: string,
-    accountId: string,
-    userType: USER_TYPE_ENUM
-  ) {
-    let user;
-    if (userType !== USER_TYPE_ENUM.ADMIN)
-      user = await User.findByPk(accountId);
-
-    if (
-      userType === USER_TYPE_ENUM.STUDENT ||
-      (userType === USER_TYPE_ENUM.SENSEI && user.walletId !== walletId)
-    )
-      throw new Error(WALLET_ERROR.UNAUTH_WALLET);
-
-    let whereOptions = {};
-    if (userType === USER_TYPE_ENUM.ADMIN) {
-      whereOptions = {
-        where: {
-          status: BILLING_STATUS.WITHDRAWN,
-          billingType: BILLING_TYPE.WITHDRAWAL,
-        },
-      };
-    }
-    if (userType === USER_TYPE_ENUM.SENSEI) {
-      whereOptions = {
-        where: {
-          receiverWalletId: walletId,
-          status: BILLING_STATUS.WITHDRAWN,
-          billingType: BILLING_TYPE.WITHDRAWAL,
-        },
-      };
-    }
-
-    return await Billing.findAll(whereOptions);
-  }
-
   public static async viewWithdrawalsByFilter(filter: {
     billingId?: string;
     receiverWalletId?: string;
@@ -272,17 +231,6 @@ export default class WalletService {
       paranoid: false,
     });
   }
-
-  // Incomplete
-  // public static async viewWithdrawalsByFilter(filter: {
-  //   walletId?: string;
-  //   status?: BILLING_STATUS;
-  //   billingType?: BILLING_TYPE;
-  // }) {
-  //   return await Billing.findAll({
-  //     where: filter,
-  //   });
-  // }
 
   public static async withdrawBalance(walletId: string, accountId: string) {
     const user = await User.findByPk(accountId);

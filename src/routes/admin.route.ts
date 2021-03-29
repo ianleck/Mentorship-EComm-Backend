@@ -1,6 +1,7 @@
 import express from 'express';
 import Utility from '../constants/utility';
 import { AdminController } from '../controllers/admin.controller';
+import { WalletController } from '../controllers/wallet.controller';
 import {
   requireAdmin,
   requireFinance,
@@ -162,13 +163,22 @@ router.delete(
 // ======================================== FINANCE ========================================
 
 // View list of withdrawal requests = where billingType = pending_withdrawal
-// View a sensei's withdrawal request = where billingId =
+// View a sensei's withdrawal request = where billingId
+// View completed withdrawal requests
 router.get(
   '/withdrawals',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.body(wallet.billingFilterB),
-  Utility.asyncHandler(AdminController.viewWithdrawalsByFilter)
+  Utility.asyncHandler(WalletController.viewWithdrawalsByFilter)
+);
+
+// View list of all sensei wallets
+router.get(
+  '/',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  Utility.asyncHandler(WalletController.viewListOfWallets)
 );
 
 // approve withdrawal
