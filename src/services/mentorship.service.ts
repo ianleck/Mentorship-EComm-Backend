@@ -2,6 +2,7 @@ import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
 import { Op } from 'sequelize';
 import {
+  ADMIN_VERIFIED_ENUM,
   CONTRACT_PROGRESS_ENUM,
   MENTORSHIP_CONTRACT_APPROVAL,
   USER_TYPE_ENUM,
@@ -95,20 +96,52 @@ export default class MentorshipService {
 
   public static async updateListing(
     mentorshipListingId: string,
-    mentorshipListing: {
+    accountId: string,
+    updatedListing: {
       name: string;
       description: string;
       categories: string[];
       priceAmount: number;
       visibility: VISIBILITY_ENUM;
+      publishedAt?: Date;
     }
   ): Promise<MentorshipListing> {
-    const { categories, ...listingWithoutCategories } = mentorshipListing;
     const currListing = await MentorshipListing.findByPk(mentorshipListingId);
     if (!currListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+    if (currListing.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ); // course not created by user
+
+    const user = await User.findByPk(accountId);
+    if (
+      // if user is trying to publish course but user has not been verified by admin, throw error
+      user.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED &&
+      updatedListing.visibility === VISIBILITY_ENUM.PUBLISHED
+    )
+      throw new Error(MENTORSHIP_ERRORS.USER_NOT_VERIFIED);
+
+    const { categories, ...listingWithoutCategories } = updatedListing;
+    await this.updateMentorshipCategory(mentorshipListingId, updatedListing);
+
+    if (
+      !currListing.publishedAt &&
+      updatedListing.visibility === VISIBILITY_ENUM.PUBLISHED
+    ) {
+      listingWithoutCategories.publishedAt = new Date();
+    }
 
     await currListing.update(listingWithoutCategories);
 
+    return MentorshipListing.findByPk(currListing.mentorshipListingId, {
+      include: [Category],
+    });
+  }
+
+  public static async updateMentorshipCategory(
+    mentorshipListingId: string,
+    updatedListing: any
+  ) {
     // Find all category associations with listing
     const listingCategories: MentorshipListingToCategory[] = await MentorshipListingToCategory.findAll(
       {
@@ -119,7 +152,7 @@ export default class MentorshipService {
     const existingCategories: string[] = listingCategories.map(
       ({ categoryId }) => categoryId
     );
-    const updatedCategories: string[] = mentorshipListing.categories;
+    const updatedCategories: string[] = updatedListing.categories;
 
     const categoriesToAdd = _.difference(updatedCategories, existingCategories);
     const categoriesToRemove = _.difference(
@@ -137,10 +170,6 @@ export default class MentorshipService {
 
     // Delete associations to removed categories
     await this.removeListingCategories(mentorshipListingId, categoriesToRemove);
-
-    return MentorshipListing.findByPk(currListing.mentorshipListingId, {
-      include: [Category],
-    });
   }
 
   public static async getSenseiMentorshipListings(accountId: string) {

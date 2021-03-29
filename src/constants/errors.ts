@@ -60,6 +60,8 @@ export const MENTORSHIP_ERRORS = {
   TESTIMONIAL_MISSING: 'Testimonial does not exist',
   CONTRACT_NOT_COMPLETED:
     'Mentorship contract has not been completed or does not exist. Please only add a testimonial for completed mentorships.',
+  USER_NOT_VERIFIED:
+    'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your mentorship listing.',
   TASK_BUCKET_MISSING: 'Task bucket does not exist',
   TASK_MISSING: 'Task does not exist',
 };
