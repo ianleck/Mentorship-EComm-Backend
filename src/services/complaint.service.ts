@@ -71,7 +71,7 @@ export default class ComplaintService {
   }): Promise<Complaint[]> {
     return Complaint.findAll({
       where: filter,
-      include: [Comment],
+      include: [Comment, ComplaintReason],
     });
   }
 }
