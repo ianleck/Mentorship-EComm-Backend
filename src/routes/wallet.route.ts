@@ -30,7 +30,7 @@ router.put(
 );
 
 // View all billings
-// view list of all sensei billings = where billingType = confirmed + pending 120 days
+// view list of all sensei billings: status = [CONFIRMED, PENDING_120_DAYS]
 router.get(
   '/billings',
   passport.authenticate('isAuthenticated', { session: false }),
