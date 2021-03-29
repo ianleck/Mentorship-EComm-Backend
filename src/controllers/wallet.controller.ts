@@ -7,11 +7,8 @@ import apiResponse from '../utilities/apiResponse';
 export class WalletController {
   public static async viewBillingsByFilter(req, res) {
     try {
-      const { filter, deleted } = req.query;
-      const billings = await WalletService.viewBillingsByFilter(
-        filter,
-        deleted
-      );
+      const { filter } = req.query;
+      const billings = await WalletService.viewBillingsByFilter(filter);
       return apiResponse.result(
         res,
         { message: 'success', billings },

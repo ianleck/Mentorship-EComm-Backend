@@ -164,7 +164,8 @@ router.delete(
 
 // view list of all withdrawal requests : billingType = WITHDRAWAL *impt for FE
 // view list of pending withdrawal requests : billingType = WITHDRAWAL && status = PENDING_WITHDRAWAL
-// view list of completed withdrawal requests : billingType = WITHDRAWAL && status = WITHDRAWN
+// view list of approved withdrawal requests : billingType = WITHDRAWAL && status = WITHDRAWN
+// view list of rejected withdrawal request : billingType = WITHDRAWAL && status = REJECTED
 // view a sensei's withdrawal request : billingId = withdrawal billingId, billingType = WITHDRAWAL
 router.get(
   '/withdrawals/filter',
@@ -184,15 +185,15 @@ router.get(
 
 // approve withdrawal
 router.put(
-  '/withdrawal/:billingId',
+  '/withdrawal/approve/:billingId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.params(wallet.billingIdP),
   Utility.asyncHandler(AdminController.approveWithdrawal)
 );
 
-router.delete(
-  '/withdrawal/:billingId',
+router.put(
+  '/withdrawal/reject/:billingId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.params(wallet.billingIdP),
