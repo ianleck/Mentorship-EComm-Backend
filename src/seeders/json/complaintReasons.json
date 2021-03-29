@@ -1,0 +1,27 @@
+[
+  {
+    "complaintReasonId": "7d1016c9-50f2-4263-971a-3fe488fcccd3",
+    "reason": "Unwanted commercial content or spam",
+    "description": "Prevent people from promoting their product on our site"
+  },
+  {
+    "complaintReasonId": "7f9f1db8-1f6b-4b1a-8338-03bcc63c7699",
+    "reason": "Pornography or sexually explicit material",
+    "description": ""
+  },
+  {
+    "complaintReasonId": "b13b09fa-e585-480b-beaf-57a6a6ac9ef2",
+    "reason": "Child abuse",
+    "description": ""
+  },
+  {
+    "complaintReasonId": "d90c8c4f-f246-44e1-8c92-6748a0962031",
+    "reason": "Hate speech or graphic violence",
+    "description": ""
+  },
+  {
+    "complaintReasonId": "dfbf106a-ec30-482e-82b0-c5c3804cd35e",
+    "reason": "Harassment or bullying",
+    "description": ""
+  }
+]

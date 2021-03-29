@@ -1,32 +1,42 @@
 [
   {
+    "categoryId": "1b59b09b-70dc-4cc9-9b3d-72ff7ed4612b",
     "name": "Development"
   },
   {
+    "categoryId": "2347d1f7-b8a7-4680-8629-ce86cccef23f",
     "name": "Business"
   },
   {
+    "categoryId": "47e81040-68c3-449f-9cc2-b19dd4d83441",
     "name": "Finance & Accounting"
   },
   {
+    "categoryId": "4a5d57b1-8a62-45b5-81ae-88648328a3e5",
     "name": "IT & Software"
   },
   {
+    "categoryId": "5ceef0c5-59a6-4a88-b5e8-7a9a2a9e3d32",
     "name": "Office Productivity"
   },
   {
+    "categoryId": "5f3a141c-9994-47dc-88da-2f3721470dd3",
     "name": "Personal Development"
   },
   {
+    "categoryId": "6f1d5ffe-d59c-4b23-9053-5a9ba6b14b52",
     "name": "Design"
   },
   {
+    "categoryId": "7d98ddc8-f163-4bf3-8e52-579b9735b7ce",
     "name": "Marketing"
   },
   {
+    "categoryId": "accc521e-cfc6-4538-9816-14038c3f97d8",
     "name": "Health & Fitness"
   },
   {
+    "categoryId": "b38e01a2-b887-4727-91c8-6cd36de9f185",
     "name": "Music"
   }
 ]
