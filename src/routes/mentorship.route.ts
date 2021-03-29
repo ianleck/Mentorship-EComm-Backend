@@ -240,4 +240,13 @@ router.get(
   Utility.asyncHandler(MentorshipController.getTasks)
 );
 
+// ==================================== SENSEI MENTEE ====================================
+router.get(
+  // get sensei's mentee list
+  '/sensei/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrAdmin,
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(MentorshipController.getSenseiMenteeList)
+);
 export default router;

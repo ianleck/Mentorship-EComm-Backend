@@ -189,15 +189,10 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.createContract]:' + e.message);
-      if (e.message === MENTORSHIP_ERRORS.CONTRACT_EXISTS) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.LISTING_MISSING,
+        MENTORSHIP_ERRORS.CONTRACT_EXISTS,
+      ]);
     }
   }
 
@@ -827,6 +822,23 @@ export class MentorshipController {
           message: RESPONSE_ERROR.RES_ERROR,
         });
       }
+    }
+  }
+
+  // ==================================== SENSEI MENTEE ====================================
+  public static async getSenseiMenteeList(req, res) {
+    const { accountId } = req.params;
+
+    try {
+      const menteeList = await MentorshipService.getSenseiMenteeList(accountId);
+      return apiResponse.result(
+        res,
+        { message: 'success', students: menteeList },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.getSenseiMenteeList]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [ERRORS.USER_DOES_NOT_EXIST]);
     }
   }
 }

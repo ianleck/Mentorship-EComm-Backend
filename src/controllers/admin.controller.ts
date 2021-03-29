@@ -423,10 +423,8 @@ export class AdminController {
 
       await paypal.payout.create(payout_json, async function (error, payout) {
         if (error) {
-          console.log('error', error);
           throw new Error(error);
         } else {
-          console.log('Create Single Payout Response', payout);
           const payout_batch_id = payout.batch_header.payout_batch_id;
 
           await WalletService.postWithdrawalHelper(billing, payout_batch_id);
@@ -494,10 +492,8 @@ export class AdminController {
       const payout_json = await PaypalService.createRefund();
       await paypal.payout.create(payout_json, function (error, payout) {
         if (error) {
-          console.log('error', error);
           throw new Error(error);
         } else {
-          console.log('Create Single Payout Response');
           return apiResponse.result(
             res,
             { message: 'success', payout },
