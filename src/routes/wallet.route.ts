@@ -32,7 +32,7 @@ router.put(
 // View all billings
 // view list of all sensei billings: status = [CONFIRMED, PENDING_120_DAYS]
 router.get(
-  '/billings',
+  '/billings/filter',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinanceIfAdmin,
   schemaValidator.body(wallet.billingFilterB),
