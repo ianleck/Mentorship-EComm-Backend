@@ -254,6 +254,9 @@ export default class MentorshipService {
     accountId: string,
     statement: string
   ): Promise<MentorshipContract> {
+    const listing = await MentorshipListing.findByPk(mentorshipListingId);
+    if (!listing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+
     const pendingContract = await MentorshipContract.findOne({
       where: {
         mentorshipListingId,
@@ -761,5 +764,25 @@ export default class MentorshipService {
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
+  }
+
+  // ==================================== SENSEI MENTEE ====================================
+  public static async getSenseiMenteeList(accountId: string): Promise<User[]> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    const mentorshipListings = await MentorshipListing.findAll({
+      where: { accountId },
+    });
+    const mentorshipListingIds = mentorshipListings.map(
+      (ml) => ml.mentorshipListingId
+    );
+    return await User.findAll({
+      include: [
+        {
+          model: MentorshipContract,
+          where: { mentorshipListingId: mentorshipListingIds },
+        },
+      ],
+    });
   }
 }
