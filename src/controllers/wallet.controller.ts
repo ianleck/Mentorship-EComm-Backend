@@ -7,7 +7,7 @@ import apiResponse from '../utilities/apiResponse';
 export class WalletController {
   public static async viewBillingsByFilter(req, res) {
     try {
-      const { filter, deleted } = req.body;
+      const { filter, deleted } = req.query;
       const billings = await WalletService.viewBillingsByFilter(
         filter,
         deleted
@@ -84,6 +84,22 @@ export class WalletController {
     } catch (e) {
       logger.error('[walletController.withdrawBalance]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async manualChronjob(req, res) {
+    try {
+      await WalletService.checkPendingSenseiBillings();
+      return apiResponse.result(
+        res,
+        { message: 'success' },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[walletController.manualChronjob]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: e.message,
       });
     }

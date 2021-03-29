@@ -170,7 +170,7 @@ router.get(
   '/withdrawals/filter',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
-  schemaValidator.body(wallet.billingFilterB),
+  schemaValidator.body(wallet.billingFilterQ),
   Utility.asyncHandler(WalletController.viewBillingsByFilter)
 );
 

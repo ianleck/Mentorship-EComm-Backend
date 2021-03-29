@@ -13,7 +13,7 @@ export default {
     billingId: joi.string().required(),
   }),
 
-  billingFilterB: joi.object({
+  billingFilterQ: joi.object({
     filter: joi.object({
       billingId: joi.string().optional(),
       receiverWalletId: joi.string().optional(),

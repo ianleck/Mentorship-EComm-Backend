@@ -74,7 +74,8 @@ export default class PaypalService {
             courseContract.courseContractId,
             admin.walletId,
             sensei.walletId,
-            BILLING_STATUS.PENDING_120_DAYS
+            BILLING_STATUS.PENDING_120_DAYS,
+            BILLING_TYPE.COURSE
           );
         } // else for subscription
       })
