@@ -161,12 +161,14 @@ router.delete(
 );
 // ======================================== FINANCE ========================================
 
-// view pending withdrawals
+// View list of withdrawal requests = where billingType = pending_withdrawal
+// View a sensei's withdrawal request = where billingId =
 router.get(
-  'withdrawals',
+  '/withdrawals',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
-  Utility.asyncHandler(AdminController.viewPendingWithdrawals)
+  schemaValidator.body(wallet.billingFilterB),
+  Utility.asyncHandler(AdminController.viewWithdrawalsByFilter)
 );
 
 // approve withdrawal
@@ -176,5 +178,13 @@ router.put(
   requireFinance,
   schemaValidator.params(wallet.billingIdP),
   Utility.asyncHandler(AdminController.approveWithdrawal)
+);
+
+router.delete(
+  '/withdrawal/:billingId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  schemaValidator.params(wallet.billingIdP),
+  Utility.asyncHandler(AdminController.rejectWithdrawal)
 );
 export default router;

@@ -125,9 +125,9 @@ export default class WalletService {
     let user;
     if (userType !== USER_TYPE_ENUM.ADMIN) {
       user = await User.findByPk(accountId);
+      if (!user || user.walletId !== walletId)
+        throw new Error(WALLET_ERROR.UNAUTH_WALLET);
     }
-    if (!user || user.walletId !== walletId)
-      throw new Error(WALLET_ERROR.UNAUTH_WALLET);
 
     return await Wallet.findByPk(walletId, {
       include: [
@@ -176,11 +176,28 @@ export default class WalletService {
       status: BILLING_STATUS.WITHDRAWN,
     });
 
+    const newAmount = wallet.confirmedAmount - billing.amount;
+
     await wallet.update({
-      confirmedAmount: 0,
+      confirmedAmount: newAmount,
     });
 
     await EmailService.sendEmail(receiver.email, 'withdrawalSuccess');
+  }
+
+  public static async rejectWithdrawal(billingId: string) {
+    const existingApplication = await Billing.findByPk(billingId);
+    if (
+      !existingApplication ||
+      existingApplication.billingType !== BILLING_TYPE.WITHDRAWAL
+    )
+      throw new Error(WALLET_ERROR.MISSING_BILLING);
+
+    if (existingApplication.status !== BILLING_STATUS.PENDING_WITHDRAWAL) {
+      throw new Error(WALLET_ERROR.PAID_OUT);
+    }
+
+    return await existingApplication.destroy();
   }
 
   public static async viewCompletedWithdrawals(
@@ -220,9 +237,39 @@ export default class WalletService {
     return await Billing.findAll(whereOptions);
   }
 
-  public static async viewPendingWithdrawals() {
+  public static async viewWithdrawalsByFilter(filter: {
+    billingId?: string;
+    receiverWalletId?: string;
+    status?: BILLING_STATUS;
+    billingType?: BILLING_TYPE;
+  }) {
+    // View a sensei's withdrawal request
+    if (filter.billingId) {
+      const withdrawals = await Billing.findAll({
+        where: {
+          status: BILLING_STATUS.WITHDRAWN,
+          billingType: BILLING_TYPE.WITHDRAWAL,
+        },
+        order: [['createdAt', 'DESC']],
+      });
+
+      const currWithdrawal = await Billing.findByPk(filter.billingId);
+
+      let createdCheck = withdrawals[0]
+        ? { [Op.between]: [withdrawals[0].createdAt, currWithdrawal.createdAt] }
+        : { [Op.lte]: currWithdrawal.createdAt };
+
+      return await Billing.findAll({
+        where: {
+          receiverWalletId: currWithdrawal.receiverWalletId,
+          status: BILLING_STATUS.CONFIRMED,
+          createdAt: createdCheck,
+        },
+      });
+    }
     return await Billing.findAll({
-      where: { status: BILLING_STATUS.PENDING_WITHDRAWAL },
+      where: filter,
+      paranoid: false,
     });
   }
 
