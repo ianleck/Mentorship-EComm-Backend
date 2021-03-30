@@ -181,6 +181,9 @@ export default class MentorshipService {
 
   public static async getAllMentorshipListings() {
     const mentorshipListings = MentorshipListing.findAll({
+      where: {
+        visibility: VISIBILITY_ENUM.PUBLISHED, // courses that are not hidden
+      },
       include: [
         Category,
         {
@@ -664,6 +667,8 @@ export default class MentorshipService {
     await MentorshipService.authorizationCheck(mentorshipContractId, accountId);
     return TaskBucket.findAll({
       where: { mentorshipContractId },
+      order: [['updatedAt', 'ASC']],
+      include: [Task],
     });
   }
 
