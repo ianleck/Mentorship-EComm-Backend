@@ -52,12 +52,6 @@ export default class WalletService {
     status: BILLING_STATUS,
     billingType: BILLING_TYPE
   ) {
-    const senseiWallet = await Wallet.findByPk(senseiWalletId);
-    const pendingAmount = senseiWallet.pendingAmount + amount;
-    const totalEarned = senseiWallet.totalEarned + amount;
-
-    await senseiWallet.update({ pendingAmount, totalEarned });
-
     const withdrawableDate = new Date();
     withdrawableDate.setDate(withdrawableDate.getDate() + WITHDRAWAL_DAYS);
 

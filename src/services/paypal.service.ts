@@ -26,6 +26,11 @@ export default class PaypalService {
     paymentId: string,
     payerId: string
   ) {
+    const senseiWalletsDictionary = new Map<
+      string,
+      { pendingAmountToAdd: number; totalEarnedToAdd: number }
+    >();
+
     const studentId = user.accountId;
     const admin = await Admin.findOne({
       where: { walletId: { [Op.not]: null } },
@@ -77,6 +82,26 @@ export default class PaypalService {
             BILLING_STATUS.PENDING_120_DAYS,
             BILLING_TYPE.COURSE
           );
+
+          //5. Add sensei wallet to dictionary to update amount later
+          const senseiWalletToUpdate = senseiWalletsDictionary.get(
+            sensei.walletId
+          );
+          if (senseiWalletToUpdate) {
+            const updatedPendingAmount =
+              senseiWalletToUpdate.pendingAmountToAdd + billing.amount;
+            const updatedTotalAmount =
+              senseiWalletToUpdate.totalEarnedToAdd + billing.amount;
+            senseiWalletsDictionary.set(sensei.walletId, {
+              pendingAmountToAdd: updatedPendingAmount,
+              totalEarnedToAdd: updatedTotalAmount,
+            });
+          } else {
+            senseiWalletsDictionary.set(sensei.walletId, {
+              pendingAmountToAdd: billing.amount,
+              totalEarnedToAdd: billing.amount,
+            });
+          }
         } // else for subscription
       })
     );
@@ -88,11 +113,26 @@ export default class PaypalService {
       (adminWallet.platformRevenue + newPlatformRevenue).toFixed(2)
     );
 
-    // 5. Update admin wallet
+    // 6. Update admin wallet
     await adminWallet.update({
       totalEarned,
       platformRevenue,
     });
+
+    // 7. Update sensei wallet
+    return await Promise.all(
+      Array.from(senseiWalletsDictionary).map(
+        async ([walletId, { pendingAmountToAdd, totalEarnedToAdd }]) => {
+          const senseiWallet = await Wallet.findByPk(walletId);
+          const pendingAmount = senseiWallet.pendingAmount + pendingAmountToAdd;
+          const totalEarned = senseiWallet.totalEarned + totalEarnedToAdd;
+          await senseiWallet.update({
+            pendingAmount,
+            totalEarned,
+          });
+        }
+      )
+    );
   }
 
   public static async createOrder(
