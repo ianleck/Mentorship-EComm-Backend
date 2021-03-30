@@ -89,17 +89,19 @@ export default class PaypalService {
           );
           if (senseiWalletToUpdate) {
             const updatedPendingAmount =
-              senseiWalletToUpdate.pendingAmountToAdd + billing.amount;
+              senseiWalletToUpdate.pendingAmountToAdd +
+              Number(payable.toFixed(2));
             const updatedTotalAmount =
-              senseiWalletToUpdate.totalEarnedToAdd + billing.amount;
+              senseiWalletToUpdate.totalEarnedToAdd +
+              Number(payable.toFixed(2));
             senseiWalletsDictionary.set(sensei.walletId, {
               pendingAmountToAdd: updatedPendingAmount,
               totalEarnedToAdd: updatedTotalAmount,
             });
           } else {
             senseiWalletsDictionary.set(sensei.walletId, {
-              pendingAmountToAdd: billing.amount,
-              totalEarnedToAdd: billing.amount,
+              pendingAmountToAdd: Number(payable.toFixed(2)),
+              totalEarnedToAdd: Number(payable.toFixed(2)),
             });
           }
         } // else for subscription
