@@ -94,7 +94,7 @@ export default {
   editTaskB: joi.object({
     editedTask: joi
       .object({
-        body: joi.string().required(),
+        body: joi.string().required().allow(''),
         dueAt: joi.date().optional().allow(null),
         progress: joi
           .string()
