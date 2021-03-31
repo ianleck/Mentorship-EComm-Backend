@@ -293,40 +293,20 @@ export class SocialController {
     const { user } = req; //follower
 
     try {
-      await SocialService.followUser(accountId, user.accountId);
+      const response = await SocialService.followUser(
+        accountId,
+        user.accountId
+      );
       return apiResponse.result(
         res,
         {
           message: SOCIAL_RESPONSE.FOLLOWING_ADDED,
-          followingStatus: FOLLOWING_ENUM.APPROVED,
+          followingStatus: response.followingStatus,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[socialController.followUser]:' + e.message);
-      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
-        try {
-          await SocialService.requestFollowing(accountId, user.accountId);
-          return apiResponse.result(
-            res,
-            {
-              message: SOCIAL_RESPONSE.FOLLOWING_REQUEST_CREATED,
-              followingStatus: FOLLOWING_ENUM.PENDING,
-            },
-            httpStatusCodes.OK
-          );
-        } catch (e) {
-          logger.error('[socialController.requestFollowing]:' + e.message);
-          if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
-            return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-              message: e.message,
-            });
-          }
-          return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-            message: RESPONSE_ERROR.RES_ERROR,
-          });
-        }
-      }
       if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,

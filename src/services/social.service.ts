@@ -236,8 +236,17 @@ export default class SocialService {
     const followerUser = await User.findByPk(followerId);
     if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
-    if (followingUser.isPrivateProfile === true)
-      throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
+    if (followingUser.isPrivateProfile === true) {
+      const followership = new UserFollowership({
+        followingId,
+        followerId,
+        followingStatus: FOLLOWING_ENUM.PENDING,
+      });
+
+      await followership.save();
+
+      return followership;
+    }
 
     const followership = new UserFollowership({
       followingId,
