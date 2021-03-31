@@ -85,7 +85,7 @@ export default {
   addTaskB: joi.object({
     newTask: joi
       .object({
-        body: joi.string().required(),
+        body: joi.string().required().allow(''),
         dueAt: joi.date().optional(),
       })
       .required(),
@@ -94,8 +94,8 @@ export default {
   editTaskB: joi.object({
     editedTask: joi
       .object({
-        body: joi.string().required(),
-        dueAt: joi.date().optional(),
+        body: joi.string().required().allow(''),
+        dueAt: joi.date().optional().allow(null),
         progress: joi
           .string()
           .valid(...Object.values(CONTRACT_PROGRESS_ENUM))

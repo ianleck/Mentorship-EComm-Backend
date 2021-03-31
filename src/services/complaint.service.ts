@@ -1,3 +1,4 @@
+import { User } from '../models/User';
 import { COMPLAINT_TYPE_ENUM } from '../constants/enum';
 import { COMMENT_ERRORS, COMPLAINT_ERRORS } from '../constants/errors';
 import { Comment } from '../models/Comment';
@@ -71,7 +72,14 @@ export default class ComplaintService {
   }): Promise<Complaint[]> {
     return Complaint.findAll({
       where: filter,
-      include: [Comment, ComplaintReason],
+      include: [
+        Comment,
+        ComplaintReason,
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+        },
+      ],
     });
   }
 }
