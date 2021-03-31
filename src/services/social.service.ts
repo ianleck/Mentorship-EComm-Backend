@@ -323,9 +323,12 @@ export default class SocialService {
     const followingList = UserFollowership.findAll({
       where: {
         followerId: { [Op.eq]: accountId },
-        followingStatus: FOLLOWING_ENUM.APPROVED,
+        followingStatus: {
+          [Op.or]: [FOLLOWING_ENUM.APPROVED, FOLLOWING_ENUM.PENDING],
+        },
       },
     });
+
     return followingList;
   }
 }

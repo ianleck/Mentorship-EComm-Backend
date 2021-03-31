@@ -4,6 +4,7 @@ import { ERRORS, RESPONSE_ERROR, SOCIAL_ERRORS } from '../constants/errors';
 import { SOCIAL_RESPONSE } from '../constants/successMessages';
 import SocialService from '../services/social.service';
 import apiResponse from '../utilities/apiResponse';
+import { FOLLOWING_ENUM } from '../constants/enum';
 
 export class SocialController {
   //================================== POSTS =============================================
@@ -295,15 +296,38 @@ export class SocialController {
       await SocialService.followUser(accountId, user.accountId);
       return apiResponse.result(
         res,
-        { message: SOCIAL_RESPONSE.FOLLOWING_ADDED },
+        {
+          message: SOCIAL_RESPONSE.FOLLOWING_ADDED,
+          followingStatus: FOLLOWING_ENUM.APPROVED,
+        },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[socialController.followUser]:' + e.message);
-      if (
-        e.message === ERRORS.USER_DOES_NOT_EXIST ||
-        e.message === SOCIAL_ERRORS.PRIVATE_USER
-      ) {
+      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
+        try {
+          await SocialService.requestFollowing(accountId, user.accountId);
+          return apiResponse.result(
+            res,
+            {
+              message: SOCIAL_RESPONSE.FOLLOWING_REQUEST_CREATED,
+              followingStatus: FOLLOWING_ENUM.PENDING,
+            },
+            httpStatusCodes.OK
+          );
+        } catch (e) {
+          logger.error('[socialController.requestFollowing]:' + e.message);
+          if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
+            return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+              message: e.message,
+            });
+          }
+          return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+            message: RESPONSE_ERROR.RES_ERROR,
+          });
+        }
+      }
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
