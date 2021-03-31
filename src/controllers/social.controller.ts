@@ -300,7 +300,10 @@ export class SocialController {
       return apiResponse.result(
         res,
         {
-          message: SOCIAL_RESPONSE.FOLLOWING_ADDED,
+          message:
+            response.followingStatus === FOLLOWING_ENUM.APPROVED
+              ? SOCIAL_RESPONSE.FOLLOWING_ADDED
+              : SOCIAL_RESPONSE.FOLLOWING_REQUEST_CREATED,
           followingStatus: response.followingStatus,
         },
         httpStatusCodes.OK
