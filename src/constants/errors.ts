@@ -28,6 +28,7 @@ export const CART_ERRORS = {
   COURSE_PURCHASED: 'Course has already been purchased',
   MENTORSHIP_CONTRACT_ADDED:
     'Mentorship Listing has already been added to shopping cart',
+  ITEM_MISSING: 'There is no such item in shopping cart',
 };
 
 export const COURSE_ERRORS = {

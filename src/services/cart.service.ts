@@ -57,7 +57,8 @@ export default class CartService {
 
   public static async addMentorshipListing(
     mentorshipContractId: string,
-    studentId: string
+    studentId: string,
+    numSlots: string
   ) {
     const student = await User.findByPk(studentId);
     if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
@@ -79,11 +80,25 @@ export default class CartService {
     await new CartToMentorshipListing({
       cartId,
       mentorshipListingId: mentorshipContract.mentorshipListingId,
+      numSlots,
     }).save();
 
     return await Cart.findByPk(cartId, {
       include: [Course, MentorshipListing],
     });
+  }
+
+  public static async updateMentorshipCartQuantity(
+    cartId: string,
+    mentorshipListingId: string,
+    numSlots: string
+  ) {
+    const mentorshipCartItem = await CartToMentorshipListing.findOne({
+      where: { cartId, mentorshipListingId },
+    });
+    if (!mentorshipCartItem) throw new Error(CART_ERRORS.ITEM_MISSING);
+
+    await mentorshipCartItem.update({ numSlots });
   }
 
   public static async deleteItems(

@@ -251,20 +251,12 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.acceptMentorshipContract]:' + e.message
       );
-      if (
-        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
-        e.message === ERRORS.STUDENT_DOES_NOT_EXIST ||
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.CONTRACT_MISSING,
+        ERRORS.STUDENT_DOES_NOT_EXIST,
+        ERRORS.SENSEI_DOES_NOT_EXIST,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      ]);
     }
   }
 
@@ -286,20 +278,11 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.rejectMentorshipContract]:' + e.message
       );
-      if (
-        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
-        e.message === ERRORS.STUDENT_DOES_NOT_EXIST ||
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.CONTRACT_MISSING,
+        ERRORS.STUDENT_DOES_NOT_EXIST,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      ]);
     }
   }
 
