@@ -17,6 +17,7 @@ export const CHILD_FOLDERS = [
   '/course/lesson/file',
   '/course/lesson/video',
   '/course/lesson/assessment-video',
+  '/mentorship/task',
 ];
 
 /**
