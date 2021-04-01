@@ -1,8 +1,8 @@
 import httpStatusCodes from 'http-status-codes';
-import Utility from '../constants/utility';
 import logger from '../config/logger';
 import { ERRORS, MENTORSHIP_ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { MENTORSHIP_RESPONSE } from '../constants/successMessages';
+import Utility from '../constants/utility';
 import MentorshipService from '../services/mentorship.service';
 import UserService from '../services/user.service';
 import apiResponse from '../utilities/apiResponse';
@@ -234,11 +234,13 @@ export class MentorshipController {
   public static async acceptMentorshipContract(req, res) {
     const { mentorshipContractId } = req.params;
     const { user } = req;
+    const { emailParams } = req.body;
 
     try {
       const mentorshipContract = await MentorshipService.acceptContract(
         mentorshipContractId,
-        user.accountId
+        user.accountId,
+        emailParams
       );
       return apiResponse.result(
         res,

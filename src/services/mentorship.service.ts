@@ -312,7 +312,11 @@ export default class MentorshipService {
     return updatedContract;
   }
 
-  public static async acceptContract(mentorshipContractId, accountId) {
+  public static async acceptContract(
+    mentorshipContractId: string,
+    accountId: string,
+    emailParams: { numSlots: string; duration: string; message?: Text }
+  ) {
     // Check for existing mentorship contract that is pending
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
@@ -336,12 +340,16 @@ export default class MentorshipService {
     const student = await User.findByPk(mentorshipContract.accountId);
     if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
 
+    const sensei = await User.findByPk(mentorshipListing.accountId);
+    if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+    const mentorName = `${sensei.firstName} ${sensei.lastName}`;
+
     const acceptedApplication = await mentorshipContract.update({
       senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
     });
 
     const mentorshipName = mentorshipListing.name;
-    const additional = { mentorshipName };
+    const additional = { mentorshipName, ...emailParams, mentorName };
 
     await CartService.addMentorshipListing(
       acceptedApplication.mentorshipContractId,
@@ -402,7 +410,6 @@ export default class MentorshipService {
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
-    // Manual cascade deletion of associations - Subscription
 
     await MentorshipContract.destroy({
       where: {

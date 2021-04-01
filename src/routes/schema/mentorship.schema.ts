@@ -28,6 +28,14 @@ export default {
     statement: joi.string().required(),
   }),
 
+  acceptMentorshipB: joi.object({
+    emailParams: joi.object({
+      numSlots: joi.string().required(),
+      duration: joi.string().required(),
+      message: joi.string().optional(),
+    }),
+  }),
+
   addTestimonialB: joi.object({
     newTestimonial: joi
       .object({
