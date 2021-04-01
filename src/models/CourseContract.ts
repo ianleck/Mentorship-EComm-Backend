@@ -49,4 +49,3 @@ export class CourseContract extends BaseEntity {
 }
 
 // one to one mapping for Review
-// has Subscription oto

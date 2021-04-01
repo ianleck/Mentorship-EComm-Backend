@@ -15,7 +15,6 @@ import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
 import { Course } from '../models/Course';
 import { MentorshipListing } from '../models/MentorshipListing';
-import { SubscriptionPlan } from '../models/SubscriptionPlan';
 import { User } from '../models/User';
 import { Wallet } from '../models/Wallet';
 import CourseService from './course.service';
@@ -104,7 +103,7 @@ export default class PaypalService {
               totalEarnedToAdd: Number(payable.toFixed(2)),
             });
           }
-        } // else for subscription
+        } // else for mentorship
       })
     );
 
@@ -272,19 +271,4 @@ export default class PaypalService {
 
     return { populatedTransactions, billings };
   }
-
-  // Pass in subscriptionPlan Id
-  public static async populateBillingPlanAttributes(
-    subscriptionPlanId: string
-  ) {
-    const existingSubscription = await SubscriptionPlan.findByPk(
-      subscriptionPlanId
-    );
-
-    const billingPlanAttributes = {
-      name: existingSubscription.name,
-    };
-  }
-
-  public static async populateBillingPlanUpdateAttributes() {}
 }
