@@ -18,7 +18,6 @@ import { Task } from '../models/Task';
 import { TaskBucket } from '../models/TaskBucket';
 import { Testimonial } from '../models/Testimonial';
 import { User } from '../models/User';
-import CartService from './cart.service';
 import EmailService from './email.service';
 
 /*type getFilter = {
@@ -351,10 +350,6 @@ export default class MentorshipService {
     const mentorshipName = mentorshipListing.name;
     const additional = { mentorshipName, ...emailParams, mentorName };
 
-    await CartService.addMentorshipListing(
-      acceptedApplication.mentorshipContractId,
-      student.accountId
-    );
     //SEND EMAIL TO INFORM OF ACCEPTANCE OF APPLICATION
     await EmailService.sendEmail(student.email, 'acceptContract', additional);
 
