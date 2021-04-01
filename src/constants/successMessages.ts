@@ -19,7 +19,8 @@ export const AUTH_RESPONSE = {
 // ==================== CART RESPONSE MESSAGES ====================
 export const CART_RESPONSE = {
   ADD_COURSE_TO_CART: 'Course has been successfully added to cart',
-  ADD_MENTORSHIP_TO_CART: 'Mentorship has been successfully added to cart',
+  ADD_MENTORSHIP_TO_CART:
+    'Mentorship Passes have been successfully added to cart',
   DELETE_FROM_CART:
     'The selected item(s) have been successfully removed from cart',
   UPDATE_QUANTITY: 'Mentorship Quantity has been successfully updated',

@@ -51,7 +51,10 @@ export default class CartService {
     await new CartToCourse({ cartId, courseId }).save();
 
     return await Cart.findByPk(cartId, {
-      include: [Course, MentorshipListing],
+      include: [
+        Course,
+        { model: MentorshipListing, include: [CartToMentorshipListing] },
+      ],
     });
   }
 
@@ -84,7 +87,10 @@ export default class CartService {
     }).save();
 
     return await Cart.findByPk(cartId, {
-      include: [Course, MentorshipListing],
+      include: [
+        Course,
+        { model: MentorshipListing, include: [CartToMentorshipListing] },
+      ],
     });
   }
 
@@ -147,7 +153,10 @@ export default class CartService {
     }
 
     return await Cart.findByPk(cartId, {
-      include: [Course, MentorshipListing],
+      include: [
+        Course,
+        { model: MentorshipListing, include: [CartToMentorshipListing] },
+      ],
     });
   }
 
@@ -167,7 +176,10 @@ export default class CartService {
 
     const cartId = cart.cartId;
     return await Cart.findByPk(cartId, {
-      include: [Course, MentorshipListing],
+      include: [
+        Course,
+        { model: MentorshipListing, include: [CartToMentorshipListing] },
+      ],
     });
   }
 }
