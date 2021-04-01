@@ -416,4 +416,34 @@ export class SocialController {
       });
     }
   }
+
+  public static async getPendingFollowingList(req, res) {
+    const { accountId } = req.params;
+    const { user } = req;
+
+    try {
+      const pendingFollowingList = await SocialService.getPendingFollowingList(
+        accountId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          pendingFollowingList,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getPendingFollowingList]:' + e.toString());
+      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
 }

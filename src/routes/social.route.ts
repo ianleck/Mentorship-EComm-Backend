@@ -124,4 +124,12 @@ router.get(
   Utility.asyncHandler(SocialController.getFollowerList)
 );
 
+//View Pending List (the list of users :accountId has requested to follow)
+router.get(
+  '/pending-following/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getPendingFollowingList)
+);
+
 export default router;

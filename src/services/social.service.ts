@@ -312,7 +312,7 @@ export default class SocialService {
       where: {
         followerId: { [Op.eq]: accountId },
         followingStatus: {
-          [Op.or]: [FOLLOWING_ENUM.APPROVED, FOLLOWING_ENUM.PENDING],
+          [Op.eq]: [FOLLOWING_ENUM.APPROVED],
         },
       },
     });
@@ -335,15 +335,40 @@ export default class SocialService {
       if (!following) throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
     }
 
-    const followingList = UserFollowership.findAll({
+    const followerList = UserFollowership.findAll({
       where: {
         followingId: { [Op.eq]: accountId },
         followingStatus: {
-          [Op.or]: [FOLLOWING_ENUM.APPROVED, FOLLOWING_ENUM.PENDING],
+          [Op.eq]: [FOLLOWING_ENUM.APPROVED],
         },
       },
     });
 
-    return followingList;
+    return followerList;
+  }
+
+  public static async getPendingFollowingList(
+    accountId: string,
+    userId: string
+  ) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    //Check if user retrieving pending list is the owner of account
+    if (userId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    const pendingFollowingList = UserFollowership.findAll({
+      where: {
+        followerId: { [Op.eq]: accountId },
+        followingStatus: {
+          [Op.eq]: [FOLLOWING_ENUM.PENDING],
+        },
+      },
+    });
+
+    return pendingFollowingList;
   }
 }
