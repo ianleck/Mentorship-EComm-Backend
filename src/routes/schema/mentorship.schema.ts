@@ -82,6 +82,7 @@ export default {
     editedTaskBucket: joi
       .object({
         title: joi.string().required(),
+        taskOrder: joi.array().items(joi.string()).required(),
       })
       .required(),
   }),
