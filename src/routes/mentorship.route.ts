@@ -142,6 +142,22 @@ router.get(
   Utility.asyncHandler(MentorshipController.getSenseiMentorshipContracts)
 );
 
+//View An Active Mentorship
+router.get(
+  '/contract/active/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.mentorshipContractP),
+  Utility.asyncHandler(MentorshipController.getActiveMentorship)
+);
+
+//View List of Active Mentorships
+router.get(
+  '/contract/all/active/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(MentorshipController.getAllActiveMentorships)
+);
+
 // ==================================== TESTIMONIALS ====================================
 router.post(
   '/testimonial/:mentorshipListingId/:accountId',
