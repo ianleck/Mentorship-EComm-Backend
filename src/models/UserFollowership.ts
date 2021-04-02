@@ -1,10 +1,10 @@
 import {
-  BelongsTo,
   Column,
   CreatedAt,
   DataType,
   Default,
   ForeignKey,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -44,6 +44,6 @@ export class UserFollowership extends Model<UserFollowership> {
   updatedAt: Date;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
-  @BelongsTo(() => User, 'accountId')
-  User: User;
+  @HasMany(() => User, 'followershipId')
+  Users: User[];
 }
