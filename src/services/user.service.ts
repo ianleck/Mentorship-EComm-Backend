@@ -56,6 +56,7 @@ export default class UserService {
         const privateUser = await User.findByPk(accountId, {
           attributes: [
             'accountId',
+            'username',
             'firstName',
             'lastName',
             'profileImgUrl',

@@ -52,7 +52,7 @@ export class UserFollowership extends Model<UserFollowership> {
 
   @BelongsTo(() => User, {
     foreignKey: {
-      name: 'followerId',
+      name: 'followingId',
       allowNull: false,
     },
   })
