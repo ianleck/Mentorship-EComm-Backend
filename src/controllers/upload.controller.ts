@@ -3,6 +3,7 @@ import logger from '../config/logger';
 import {
   COURSE_ERRORS,
   ERRORS,
+  MENTORSHIP_ERRORS,
   RESPONSE_ERROR,
   UPLOAD_ERRORS,
 } from '../constants/errors';
@@ -410,6 +411,90 @@ export class UploadController {
         e.message === COURSE_ERRORS.LESSON_MISSING ||
         e.message === COURSE_ERRORS.COURSE_MISSING ||
         e.message === UPLOAD_ERRORS.FILE_MISSING ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  // ================================ MENTORSHIP RELATED UPLOADS ================================
+
+  public static async uploadTaskAttachment(req, res) {
+    const { accountId } = req.user;
+    const { taskId } = req.params;
+
+    try {
+      // if no file attached
+      if (!req.files || Object.keys(req.files).length === 0) {
+        throw new Error(UPLOAD_ERRORS.NO_FILE_UPLOADED);
+      }
+
+      const file = req.files.file;
+      const task = await UploadService.uploadTaskAttachment(
+        file,
+        accountId,
+        taskId
+      );
+      return apiResponse.result(
+        res,
+        { message: UPLOAD_RESPONSE.TASK_ATTACHMENT_UPLOAD, task },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[uploadController.uploadTaskAttachment]:' + e.message);
+      if (
+        e.message === MENTORSHIP_ERRORS.TASK_MISSING ||
+        e.message === MENTORSHIP_ERRORS.TASK_BUCKET_MISSING ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
+        e.message === UPLOAD_ERRORS.NO_FILE_UPLOADED ||
+        e.message === UPLOAD_ERRORS.INVALID_ATTACHMENT_TYPE ||
+        e.message === UPLOAD_ERRORS.FAILED_ATTACHMENT_SAVE ||
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async deleteTaskAttachment(req, res) {
+    const { accountId } = req.user;
+    const { taskId } = req.params;
+
+    try {
+      const task = await UploadService.deleteTaskAttachment(
+        accountId,
+        taskId,
+        'attachmentUrl'
+      );
+      return apiResponse.result(
+        res,
+        { message: UPLOAD_RESPONSE.ATTACHMENT_DELETED, task },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[uploadController.deleteTaskAttachment]:' + e.message);
+      if (
+        e.message === MENTORSHIP_ERRORS.TASK_MISSING ||
+        e.message === MENTORSHIP_ERRORS.TASK_BUCKET_MISSING ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
+        e.message === UPLOAD_ERRORS.ATTACHMENT_MISSING ||
         e.message ===
           httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       ) {

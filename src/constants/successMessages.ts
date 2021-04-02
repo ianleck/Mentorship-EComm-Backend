@@ -115,8 +115,10 @@ export const UPLOAD_RESPONSE = {
   COURSE_PIC_UPLOAD: 'Course image has been uploaded successfully',
   LESSON_FILE_UPLOAD: 'Successfully uploaded file',
   LESSON_VIDEO_UPLOAD: 'Successfully uploaded video',
+  TASK_ATTACHMENT_UPLOAD: 'Successfully uploaded attachment',
 
   FILE_DELETED: 'Successfully deleted file',
+  ATTACHMENT_DELETED: 'Successfully deleted attachment',
 };
 
 // ==================== SOCIAL RESPONSE MESSAGES ====================

@@ -2,6 +2,7 @@ import express from 'express';
 import Utility from '../constants/utility';
 import { UploadController } from '../controllers/upload.controller';
 import course from './schema/course.schema';
+import mentorship from './schema/mentorship.schema';
 import user from './schema/user.schema';
 const passport = require('passport');
 const router = express.Router();
@@ -81,4 +82,23 @@ router.delete(
   schemaValidator.params(course.lessonIdP),
   Utility.asyncHandler(UploadController.deleteLessonFile)
 );
+
+// ================================ MENTORSHIP RELATED UPLOADS ================================
+
+//Add Attachment to Task
+router.post(
+  '/task/attachment/:taskId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.taskP),
+  Utility.asyncHandler(UploadController.uploadTaskAttachment)
+);
+
+// Remove Attachment from Task
+router.delete(
+  '/task/attachment/:taskId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.taskP),
+  Utility.asyncHandler(UploadController.deleteTaskAttachment)
+);
+
 export default router;
