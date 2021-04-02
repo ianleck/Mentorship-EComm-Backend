@@ -27,6 +27,10 @@ export class TaskBucket extends BaseEntity {
   @Column(DataType.STRING)
   title: string;
 
+  @Default([])
+  @Column(DataType.JSON)
+  taskOrder: string[];
+
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => MentorshipContract, 'mentorshipContractId')
   MentorshipContract: MentorshipContract;

@@ -743,11 +743,11 @@ export class MentorshipController {
   }
 
   public static async deleteTask(req, res) {
-    const { taskBucketId } = req.params;
+    const { taskId } = req.params;
     const { user } = req;
 
     try {
-      await MentorshipService.deleteTask(taskBucketId, user.accountId);
+      await MentorshipService.deleteTask(taskId, user.accountId);
       return apiResponse.result(
         res,
         { message: MENTORSHIP_RESPONSE.TASK_DELETE },
