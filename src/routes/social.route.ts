@@ -60,6 +60,14 @@ router.get(
 );
 
 //================================== FOLLOWING =============================================
+//Request to Follow a User
+router.post(
+  '/following/request/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), //accountId of following
+  Utility.asyncHandler(SocialController.requestFollowing)
+);
+
 //Cancel Request to Follow a User
 router.delete(
   '/following/request/:accountId',
@@ -114,22 +122,6 @@ router.get(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(SocialController.getFollowingList)
-);
-
-//View Follower List
-router.get(
-  '/follower/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdP),
-  Utility.asyncHandler(SocialController.getFollowerList)
-);
-
-//View Pending List (the list of users :accountId has requested to follow)
-router.get(
-  '/pending-following/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdP),
-  Utility.asyncHandler(SocialController.getPendingFollowingList)
 );
 
 export default router;

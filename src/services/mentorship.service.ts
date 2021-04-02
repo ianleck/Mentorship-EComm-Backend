@@ -18,7 +18,6 @@ import { Task } from '../models/Task';
 import { TaskBucket } from '../models/TaskBucket';
 import { Testimonial } from '../models/Testimonial';
 import { User } from '../models/User';
-import CartService from './cart.service';
 import EmailService from './email.service';
 
 /*type getFilter = {
@@ -312,7 +311,11 @@ export default class MentorshipService {
     return updatedContract;
   }
 
-  public static async acceptContract(mentorshipContractId, accountId) {
+  public static async acceptContract(
+    mentorshipContractId: string,
+    accountId: string,
+    emailParams: { numSlots: string; duration: string; message?: Text }
+  ) {
     // Check for existing mentorship contract that is pending
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
@@ -336,17 +339,17 @@ export default class MentorshipService {
     const student = await User.findByPk(mentorshipContract.accountId);
     if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
 
+    const sensei = await User.findByPk(mentorshipListing.accountId);
+    if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+    const mentorName = `${sensei.firstName} ${sensei.lastName}`;
+
     const acceptedApplication = await mentorshipContract.update({
       senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
     });
 
     const mentorshipName = mentorshipListing.name;
-    const additional = { mentorshipName };
+    const additional = { mentorshipName, ...emailParams, mentorName };
 
-    await CartService.addMentorshipListing(
-      acceptedApplication.mentorshipContractId,
-      student.accountId
-    );
     //SEND EMAIL TO INFORM OF ACCEPTANCE OF APPLICATION
     await EmailService.sendEmail(student.email, 'acceptContract', additional);
 
@@ -402,7 +405,6 @@ export default class MentorshipService {
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
-    // Manual cascade deletion of associations - Subscription
 
     await MentorshipContract.destroy({
       where: {
@@ -665,11 +667,23 @@ export default class MentorshipService {
     accountId: string
   ) {
     await MentorshipService.authorizationCheck(mentorshipContractId, accountId);
-    return TaskBucket.findAll({
+    const buckets = await TaskBucket.findAll({
       where: { mentorshipContractId },
-      order: [['updatedAt', 'ASC']],
       include: [Task],
     });
+
+    await Promise.all(
+      buckets.map(async (bucket) => {
+        bucket.Tasks.sort(function (a, b) {
+          return (
+            bucket.taskOrder.indexOf(a.taskId) -
+            bucket.taskOrder.indexOf(b.taskId)
+          );
+        });
+      })
+    );
+
+    return buckets;
   }
 
   //====================== TASK =======================
@@ -678,7 +692,6 @@ export default class MentorshipService {
     taskBucketId: string,
     task: {
       body: string;
-      attachmentUrl?: string;
       dueAt?: string;
     }
   ): Promise<Task> {
@@ -690,16 +703,22 @@ export default class MentorshipService {
       userId
     );
 
-    const { body, attachmentUrl, dueAt } = task;
+    const { body, dueAt } = task;
 
     const newTask = new Task({
       taskBucketId,
       body,
-      attachmentUrl,
       dueAt,
     });
 
     await newTask.save();
+
+    // Push task to end of task order array
+    const updatedTaskOrder = taskBucket.taskOrder;
+    updatedTaskOrder.push(newTask.taskId);
+    await taskBucket.update({
+      taskOrder: updatedTaskOrder,
+    });
 
     return newTask;
   }
@@ -729,7 +748,6 @@ export default class MentorshipService {
   ): Promise<void> {
     const existingTask = await Task.findByPk(taskId);
     if (!existingTask) throw new Error(MENTORSHIP_ERRORS.TASK_MISSING);
-
     const taskBucket = await TaskBucket.findByPk(existingTask.taskBucketId);
     if (!taskBucket) throw new Error(MENTORSHIP_ERRORS.TASK_BUCKET_MISSING);
 
@@ -741,6 +759,14 @@ export default class MentorshipService {
       where: {
         taskId,
       },
+    });
+
+    // Remove task from task order
+    const updatedTaskOrder = taskBucket.taskOrder.filter(
+      (_taskId) => _taskId !== taskId
+    );
+    await taskBucket.update({
+      taskOrder: updatedTaskOrder,
     });
   }
 

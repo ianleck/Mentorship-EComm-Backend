@@ -51,6 +51,8 @@ export class MentorshipContract extends BaseEntity {
   })
   senseiApproval: MENTORSHIP_CONTRACT_APPROVAL;
 
+  @Column(DataType.INTEGER)
+  mentorPass: number;
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')
   Student: User;
@@ -63,4 +65,3 @@ export class MentorshipContract extends BaseEntity {
 }
 
 // one to one mapping for Review
-// has Subscription oto
