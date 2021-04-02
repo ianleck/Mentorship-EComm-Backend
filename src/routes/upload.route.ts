@@ -76,6 +76,13 @@ router.delete(
   Utility.asyncHandler(UploadController.deleteAssessmentVideo)
 );
 
+router.delete(
+  '/lesson/file/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(course.lessonIdP),
+  Utility.asyncHandler(UploadController.deleteLessonFile)
+);
+
 // ================================ MENTORSHIP RELATED UPLOADS ================================
 
 //Add Attachment to Task
@@ -93,4 +100,5 @@ router.delete(
   schemaValidator.params(mentorship.taskP),
   Utility.asyncHandler(UploadController.deleteTaskAttachment)
 );
+
 export default router;

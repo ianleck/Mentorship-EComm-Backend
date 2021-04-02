@@ -60,6 +60,10 @@ export class MentorshipListing extends BaseEntity {
   })
   visibility: VISIBILITY_ENUM;
 
+  @Default(null)
+  @Column(DataType.DATE)
+  publishedAt: Date;
+
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => User, 'accountId')
   Sensei: User;

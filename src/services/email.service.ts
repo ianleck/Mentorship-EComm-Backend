@@ -5,16 +5,22 @@ import path from 'path';
 import { ERRORS } from '../constants/errors';
 import { TEMPLATES } from '../constants/templates/index';
 import { User } from '../models/User';
+
+interface AdditionalParams {
+  url?: string;
+  mentorshipName?: string;
+  courseName?: string;
+  commentBody?: string;
+  numSlots?: string;
+  duration?: string;
+  message?: Text;
+  mentorName?: string;
+}
 export default class EmailService {
   public static async sendEmail(
     email: string,
     template: string,
-    additional?: {
-      url?: string;
-      mentorshipName?: string;
-      courseName?: string;
-      commentBody?: string;
-    }
+    additional?: AdditionalParams
   ) {
     try {
       // Set up emailClient
@@ -67,12 +73,7 @@ export default class EmailService {
     email: string,
     template: string,
     user: User,
-    additional?: {
-      url?: string;
-      mentorshipName?: string;
-      courseName?: string;
-      commentBody?: string;
-    }
+    additional?: AdditionalParams
   ) {
     const name = `${user.firstName} ${user.lastName}`;
 
@@ -127,6 +128,10 @@ export default class EmailService {
         return await ejs.renderFile(filePath, {
           name,
           mentorshipName: additional.mentorshipName,
+          numSlots: additional.numSlots,
+          duration: additional.duration,
+          message: additional.message,
+          mentorName: additional.mentorName,
         });
 
       case 'rejectContract':

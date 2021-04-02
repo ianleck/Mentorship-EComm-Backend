@@ -68,7 +68,7 @@ router.post(
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
   schemaValidator.params(mentorship.mentorshipListingP),
-  schemaValidator.body(mentorship.mentorshipContractB), // Should be created with subscription here
+  schemaValidator.body(mentorship.mentorshipContractB),
   Utility.asyncHandler(MentorshipController.createContract)
 );
 
@@ -77,7 +77,7 @@ router.put(
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
   schemaValidator.params(mentorship.mentorshipContractP),
-  schemaValidator.body(mentorship.mentorshipContractB), // Should be created with subscription as well
+  schemaValidator.body(mentorship.mentorshipContractB),
   Utility.asyncHandler(MentorshipController.updateContract)
 );
 
@@ -95,6 +95,7 @@ router.put(
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(mentorship.mentorshipContractP),
+  schemaValidator.body(mentorship.acceptMentorshipB),
   Utility.asyncHandler(MentorshipController.acceptMentorshipContract)
 );
 
@@ -240,4 +241,13 @@ router.get(
   Utility.asyncHandler(MentorshipController.getTasks)
 );
 
+// ==================================== SENSEI MENTEE ====================================
+router.get(
+  // get sensei's mentee list
+  '/sensei/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUserOrAdmin,
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(MentorshipController.getSenseiMenteeList)
+);
 export default router;

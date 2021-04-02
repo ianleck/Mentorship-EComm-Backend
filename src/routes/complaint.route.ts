@@ -22,7 +22,6 @@ router.post(
 router.get(
   '/reason',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireAdmin,
   Utility.asyncHandler(ComplaintController.getComplaintReasons)
 );
 

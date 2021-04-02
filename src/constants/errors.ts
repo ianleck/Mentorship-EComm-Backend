@@ -28,6 +28,7 @@ export const CART_ERRORS = {
   COURSE_PURCHASED: 'Course has already been purchased',
   MENTORSHIP_CONTRACT_ADDED:
     'Mentorship Listing has already been added to shopping cart',
+  ITEM_MISSING: 'There is no such item in shopping cart',
 };
 
 export const COURSE_ERRORS = {
@@ -37,6 +38,8 @@ export const COURSE_ERRORS = {
     'A course contract has already been made for this course. Please edit existing course contract.',
   CONTRACT_MISSING:
     'Course contract does not exist. Please sign up for the course first.',
+  DELETE_DISALLOWED:
+    'Digi Dojo does not allow any deletion of published courses',
   LESSON_MISSING: 'Lesson does not exist',
   NOTE_MISSING: 'Note does not exist',
   ANNOUNCEMENT_MISSING: 'Annoucement does not exist',
@@ -61,6 +64,8 @@ export const MENTORSHIP_ERRORS = {
   TESTIMONIAL_MISSING: 'Testimonial does not exist',
   CONTRACT_NOT_COMPLETED:
     'Mentorship contract has not been completed or does not exist. Please only add a testimonial for completed mentorships.',
+  USER_NOT_VERIFIED:
+    'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your mentorship listing.',
   TASK_BUCKET_MISSING: 'Task bucket does not exist',
   TASK_MISSING: 'Task does not exist',
 };

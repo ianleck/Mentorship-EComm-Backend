@@ -1,11 +1,13 @@
 import {
   BelongsTo,
   Column,
+  CreatedAt,
   DataType,
   Default,
   Model,
   PrimaryKey,
   Table,
+  UpdatedAt,
 } from 'sequelize-typescript';
 import { COMPLAINT_TYPE_ENUM } from '../constants/enum';
 import { Comment } from './Comment';
@@ -36,6 +38,14 @@ export class Complaint extends Model<Complaint> {
     values: Object.values(COMPLAINT_TYPE_ENUM),
   })
   type: COMPLAINT_TYPE_ENUM;
+
+  @CreatedAt
+  @Column
+  createdAt: Date;
+
+  @UpdatedAt
+  @Column
+  updatedAt: Date;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => ComplaintReason, 'complaintReasonId')

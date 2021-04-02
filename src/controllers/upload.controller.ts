@@ -490,9 +490,11 @@ export class UploadController {
     } catch (e) {
       logger.error('[uploadController.deleteTaskAttachment]:' + e.message);
       if (
-        e.message === COURSE_ERRORS.LESSON_MISSING ||
-        e.message === COURSE_ERRORS.COURSE_MISSING ||
-        e.message === UPLOAD_ERRORS.FILE_MISSING ||
+        e.message === MENTORSHIP_ERRORS.TASK_MISSING ||
+        e.message === MENTORSHIP_ERRORS.TASK_BUCKET_MISSING ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
+        e.message === UPLOAD_ERRORS.ATTACHMENT_MISSING ||
         e.message ===
           httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       ) {

@@ -164,6 +164,21 @@ export default class CourseService {
     );
   }
 
+  public static async deleteCourseDraft(courseId: string, accountId: string) {
+    const course = await Course.findByPk(courseId);
+    if (!course) throw new Error(COURSE_ERRORS.COURSE_DRAFT_MISSING);
+    if (course.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    if (course.publishedAt) throw new Error(COURSE_ERRORS.DELETE_DISALLOWED);
+    await Course.destroy({
+      where: {
+        courseId,
+      },
+    });
+  }
+
   public static async getAllCourses() {
     const courses = Course.findAll({
       where: {

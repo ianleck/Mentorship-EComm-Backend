@@ -1,8 +1,10 @@
 import {
+  AllowNull,
   Column,
   CreatedAt,
   DataType,
   ForeignKey,
+  Min,
   Model,
   Table,
   UpdatedAt,
@@ -19,6 +21,11 @@ export class CartToMentorshipListing extends Model<CartToMentorshipListing> {
   @ForeignKey(() => MentorshipListing)
   @Column(DataType.UUID)
   mentorshipListingId: string;
+
+  @Min(1)
+  @AllowNull(false)
+  @Column(DataType.INTEGER)
+  numSlots: number;
 
   @CreatedAt
   @Column

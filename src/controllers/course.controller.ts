@@ -7,6 +7,7 @@ import {
   RESPONSE_ERROR,
 } from '../constants/errors';
 import { COURSE_RESPONSE } from '../constants/successMessages';
+import Utility from '../constants/utility';
 import CourseService from '../services/course.service';
 import apiResponse from '../utilities/apiResponse';
 
@@ -67,6 +68,25 @@ export class CourseController {
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
+    }
+  }
+
+  public static async deleteCourseDraft(req, res) {
+    const { user } = req;
+    const { courseId } = req.params;
+    try {
+      await CourseService.deleteCourseDraft(courseId, user.accountId);
+      return apiResponse.result(
+        res,
+        { message: COURSE_RESPONSE.COURSE_DELETE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      return Utility.apiErrorResponse(res, e, [
+        COURSE_ERRORS.COURSE_DRAFT_MISSING,
+        COURSE_ERRORS.DELETE_DISALLOWED,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      ]);
     }
   }
 

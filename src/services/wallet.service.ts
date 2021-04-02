@@ -8,6 +8,8 @@ import {
 import { WALLET_ERROR } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
+import { Course } from '../models/Course';
+import { MentorshipListing } from '../models/MentorshipListing';
 import { User } from '../models/User';
 import { Wallet } from '../models/Wallet';
 import EmailService from './email.service';
@@ -47,14 +49,9 @@ export default class WalletService {
     courseContractId: string,
     adminWalletId: string,
     senseiWalletId: string,
-    status: BILLING_STATUS
+    status: BILLING_STATUS,
+    billingType: BILLING_TYPE
   ) {
-    const senseiWallet = await Wallet.findByPk(senseiWalletId);
-    const pendingAmount = senseiWallet.pendingAmount + amount;
-    const totalEarned = senseiWallet.totalEarned + amount;
-
-    await senseiWallet.update({ pendingAmount, totalEarned });
-
     const withdrawableDate = new Date();
     withdrawableDate.setDate(withdrawableDate.getDate() + WITHDRAWAL_DAYS);
 
@@ -68,7 +65,7 @@ export default class WalletService {
       receiverWalletId: senseiWalletId,
       status,
       withdrawableDate,
-      billingType: BILLING_TYPE.INTERNAL,
+      billingType,
     });
 
     return await newBilling.save();
@@ -84,26 +81,72 @@ export default class WalletService {
     );
   }
 
-  public static async getAllBillings() {
-    return await Billing.findAll();
-  }
-
-  public static async viewBilling(
-    billingId: string,
-    walletId: string,
-    accountId: string,
-    userType: USER_TYPE_ENUM
-  ) {
-    let user;
-    if (userType !== USER_TYPE_ENUM.ADMIN) {
-      user = await User.findByPk(accountId);
+  public static async viewBillingsByFilter(filter: {
+    billingId?: string;
+    receiverWalletId?: string;
+    status?: BILLING_STATUS;
+    billingType?: BILLING_TYPE;
+    paypalPaymentId?: string;
+  }) {
+    // Student billing
+    if (filter.paypalPaymentId) {
+      return await Billing.findAll({
+        where: { paypalPaymentId: filter.paypalPaymentId },
+        include: [
+          { model: Course, as: 'Course' },
+          { model: MentorshipListing, as: 'MentorshipListing' },
+        ],
+      });
     }
-    if (!user || user.walletId !== walletId)
-      throw new Error(WALLET_ERROR.UNAUTH_WALLET);
 
-    const billing = await Billing.findByPk(billingId);
-    return billing;
+    if (filter.billingId) {
+      // View a sensei's withdrawal request
+      if (filter.billingType === BILLING_TYPE.WITHDRAWAL) {
+        const withdrawals = await Billing.findAll({
+          where: {
+            status: BILLING_STATUS.WITHDRAWN,
+            billingType: BILLING_TYPE.WITHDRAWAL,
+          },
+          order: [['createdAt', 'DESC']],
+        });
+
+        const currWithdrawal = await Billing.findByPk(filter.billingId);
+
+        let createdCheck = withdrawals[0]
+          ? {
+              [Op.between]: [
+                withdrawals[0].createdAt,
+                currWithdrawal.createdAt,
+              ],
+            }
+          : { [Op.lte]: currWithdrawal.createdAt };
+
+        return await Billing.findAll({
+          where: {
+            receiverWalletId: currWithdrawal.receiverWalletId,
+            status: BILLING_STATUS.CONFIRMED,
+            createdAt: createdCheck,
+          },
+        });
+      }
+      if (filter.billingType === BILLING_TYPE.COURSE) {
+        return await Billing.findByPk(filter.billingId, {
+          include: [{ model: Course, as: 'Course' }],
+        });
+      }
+
+      if (filter.billingType === BILLING_TYPE.MENTORSHIP) {
+        return await Billing.findByPk(filter.billingId, {
+          include: [{ model: MentorshipListing, as: 'MentorshipListing' }],
+        });
+      }
+    }
+
+    return await Billing.findAll({
+      where: filter,
+    });
   }
+
   // ============================== Wallet ==============================
 
   public static async setupWallet(accountId: string) {
@@ -137,6 +180,12 @@ export default class WalletService {
     });
   }
 
+  public static async viewListOfWallets() {
+    return await User.findAll({
+      where: { userType: USER_TYPE_ENUM.SENSEI },
+      include: [{ model: Wallet }],
+    });
+  }
   // ============================== Withdrawals ==============================
 
   public static async approveWithdrawal(billingId: string) {
@@ -167,75 +216,43 @@ export default class WalletService {
     paymentId: string
   ) {
     const wallet = await Wallet.findByPk(billing.receiverWalletId);
-    const receiver = await User.findOne({
-      where: { walletId: wallet.walletId },
-    });
+    const receiver = await User.findByPk(wallet.accountId);
 
     await billing.update({
       paypalPaymentId: paymentId,
       status: BILLING_STATUS.WITHDRAWN,
     });
 
+    const newAmount = wallet.confirmedAmount - billing.amount;
+
     await wallet.update({
-      confirmedAmount: 0,
+      confirmedAmount: newAmount,
     });
 
     await EmailService.sendEmail(receiver.email, 'withdrawalSuccess');
   }
 
-  public static async viewCompletedWithdrawals(
-    walletId: string,
-    accountId: string,
-    userType: USER_TYPE_ENUM
-  ) {
-    let user;
-    if (userType !== USER_TYPE_ENUM.ADMIN)
-      user = await User.findByPk(accountId);
-
+  public static async rejectWithdrawal(billingId: string) {
+    const existingApplication = await Billing.findByPk(billingId);
     if (
-      userType === USER_TYPE_ENUM.STUDENT ||
-      (userType === USER_TYPE_ENUM.SENSEI && user.walletId !== walletId)
+      !existingApplication ||
+      existingApplication.billingType !== BILLING_TYPE.WITHDRAWAL
     )
-      throw new Error(WALLET_ERROR.UNAUTH_WALLET);
+      throw new Error(WALLET_ERROR.MISSING_BILLING);
 
-    let whereOptions = {};
-    if (userType === USER_TYPE_ENUM.ADMIN) {
-      whereOptions = {
-        where: {
-          status: BILLING_STATUS.WITHDRAWN,
-          billingType: BILLING_TYPE.WITHDRAWAL,
-        },
-      };
-    }
-    if (userType === USER_TYPE_ENUM.SENSEI) {
-      whereOptions = {
-        where: {
-          receiverWalletId: walletId,
-          status: BILLING_STATUS.WITHDRAWN,
-          billingType: BILLING_TYPE.WITHDRAWAL,
-        },
-      };
+    if (existingApplication.status !== BILLING_STATUS.PENDING_WITHDRAWAL) {
+      throw new Error(WALLET_ERROR.PAID_OUT);
     }
 
-    return await Billing.findAll(whereOptions);
-  }
+    const billing = await Billing.findByPk(billingId);
+    const wallet = await Wallet.findByPk(billing.receiverWalletId);
+    const receiver = await User.findByPk(wallet.accountId);
 
-  public static async viewPendingWithdrawals() {
-    return await Billing.findAll({
-      where: { status: BILLING_STATUS.PENDING_WITHDRAWAL },
+    await EmailService.sendEmail(receiver.email, 'withdrawalFailure');
+    return await existingApplication.update({
+      status: BILLING_STATUS.REJECTED,
     });
   }
-
-  // Incomplete
-  // public static async viewWithdrawalsByFilter(filter: {
-  //   walletId?: string;
-  //   status?: BILLING_STATUS;
-  //   billingType?: BILLING_TYPE;
-  // }) {
-  //   return await Billing.findAll({
-  //     where: filter,
-  //   });
-  // }
 
   public static async withdrawBalance(walletId: string, accountId: string) {
     const user = await User.findByPk(accountId);

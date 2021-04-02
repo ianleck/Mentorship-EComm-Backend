@@ -339,7 +339,7 @@ export default class UploadService {
     taskId: string
   ): Promise<Task> {
     const fileType = Utility.getFileType(file.name);
-    const folder = 'mentorship/task-bucket/task/attachment';
+    const folder = 'mentorship/task';
     // if fileType is not .zip / .docx/ .pdf / .doc, return error;
     if (ALLOWED_ATTACHEMENT_TYPES.indexOf(fileType) == -1) {
       throw new Error(UPLOAD_ERRORS.INVALID_ATTACHMENT_TYPE);

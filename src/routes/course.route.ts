@@ -54,6 +54,15 @@ router.put(
   Utility.asyncHandler(CourseController.updateCourse)
 );
 
+router.delete(
+  // delete course draft
+  '/:courseId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(course.courseIdP),
+  Utility.asyncHandler(CourseController.deleteCourseDraft)
+);
+
 // ======================================== LESSONS ========================================
 router.post(
   '/lesson/:courseId',
