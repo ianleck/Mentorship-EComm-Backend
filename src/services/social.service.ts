@@ -315,6 +315,24 @@ export default class SocialService {
           [Op.eq]: [FOLLOWING_ENUM.APPROVED],
         },
       },
+      include: [
+        {
+          model: User,
+          as: 'Following',
+          on: {
+            '$Following.accountId$': {
+              [Op.col]: 'UserFollowership.followingId',
+            },
+          },
+          attributes: [
+            'accountId',
+            'firstName',
+            'lastName',
+            'profileImgUrl',
+            'isPrivateProfile',
+          ],
+        },
+      ],
     });
 
     return followingList;
@@ -345,7 +363,14 @@ export default class SocialService {
       include: [
         {
           model: User,
+          as: 'Follower',
+          on: {
+            '$Follower.accountId$': {
+              [Op.col]: 'UserFollowership.followerId',
+            },
+          },
           attributes: [
+            'accountId',
             'firstName',
             'lastName',
             'profileImgUrl',

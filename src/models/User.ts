@@ -116,17 +116,11 @@ export class User extends Account {
   @HasMany(() => Experience, 'accountId')
   Experience: Experience[];
 
-  @BelongsToMany(() => User, {
-    through: () => UserFollowership,
-    foreignKey: 'followerId',
-  })
+  @HasMany(() => UserFollowership, 'followerId')
   Following: User[];
 
-  @BelongsToMany(() => User, {
-    through: () => UserFollowership,
-    foreignKey: 'followingId',
-  })
-  Followers: User[];
+  @HasMany(() => UserFollowership, 'followingId')
+  Follower: User[];
 
   @HasMany(() => MentorshipContract, 'accountId')
   MentorshipContracts: MentorshipContract[];
