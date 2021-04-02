@@ -4,13 +4,14 @@ import {
   DataType,
   Default,
   HasMany,
-  Model,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Comment } from './Comment';
 import { Course } from './Course';
+import { Note } from './Note';
+
 @Table
 export class Lesson extends BaseEntity {
   /**
@@ -59,4 +60,7 @@ export class Lesson extends BaseEntity {
 
   @HasMany(() => Comment, 'lessonId')
   Comments: Comment[];
+
+  @HasMany(() => Note, 'lessonId')
+  Notes: Note[];
 }

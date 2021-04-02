@@ -36,6 +36,9 @@ export const COURSE_RESPONSE = {
   LESSON_UPDATE: 'Lesson has been successfully updated',
   LESSON_DELETE: 'Lesson has been successfully deleted',
 
+  NOTE_CREATE: 'Note has been successfully created',
+  NOTE_UPDATE: 'Note has been successfully updated',
+
   COURSE_REQUEST_ACCEPTED: 'Course Request has been successfully accepted',
   COURSE_REQUEST_REJECTED: 'Course Request has been successfully rejected',
 
