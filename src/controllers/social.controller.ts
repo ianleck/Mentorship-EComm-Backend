@@ -1,5 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
+import { FOLLOWING_ENUM } from '../constants/enum';
 import { ERRORS, RESPONSE_ERROR, SOCIAL_ERRORS } from '../constants/errors';
 import { SOCIAL_RESPONSE } from '../constants/successMessages';
 import SocialService from '../services/social.service';
@@ -182,29 +183,6 @@ export class SocialController {
   }
 
   //================================== FOLLOWING =============================================
-  public static async requestFollowing(req, res) {
-    const { accountId } = req.params; //accountId of following
-    const { user } = req; //follower
-
-    try {
-      await SocialService.requestFollowing(accountId, user.accountId);
-      return apiResponse.result(
-        res,
-        { message: SOCIAL_RESPONSE.FOLLOWING_REQUEST_CREATED },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[socialController.requestFollowing]:' + e.message);
-      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      }
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
-    }
-  }
 
   public static async removeRequest(req, res) {
     const { accountId } = req.params; //accountId of following
@@ -292,18 +270,24 @@ export class SocialController {
     const { user } = req; //follower
 
     try {
-      await SocialService.followUser(accountId, user.accountId);
+      const response = await SocialService.followUser(
+        accountId,
+        user.accountId
+      );
       return apiResponse.result(
         res,
-        { message: SOCIAL_RESPONSE.FOLLOWING_ADDED },
+        {
+          message:
+            response.followingStatus === FOLLOWING_ENUM.APPROVED
+              ? SOCIAL_RESPONSE.FOLLOWING_ADDED
+              : SOCIAL_RESPONSE.FOLLOWING_REQUEST_CREATED,
+          followingStatus: response.followingStatus,
+        },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[socialController.followUser]:' + e.message);
-      if (
-        e.message === ERRORS.USER_DOES_NOT_EXIST ||
-        e.message === SOCIAL_ERRORS.PRIVATE_USER
-      ) {
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
@@ -392,6 +376,66 @@ export class SocialController {
       );
     } catch (e) {
       logger.error('[socialService.getFollowingList]:' + e.toString());
+      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getFollowerList(req, res) {
+    const { accountId } = req.params;
+    const { user } = req;
+
+    try {
+      const followerList = await SocialService.getFollowerList(
+        accountId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          followerList,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getFollowerList]:' + e.toString());
+      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getPendingFollowingList(req, res) {
+    const { accountId } = req.params;
+    const { user } = req;
+
+    try {
+      const pendingFollowingList = await SocialService.getPendingFollowingList(
+        accountId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          pendingFollowingList,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getPendingFollowingList]:' + e.toString());
       if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,

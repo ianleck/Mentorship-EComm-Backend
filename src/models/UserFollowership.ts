@@ -3,8 +3,10 @@ import {
   Column,
   CreatedAt,
   DataType,
+  Default,
   ForeignKey,
   Model,
+  PrimaryKey,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
@@ -13,6 +15,11 @@ import { User } from './User';
 
 @Table
 export class UserFollowership extends Model<UserFollowership> {
+  @PrimaryKey
+  @Default(DataType.UUIDV4)
+  @Column(DataType.UUID)
+  followershipId: string;
+
   @ForeignKey(() => User)
   @Column
   followerId: string;
