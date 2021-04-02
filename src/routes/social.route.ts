@@ -84,7 +84,7 @@ router.delete(
   Utility.asyncHandler(SocialController.rejectFollowingRequest)
 );
 
-//Follow User (user's account NOT private) - user requesting is the follower
+//Follow User
 router.post(
   '/following/follow/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -92,7 +92,7 @@ router.post(
   Utility.asyncHandler(SocialController.followUser)
 );
 
-//Unfollow User (Done by user who is following)
+//Unfollow User
 router.delete(
   '/following/unfollow/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),

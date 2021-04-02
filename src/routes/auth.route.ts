@@ -1,7 +1,7 @@
 import express from 'express';
-import auth from './schema/auth.schema';
 import Utility from '../constants/utility';
 import { AuthController } from '../controllers/auth.controller';
+import auth from './schema/auth.schema';
 
 const passport = require('passport');
 
