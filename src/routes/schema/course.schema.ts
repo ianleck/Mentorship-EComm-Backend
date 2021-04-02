@@ -6,12 +6,21 @@ import {
 } from '../../constants/enum';
 
 export default {
-
   createAnnouncement: joi.object({
-    newAnnouncement: joi.object({
-      title: joi.string().required(),
-      description: joi.string().required(),
-    }).required(),
+    newAnnouncement: joi
+      .object({
+        title: joi.string().required(),
+        description: joi.string().required(),
+      })
+      .required(),
+  }),
+  createNoteB: joi.object({
+    newNote: joi
+      .object({
+        title: joi.string().required(),
+        body: joi.string().required(),
+      })
+      .required(),
   }),
   createCourseB: joi.object({
     newCourse: joi
@@ -38,9 +47,12 @@ export default {
   lessonIdP: joi.object({
     lessonId: joi.string().required(),
   }),
+  noteIdP: joi.object({
+    noteId: joi.string().required(),
+  }),
   announcementIdP: joi.object({
     announcementId: joi.string().required(),
-  }), 
+  }),
   studentIdP: joi.object({
     accountId: joi.string().required(),
   }),
@@ -83,6 +95,14 @@ export default {
       .object({
         title: joi.string().optional(),
         description: joi.string().optional(),
+      })
+      .required(),
+  }),
+  updateNoteB: joi.object({
+    updateNote: joi
+      .object({
+        title: joi.string().optional(),
+        body: joi.string().optional(),
       })
       .required(),
   }),

@@ -505,6 +505,71 @@ export default class MentorshipService {
     return mentorshipContracts;
   }
 
+  //get ONE Active mentorship contract of ONE student
+  public static async getActiveMentorship(mentorshipContractId: string) {
+    const mentorshipContract = await MentorshipContract.findOne({
+      where: {
+        mentorshipContractId,
+        progress: CONTRACT_PROGRESS_ENUM.ONGOING,
+      },
+      include: [
+        {
+          model: MentorshipListing,
+          include: [
+            {
+              model: User,
+              attributes: ['firstName', 'lastName'],
+            },
+          ],
+        },
+        {
+          model: TaskBucket,
+          include: [
+            {
+              model: Task,
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    return mentorshipContract;
+  }
+
+  //get ALL Active mentorshipContracts of this student
+  public static async getAllActiveMentorships(accountId: string) {
+    const mentorshipContracts = await MentorshipContract.findAll({
+      where: {
+        accountId,
+        progress: CONTRACT_PROGRESS_ENUM.ONGOING,
+      },
+      include: [
+        {
+          model: MentorshipListing,
+          include: [
+            {
+              model: User,
+              attributes: ['firstName', 'lastName'],
+            },
+          ],
+        },
+        {
+          model: TaskBucket,
+          include: [
+            {
+              model: Task,
+            },
+          ],
+        },
+      ],
+    });
+
+    return mentorshipContracts;
+  }
+
   // ============================== TESTIMONIAL ==============================
   public static async addTestimonial(
     userId: string,
