@@ -1,4 +1,5 @@
 import {
+  AfterDestroy,
   AllowNull,
   BelongsTo,
   Column,
@@ -37,4 +38,13 @@ export class TaskBucket extends BaseEntity {
 
   @HasMany(() => Task, 'taskBucketId')
   Tasks: Task[];
+
+  @AfterDestroy
+  static deleteTasks(taskBucket: TaskBucket) {
+    Task.destroy({
+      where: {
+        taskBucketId: taskBucket.taskBucketId,
+      },
+    });
+  }
 }

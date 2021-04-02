@@ -724,6 +724,7 @@ export default class MentorshipService {
       where: {
         taskBucketId,
       },
+      individualHooks: true,
     });
   }
 
@@ -735,6 +736,7 @@ export default class MentorshipService {
     const buckets = await TaskBucket.findAll({
       where: { mentorshipContractId },
       include: [Task],
+      order: [['createdAt', 'ASC']],
     });
 
     await Promise.all(
