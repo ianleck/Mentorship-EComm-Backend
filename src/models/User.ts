@@ -116,12 +116,6 @@ export class User extends Account {
   @HasMany(() => Experience, 'accountId')
   Experience: Experience[];
 
-  @HasMany(() => UserFollowership, 'followerId')
-  Following: User[];
-
-  @HasMany(() => UserFollowership, 'followingId')
-  Follower: User[];
-
   @HasMany(() => MentorshipContract, 'accountId')
   MentorshipContracts: MentorshipContract[];
 
