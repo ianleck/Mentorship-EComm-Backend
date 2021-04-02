@@ -15,7 +15,6 @@ import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
 import { Course } from '../models/Course';
 import { MentorshipListing } from '../models/MentorshipListing';
-import { SubscriptionPlan } from '../models/SubscriptionPlan';
 import { User } from '../models/User';
 import { Wallet } from '../models/Wallet';
 import CourseService from './course.service';
@@ -26,6 +25,11 @@ export default class PaypalService {
     paymentId: string,
     payerId: string
   ) {
+    const senseiWalletsDictionary = new Map<
+      string,
+      { pendingAmountToAdd: number; totalEarnedToAdd: number }
+    >();
+
     const studentId = user.accountId;
     const admin = await Admin.findOne({
       where: { walletId: { [Op.not]: null } },
@@ -74,9 +78,32 @@ export default class PaypalService {
             courseContract.courseContractId,
             admin.walletId,
             sensei.walletId,
-            BILLING_STATUS.PENDING_120_DAYS
+            BILLING_STATUS.PENDING_120_DAYS,
+            BILLING_TYPE.COURSE
           );
-        } // else for subscription
+
+          //5. Add sensei wallet to dictionary to update amount later
+          const senseiWalletToUpdate = senseiWalletsDictionary.get(
+            sensei.walletId
+          );
+          if (senseiWalletToUpdate) {
+            const updatedPendingAmount =
+              senseiWalletToUpdate.pendingAmountToAdd +
+              Number(payable.toFixed(2));
+            const updatedTotalAmount =
+              senseiWalletToUpdate.totalEarnedToAdd +
+              Number(payable.toFixed(2));
+            senseiWalletsDictionary.set(sensei.walletId, {
+              pendingAmountToAdd: updatedPendingAmount,
+              totalEarnedToAdd: updatedTotalAmount,
+            });
+          } else {
+            senseiWalletsDictionary.set(sensei.walletId, {
+              pendingAmountToAdd: Number(payable.toFixed(2)),
+              totalEarnedToAdd: Number(payable.toFixed(2)),
+            });
+          }
+        } // else for mentorship
       })
     );
 
@@ -87,11 +114,26 @@ export default class PaypalService {
       (adminWallet.platformRevenue + newPlatformRevenue).toFixed(2)
     );
 
-    // 5. Update admin wallet
+    // 6. Update admin wallet
     await adminWallet.update({
       totalEarned,
       platformRevenue,
     });
+
+    // 7. Update sensei wallet
+    return await Promise.all(
+      Array.from(senseiWalletsDictionary).map(
+        async ([walletId, { pendingAmountToAdd, totalEarnedToAdd }]) => {
+          const senseiWallet = await Wallet.findByPk(walletId);
+          const pendingAmount = senseiWallet.pendingAmount + pendingAmountToAdd;
+          const totalEarned = senseiWallet.totalEarned + totalEarnedToAdd;
+          await senseiWallet.update({
+            pendingAmount,
+            totalEarned,
+          });
+        }
+      )
+    );
   }
 
   public static async createOrder(
@@ -229,19 +271,4 @@ export default class PaypalService {
 
     return { populatedTransactions, billings };
   }
-
-  // Pass in subscriptionPlan Id
-  public static async populateBillingPlanAttributes(
-    subscriptionPlanId: string
-  ) {
-    const existingSubscription = await SubscriptionPlan.findByPk(
-      subscriptionPlanId
-    );
-
-    const billingPlanAttributes = {
-      name: existingSubscription.name,
-    };
-  }
-
-  public static async populateBillingPlanUpdateAttributes() {}
 }

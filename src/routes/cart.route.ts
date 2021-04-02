@@ -32,6 +32,14 @@ router.post(
   Utility.asyncHandler(CartController.addMentorshipListing)
 );
 
+router.put(
+  '/',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.params(cart.updateMentorshipCartQ),
+  Utility.asyncHandler(CartController.updateMentorshipCartQuantity)
+);
+
 router.delete(
   '/',
   passport.authenticate('isAuthenticated', { session: false }),

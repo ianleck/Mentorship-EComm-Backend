@@ -48,12 +48,13 @@ module.exports = {
         status: {
           allowNull: false,
           type: Sequelize.ENUM(
-            'SUCCESS',
-            'FAILED',
-            'PENDING_PAYMENT',
-            'PENDING_120_DAYS',
-            'PENDING_WITHDRAWAL',
             'CONFIRMED',
+            'FAILED',
+            'PENDING_120_DAYS',
+            'PENDING_PAYMENT',
+            'PENDING_WITHDRAWAL',
+            'REJECTED',
+            'SUCCESS',
             'WITHDRAWN',
             'ADMIN'
           ),
@@ -66,7 +67,7 @@ module.exports = {
           type: Sequelize.ENUM(
             'INTERNAL',
             'COURSE',
-            'SUBSCRIPTION',
+            'MENTORSHIP',
             'REFUND',
             'WITHDRAWAL'
           ),

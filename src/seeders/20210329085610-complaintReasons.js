@@ -1,10 +1,9 @@
 'use strict';
-const categoryJson = require('./json/category.json');
-
+const reasonJson = require('./json/complaintReasons.json');
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     return queryInterface.sequelize.transaction(async (t) => {
-      return await queryInterface.bulkInsert('Category', categoryJson, {
+      return await queryInterface.bulkInsert('ComplaintReason', reasonJson, {
         transaction: t,
       });
     });
@@ -17,6 +16,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    return queryInterface.bulkDelete('Category', null, {});
+    return queryInterface.bulkDelete('ComplaintReason', null, {});
   },
 };

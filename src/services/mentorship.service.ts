@@ -2,6 +2,7 @@ import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
 import { Op } from 'sequelize';
 import {
+  ADMIN_VERIFIED_ENUM,
   CONTRACT_PROGRESS_ENUM,
   MENTORSHIP_CONTRACT_APPROVAL,
   USER_TYPE_ENUM,
@@ -17,7 +18,6 @@ import { Task } from '../models/Task';
 import { TaskBucket } from '../models/TaskBucket';
 import { Testimonial } from '../models/Testimonial';
 import { User } from '../models/User';
-import CartService from './cart.service';
 import EmailService from './email.service';
 
 /*type getFilter = {
@@ -95,20 +95,52 @@ export default class MentorshipService {
 
   public static async updateListing(
     mentorshipListingId: string,
-    mentorshipListing: {
+    accountId: string,
+    updatedListing: {
       name: string;
       description: string;
       categories: string[];
       priceAmount: number;
       visibility: VISIBILITY_ENUM;
+      publishedAt?: Date;
     }
   ): Promise<MentorshipListing> {
-    const { categories, ...listingWithoutCategories } = mentorshipListing;
     const currListing = await MentorshipListing.findByPk(mentorshipListingId);
     if (!currListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+    if (currListing.accountId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ); // course not created by user
+
+    const user = await User.findByPk(accountId);
+    if (
+      // if user is trying to publish course but user has not been verified by admin, throw error
+      user.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED &&
+      updatedListing.visibility === VISIBILITY_ENUM.PUBLISHED
+    )
+      throw new Error(MENTORSHIP_ERRORS.USER_NOT_VERIFIED);
+
+    const { categories, ...listingWithoutCategories } = updatedListing;
+    await this.updateMentorshipCategory(mentorshipListingId, updatedListing);
+
+    if (
+      !currListing.publishedAt &&
+      updatedListing.visibility === VISIBILITY_ENUM.PUBLISHED
+    ) {
+      listingWithoutCategories.publishedAt = new Date();
+    }
 
     await currListing.update(listingWithoutCategories);
 
+    return MentorshipListing.findByPk(currListing.mentorshipListingId, {
+      include: [Category],
+    });
+  }
+
+  public static async updateMentorshipCategory(
+    mentorshipListingId: string,
+    updatedListing: any
+  ) {
     // Find all category associations with listing
     const listingCategories: MentorshipListingToCategory[] = await MentorshipListingToCategory.findAll(
       {
@@ -119,7 +151,7 @@ export default class MentorshipService {
     const existingCategories: string[] = listingCategories.map(
       ({ categoryId }) => categoryId
     );
-    const updatedCategories: string[] = mentorshipListing.categories;
+    const updatedCategories: string[] = updatedListing.categories;
 
     const categoriesToAdd = _.difference(updatedCategories, existingCategories);
     const categoriesToRemove = _.difference(
@@ -137,10 +169,6 @@ export default class MentorshipService {
 
     // Delete associations to removed categories
     await this.removeListingCategories(mentorshipListingId, categoriesToRemove);
-
-    return MentorshipListing.findByPk(currListing.mentorshipListingId, {
-      include: [Category],
-    });
   }
 
   public static async getSenseiMentorshipListings(accountId: string) {
@@ -152,6 +180,9 @@ export default class MentorshipService {
 
   public static async getAllMentorshipListings() {
     const mentorshipListings = MentorshipListing.findAll({
+      where: {
+        visibility: VISIBILITY_ENUM.PUBLISHED, // courses that are not hidden
+      },
       include: [
         Category,
         {
@@ -225,6 +256,9 @@ export default class MentorshipService {
     accountId: string,
     statement: string
   ): Promise<MentorshipContract> {
+    const listing = await MentorshipListing.findByPk(mentorshipListingId);
+    if (!listing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+
     const pendingContract = await MentorshipContract.findOne({
       where: {
         mentorshipListingId,
@@ -277,7 +311,11 @@ export default class MentorshipService {
     return updatedContract;
   }
 
-  public static async acceptContract(mentorshipContractId, accountId) {
+  public static async acceptContract(
+    mentorshipContractId: string,
+    accountId: string,
+    emailParams: { numSlots: string; duration: string; message?: Text }
+  ) {
     // Check for existing mentorship contract that is pending
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
@@ -301,17 +339,17 @@ export default class MentorshipService {
     const student = await User.findByPk(mentorshipContract.accountId);
     if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
 
+    const sensei = await User.findByPk(mentorshipListing.accountId);
+    if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+    const mentorName = `${sensei.firstName} ${sensei.lastName}`;
+
     const acceptedApplication = await mentorshipContract.update({
       senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
     });
 
     const mentorshipName = mentorshipListing.name;
-    const additional = { mentorshipName };
+    const additional = { mentorshipName, ...emailParams, mentorName };
 
-    await CartService.addMentorshipListing(
-      acceptedApplication.mentorshipContractId,
-      student.accountId
-    );
     //SEND EMAIL TO INFORM OF ACCEPTANCE OF APPLICATION
     await EmailService.sendEmail(student.email, 'acceptContract', additional);
 
@@ -367,7 +405,6 @@ export default class MentorshipService {
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
-    // Manual cascade deletion of associations - Subscription
 
     await MentorshipContract.destroy({
       where: {
@@ -406,7 +443,16 @@ export default class MentorshipService {
         accountId,
         mentorshipListingId,
       },
-      include: [TaskBucket, Task],
+      include: [
+        {
+          model: TaskBucket,
+          include: [
+            {
+              model: Task,
+            },
+          ],
+        },
+      ],
     });
   }
 
@@ -419,7 +465,17 @@ export default class MentorshipService {
     const mentorshipContract = await MentorshipContract.findByPk(
       mentorshipContractId,
       {
-        include: [MentorshipListing, TaskBucket, Task],
+        include: [
+          MentorshipListing,
+          {
+            model: TaskBucket,
+            include: [
+              {
+                model: Task,
+              },
+            ],
+          },
+        ],
       }
     );
 
@@ -613,6 +669,8 @@ export default class MentorshipService {
     await MentorshipService.authorizationCheck(mentorshipContractId, accountId);
     return TaskBucket.findAll({
       where: { mentorshipContractId },
+      order: [['updatedAt', 'ASC']],
+      include: [Task],
     });
   }
 
@@ -730,5 +788,25 @@ export default class MentorshipService {
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
+  }
+
+  // ==================================== SENSEI MENTEE ====================================
+  public static async getSenseiMenteeList(accountId: string): Promise<User[]> {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    const mentorshipListings = await MentorshipListing.findAll({
+      where: { accountId },
+    });
+    const mentorshipListingIds = mentorshipListings.map(
+      (ml) => ml.mentorshipListingId
+    );
+    return await User.findAll({
+      include: [
+        {
+          model: MentorshipContract,
+          where: { mentorshipListingId: mentorshipListingIds },
+        },
+      ],
+    });
   }
 }

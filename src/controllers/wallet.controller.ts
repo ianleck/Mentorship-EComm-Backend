@@ -1,43 +1,43 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
+import { RESPONSE_ERROR } from '../constants/errors';
 import WalletService from '../services/wallet.service';
 import apiResponse from '../utilities/apiResponse';
 
 export class WalletController {
-  public static async getAllBillings(req, res) {
+  public static async viewBillingsByFilter(req, res) {
     try {
-      const billings = await WalletService.getAllBillings();
+      const { filter } = req.query;
+      const billings = await WalletService.viewBillingsByFilter(filter);
       return apiResponse.result(
         res,
         { message: 'success', billings },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[walletController.getAllBillings]:' + e.message);
+      logger.error('[walletController.viewBillingsByFilter]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });
     }
   }
 
-  public static async viewCompletedWithdrawals(req, res) {
+  public static async viewListOfWallets(req, res) {
     try {
-      const { user } = req;
-      const { walletId } = req.params;
-      const completedWithdrawals = await WalletService.viewCompletedWithdrawals(
-        walletId,
-        user.accountId,
-        user.userType
-      );
+      const userWallets = await WalletService.viewListOfWallets();
+
       return apiResponse.result(
         res,
-        { message: 'success', completedWithdrawals },
+        {
+          message: 'success',
+          userWallets,
+        },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[walletController.viewCompletedWithdrawals]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
+      logger.error('[walletController.viewListOfWallets]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
       });
     }
   }
@@ -46,6 +46,7 @@ export class WalletController {
     try {
       const { user } = req;
       const { walletId } = req.params;
+
       const wallet = await WalletService.viewWallet(
         walletId,
         user.accountId,
@@ -58,29 +59,6 @@ export class WalletController {
       );
     } catch (e) {
       logger.error('[walletController.viewWallet]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
-    }
-  }
-
-  public static async viewBilling(req, res) {
-    try {
-      const { user } = req;
-      const { billingId, walletId } = req.params;
-      const billing = await WalletService.viewBilling(
-        billingId,
-        walletId,
-        user.accountId,
-        user.userType
-      );
-      return apiResponse.result(
-        res,
-        { message: 'success', billing },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[walletController.viewBilling]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });
@@ -103,6 +81,22 @@ export class WalletController {
     } catch (e) {
       logger.error('[walletController.withdrawBalance]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async manualChronjob(req, res) {
+    try {
+      await WalletService.checkPendingSenseiBillings();
+      return apiResponse.result(
+        res,
+        { message: 'success' },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[walletController.manualChronjob]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: e.message,
       });
     }
