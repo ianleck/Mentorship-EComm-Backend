@@ -1,4 +1,5 @@
 import {
+  BelongsTo,
   Column,
   CreatedAt,
   DataType,
@@ -9,8 +10,8 @@ import {
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
-import { User } from './User';
 import { FOLLOWING_ENUM } from '../constants/enum';
+import { User } from './User';
 
 @Table
 export class UserFollowership extends Model<UserFollowership> {
@@ -41,4 +42,8 @@ export class UserFollowership extends Model<UserFollowership> {
   @UpdatedAt
   @Column
   updatedAt: Date;
+
+  // ==================== RELATIONSHIP MAPPINGS ====================
+  @BelongsTo(() => User, 'accountId')
+  User: User;
 }
