@@ -32,11 +32,11 @@ export class Cart extends BaseEntity {
     through: () => CartToMentorshipListing,
     foreignKey: 'cartId',
   })
-  MentorshipApplications: MentorshipListing[];
+  MentorPasses: MentorshipListing[];
 
   @BelongsToMany(() => Course, {
     through: () => CartToCourse,
     foreignKey: 'cartId',
   })
-  Course: Course[];
+  Courses: Course[];
 }
