@@ -126,6 +126,27 @@ export default class SocialService {
 
   // ======================================== FOLLOWING ========================================
 
+  //Request to follow a user
+  public static async requestFollowing(
+    followingId: string,
+    followerId: string
+  ) {
+    const followingUser = await User.findByPk(followingId);
+    if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const followerUser = await User.findByPk(followerId);
+    if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const followership = new UserFollowership({
+      followingId,
+      followerId,
+    });
+
+    await followership.save();
+
+    return followership;
+  }
+
   //Cancel request to follow a user
   public static async removeRequest(followingId: string, followerId: string) {
     const followingUser = await User.findByPk(followingId);
@@ -207,7 +228,7 @@ export default class SocialService {
     });
   }
 
-  //Follow a user
+  //Follow a user (without request, user is not private)
   public static async followUser(followingId: string, followerId: string) {
     const followingUser = await User.findByPk(followingId);
     if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
@@ -215,17 +236,8 @@ export default class SocialService {
     const followerUser = await User.findByPk(followerId);
     if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
-    if (followingUser.isPrivateProfile === true) {
-      const followership = new UserFollowership({
-        followingId,
-        followerId,
-        followingStatus: FOLLOWING_ENUM.PENDING,
-      });
-
-      await followership.save();
-
-      return followership;
-    }
+    if (followingUser.isPrivateProfile === true)
+      throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
 
     const followership = new UserFollowership({
       followingId,
@@ -311,64 +323,9 @@ export default class SocialService {
     const followingList = UserFollowership.findAll({
       where: {
         followerId: { [Op.eq]: accountId },
-        followingStatus: {
-          [Op.eq]: [FOLLOWING_ENUM.APPROVED],
-        },
+        followingStatus: FOLLOWING_ENUM.APPROVED,
       },
     });
-
     return followingList;
-  }
-
-  public static async getFollowerList(accountId: string, userId: string) {
-    const user = await User.findByPk(accountId);
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-
-    //Check if user account is private, if private, only user followers can see list
-    if (user.isPrivateProfile === true && userId !== accountId) {
-      const following = await UserFollowership.findOne({
-        where: {
-          followingId: accountId,
-          followerId: userId,
-        },
-      });
-      if (!following) throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
-    }
-
-    const followerList = UserFollowership.findAll({
-      where: {
-        followingId: { [Op.eq]: accountId },
-        followingStatus: {
-          [Op.eq]: [FOLLOWING_ENUM.APPROVED],
-        },
-      },
-    });
-
-    return followerList;
-  }
-
-  public static async getPendingFollowingList(
-    accountId: string,
-    userId: string
-  ) {
-    const user = await User.findByPk(accountId);
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-
-    //Check if user retrieving pending list is the owner of account
-    if (userId !== accountId)
-      throw new Error(
-        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      );
-
-    const pendingFollowingList = UserFollowership.findAll({
-      where: {
-        followerId: { [Op.eq]: accountId },
-        followingStatus: {
-          [Op.eq]: [FOLLOWING_ENUM.PENDING],
-        },
-      },
-    });
-
-    return pendingFollowingList;
   }
 }
