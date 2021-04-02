@@ -342,6 +342,17 @@ export default class SocialService {
           [Op.eq]: [FOLLOWING_ENUM.APPROVED],
         },
       },
+      include: [
+        {
+          model: User,
+          attributes: [
+            'firstName',
+            'lastName',
+            'profileImgUrl',
+            'isPrivateProfile',
+          ],
+        },
+      ],
     });
 
     return followerList;
