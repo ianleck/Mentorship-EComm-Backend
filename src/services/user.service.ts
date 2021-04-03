@@ -52,7 +52,19 @@ export default class UserService {
           followingStatus: FOLLOWING_ENUM.APPROVED,
         },
       });
-      if (!followership) throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
+      if (!followership) {
+        const privateUser = await User.findByPk(accountId, {
+          attributes: [
+            'accountId',
+            'username',
+            'firstName',
+            'lastName',
+            'profileImgUrl',
+            'isPrivateProfile',
+          ],
+        });
+        return privateUser;
+      }
     }
 
     return user;

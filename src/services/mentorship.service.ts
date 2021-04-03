@@ -505,6 +505,71 @@ export default class MentorshipService {
     return mentorshipContracts;
   }
 
+  //get ONE Active mentorship contract of ONE student
+  public static async getActiveMentorship(mentorshipContractId: string) {
+    const mentorshipContract = await MentorshipContract.findOne({
+      where: {
+        mentorshipContractId,
+        progress: CONTRACT_PROGRESS_ENUM.ONGOING,
+      },
+      include: [
+        {
+          model: MentorshipListing,
+          include: [
+            {
+              model: User,
+              attributes: ['firstName', 'lastName'],
+            },
+          ],
+        },
+        {
+          model: TaskBucket,
+          include: [
+            {
+              model: Task,
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    return mentorshipContract;
+  }
+
+  //get ALL Active mentorshipContracts of this student
+  public static async getAllActiveMentorships(accountId: string) {
+    const mentorshipContracts = await MentorshipContract.findAll({
+      where: {
+        accountId,
+        progress: CONTRACT_PROGRESS_ENUM.ONGOING,
+      },
+      include: [
+        {
+          model: MentorshipListing,
+          include: [
+            {
+              model: User,
+              attributes: ['firstName', 'lastName'],
+            },
+          ],
+        },
+        {
+          model: TaskBucket,
+          include: [
+            {
+              model: Task,
+            },
+          ],
+        },
+      ],
+    });
+
+    return mentorshipContracts;
+  }
+
   // ============================== TESTIMONIAL ==============================
   public static async addTestimonial(
     userId: string,
@@ -659,6 +724,7 @@ export default class MentorshipService {
       where: {
         taskBucketId,
       },
+      individualHooks: true,
     });
   }
 
@@ -667,11 +733,24 @@ export default class MentorshipService {
     accountId: string
   ) {
     await MentorshipService.authorizationCheck(mentorshipContractId, accountId);
-    return TaskBucket.findAll({
+    const buckets = await TaskBucket.findAll({
       where: { mentorshipContractId },
-      order: [['updatedAt', 'ASC']],
       include: [Task],
+      order: [['createdAt', 'ASC']],
     });
+
+    await Promise.all(
+      buckets.map(async (bucket) => {
+        bucket.Tasks.sort(function (a, b) {
+          return (
+            bucket.taskOrder.indexOf(a.taskId) -
+            bucket.taskOrder.indexOf(b.taskId)
+          );
+        });
+      })
+    );
+
+    return buckets;
   }
 
   //====================== TASK =======================
@@ -701,6 +780,13 @@ export default class MentorshipService {
 
     await newTask.save();
 
+    // Push task to end of task order array
+    const updatedTaskOrder = taskBucket.taskOrder;
+    updatedTaskOrder.push(newTask.taskId);
+    await taskBucket.update({
+      taskOrder: updatedTaskOrder,
+    });
+
     return newTask;
   }
 
@@ -729,7 +815,6 @@ export default class MentorshipService {
   ): Promise<void> {
     const existingTask = await Task.findByPk(taskId);
     if (!existingTask) throw new Error(MENTORSHIP_ERRORS.TASK_MISSING);
-
     const taskBucket = await TaskBucket.findByPk(existingTask.taskBucketId);
     if (!taskBucket) throw new Error(MENTORSHIP_ERRORS.TASK_BUCKET_MISSING);
 
@@ -741,6 +826,14 @@ export default class MentorshipService {
       where: {
         taskId,
       },
+    });
+
+    // Remove task from task order
+    const updatedTaskOrder = taskBucket.taskOrder.filter(
+      (_taskId) => _taskId !== taskId
+    );
+    await taskBucket.update({
+      taskOrder: updatedTaskOrder,
     });
   }
 

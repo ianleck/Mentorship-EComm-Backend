@@ -396,7 +396,7 @@ export class MentorshipController {
     }
   }
 
-  //get ALL mentorship contracts of ONE sensei
+  //get ONE active mentorship
   public static async getSenseiMentorshipContracts(req, res) {
     const { accountId } = req.params; //accountId of the sensei
     const { user } = req; //user is the user who is making the request
@@ -416,6 +416,58 @@ export class MentorshipController {
     } catch (e) {
       logger.error(
         '[mentorshipController.getSenseiMentorshipContracts]:' + e.toString()
+      );
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getActiveMentorship(req, res) {
+    const { mentorshipContractId } = req.params;
+
+    try {
+      const activeContract = await MentorshipService.getActiveMentorship(
+        mentorshipContractId
+      );
+
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          activeContract,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.getActiveMentorship]:' + e.toString()
+      );
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  //get ALL active mentorship contracts of ONE student
+  public static async getAllActiveMentorships(req, res) {
+    const { accountId } = req.params;
+
+    try {
+      const activeContracts = await MentorshipService.getAllActiveMentorships(
+        accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          activeContracts,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.getAllActiveMentorships]:' + e.toString()
       );
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
@@ -743,11 +795,11 @@ export class MentorshipController {
   }
 
   public static async deleteTask(req, res) {
-    const { taskBucketId } = req.params;
+    const { taskId } = req.params;
     const { user } = req;
 
     try {
-      await MentorshipService.deleteTask(taskBucketId, user.accountId);
+      await MentorshipService.deleteTask(taskId, user.accountId);
       return apiResponse.result(
         res,
         { message: MENTORSHIP_RESPONSE.TASK_DELETE },
