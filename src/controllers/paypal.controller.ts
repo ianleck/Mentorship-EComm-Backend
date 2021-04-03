@@ -2,19 +2,14 @@ import httpStatusCodes from 'http-status-codes';
 import paypal from 'paypal-rest-sdk';
 import logger from '../config/logger';
 import PaypalService from '../services/paypal.service';
-import WalletService from '../services/wallet.service';
 import apiResponse from '../utilities/apiResponse';
 export class PaypalController {
   public static async createOrder(req, res) {
     try {
-      const { courseIds, mentorshipContractIds } = req.body;
+      const { cartId } = req.body;
       const { user } = req;
 
-      const { payment, billings } = await PaypalService.createOrder(
-        courseIds,
-        mentorshipContractIds,
-        user.accountId
-      );
+      const payment = await PaypalService.createOrder(user.accountId, cartId);
 
       await paypal.payment.create(payment, async function (error, payment) {
         if (error) {
@@ -30,9 +25,6 @@ export class PaypalController {
           });
           //if redirect url present, redirect user
           if (links.hasOwnProperty('approval_url')) {
-            const paymentId = links['self'].href.split('/')[6];
-            await WalletService.updatePaymentId(billings, paymentId);
-
             const paypalUrl = links['approval_url'].href;
             return apiResponse.result(
               res,
@@ -80,7 +72,7 @@ export class PaypalController {
   public static async captureOrder(req, res) {
     try {
       const { user } = req;
-      const { paymentId } = req.query;
+      const { paymentId, cartId } = req.query;
       const payerId = { payer_id: req.query.PayerID };
 
       await paypal.payment.execute(
@@ -96,7 +88,8 @@ export class PaypalController {
               await PaypalService.captureOrder(
                 user,
                 paymentId,
-                payerId.payer_id
+                payerId.payer_id,
+                cartId
               );
               return apiResponse.result(
                 res,

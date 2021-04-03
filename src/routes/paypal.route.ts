@@ -14,7 +14,7 @@ router.post(
   '/order/create',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.body(cart.courseAndContractIdsB),
+  schemaValidator.body(cart.cartIdP),
   Utility.asyncHandler(PaypalController.createOrder)
 );
 

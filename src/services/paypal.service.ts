@@ -9,149 +9,38 @@ import {
   STARTING_BALANCE,
   WITHDRAWAL_TITLE,
 } from '../constants/constants';
-import { BILLING_STATUS, BILLING_TYPE } from '../constants/enum';
+import {
+  BILLING_STATUS,
+  BILLING_TYPE,
+  CONTRACT_PROGRESS_ENUM,
+} from '../constants/enum';
 import { ERRORS } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
+import { Cart } from '../models/Cart';
 import { Course } from '../models/Course';
+import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { User } from '../models/User';
 import { Wallet } from '../models/Wallet';
 import CourseService from './course.service';
 import WalletService from './wallet.service';
+
+export interface MentorPass extends MentorshipListing {
+  CartToMentorshipListing: {
+    cartId: string;
+    mentorshipListingId: string;
+    numSlots: number;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+}
 export default class PaypalService {
-  public static async captureOrder(
-    user: User,
-    paymentId: string,
-    payerId: string
-  ) {
-    const senseiWalletsDictionary = new Map<
-      string,
-      { pendingAmountToAdd: number; totalEarnedToAdd: number }
-    >();
-
-    const studentId = user.accountId;
-    const admin = await Admin.findOne({
-      where: { walletId: { [Op.not]: null } },
-    });
-    const adminWallet = await Wallet.findByPk(admin.walletId);
-
-    let newPlatformEarned = 0,
-      newPlatformRevenue = 0;
-
-    const billingsPending = await Billing.findAll({
-      where: { paypalPaymentId: paymentId },
-    });
-
-    await Promise.all(
-      billingsPending.map(async (billing) => {
-        if (billing.billingType === BILLING_TYPE.COURSE) {
-          // 1. Create courseContract for user
-          const courseContract = await CourseService.createContract(
-            studentId,
-            billing.productId
-          );
-
-          // 2. Update billing with payerId
-          await billing.update({
-            paypalPayerId: payerId,
-            contractId: courseContract.courseContractId,
-            status: BILLING_STATUS.SUCCESS,
-          });
-
-          // 3. Calculate Revenue + Earnings
-          const platformFee = billing.amount * MARKET_FEE;
-          const paypalFee = billing.amount * PAYPAL_FEE + 0.5;
-          const payable = billing.amount - paypalFee - platformFee;
-          newPlatformEarned += billing.amount - paypalFee;
-          newPlatformRevenue += platformFee;
-
-          const course = await Course.findByPk(billing.productId);
-          const sensei = await User.findByPk(course.accountId);
-
-          // 4. Create billings from admin to sensei
-          await WalletService.createSenseiBilling(
-            Number(payable.toFixed(2)),
-            Number(platformFee.toFixed(2)),
-            billing.currency,
-            billing.productId,
-            courseContract.courseContractId,
-            admin.walletId,
-            sensei.walletId,
-            BILLING_STATUS.PENDING_120_DAYS,
-            BILLING_TYPE.COURSE
-          );
-
-          //5. Add sensei wallet to dictionary to update amount later
-          const senseiWalletToUpdate = senseiWalletsDictionary.get(
-            sensei.walletId
-          );
-          if (senseiWalletToUpdate) {
-            const updatedPendingAmount =
-              senseiWalletToUpdate.pendingAmountToAdd +
-              Number(payable.toFixed(2));
-            const updatedTotalAmount =
-              senseiWalletToUpdate.totalEarnedToAdd +
-              Number(payable.toFixed(2));
-            senseiWalletsDictionary.set(sensei.walletId, {
-              pendingAmountToAdd: updatedPendingAmount,
-              totalEarnedToAdd: updatedTotalAmount,
-            });
-          } else {
-            senseiWalletsDictionary.set(sensei.walletId, {
-              pendingAmountToAdd: Number(payable.toFixed(2)),
-              totalEarnedToAdd: Number(payable.toFixed(2)),
-            });
-          }
-        } // else for mentorship
-      })
-    );
-
-    const totalEarned = Number(
-      (adminWallet.totalEarned + newPlatformEarned).toFixed(2)
-    );
-    const platformRevenue = Number(
-      (adminWallet.platformRevenue + newPlatformRevenue).toFixed(2)
-    );
-
-    // 6. Update admin wallet
-    await adminWallet.update({
-      totalEarned,
-      platformRevenue,
-    });
-
-    // 7. Update sensei wallet
-    return await Promise.all(
-      Array.from(senseiWalletsDictionary).map(
-        async ([walletId, { pendingAmountToAdd, totalEarnedToAdd }]) => {
-          const senseiWallet = await Wallet.findByPk(walletId);
-          const pendingAmount = senseiWallet.pendingAmount + pendingAmountToAdd;
-          const totalEarned = senseiWallet.totalEarned + totalEarnedToAdd;
-          await senseiWallet.update({
-            pendingAmount,
-            totalEarned,
-          });
-        }
-      )
-    );
-  }
-
-  public static async createOrder(
-    courseIds: string[],
-    mentorshipListingIds: string[],
-    accountId: string
-  ) {
+  public static async createOrder(accountId: string, cartId: string) {
     const student = await User.findByPk(accountId);
     if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
 
-    const {
-      populatedTransactions,
-      billings,
-    } = await this.populateCourseTransactions(
-      courseIds,
-      mentorshipListingIds,
-      accountId
-    );
+    const populatedTransactions = await this.populateOrderTransactions(cartId);
 
     const payment = {
       intent: `${ORDER_INTENT}`,
@@ -163,7 +52,7 @@ export default class PaypalService {
       transactions: populatedTransactions,
     };
 
-    return await { payment, billings };
+    return await payment;
   }
 
   public static async createPayout(application: Billing, email: string) {
@@ -194,29 +83,15 @@ export default class PaypalService {
 
   public static async createRefund() {}
 
-  public static async populateCourseTransactions(
-    courseIds: string[],
-    mentorshipListingIds: string[],
-    accountId: string
-  ) {
-    let courses, mentorshipListings;
-    if (courseIds) {
-      courses = await Course.findAll({
-        where: {
-          courseId: { [Op.in]: courseIds },
-        },
-      });
-    }
-    if (mentorshipListingIds) {
-      mentorshipListings = await MentorshipListing.findAll({
-        where: {
-          mentorshipListingId: { [Op.in]: mentorshipListingIds },
-        },
-      });
-    }
+  public static async populateOrderTransactions(cartId: string) {
+    const cart = await Cart.findByPk(cartId, {
+      include: [Course, MentorshipListing],
+    });
+
+    const courses = cart.Courses;
+    const mentorPasses = cart.MentorPasses;
 
     const items = [];
-    const billings: Billing[] = [];
     let totalPrice = STARTING_BALANCE;
 
     if (courses && courses.length > 0) {
@@ -230,31 +105,23 @@ export default class PaypalService {
             currency: course.currency,
           });
           totalPrice += course.priceAmount;
-
-          const billing = await WalletService.createCourseBilling(
-            course.priceAmount,
-            course.currency,
-            course.courseId,
-            accountId,
-            BILLING_STATUS.PENDING_PAYMENT
-          );
-          billings.push(billing);
         })
       );
     }
 
-    // Ignore mentorshipListings for now
-    if (mentorshipListings && mentorshipListings.length > 0) {
+    if (mentorPasses && mentorPasses.length > 0) {
       await Promise.all(
-        mentorshipListings.map((mentorshipListing: MentorshipListing) => {
+        mentorPasses.map(async (mentorPass: MentorPass) => {
+          const numSlots = mentorPass.CartToMentorshipListing.numSlots;
           items.push({
-            name: mentorshipListing.name,
-            description: mentorshipListing.description,
-            quantity: '1',
-            price: `${mentorshipListing.priceAmount}`,
+            name: mentorPass.name,
+            description: mentorPass.description,
+            quantity: `${numSlots}`,
+            price: `${mentorPass.priceAmount}`,
             currency: `${CURRENCY}`,
           });
-          totalPrice += mentorshipListing.priceAmount;
+          const totalCost = mentorPass.priceAmount * numSlots;
+          totalPrice += totalCost;
         })
       );
     }
@@ -269,6 +136,196 @@ export default class PaypalService {
       },
     ];
 
-    return { populatedTransactions, billings };
+    return populatedTransactions;
+  }
+
+  public static async captureOrder(
+    user: User,
+    paymentId: string,
+    payerId: string,
+    cartId: string
+  ) {
+    // Initialise variables
+    const senseiWalletsDictionary = new Map<
+      string,
+      { pendingAmountToAdd: number; totalEarnedToAdd: number }
+    >();
+
+    const studentId = user.accountId;
+    const admin = await Admin.findOne({
+      where: { walletId: { [Op.not]: null } },
+    });
+    const adminWallet = await Wallet.findByPk(admin.walletId);
+    const cart = await Cart.findByPk(cartId, {
+      include: [Course, MentorshipListing],
+    });
+    const courses = cart.Courses;
+    const mentorPasses = cart.MentorPasses;
+
+    let newPlatformEarned = 0,
+      newPlatformRevenue = 0;
+
+    if (courses && courses.length > 0) {
+      await Promise.all(
+        courses.map(async (course: Course) => {
+          const coursePrice = course.priceAmount;
+          // 1. Create courseContract for user
+          const courseContract = await CourseService.createContract(
+            studentId,
+            course.courseId
+          );
+          // 2. Create billing for course
+          await WalletService.createOrderBilling(
+            studentId,
+            paymentId,
+            payerId,
+            course.courseId,
+            courseContract.courseContractId,
+            coursePrice,
+            course.currency,
+            BILLING_STATUS.PAID,
+            BILLING_TYPE.COURSE
+          );
+          // 3. Calculate Revenue + Earnings
+          const platformFee = coursePrice * MARKET_FEE;
+          const paypalFee = coursePrice * PAYPAL_FEE + 0.5;
+          const payable = coursePrice - paypalFee - platformFee;
+          newPlatformEarned += coursePrice - paypalFee;
+          newPlatformRevenue += platformFee;
+          // 4. Create billings from admin to sensei
+          const sensei = await User.findByPk(course.accountId);
+          await WalletService.createSenseiBilling(
+            Number(payable.toFixed(2)),
+            Number(platformFee.toFixed(2)),
+            course.currency,
+            course.courseId,
+            courseContract.courseContractId,
+            admin.walletId,
+            sensei.walletId,
+            BILLING_STATUS.PENDING_120_DAYS,
+            BILLING_TYPE.COURSE
+          );
+          //5. Add sensei wallet to dictionary to update amount later
+          const senseiWalletToUpdate = senseiWalletsDictionary.get(
+            sensei.walletId
+          );
+          if (senseiWalletToUpdate) {
+            const updatedPendingAmount =
+              senseiWalletToUpdate.pendingAmountToAdd +
+              Number(payable.toFixed(2));
+            const updatedTotalAmount =
+              senseiWalletToUpdate.totalEarnedToAdd +
+              Number(payable.toFixed(2));
+            senseiWalletsDictionary.set(sensei.walletId, {
+              pendingAmountToAdd: updatedPendingAmount,
+              totalEarnedToAdd: updatedTotalAmount,
+            });
+          } else {
+            senseiWalletsDictionary.set(sensei.walletId, {
+              pendingAmountToAdd: Number(payable.toFixed(2)),
+              totalEarnedToAdd: Number(payable.toFixed(2)),
+            });
+          }
+        })
+      );
+    }
+
+    if (mentorPasses && mentorPasses.length > 0) {
+      await Promise.all(
+        mentorPasses.map(async (mentorPass: MentorPass) => {
+          const numSlots = mentorPass.CartToMentorshipListing.numSlots;
+          // Total cost = price * quantity
+          const mentorPassCost = mentorPass.priceAmount * numSlots;
+          // 1. Update mentorshipContract for user
+          const mentorshipContract = await MentorshipContract.findOne({
+            where: {
+              accountId: studentId,
+              mentorshipListingId: mentorPass.mentorshipListingId,
+              progress: CONTRACT_PROGRESS_ENUM.NOT_STARTED,
+            },
+          });
+          await mentorshipContract.update({ mentorPassCount: numSlots });
+          // 2. Create billing for mentorship
+          await WalletService.createOrderBilling(
+            studentId,
+            paymentId,
+            payerId,
+            mentorPass.mentorshipListingId,
+            mentorshipContract.mentorshipContractId,
+            mentorPassCost,
+            mentorPass.currency,
+            BILLING_STATUS.PAID,
+            BILLING_TYPE.MENTORSHIP
+          );
+          // 3. Calculate Revenue + Earnings
+          const platformFee = mentorPassCost * MARKET_FEE;
+          const paypalFee = mentorPassCost * PAYPAL_FEE + 0.5;
+          const payable = mentorPassCost - paypalFee - platformFee;
+          newPlatformEarned += mentorPassCost - paypalFee;
+          newPlatformRevenue += platformFee;
+          // 4. Create billings from admin to sensei
+          const sensei = await User.findByPk(mentorPass.accountId);
+          await WalletService.createSenseiBilling(
+            Number(payable.toFixed(2)),
+            Number(platformFee.toFixed(2)),
+            mentorPass.currency,
+            mentorPass.mentorshipListingId,
+            mentorshipContract.mentorshipContractId,
+            admin.walletId,
+            sensei.walletId,
+            BILLING_STATUS.PENDING_120_DAYS,
+            BILLING_TYPE.MENTORSHIP
+          );
+          //5. Add sensei wallet to dictionary to update amount later
+          const senseiWalletToUpdate = senseiWalletsDictionary.get(
+            sensei.walletId
+          );
+          if (senseiWalletToUpdate) {
+            const updatedPendingAmount =
+              senseiWalletToUpdate.pendingAmountToAdd +
+              Number(payable.toFixed(2));
+            const updatedTotalAmount =
+              senseiWalletToUpdate.totalEarnedToAdd +
+              Number(payable.toFixed(2));
+            senseiWalletsDictionary.set(sensei.walletId, {
+              pendingAmountToAdd: updatedPendingAmount,
+              totalEarnedToAdd: updatedTotalAmount,
+            });
+          } else {
+            senseiWalletsDictionary.set(sensei.walletId, {
+              pendingAmountToAdd: Number(payable.toFixed(2)),
+              totalEarnedToAdd: Number(payable.toFixed(2)),
+            });
+          }
+        })
+      );
+    }
+
+    const totalEarned = Number(
+      (adminWallet.totalEarned + newPlatformEarned).toFixed(2)
+    );
+    const platformRevenue = Number(
+      (adminWallet.platformRevenue + newPlatformRevenue).toFixed(2)
+    );
+
+    // 6. Update admin wallet
+    await adminWallet.update({
+      totalEarned,
+      platformRevenue,
+    });
+    // 7. Update sensei wallet
+    return await Promise.all(
+      Array.from(senseiWalletsDictionary).map(
+        async ([walletId, { pendingAmountToAdd, totalEarnedToAdd }]) => {
+          const senseiWallet = await Wallet.findByPk(walletId);
+          const pendingAmount = senseiWallet.pendingAmount + pendingAmountToAdd;
+          const totalEarned = senseiWallet.totalEarned + totalEarnedToAdd;
+          await senseiWallet.update({
+            pendingAmount,
+            totalEarned,
+          });
+        }
+      )
+    );
   }
 }
