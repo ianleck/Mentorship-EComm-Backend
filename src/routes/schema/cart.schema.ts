@@ -5,8 +5,8 @@ export default {
     courseId: joi.string().required(),
   }),
 
-  addMentorshipListingB: joi.object({
-    numSlots: joi.string().required(),
+  addMentorshipB: joi.object({
+    numSlots: joi.number().required(),
     mentorshipContractId: joi.string().required(),
   }),
 

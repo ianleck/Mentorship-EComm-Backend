@@ -58,7 +58,7 @@ export default class CartService {
   public static async addMentorshipListing(
     mentorshipContractId: string,
     studentId: string,
-    numSlots: string
+    numSlots: number
   ) {
     const student = await User.findByPk(studentId);
     if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
