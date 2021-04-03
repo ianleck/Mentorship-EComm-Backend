@@ -20,12 +20,10 @@ export class UserFollowership extends Model<UserFollowership> {
   @Column(DataType.UUID)
   followershipId: string;
 
-  @ForeignKey(() => User)
-  @Column
+  @Column(DataType.UUID)
   followerId: string;
 
-  @ForeignKey(() => User)
-  @Column
+  @Column(DataType.UUID)
   followingId: string;
 
   @Column({
@@ -44,9 +42,19 @@ export class UserFollowership extends Model<UserFollowership> {
   updatedAt: Date;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
-  @BelongsTo(() => User, 'followerId')
+  @BelongsTo(() => User, {
+    foreignKey: {
+      name: 'followerId',
+      allowNull: false,
+    },
+  })
   Following: User;
 
-  @BelongsTo(() => User, 'followingId')
+  @BelongsTo(() => User, {
+    foreignKey: {
+      name: 'followingId',
+      allowNull: false,
+    },
+  })
   Follower: User;
 }

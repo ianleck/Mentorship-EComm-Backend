@@ -326,6 +326,7 @@ export default class SocialService {
           },
           attributes: [
             'accountId',
+            'username',
             'firstName',
             'lastName',
             'profileImgUrl',
@@ -371,6 +372,7 @@ export default class SocialService {
           },
           attributes: [
             'accountId',
+            'username',
             'firstName',
             'lastName',
             'profileImgUrl',
