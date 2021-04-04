@@ -409,4 +409,64 @@ export default class SocialService {
 
     return pendingFollowingList;
   }
+
+  public static async blockUser(followerId: string, followingId: string) {
+    const followingUser = await User.findByPk(followingId);
+    if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const followerUser = await User.findByPk(followerId);
+    if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const existingFollowership = await UserFollowership.findOne({
+      where: {
+        followerId,
+        followingId,
+      },
+    });
+    if (!existingFollowership) {
+      const followership = new UserFollowership({
+        followingId,
+        followerId,
+        followingStatus: FOLLOWING_ENUM.BLOCKED,
+      });
+
+      await followership.save();
+
+      return followership;
+    } else {
+      existingFollowership.update({
+        followingStatus: FOLLOWING_ENUM.BLOCKED,
+      });
+
+      return existingFollowership;
+    }
+  }
+
+  //Unblock User
+  public static async unblockUser(followerId: string, followingId: string) {
+    const followingUser = await User.findByPk(followingId);
+    if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const followerUser = await User.findByPk(followerId); //user to unblock
+    if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const followership = await UserFollowership.findOne({
+      where: {
+        followerId,
+        followingId,
+        followingStatus: FOLLOWING_ENUM.BLOCKED,
+      },
+    });
+
+    // if (!followership) return followerUser;
+
+    await UserFollowership.destroy({
+      where: {
+        followerId,
+        followingId,
+      },
+    });
+
+    // return followerUser;
+  }
 }

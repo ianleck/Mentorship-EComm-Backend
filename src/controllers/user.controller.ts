@@ -35,7 +35,7 @@ export class UserController {
     const { accountId } = req.params;
     const { user } = req;
     try {
-      const userProfile = await UserService.findUserById(
+      const { userProfile, isBlocking } = await UserService.findUserById(
         accountId,
         user.accountId
       );
@@ -44,6 +44,7 @@ export class UserController {
         {
           message: 'success',
           userProfile,
+          isBlocking,
         },
         httpStatusCodes.OK
       );

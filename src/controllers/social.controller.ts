@@ -446,4 +446,66 @@ export class SocialController {
       });
     }
   }
+
+  public static async blockUser(req, res) {
+    const { accountId } = req.params; //user to block 
+    const { user } = req;
+
+    //return blocked status
+    try {
+      const response = await SocialService.blockUser(accountId, user.accountId);
+      return apiResponse.result(
+        res,
+        {
+          message: SOCIAL_RESPONSE.USER_BLOCKED,
+          followingStatus: response.followingStatus,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialController.blockUser]:' + e.message);
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
+  //Unblock User
+  public static async unblockUser(req, res) {
+    const { accountId } = req.params; //user to unblock
+    const { user } = req;
+
+    //return profile of user unblocked
+    try {
+      const userUnblocked = await SocialService.unblockUser(
+        accountId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: SOCIAL_RESPONSE.USER_UNBLOCKED,
+          //userUnblocked,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialController.unblockUser]:' + e.message);
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
 }

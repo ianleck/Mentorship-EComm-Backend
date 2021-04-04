@@ -5,7 +5,7 @@ import {
   STATUS_ENUM,
   USER_TYPE_ENUM,
 } from '../constants/enum';
-import { ERRORS, SOCIAL_ERRORS } from '../constants/errors';
+import { ERRORS } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Experience } from '../models/Experience';
 import { User } from '../models/User';
@@ -27,23 +27,60 @@ export default class UserService {
     }
   }
 
-  public static async findUserById(
-    accountId: string,
-    userId: string
-  ): Promise<User> {
-    const user = await User.findByPk(accountId, {
+  public static async findUserById(accountId: string, userId: string) {
+    var isBlocking = false;
+    const userProfile = await User.findByPk(accountId, {
       include: [Experience],
     });
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    if (!userProfile) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
+    // CHECK IF ADMIN
     const userReq = await User.findByPk(userId);
-    //Admin
     if (!userReq) {
-      return user;
+      return { userProfile, isBlocking };
     }
 
-    //if user's account is private AND not following and requestor is NOT Admin/own account, return error
-    if (userReq.accountId !== accountId && user.isPrivateProfile === true) {
+    //CHECK IF BLOCKED BY ACCOUNTID USER (user logged in is the followerId)
+    if (userReq.accountId !== accountId) {
+      const followership = await UserFollowership.findOne({
+        where: {
+          followerId: userId,
+          followingId: accountId,
+          followingStatus: FOLLOWING_ENUM.BLOCKED,
+        },
+      });
+      //return user who blocked
+      if (followership) {
+        const userProfile = await User.findByPk(accountId, {
+          attributes: ['accountId'],
+        });
+        return { userProfile, isBlocking: true };
+      }
+    }
+
+    //CHECK IF USER LOGGED IN HAS BLOCKED ACCOUNTID
+    if (userReq.accountId !== accountId) {
+      const followership = await UserFollowership.findOne({
+        where: {
+          followerId: accountId,
+          followingId: userId,
+          followingStatus: FOLLOWING_ENUM.BLOCKED,
+        },
+      });
+      //return user who blocked
+      if (followership) {
+        const userProfile = await User.findByPk(userId, {
+          attributes: ['accountId'],
+        });
+        return { userProfile, isBlocking: true };
+      }
+    }
+
+    //CHECK IF ACCOUNTID USER IS PRIVATE
+    if (
+      userReq.accountId !== accountId &&
+      userProfile.isPrivateProfile === true
+    ) {
       //try to find a followership
       const followership = await UserFollowership.findOne({
         where: {
@@ -53,7 +90,7 @@ export default class UserService {
         },
       });
       if (!followership) {
-        const privateUser = await User.findByPk(accountId, {
+        const userProfile = await User.findByPk(accountId, {
           attributes: [
             'accountId',
             'username',
@@ -63,11 +100,11 @@ export default class UserService {
             'isPrivateProfile',
           ],
         });
-        return privateUser;
+        return { userProfile, isBlocking };
       }
     }
 
-    return user;
+    return { userProfile, isBlocking };
   }
 
   public static async findUserOrAdminById(
