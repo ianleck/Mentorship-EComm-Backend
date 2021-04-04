@@ -3,8 +3,8 @@ import * as _ from 'lodash';
 import { Op } from 'sequelize';
 import {
   ADMIN_VERIFIED_ENUM,
+  APPROVAL_STATUS,
   CONTRACT_PROGRESS_ENUM,
-  MENTORSHIP_CONTRACT_APPROVAL,
   USER_TYPE_ENUM,
   VISIBILITY_ENUM,
 } from '../constants/enum';
@@ -263,14 +263,14 @@ export default class MentorshipService {
       where: {
         mentorshipListingId,
         accountId,
-        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+        senseiApproval: APPROVAL_STATUS.PENDING,
       },
     });
     const existingContract = await MentorshipContract.findOne({
       where: {
         mentorshipListingId,
         accountId,
-        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
+        senseiApproval: APPROVAL_STATUS.APPROVED,
         progress:
           CONTRACT_PROGRESS_ENUM.NOT_STARTED || CONTRACT_PROGRESS_ENUM.ONGOING,
       },
@@ -320,7 +320,7 @@ export default class MentorshipService {
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
         mentorshipContractId,
-        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+        senseiApproval: APPROVAL_STATUS.PENDING,
       },
     });
     if (!mentorshipContract)
@@ -344,7 +344,7 @@ export default class MentorshipService {
     const mentorName = `${sensei.firstName} ${sensei.lastName}`;
 
     const acceptedApplication = await mentorshipContract.update({
-      senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
+      senseiApproval: APPROVAL_STATUS.APPROVED,
     });
 
     const mentorshipName = mentorshipListing.name;
@@ -361,7 +361,7 @@ export default class MentorshipService {
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
         mentorshipContractId,
-        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+        senseiApproval: APPROVAL_STATUS.PENDING,
       },
     });
     if (!mentorshipContract)
@@ -381,7 +381,7 @@ export default class MentorshipService {
     if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
 
     const rejectedApplication = await mentorshipContract.update({
-      senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.REJECTED,
+      senseiApproval: APPROVAL_STATUS.REJECTED,
     });
 
     const mentorshipName = mentorshipListing.name;

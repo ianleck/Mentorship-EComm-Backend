@@ -8,10 +8,7 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
-import {
-  CONTRACT_PROGRESS_ENUM,
-  MENTORSHIP_CONTRACT_APPROVAL,
-} from '../constants/enum';
+import { APPROVAL_STATUS, CONTRACT_PROGRESS_ENUM } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { MentorshipListing } from './MentorshipListing';
 import { TaskBucket } from './TaskBucket';
@@ -46,10 +43,10 @@ export class MentorshipContract extends BaseEntity {
   @Column({
     allowNull: false,
     type: DataType.ENUM,
-    values: Object.values(MENTORSHIP_CONTRACT_APPROVAL),
-    defaultValue: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+    values: Object.values(APPROVAL_STATUS),
+    defaultValue: APPROVAL_STATUS.PENDING,
   })
-  senseiApproval: MENTORSHIP_CONTRACT_APPROVAL;
+  senseiApproval: APPROVAL_STATUS;
 
   @Column(DataType.INTEGER)
   mentorPassCount: number; // Number of mentor passes
