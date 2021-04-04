@@ -89,6 +89,8 @@ export class PaypalController {
     }
   }
 
+  public static async createRefund(req, res) {}
+
   public static async viewPayout(req, res) {
     try {
       const { payoutId } = req.params;

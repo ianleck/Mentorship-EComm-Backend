@@ -40,4 +40,11 @@ router.get(
   schemaValidator.params(paypal.paymentIdP),
   Utility.asyncHandler(PaypalController.viewOrder)
 );
+
+router.post(
+  '/refund',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  Utility.asyncHandler(PaypalController.createRefund)
+);
 export default router;
