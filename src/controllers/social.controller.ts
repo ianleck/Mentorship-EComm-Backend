@@ -448,7 +448,7 @@ export class SocialController {
   }
 
   public static async blockUser(req, res) {
-    const { accountId } = req.params; //user to block 
+    const { accountId } = req.params; //user to block
     const { user } = req;
 
     //return blocked status

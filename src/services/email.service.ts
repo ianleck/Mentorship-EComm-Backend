@@ -15,6 +15,8 @@ interface AdditionalParams {
   duration?: string;
   message?: Text;
   mentorName?: string;
+  announcementContent?: Text;
+  announcementTitle?: string;
 }
 export default class EmailService {
   public static async sendEmail(
@@ -66,6 +68,67 @@ export default class EmailService {
       });
     } catch (e) {
       console.log(e);
+    }
+  }
+
+  public static async sendMassEmail(listOfEmails, template, additional?) {
+    try {
+      // Set up emailClient
+      const { SENDER_EMAIL_ADDRESS, SENDER_EMAIL_PASSWORD } = process.env;
+
+      var transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: SENDER_EMAIL_ADDRESS,
+          pass: SENDER_EMAIL_PASSWORD,
+        },
+      });
+
+      // Send Email
+      const subject = TEMPLATES[template].subject;
+      const htmlTemplate = await this.generateMassTemplate(
+        template,
+        additional
+      );
+
+      const mailOptions = {
+        from: SENDER_EMAIL_ADDRESS,
+        to: listOfEmails,
+        subject,
+        html: htmlTemplate,
+      };
+
+      await transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  public static async generateMassTemplate(
+    template: string,
+    additional?: AdditionalParams
+  ) {
+    const fileName = TEMPLATES[template].fileName;
+    const rootPath = process.cwd();
+    const filePath = path.normalize(
+      `${rootPath}/src/constants/templates/${fileName}`
+    );
+
+    switch (template) {
+      case 'newAnnouncement':
+        return await ejs.renderFile(filePath, {
+          announcementContent: additional.announcementContent,
+          announcementTitle: additional.announcementTitle,
+          courseName: additional.courseName,
+        });
     }
   }
 
