@@ -51,10 +51,9 @@ module.exports = {
             'CONFIRMED',
             'FAILED',
             'PENDING_120_DAYS',
-            'PENDING_PAYMENT',
             'PENDING_WITHDRAWAL',
             'REJECTED',
-            'SUCCESS',
+            'PAID',
             'WITHDRAWN',
             'ADMIN'
           ),

@@ -11,6 +11,7 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
+import { CURRENCY } from '../constants/constants';
 import { VISIBILITY_ENUM } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Billing } from './Billing';
@@ -51,6 +52,11 @@ export class MentorshipListing extends BaseEntity {
   @AllowNull(false)
   @Column(DataType.FLOAT)
   priceAmount: number;
+
+  @AllowNull(false)
+  @Default(CURRENCY)
+  @Column(DataType.STRING)
+  currency: string;
 
   @Column({
     allowNull: false,

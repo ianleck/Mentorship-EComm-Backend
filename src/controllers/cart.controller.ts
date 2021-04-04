@@ -5,7 +5,6 @@ import {
   COURSE_ERRORS,
   ERRORS,
   MENTORSHIP_ERRORS,
-  RESPONSE_ERROR,
 } from '../constants/errors';
 import { CART_RESPONSE } from '../constants/successMessages';
 import Utility from '../constants/utility';
@@ -95,15 +94,7 @@ export class CartController {
       );
     } catch (e) {
       logger.error('[cartController.deleteItems]:' + e.message);
-      if (e.message === ERRORS.STUDENT_DOES_NOT_EXIST) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [ERRORS.STUDENT_DOES_NOT_EXIST]);
     }
   }
 
@@ -118,15 +109,7 @@ export class CartController {
       );
     } catch (e) {
       logger.error('[cartController.viewCart]:' + e.message);
-      if (e.message === ERRORS.STUDENT_DOES_NOT_EXIST) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [ERRORS.STUDENT_DOES_NOT_EXIST]);
     }
   }
 }

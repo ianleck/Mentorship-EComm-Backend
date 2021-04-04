@@ -16,12 +16,16 @@ import EmailService from './email.service';
 import PaypalService from './paypal.service';
 export default class WalletService {
   // ============================== Billings ==============================
-  public static async createCourseBilling(
+  public static async createOrderBilling(
+    studentId: string,
+    paypalPaymentId: string,
+    paypalPayerId: string,
+    productId: string,
+    contractId: string,
     amount: number,
     currency: string,
-    courseId: string,
-    studentId: string,
-    status: BILLING_STATUS
+    status: BILLING_STATUS,
+    billingType: BILLING_TYPE
   ) {
     const student = await User.findByPk(studentId);
     const admin = await Admin.findOne({
@@ -29,13 +33,16 @@ export default class WalletService {
     });
 
     const newBilling = new Billing({
-      productId: courseId,
-      amount: amount,
-      currency: currency,
+      paypalPaymentId,
+      paypalPayerId,
+      productId,
+      contractId,
+      amount,
+      currency,
       senderWalletId: student.walletId,
       receiverWalletId: admin.walletId,
       status,
-      billingType: BILLING_TYPE.COURSE,
+      billingType,
     });
 
     return await newBilling.save();
@@ -45,8 +52,8 @@ export default class WalletService {
     amount: number,
     platformFee: number,
     currency: string,
-    courseId: string,
-    courseContractId: string,
+    productId: string,
+    contractId: string,
     adminWalletId: string,
     senseiWalletId: string,
     status: BILLING_STATUS,
@@ -56,8 +63,8 @@ export default class WalletService {
     withdrawableDate.setDate(withdrawableDate.getDate() + WITHDRAWAL_DAYS);
 
     const newBilling = new Billing({
-      productId: courseId,
-      contractId: courseContractId,
+      productId,
+      contractId,
       amount: amount,
       currency: currency,
       platformFee,
@@ -69,16 +76,6 @@ export default class WalletService {
     });
 
     return await newBilling.save();
-  }
-
-  public static async updatePaymentId(billings: Billing[], paymentId: string) {
-    await Promise.all(
-      billings.map(async (billing) => {
-        await billing.update({
-          paypalPaymentId: paymentId,
-        });
-      })
-    );
   }
 
   public static async viewBillingsByFilter(filter: {

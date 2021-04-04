@@ -17,7 +17,7 @@ router.get(
 );
 
 router.post(
-  '/course/',
+  '/course',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
   schemaValidator.body(cart.addCourseB),
@@ -25,10 +25,10 @@ router.post(
 );
 
 router.post(
-  '/mentorshipListing/',
+  '/mentorship',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.body(cart.addMentorshipListingB),
+  schemaValidator.body(cart.addMentorshipB),
   Utility.asyncHandler(CartController.addMentorshipListing)
 );
 
@@ -44,7 +44,7 @@ router.delete(
   '/',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.body(cart.courseAndContractIdsB),
+  schemaValidator.body(cart.courseAndListingIdsB),
   Utility.asyncHandler(CartController.deleteItems)
 );
 
