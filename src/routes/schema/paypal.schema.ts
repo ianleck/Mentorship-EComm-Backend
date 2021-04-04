@@ -10,4 +10,7 @@ export default {
   payoutIdP: joi.object({
     payoutId: joi.string().required(),
   }),
+  paymentIdP: joi.object({
+    paymentId: joi.string().required(),
+  }),
 };

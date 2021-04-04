@@ -46,29 +46,6 @@ export class PaypalController {
     }
   }
 
-  public static async viewPayout(req, res) {
-    try {
-      const { payoutId } = req.params;
-
-      await paypal.payout.get(payoutId, function (error, payout) {
-        if (error) {
-          throw new Error(error);
-        } else {
-          return apiResponse.result(
-            res,
-            { message: 'success', payout },
-            httpStatusCodes.OK
-          );
-        }
-      });
-    } catch (e) {
-      logger.error('[PaypalController.viewPayout]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
-    }
-  }
-
   public static async captureOrder(req, res) {
     try {
       const { user } = req;
@@ -106,6 +83,53 @@ export class PaypalController {
       );
     } catch (e) {
       logger.error('[PaypalController.captureOrder]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async viewPayout(req, res) {
+    try {
+      const { payoutId } = req.params;
+
+      await paypal.payout.get(payoutId, function (error, payout) {
+        if (error) {
+          throw new Error(error);
+        } else {
+          return apiResponse.result(
+            res,
+            { message: 'success', payout },
+            httpStatusCodes.OK
+          );
+        }
+      });
+    } catch (e) {
+      logger.error('[PaypalController.viewPayout]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+        message: e.message,
+      });
+    }
+  }
+
+  public static async viewOrder(req, res) {
+    try {
+      const { paymentId } = req.params;
+
+      await paypal.payment.get(paymentId, function (error, payment) {
+        if (error) {
+          throw new Error(error);
+        } else {
+          console.log(JSON.stringify(payment, null, 2));
+          return apiResponse.result(
+            res,
+            { message: 'success', payment },
+            httpStatusCodes.OK
+          );
+        }
+      });
+    } catch (e) {
+      logger.error('[PaypalController.viewPayout]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });
