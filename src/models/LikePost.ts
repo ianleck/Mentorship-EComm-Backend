@@ -10,25 +10,21 @@ import {
 import { User } from './User';
 import { Post } from './Post';
 
+@Table
+export class LikePost extends Model<LikePost> {
+  @ForeignKey(() => Post)
+  @Column(DataType.UUID)
+  postId: string;
 
-  
-  @Table
-  export class LikePost extends Model<LikePost> {
-    @ForeignKey(() => Post)
-    @Column(DataType.UUID)
-    postId: string;
+  @ForeignKey(() => User)
+  @Column(DataType.UUID)
+  accountId: string;
 
-    @ForeignKey(() => User)
-    @Column(DataType.UUID)
-    accountId: string;
-  
-    @CreatedAt
-    @Column
-    createdAt: Date;
-  
-    @UpdatedAt
-    @Column
-    updatedAt: Date;
-  }
+  @CreatedAt
+  @Column
+  createdAt: Date;
 
-  
+  @UpdatedAt
+  @Column
+  updatedAt: Date;
+}

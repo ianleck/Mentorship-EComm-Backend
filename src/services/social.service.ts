@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import { FOLLOWING_ENUM } from '../constants/enum';
 import { ERRORS, SOCIAL_ERRORS } from '../constants/errors';
 import { LikePost } from '../models/LikePost';
+import { Comment } from '../models/Comment';
 import { Post } from '../models/Post';
 import { User } from '../models/User';
 import { UserFollowership } from '../models/UserFollowership';
@@ -99,6 +100,7 @@ export default class SocialService {
     await LikePost.destroy({
       where: {
         postId,
+        accountId,
       },
     });
   }
@@ -120,6 +122,34 @@ export default class SocialService {
 
     const listOfPost = Post.findAll({
       where: { accountId },
+      include: [
+        {
+          model: User,
+          attributes: ['accountId', 'firstName', 'lastName', 'profileImgUrl'],
+        },
+        {
+          model: LikePost,
+          on: {
+            '$LikePost.postId$': {
+              [Op.col]: 'Post.postId',
+            },
+          },
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+              ],
+            },
+          ],
+        },
+      ],
     });
     return listOfPost;
   }
@@ -408,5 +438,49 @@ export default class SocialService {
     });
 
     return pendingFollowingList;
+  }
+
+  public static async getPendingFollowerList(
+    accountId: string,
+    userId: string
+  ) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    //Check if user retrieving pending list is the owner of account
+    if (userId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    const pendingFollowerList = UserFollowership.findAll({
+      where: {
+        followingId: { [Op.eq]: accountId },
+        followingStatus: {
+          [Op.eq]: [FOLLOWING_ENUM.PENDING],
+        },
+      },
+      include: [
+        {
+          model: User,
+          as: 'Follower',
+          on: {
+            '$Follower.accountId$': {
+              [Op.col]: 'UserFollowership.followerId',
+            },
+          },
+          attributes: [
+            'accountId',
+            'username',
+            'firstName',
+            'lastName',
+            'profileImgUrl',
+            'isPrivateProfile',
+          ],
+        },
+      ],
+    });
+
+    return pendingFollowerList;
   }
 }
