@@ -33,23 +33,23 @@ export class UserController {
 
   public static async getUserProfile(req, res) {
     const { accountId } = req.params;
-    const { userReq } = req;
+    const { user } = req;
     try {
-      const { user, isBlocking } = await UserService.findUserById(
+      const { userProfile, isBlocking } = await UserService.findUserById(
         accountId,
-        userReq.accountId
+        user.accountId
       );
       return apiResponse.result(
         res,
         {
           message: 'success',
-          user,
+          userProfile,
           isBlocking,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.getUser]:' + e.message);
+      logger.error('[userController.getUserProfile]:' + e.message);
       if (
         e.message === ERRORS.USER_DOES_NOT_EXIST ||
         e.message === SOCIAL_ERRORS.PRIVATE_USER
