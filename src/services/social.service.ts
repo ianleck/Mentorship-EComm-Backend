@@ -154,6 +154,62 @@ export default class SocialService {
     return listOfPost;
   }
 
+  public static async getFollowingFeed(accountId: string, userId: string) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    //Check if user account is private, if private, only user followers can see feed
+    if (user.isPrivateProfile === true && userId !== accountId) {
+      const following = await UserFollowership.findOne({
+        where: {
+          followerId: userId,
+          followingId: accountId,
+        },
+      });
+      if (!following) throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
+    }
+
+    const allFollowingIdsRsp = await UserFollowership.findAll({
+      where: {
+        followerId: userId,
+      },
+    });
+    const followingIds = allFollowingIdsRsp.map((uf) => uf.followingId);
+
+    const listOfPost = Post.findAll({
+      where: { accountId: { [Op.in]: [accountId, ...followingIds] } },
+      include: [
+        {
+          model: User,
+          attributes: ['accountId', 'firstName', 'lastName', 'profileImgUrl'],
+        },
+        {
+          model: LikePost,
+          on: {
+            '$LikePost.postId$': {
+              [Op.col]: 'Post.postId',
+            },
+          },
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    return listOfPost;
+  }
+
   // ======================================== FOLLOWING ========================================
 
   //Cancel request to follow a user
