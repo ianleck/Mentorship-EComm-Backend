@@ -3,6 +3,7 @@ import logger from '../config/logger';
 import { FOLLOWING_ENUM } from '../constants/enum';
 import { ERRORS, RESPONSE_ERROR, SOCIAL_ERRORS } from '../constants/errors';
 import { SOCIAL_RESPONSE } from '../constants/successMessages';
+import Utility from '../constants/utility';
 import SocialService from '../services/social.service';
 import apiResponse from '../utilities/apiResponse';
 
@@ -464,15 +465,7 @@ export class SocialController {
       );
     } catch (e) {
       logger.error('[socialController.blockUser]:' + e.message);
-      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [ERRORS.USER_DOES_NOT_EXIST]);
     }
   }
 
@@ -497,15 +490,7 @@ export class SocialController {
       );
     } catch (e) {
       logger.error('[socialController.unblockUser]:' + e.message);
-      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [ERRORS.USER_DOES_NOT_EXIST]);
     }
   }
 }

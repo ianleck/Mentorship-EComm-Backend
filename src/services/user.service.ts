@@ -29,15 +29,15 @@ export default class UserService {
 
   public static async findUserById(accountId: string, userId: string) {
     var isBlocking = false;
-    const userProfile = await User.findByPk(accountId, {
+    const user = await User.findByPk(accountId, {
       include: [Experience],
     });
-    if (!userProfile) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
     // CHECK IF ADMIN
     const userReq = await User.findByPk(userId);
     if (!userReq) {
-      return { userProfile, isBlocking };
+      return { user, isBlocking };
     }
 
     //CHECK IF BLOCKED BY ACCOUNTID USER (user logged in is the followerId)
@@ -51,10 +51,10 @@ export default class UserService {
       });
       //return user who blocked
       if (followership) {
-        const userProfile = await User.findByPk(accountId, {
+        const user = await User.findByPk(accountId, {
           attributes: ['accountId'],
         });
-        return { userProfile, isBlocking: true };
+        return { user, isBlocking: true };
       }
     }
 
@@ -69,18 +69,15 @@ export default class UserService {
       });
       //return user who blocked
       if (followership) {
-        const userProfile = await User.findByPk(userId, {
+        const user = await User.findByPk(userId, {
           attributes: ['accountId'],
         });
-        return { userProfile, isBlocking: true };
+        return { user, isBlocking: true };
       }
     }
 
     //CHECK IF ACCOUNTID USER IS PRIVATE
-    if (
-      userReq.accountId !== accountId &&
-      userProfile.isPrivateProfile === true
-    ) {
+    if (userReq.accountId !== accountId && user.isPrivateProfile === true) {
       //try to find a followership
       const followership = await UserFollowership.findOne({
         where: {
@@ -90,7 +87,7 @@ export default class UserService {
         },
       });
       if (!followership) {
-        const userProfile = await User.findByPk(accountId, {
+        const user = await User.findByPk(accountId, {
           attributes: [
             'accountId',
             'username',
@@ -100,11 +97,11 @@ export default class UserService {
             'isPrivateProfile',
           ],
         });
-        return { userProfile, isBlocking };
+        return { user, isBlocking };
       }
     }
 
-    return { userProfile, isBlocking };
+    return { user, isBlocking };
   }
 
   public static async findUserOrAdminById(

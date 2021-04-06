@@ -33,17 +33,17 @@ export class UserController {
 
   public static async getUserProfile(req, res) {
     const { accountId } = req.params;
-    const { user } = req;
+    const { userReq } = req;
     try {
-      const { userProfile, isBlocking } = await UserService.findUserById(
+      const { user, isBlocking } = await UserService.findUserById(
         accountId,
-        user.accountId
+        userReq.accountId
       );
       return apiResponse.result(
         res,
         {
           message: 'success',
-          userProfile,
+          user,
           isBlocking,
         },
         httpStatusCodes.OK
