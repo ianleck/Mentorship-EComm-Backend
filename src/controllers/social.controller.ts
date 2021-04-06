@@ -182,6 +182,36 @@ export class SocialController {
     }
   }
 
+  public static async getFollowingFeed(req, res) {
+    const { accountId } = req.params;
+    const { user } = req;
+
+    try {
+      const listOfPost = await SocialService.getFollowingFeed(
+        accountId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          listOfPost,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getFollowingFeed]:' + e.toString());
+      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
   //================================== FOLLOWING =============================================
 
   public static async removeRequest(req, res) {
@@ -436,6 +466,36 @@ export class SocialController {
       );
     } catch (e) {
       logger.error('[socialService.getPendingFollowingList]:' + e.toString());
+      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getPendingFollowerList(req, res) {
+    const { accountId } = req.params;
+    const { user } = req;
+
+    try {
+      const pendingFollowerList = await SocialService.getPendingFollowerList(
+        accountId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          pendingFollowerList,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getPendingFollowerList]:' + e.toString());
       if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
