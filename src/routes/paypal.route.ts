@@ -14,7 +14,7 @@ router.post(
   '/order/create',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.body(cart.courseAndContractIdsB),
+  schemaValidator.body(cart.cartIdP),
   Utility.asyncHandler(PaypalController.createOrder)
 );
 
@@ -31,5 +31,13 @@ router.get(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(paypal.payoutIdP),
   Utility.asyncHandler(PaypalController.viewPayout)
+);
+
+router.get(
+  '/order/:paymentId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.params(paypal.paymentIdP),
+  Utility.asyncHandler(PaypalController.viewOrder)
 );
 export default router;
