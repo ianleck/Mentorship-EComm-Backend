@@ -3,6 +3,7 @@ import logger from '../config/logger';
 import { FOLLOWING_ENUM } from '../constants/enum';
 import { ERRORS, RESPONSE_ERROR, SOCIAL_ERRORS } from '../constants/errors';
 import { SOCIAL_RESPONSE } from '../constants/successMessages';
+import Utility from '../constants/utility';
 import SocialService from '../services/social.service';
 import apiResponse from '../utilities/apiResponse';
 
@@ -474,6 +475,52 @@ export class SocialController {
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
+    }
+  }
+
+  public static async blockUser(req, res) {
+    const { accountId } = req.params; //user to block
+    const { user } = req;
+
+    //return blocked status
+    try {
+      const response = await SocialService.blockUser(accountId, user.accountId);
+      return apiResponse.result(
+        res,
+        {
+          message: SOCIAL_RESPONSE.USER_BLOCKED,
+          followingStatus: response.followingStatus,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialController.blockUser]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [ERRORS.USER_DOES_NOT_EXIST]);
+    }
+  }
+
+  //Unblock User
+  public static async unblockUser(req, res) {
+    const { accountId } = req.params; //user to unblock
+    const { user } = req;
+
+    //return profile of user unblocked
+    try {
+      const userUnblocked = await SocialService.unblockUser(
+        accountId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: SOCIAL_RESPONSE.USER_UNBLOCKED,
+          //userUnblocked,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialController.unblockUser]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [ERRORS.USER_DOES_NOT_EXIST]);
     }
   }
 

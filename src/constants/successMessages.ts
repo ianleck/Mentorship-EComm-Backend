@@ -143,6 +143,9 @@ export const SOCIAL_RESPONSE = {
     'Request to follow user has been successfully accepted',
   FOLLOWING_REQUEST_REJECTED:
     'Request to follow user has been successfully rejected',
+
+  USER_BLOCKED: 'User has been successfully blocked',
+  USER_UNBLOCKED: 'User has been successfully unblocked',
 };
 
 // ==================== COMMENT RESPONSE MESSAGES ====================

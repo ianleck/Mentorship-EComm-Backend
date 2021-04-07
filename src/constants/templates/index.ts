@@ -29,6 +29,11 @@ export const TEMPLATES = {
     subject: '[DigiDojo] Course Rejected',
   },
 
+  newAnnouncement: {
+    fileName: 'newAnnouncement.ejs',
+    subject: '[DigiDojo] New Announcement',
+  },
+
   // ======================================== MENTORSHIP CONTRACTS ========================================
   acceptContract: {
     fileName: 'acceptContract.ejs',

@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import {
-  BelongsToMany,
   Column,
   DataType,
   Default,
@@ -20,7 +19,6 @@ import { Account } from './abstract/Account';
 import { Experience } from './Experience';
 import { MentorshipContract } from './MentorshipContract';
 import { Post } from './Post';
-import { UserFollowership } from './UserFollowership';
 import { Wallet } from './Wallet';
 @Table
 export class User extends Account {
