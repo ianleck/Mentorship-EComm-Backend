@@ -2,8 +2,8 @@ import httpStatusCodes from 'http-status-codes';
 import { Op } from 'sequelize';
 import { FOLLOWING_ENUM } from '../constants/enum';
 import { ERRORS, SOCIAL_ERRORS } from '../constants/errors';
-import { LikePost } from '../models/LikePost';
 import { Comment } from '../models/Comment';
+import { LikePost } from '../models/LikePost';
 import { Post } from '../models/Post';
 import { User } from '../models/User';
 import { UserFollowership } from '../models/UserFollowership';
@@ -208,6 +208,77 @@ export default class SocialService {
       ],
     });
     return listOfPost;
+  }
+
+  public static async getPostById(postId: string, userId: string) {
+    const post = await Post.findOne({
+      where: {
+        postId,
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['accountId', 'firstName', 'lastName', 'profileImgUrl'],
+        },
+        {
+          model: LikePost,
+          on: {
+            '$LikePost.postId$': {
+              [Op.col]: 'Post.postId',
+            },
+          },
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    if (!post) throw new Error(SOCIAL_ERRORS.POST_MISSING);
+
+    const userProfile = await User.findByPk(post.accountId);
+    if (!userProfile) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    //Check if owner of the post is private, if private, only user followers can see post
+    if (
+      userProfile.isPrivateProfile === true &&
+      userId !== userProfile.accountId
+    ) {
+      const userProfile = await User.findByPk(post.accountId, {
+        attributes: [
+          'accountId',
+          'username',
+          'firstName',
+          'lastName',
+          'profileImgUrl',
+          'isPrivateProfile',
+        ],
+      });
+
+      const following = await UserFollowership.findOne({
+        where: {
+          followerId: userId,
+          followingId: userProfile.accountId,
+          followingStatus: FOLLOWING_ENUM.APPROVED,
+        },
+      });
+      if (!following) {
+        post;
+        return { post: null, userProfile };
+      }
+    }
+
+    return { post, userProfile };
   }
 
   // ======================================== FOLLOWING ========================================

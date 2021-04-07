@@ -213,6 +213,37 @@ export class SocialController {
     }
   }
 
+  public static async getPostById(req, res) {
+    const { postId } = req.params;
+    const { user } = req;
+
+    try {
+      const { post, userProfile } = await SocialService.getPostById(
+        postId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          post,
+          userProfile,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getPostById]:' + e.toString());
+      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
   //================================== FOLLOWING =============================================
 
   public static async removeRequest(req, res) {
