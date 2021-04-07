@@ -11,10 +11,11 @@ import fileRoute from './file.route';
 import mentorshipRoute from './mentorship.route';
 import paypalRoute from './paypal.route';
 import reviewRoute from './review.route';
+import searchRoute from './search.route';
+import socialRoute from './social.route';
 import uploadRoute from './upload.route';
 import userRoute from './user.route';
 import walletRoute from './wallet.route';
-import socialRoute from './social.route';
 
 const router = express.Router();
 
@@ -34,5 +35,6 @@ router.use('/upload', uploadRoute);
 router.use('/user', userRoute);
 router.use('/wallet', walletRoute);
 router.use('/social', socialRoute);
+router.use('/search', searchRoute);
 
 export default router;
