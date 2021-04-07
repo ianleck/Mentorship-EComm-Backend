@@ -6,14 +6,14 @@ import apiResponse from '../utilities/apiResponse';
 
 export class SearchController {
   public static async searchByFilter(req, res) {
-    const filter = req.query;
+    const { query } = req.params;
 
     try {
-      const users = await SearchService.searchForUsers(filter);
+      const users = await SearchService.searchForUsers(query);
       const mentorships = await SearchService.searchForMentorshipListings(
-        filter
+        query
       );
-      const courses = await SearchService.searchForCourses(filter);
+      const courses = await SearchService.searchForCourses(query);
       return apiResponse.result(
         res,
         {
