@@ -49,6 +49,14 @@ router.delete(
 
 //anyone who is logged in can access this
 router.get(
+  '/post/following/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getFollowingFeed)
+);
+
+//anyone who is logged in can access this
+router.get(
   '/post/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP),
@@ -142,6 +150,14 @@ router.delete(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(SocialController.unblockUser)
+);
+
+//View Follower Requests (Pending Followers of the :accountId)
+router.get(
+  '/pending-followers/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getPendingFollowerList)
 );
 
 export default router;
