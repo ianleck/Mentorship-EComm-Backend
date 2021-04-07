@@ -6,12 +6,24 @@ import { User } from '../models/User';
 
 export default class SearchService {
   public static async searchForUsers(query) {
+    const Sequelize = require('sequelize');
     const userResults = await User.findAll({
       where: {
         [Op.or]: [
-          { username: query },
-          { firstName: query },
-          { lastName: query },
+          { username: { [Op.like]: `%${query}%` } },
+          { firstName: { [Op.like]: `%${query}%` } },
+          { lastName: { [Op.like]: `%${query}%` } },
+          Sequelize.where(
+            Sequelize.fn(
+              'concat',
+              Sequelize.col('firstName'),
+              ' ',
+              Sequelize.col('lastName')
+            ),
+            {
+              [Op.like]: `%${query}%`,
+            }
+          ),
         ],
       },
     });

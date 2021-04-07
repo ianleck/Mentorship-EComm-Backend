@@ -63,6 +63,14 @@ router.get(
   Utility.asyncHandler(SocialController.getUserFeed)
 );
 
+//anyone who is logged in can access this
+router.get(
+  '/post/one/:postId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(social.postIdP),
+  Utility.asyncHandler(SocialController.getPostById)
+);
+
 //================================== FOLLOWING =============================================
 //Cancel Request to Follow a User
 router.delete(
