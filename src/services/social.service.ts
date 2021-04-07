@@ -2,6 +2,7 @@ import httpStatusCodes from 'http-status-codes';
 import { Op } from 'sequelize';
 import { FOLLOWING_ENUM } from '../constants/enum';
 import { ERRORS, SOCIAL_ERRORS } from '../constants/errors';
+import { Comment } from '../models/Comment';
 import { LikePost } from '../models/LikePost';
 import { Post } from '../models/Post';
 import { User } from '../models/User';
@@ -99,6 +100,7 @@ export default class SocialService {
     await LikePost.destroy({
       where: {
         postId,
+        accountId,
       },
     });
   }
@@ -120,6 +122,90 @@ export default class SocialService {
 
     const listOfPost = Post.findAll({
       where: { accountId },
+      include: [
+        {
+          model: User,
+          attributes: ['accountId', 'firstName', 'lastName', 'profileImgUrl'],
+        },
+        {
+          model: LikePost,
+          on: {
+            '$LikePost.postId$': {
+              [Op.col]: 'Post.postId',
+            },
+          },
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    return listOfPost;
+  }
+
+  public static async getFollowingFeed(accountId: string, userId: string) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    //Check if user account is private, if private, only user followers can see feed
+    if (user.isPrivateProfile === true && userId !== accountId) {
+      const following = await UserFollowership.findOne({
+        where: {
+          followerId: userId,
+          followingId: accountId,
+        },
+      });
+      if (!following) throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
+    }
+
+    const allFollowingIdsRsp = await UserFollowership.findAll({
+      where: {
+        followerId: userId,
+      },
+    });
+    const followingIds = allFollowingIdsRsp.map((uf) => uf.followingId);
+
+    const listOfPost = Post.findAll({
+      where: { accountId: { [Op.in]: [accountId, ...followingIds] } },
+      include: [
+        {
+          model: User,
+          attributes: ['accountId', 'firstName', 'lastName', 'profileImgUrl'],
+        },
+        {
+          model: LikePost,
+          on: {
+            '$LikePost.postId$': {
+              [Op.col]: 'Post.postId',
+            },
+          },
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+              ],
+            },
+          ],
+        },
+      ],
     });
     return listOfPost;
   }
@@ -410,63 +496,47 @@ export default class SocialService {
     return pendingFollowingList;
   }
 
-  public static async blockUser(followerId: string, followingId: string) {
-    const followingUser = await User.findByPk(followingId);
-    if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+  public static async getPendingFollowerList(
+    accountId: string,
+    userId: string
+  ) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
-    const followerUser = await User.findByPk(followerId);
-    if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    //Check if user retrieving pending list is the owner of account
+    if (userId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
 
-    const existingFollowership = await UserFollowership.findOne({
+    const pendingFollowerList = UserFollowership.findAll({
       where: {
-        followerId,
-        followingId,
+        followingId: { [Op.eq]: accountId },
+        followingStatus: {
+          [Op.eq]: [FOLLOWING_ENUM.PENDING],
+        },
       },
-    });
-    if (!existingFollowership) {
-      const followership = new UserFollowership({
-        followingId,
-        followerId,
-        followingStatus: FOLLOWING_ENUM.BLOCKED,
-      });
-
-      await followership.save();
-
-      return followership;
-    } else {
-      existingFollowership.update({
-        followingStatus: FOLLOWING_ENUM.BLOCKED,
-      });
-
-      return existingFollowership;
-    }
-  }
-
-  //Unblock User
-  public static async unblockUser(followerId: string, followingId: string) {
-    const followingUser = await User.findByPk(followingId);
-    if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-
-    const followerUser = await User.findByPk(followerId); //user to unblock
-    if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-
-    const followership = await UserFollowership.findOne({
-      where: {
-        followerId,
-        followingId,
-        followingStatus: FOLLOWING_ENUM.BLOCKED,
-      },
+      include: [
+        {
+          model: User,
+          as: 'Follower',
+          on: {
+            '$Follower.accountId$': {
+              [Op.col]: 'UserFollowership.followerId',
+            },
+          },
+          attributes: [
+            'accountId',
+            'username',
+            'firstName',
+            'lastName',
+            'profileImgUrl',
+            'isPrivateProfile',
+          ],
+        },
+      ],
     });
 
-    // if (!followership) return followerUser;
-
-    await UserFollowership.destroy({
-      where: {
-        followerId,
-        followingId,
-      },
-    });
-
-    // return followerUser;
+    return pendingFollowerList;
   }
 }
