@@ -413,7 +413,7 @@ export class AdminController {
     }
   }
   // ============================== Finance ==============================
-
+  // =============== Withdrawal ===============
   public static async approveWithdrawal(req, res) {
     try {
       const { billingId } = req.params;
@@ -487,9 +487,10 @@ export class AdminController {
     }
   }
 
+  // =============== Refund ===============
   public static async approveRefund(req, res) {
     try {
-      const { billingId } = req.params;
+      const { refundRequestId } = req.params;
       const { user } = req;
       const {
         paymentId,
@@ -497,7 +498,7 @@ export class AdminController {
         billing,
         student,
         refundRequest,
-      } = await PaypalService.populateApproveRefund(billingId);
+      } = await PaypalService.populateApproveRefund(refundRequestId);
       await paypal.capture.refund(
         paymentId,
         refund_details,
@@ -533,10 +534,10 @@ export class AdminController {
 
   public static async rejectRefund(req, res) {
     try {
-      const { billingId } = req.params;
+      const { refundRequestId } = req.params;
 
       const { paymentId, refund_details } = await PaypalService.rejectRefund(
-        billingId
+        refundRequestId
       );
       await paypal.capture.refund(
         paymentId,
