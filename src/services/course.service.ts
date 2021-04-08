@@ -408,12 +408,30 @@ export default class CourseService {
 
     await newAnnouncement.save();
 
-    //const announcementContent = newAnnouncement.description;
-    //const additional = { announcementContent };
+    if (course.adminVerified === ADMIN_VERIFIED_ENUM.ACCEPTED) {
+      const contracts = await CourseContract.findAll({
+        where: { courseId },
+      });
 
-    // Send Email to all students in course
-    //Need to search course contract for all students with this Course then get that user then that email address
-    //await EmailService.sendEmail(email, 'newAnnouncement', additional);
+      const accountIds = contracts.map((aId) => aId.accountId);
+
+      const users = await User.findAll({
+        where: { accountId: accountIds },
+      });
+
+      const listOfEmails = users.map((lom) => lom.email);
+
+      const courseName = course.title;
+      const announcementContent = newAnnouncement.description;
+      const announcementTitle = newAnnouncement.title;
+      const additional = { courseName, announcementTitle, announcementContent };
+
+      await EmailService.sendMassEmail(
+        listOfEmails,
+        'newAnnouncement',
+        additional
+      );
+    }
 
     return newAnnouncement;
   }

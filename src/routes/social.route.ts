@@ -2,6 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import Utility from '../constants/utility';
 import { SocialController } from '../controllers/social.controller';
+import { requireSameUser } from '../middlewares/authenticationMiddleware';
 import social from './schema/social.schema';
 import user from './schema/user.schema';
 
@@ -49,10 +50,26 @@ router.delete(
 
 //anyone who is logged in can access this
 router.get(
+  '/post/following/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getFollowingFeed)
+);
+
+//anyone who is logged in can access this
+router.get(
   '/post/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(SocialController.getUserFeed)
+);
+
+//anyone who is logged in can access this
+router.get(
+  '/post/one/:postId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(social.postIdP),
+  Utility.asyncHandler(SocialController.getPostById)
 );
 
 //================================== FOLLOWING =============================================
@@ -126,6 +143,38 @@ router.get(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(SocialController.getPendingFollowingList)
+);
+
+// Block User
+router.post(
+  '/block/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.blockUser)
+);
+
+// Unblock User
+router.delete(
+  '/unblock/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.unblockUser)
+);
+
+//View Follower Requests (Pending Followers of the :accountId)
+router.get(
+  '/pending-followers/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getPendingFollowerList)
+);
+
+router.get(
+  '/blocked/all/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUser,
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getUsersBlocked)
 );
 
 export default router;
