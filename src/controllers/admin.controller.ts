@@ -536,23 +536,11 @@ export class AdminController {
     try {
       const { refundRequestId } = req.params;
 
-      const { paymentId, refund_details } = await PaypalService.rejectRefund(
-        refundRequestId
-      );
-      await paypal.capture.refund(
-        paymentId,
-        refund_details,
-        function (error, refund) {
-          if (error) {
-            throw new Error(error);
-          } else {
-            return apiResponse.result(
-              res,
-              { message: 'success', refund },
-              httpStatusCodes.OK
-            );
-          }
-        }
+      await PaypalService.rejectRefund(refundRequestId);
+      return apiResponse.result(
+        res,
+        { message: 'success' },
+        httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[PaypalController.approveRefund]:' + e.message);
