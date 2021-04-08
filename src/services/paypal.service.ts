@@ -198,6 +198,117 @@ export default class PaypalService {
     });
   }
 
+  // =============== Request Approval/Rejection ===============
+  public static async populateApproveRefund(billingId: string) {
+    const billing = await Billing.findByPk(billingId);
+    if (!billing) throw new Error(WALLET_ERROR.MISSING_BILLING);
+    const paymentId = billing.paypalPaymentId;
+    if (!paymentId) throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
+    const student = await User.findOne({
+      where: {
+        walletId: billing.senderWalletId,
+      },
+    });
+    if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
+    const refundRequest = await RefundRequest.findOne({
+      where: {
+        studentId: student.accountId,
+        originalBillingId: billing.billingId,
+      },
+    });
+    if (!refundRequest) throw new Error(WALLET_ERROR.MISSING_REFUND_REQUEST);
+
+    // const refundedBillings = await Billing.findAll({
+    //   where: {
+    //     contractId,
+    //     status: BILLING_STATUS.REFUNDED,
+    //     billingType: BILLING_TYPE.MENTORSHIP,
+    //   },
+    //   order: ['createdAt', 'DESC'],
+    // });
+
+    // const paidBillings = await Billing.findAll({
+    //   where: {
+    //     contractId,
+    //     status: BILLING_STATUS.PAID,
+    //     billingType: BILLING_TYPE.MENTORSHIP,
+    //   },
+    //   order: ['createdAt', 'DESC'],
+    // });
+
+    // let prevRefundBillings; // billings related to previous refund
+    // if (refundedBillings.length !== 0) {
+    //   prevRefundBillings = await Billing.findAll({
+    //     where: {
+    //       contractId,
+    //       status: BILLING_STATUS.PAID,
+    //       billingType: BILLING_TYPE.MENTORSHIP,
+    //       createdAt: { [Op.lte]: refundedBillings[0].createdAt}
+    //     },
+    //   });
+    // }
+    // const relevantBillings = _.difference(paidBillings, prevRefundBillings);
+
+    const refund_details = {
+      amount: {
+        currency: billing.currency,
+        total: `${billing.amount}`,
+      },
+    };
+    return { paymentId, refund_details, billing, student, refundRequest };
+  }
+
+  public static async approveRefund(
+    refund: any,
+    originalBilling: Billing,
+    student: User,
+    refundRequest: RefundRequest,
+    accountId: string
+  ) {
+    const admin = await Admin.findByPk(accountId);
+    // 1. Create refund billing
+    await new Billing({
+      paypalPaymentId: refund.id,
+      productId: originalBilling.productId,
+      amount: originalBilling.amount,
+      currency: originalBilling.currency,
+      senderWalletId: admin.walletId,
+      receiverWalletId: student.walletId,
+      status: BILLING_STATUS.PAID,
+      billingType: BILLING_TYPE.REFUND,
+    }).save();
+    // 2. Update RefundRequest
+    await refundRequest.update({
+      approvalStatus: APPROVAL_STATUS.APPROVED,
+      adminId: accountId,
+    });
+
+    // 3. Destroy CouseContract/MentorshipContract
+    if (originalBilling.billingType === 'COURSE') {
+      await CourseContract.destroy({
+        where: { courseContractId: originalBilling.contractId },
+      });
+    } else {
+      await MentorshipContract.destroy({
+        where: { mentorshipContractId: originalBilling.contractId },
+      });
+    }
+  }
+
+  public static async rejectRefund(billingId: string) {
+    const billing = await Billing.findByPk(billingId);
+    if (!billing) throw new Error(WALLET_ERROR.MISSING_BILLING);
+    const paymentId = billing.paypalPaymentId;
+    if (!paymentId) throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
+
+    const refund_details = {
+      amount: {
+        currency: billing.currency,
+        total: `${billing.amount}`,
+      },
+    };
+    return { paymentId, refund_details };
+  }
 
   // ============================== Order ==============================
 

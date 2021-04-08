@@ -15,6 +15,7 @@ import {
   COMMENT_RESPONSE,
   USER_RESPONSE,
 } from '../constants/successMessages';
+import Utility from '../constants/utility';
 import AdminService from '../services/admin.service';
 import PaypalService from '../services/paypal.service';
 import UserService from '../services/user.service';
@@ -486,26 +487,78 @@ export class AdminController {
     }
   }
 
-  public static async createRefund(req, res) {
+  public static async approveRefund(req, res) {
     try {
       const { billingId } = req.params;
-      const payout_json = await PaypalService.createRefund();
-      await paypal.payout.create(payout_json, function (error, payout) {
-        if (error) {
-          throw new Error(error);
-        } else {
-          return apiResponse.result(
-            res,
-            { message: 'success', payout },
-            httpStatusCodes.OK
-          );
+      const { user } = req;
+      const {
+        paymentId,
+        refund_details,
+        billing,
+        student,
+        refundRequest,
+      } = await PaypalService.populateApproveRefund(billingId);
+      await paypal.capture.refund(
+        paymentId,
+        refund_details,
+        async function (error, refund) {
+          if (error) {
+            throw new Error(error);
+          } else {
+            console.log(JSON.stringify(refund, null, 2));
+            await PaypalService.approveRefund(
+              refund,
+              billing,
+              student,
+              refundRequest,
+              user.accountId
+            );
+            return apiResponse.result(
+              res,
+              { message: 'success', refund },
+              httpStatusCodes.OK
+            );
+          }
         }
-      });
+      );
     } catch (e) {
-      logger.error('[PaypalController.createRefund]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      logger.error('[PaypalController.approveRefund]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [
+        ERRORS.STUDENT_DOES_NOT_EXIST,
+        WALLET_ERROR.MISSING_BILLING,
+        WALLET_ERROR.INVALID_REFUND_REQUEST,
+      ]);
+    }
+  }
+
+  public static async rejectRefund(req, res) {
+    try {
+      const { billingId } = req.params;
+
+      const { paymentId, refund_details } = await PaypalService.rejectRefund(
+        billingId
+      );
+      await paypal.capture.refund(
+        paymentId,
+        refund_details,
+        function (error, refund) {
+          if (error) {
+            throw new Error(error);
+          } else {
+            return apiResponse.result(
+              res,
+              { message: 'success', refund },
+              httpStatusCodes.OK
+            );
+          }
+        }
+      );
+    } catch (e) {
+      logger.error('[PaypalController.approveRefund]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [
+        WALLET_ERROR.MISSING_BILLING,
+        WALLET_ERROR.INVALID_REFUND_REQUEST,
+      ]);
     }
   }
 }
