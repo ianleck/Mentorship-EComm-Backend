@@ -36,7 +36,7 @@ router.put(
   '/',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  schemaValidator.params(cart.updateMentorshipCartQ),
+  schemaValidator.query(cart.updateMentorshipCartQ),
   Utility.asyncHandler(CartController.updateMentorshipCartQuantity)
 );
 
