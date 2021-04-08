@@ -182,7 +182,7 @@ export default class PaypalService {
     });
   }
 
-  // =============== Request Approval/Rejection ===============
+  // =============== Refund Approval/Rejection ===============
   public static async populateApproveRefund(billingId: string) {
     const billing = await Billing.findByPk(billingId);
     if (!billing) throw new Error(WALLET_ERROR.MISSING_BILLING);
