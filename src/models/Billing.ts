@@ -36,7 +36,7 @@ export class Billing extends BaseEntity {
   @Column(DataType.UUID)
   contractId: string;
 
-  // Price of course
+  // Price
   @AllowNull(false)
   @Default(STARTING_BALANCE)
   @Column(DataType.FLOAT)
@@ -46,6 +46,11 @@ export class Billing extends BaseEntity {
   @Default(CURRENCY)
   @Column(DataType.STRING)
   currency: string;
+
+  @AllowNull(false)
+  @Default(0)
+  @Column(DataType.INTEGER)
+  mentorPassCount: number;
 
   // Only appears for billings from admin to sensei, where the platform fee = amount * 5% (Our platform revenue)
   @Column(DataType.FLOAT)

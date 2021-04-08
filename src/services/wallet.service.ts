@@ -25,7 +25,8 @@ export default class WalletService {
     amount: number,
     currency: string,
     status: BILLING_STATUS,
-    billingType: BILLING_TYPE
+    billingType: BILLING_TYPE,
+    mentorPassCount?: number
   ) {
     const student = await User.findByPk(studentId);
     const admin = await Admin.findOne({
@@ -39,6 +40,7 @@ export default class WalletService {
       contractId,
       amount,
       currency,
+      mentorPassCount,
       senderWalletId: student.walletId,
       receiverWalletId: admin.walletId,
       status,

@@ -29,20 +29,29 @@ module.exports = {
           type: Sequelize.UUID,
         },
         amount: {
+          allowNull: false,
           type: Sequelize.FLOAT,
-          default: '0.00',
+          default: 0.0,
         },
         currency: {
+          allowNull: false,
           type: Sequelize.STRING,
           default: 'SGD',
+        },
+        mentorPassCount: {
+          allowNull: false,
+          type: Sequelize.INTEGER,
+          default: 0,
         },
         platformFee: {
           type: Sequelize.FLOAT,
         },
         senderWalletId: {
+          allowNull: false,
           type: Sequelize.STRING,
         },
         receiverWalletId: {
+          allowNull: false,
           type: Sequelize.STRING,
         },
         status: {

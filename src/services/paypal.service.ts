@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { Op } from 'sequelize';
 import {
   CURRENCY,
@@ -87,77 +86,6 @@ export default class PaypalService {
     }
   }
 
-  public static async requestMentorPassRefund(contractId: string, user: User) {
-    const accountId = user.accountId;
-
-    const existingRefunds = await RefundRequest.findAll({
-      where: { contractId, studentId: accountId },
-      order: ['createdAt', 'DESC'],
-    });
-
-    const mentorshipContract = await MentorshipContract.findByPk(contractId);
-    if (existingRefunds.length >= 1) {
-      const latestRefundRequest = existingRefunds[0];
-      if (
-        latestRefundRequest.approvalStatus === APPROVAL_STATUS.APPROVED &&
-        mentorshipContract.mentorPassCount === 0
-      ) {
-        throw new Error(WALLET_ERROR.REFUNDED); // alr refund
-      }
-      throw new Error(WALLET_ERROR.EXISTING_REFUND); // pending refund
-    }
-
-    const refundedBillings = await Billing.findAll({
-      where: {
-        contractId,
-        status: BILLING_STATUS.REFUNDED,
-        billingType: BILLING_TYPE.MENTORSHIP,
-      },
-      order: ['createdAt', 'DESC'],
-    });
-
-    const paidBillings = await Billing.findAll({
-      where: {
-        contractId,
-        status: BILLING_STATUS.PAID,
-        billingType: BILLING_TYPE.MENTORSHIP,
-      },
-      order: ['createdAt', 'DESC'],
-    });
-
-    let prevRefundBillings; // billings related to previous refund
-    if (refundedBillings.length !== 0) {
-      prevRefundBillings = await Billing.findAll({
-        where: {
-          contractId,
-          status: BILLING_STATUS.PAID,
-          billingType: BILLING_TYPE.MENTORSHIP,
-          createdAt: { [Op.lte]: refundedBillings[0].createdAt },
-        },
-      });
-    }
-    const relevantBillings = _.difference(paidBillings, prevRefundBillings);
-
-    const billingIds = relevantBillings.map((billing) => billing.billingId);
-
-    await new RefundRequest({
-      contractId,
-      studentId: accountId,
-    }).save();
-
-    return await RefundRequest.findOne({
-      where: { contractId, studentId: accountId },
-      include: [
-        {
-          model: Billing,
-          as: 'OriginalBilling',
-          where: { billingId: { [Op.in]: billingIds } },
-          include: [{ model: MentorshipListing, as: 'MentorshipListing' }],
-        },
-      ],
-    });
-  }
-
   public static async requestCourseRefund(contractId: string, user: User) {
     const accountId = user.accountId;
 
@@ -193,6 +121,62 @@ export default class PaypalService {
           as: 'OriginalBilling',
           where: { billingId: billing.billingId },
           include: [{ model: Course, as: 'Course' }],
+        },
+      ],
+    });
+  }
+
+  public static async requestMentorPassRefund(contractId: string, user: User) {
+    const accountId = user.accountId;
+
+    const existingRefunds = await RefundRequest.findAll({
+      where: { contractId, studentId: accountId },
+      order: ['createdAt', 'DESC'],
+    });
+
+    const mentorshipContract = await MentorshipContract.findByPk(contractId);
+    if (existingRefunds.length >= 1) {
+      const latestRefundRequest = existingRefunds[0];
+      if (
+        latestRefundRequest.approvalStatus === APPROVAL_STATUS.APPROVED &&
+        mentorshipContract.mentorPassCount === 0
+      ) {
+        throw new Error(WALLET_ERROR.REFUNDED); // alr refund
+      }
+      throw new Error(WALLET_ERROR.EXISTING_REFUND); // pending refund
+    }
+
+    const paidBillings = await Billing.findAll({
+      where: {
+        contractId,
+        status: BILLING_STATUS.PAID,
+        billingType: BILLING_TYPE.MENTORSHIP,
+      },
+      order: ['createdAt', 'DESC'],
+    });
+
+    let billingIds: string[] = [];
+    let remainingNumPasses = mentorshipContract.mentorPassCount;
+    for (let i = 0; i < paidBillings.length; i++) {
+      if (remainingNumPasses <= 0) break;
+      const billing = paidBillings[0];
+      remainingNumPasses -= billing.mentorPassCount;
+      billingIds.push(billing.billingId);
+    }
+
+    await new RefundRequest({
+      contractId,
+      studentId: accountId,
+    }).save();
+
+    return await RefundRequest.findOne({
+      where: { contractId, studentId: accountId },
+      include: [
+        {
+          model: Billing,
+          as: 'OriginalBilling',
+          where: { billingId: { [Op.in]: billingIds } },
+          include: [{ model: MentorshipListing, as: 'MentorshipListing' }],
         },
       ],
     });
@@ -492,7 +476,8 @@ export default class PaypalService {
               progress: CONTRACT_PROGRESS_ENUM.NOT_STARTED,
             },
           });
-          await mentorshipContract.update({ mentorPassCount: numSlots });
+          const mentorPassCount = mentorshipContract.mentorPassCount + numSlots;
+          await mentorshipContract.update({ mentorPassCount });
           // 2. Create billing for mentorship
           await WalletService.createOrderBilling(
             studentId,
@@ -503,7 +488,8 @@ export default class PaypalService {
             mentorPassCost,
             mentorPass.currency,
             BILLING_STATUS.PAID,
-            BILLING_TYPE.MENTORSHIP
+            BILLING_TYPE.MENTORSHIP,
+            numSlots
           );
           // 3. Calculate Revenue + Earnings
           const platformFee = mentorPassCost * MARKET_FEE;
