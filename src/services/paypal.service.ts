@@ -10,17 +10,20 @@ import {
   WITHDRAWAL_TITLE,
 } from '../constants/constants';
 import {
+  APPROVAL_STATUS,
   BILLING_STATUS,
   BILLING_TYPE,
   CONTRACT_PROGRESS_ENUM,
 } from '../constants/enum';
-import { ERRORS } from '../constants/errors';
+import { ERRORS, WALLET_ERROR } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
 import { Cart } from '../models/Cart';
 import { Course } from '../models/Course';
+import { CourseContract } from '../models/CourseContract';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
+import { RefundRequest } from '../models/RefundRequest';
 import { User } from '../models/User';
 import { Wallet } from '../models/Wallet';
 import CourseService from './course.service';
@@ -81,7 +84,110 @@ export default class PaypalService {
     return payout_json;
   }
 
-  public static async createRefund() {}
+  public static async requestMentorPassRefund(
+    contractId: string,
+    accountId: string
+  ) {
+    // const existingRefund = await RefundRequest.findOne({
+    //   where: { contractId, studentId: accountId },
+    // });
+    // const billings = await Billing.findAll({
+    //   where: { contractId },
+    //   order: ['createdAt', 'DESC'],
+    // });
+    // if (existingRefund && contractType ===) {
+    //   // Check if is new refund request or old refund request (only for mentorship)
+    //   if(existingRefund.adminId) {
+    //     // old refund, check if student purchased more passes after refund
+    //    }
+    //   }
+    // if (existingRefund && contractType === BILLING_TYPE.COURSE) throw new Error(WALLET_ERROR.EXISTING_REFUND);
+    // if (!billings) throw new Error(WALLET_ERROR.MISSING_BILLING);
+    // let paymentIds;
+    // if (contractType === BILLING_TYPE.COURSE) {
+    //   const paymentId = billings[0].paypalPaymentId;
+    //   if (!paymentId) throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
+    //   paymentIds.push(paymentId);
+    // } else {
+    // }
+    // await new RefundRequest({
+    //   contractId,
+    //   studentId: accountId,
+    // }).save();
+    // return await RefundRequest.findOne({
+    //   where: { contractId, studentId: accountId },
+    //   include: [
+    //     {
+    //       model: Billing,
+    //       as: 'OriginalBilling',
+    //       include: [
+    //         { model: Course, as: 'Course' },
+    //         { model: MentorshipListing, as: 'MentorshipListing' },
+    //       ],
+    //     },
+    //   ],
+    // });
+  }
+
+  public static async requestRefund(
+    contractId: string,
+    contractType: string,
+    accountId: string
+  ) {
+    try {
+      if (contractType === BILLING_TYPE.COURSE)
+        return await this.requestCourseRefund(contractId, accountId);
+
+      return await this.requestMentorPassRefund(contractId, accountId);
+    } catch (e) {
+      throw e;
+    }
+  }
+  public static async requestCourseRefund(
+    contractId: string,
+    accountId: string
+  ) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
+
+    const existingRefund = await RefundRequest.findOne({
+      where: { contractId, studentId: accountId },
+    });
+    if (existingRefund) {
+      if (existingRefund.adminId) {
+        throw new Error(WALLET_ERROR.REFUNDED); // alr refund
+      }
+      throw new Error(WALLET_ERROR.EXISTING_REFUND); // pending refund
+    }
+
+    const billing = await Billing.findOne({
+      where: {
+        contractId,
+        senderWalletId: user.walletId,
+        billingType: BILLING_TYPE.COURSE,
+      },
+    });
+
+    const paymentId = billing.paypalPaymentId;
+    if (!paymentId) throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
+
+    await new RefundRequest({
+      contractId,
+      studentId: accountId,
+    }).save();
+
+    return await RefundRequest.findOne({
+      where: { contractId, studentId: accountId },
+      include: [
+        {
+          model: Billing,
+          as: 'OriginalBilling',
+          where: { billingId: billing.billingId },
+          include: [{ model: Course, as: 'Course' }],
+        },
+      ],
+    });
+  }
 
   public static async populateOrderTransactions(cartId: string) {
     const cart = await Cart.findByPk(cartId, {
@@ -118,7 +224,7 @@ export default class PaypalService {
             description: mentorPass.description,
             quantity: `${numSlots}`,
             price: `${mentorPass.priceAmount}`,
-            currency: `${CURRENCY}`,
+            currency: mentorPass.currency,
           });
           const totalCost = mentorPass.priceAmount * numSlots;
           totalPrice += totalCost;

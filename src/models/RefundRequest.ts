@@ -1,4 +1,5 @@
 import {
+  AllowNull,
   BelongsTo,
   Column,
   DataType,
@@ -11,6 +12,8 @@ import { APPROVAL_STATUS } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Admin } from './Admin';
 import { Billing } from './Billing';
+import { CourseContract } from './CourseContract';
+import { MentorshipContract } from './MentorshipContract';
 import { User } from './User';
 
 @Table
@@ -28,17 +31,37 @@ export class RefundRequest extends BaseEntity {
   })
   approvalStatus: APPROVAL_STATUS;
 
+  @AllowNull(false)
+  @Column(DataType.UUID)
+  contractId: string;
+
+  @AllowNull(false)
+  @Column(DataType.UUID)
+  studentId: string; //request owner
+
+  @Column(DataType.UUID)
+  adminId: string; // Approve/Reject
+
   // ==================== RELATIONSHIP MAPPINGS ====================
 
-  @BelongsTo(() => User, 'accountId')
+  @BelongsTo(() => User, { foreignKey: 'studentId', targetKey: 'accountId' })
   RequestOwner: User;
 
-  @HasOne(() => Admin, 'accountId')
-  ApprovedBy: Admin;
-
-  @HasOne(() => Billing, 'billingId')
-  OriginalBilling: Billing;
+  @BelongsTo(() => Admin, { foreignKey: 'adminId', targetKey: 'accountId' })
+  AdminHandler: Admin;
 
   @HasOne(() => Billing, 'billingId')
   Refund: Billing;
+
+  @BelongsTo(() => CourseContract, {
+    foreignKey: 'contractId',
+    targetKey: 'courseContractId',
+  })
+  CourseContract: CourseContract;
+
+  @BelongsTo(() => MentorshipContract, {
+    foreignKey: 'contractId',
+    targetKey: 'mentorshipContractId',
+  })
+  MentorshipContract: MentorshipContract;
 }

@@ -1,6 +1,8 @@
 import httpStatusCodes from 'http-status-codes';
 import paypal from 'paypal-rest-sdk';
 import logger from '../config/logger';
+import { ERRORS, WALLET_ERROR } from '../constants/errors';
+import Utility from '../constants/utility';
 import PaypalService from '../services/paypal.service';
 import apiResponse from '../utilities/apiResponse';
 export class PaypalController {
@@ -89,7 +91,30 @@ export class PaypalController {
     }
   }
 
-  public static async createRefund(req, res) {}
+  public static async requestRefund(req, res) {
+    try {
+      const { contractId, contractType } = req.query;
+      const { user } = req;
+      const refundRequest = await PaypalService.requestRefund(
+        contractId,
+        contractType,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        { message: 'success', refundRequest },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[PaypalController.requestRefund]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [
+        ERRORS.STUDENT_DOES_NOT_EXIST,
+        WALLET_ERROR.REFUNDED,
+        WALLET_ERROR.EXISTING_REFUND,
+        WALLET_ERROR.INVALID_REFUND_REQUEST,
+      ]);
+    }
+  }
 
   public static async viewPayout(req, res) {
     try {

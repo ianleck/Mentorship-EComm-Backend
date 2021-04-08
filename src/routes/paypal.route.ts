@@ -5,6 +5,7 @@ import { PaypalController } from '../controllers/paypal.controller';
 import { requireStudent } from '../middlewares/authenticationMiddleware';
 import cart from './schema/cart.schema';
 import paypal from './schema/paypal.schema';
+import wallet from './schema/wallet.schema';
 
 const router = express.Router();
 
@@ -45,6 +46,7 @@ router.post(
   '/refund',
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudent,
-  Utility.asyncHandler(PaypalController.createRefund)
+  schemaValidator.query(wallet.refundRequestQ),
+  Utility.asyncHandler(PaypalController.requestRefund)
 );
 export default router;

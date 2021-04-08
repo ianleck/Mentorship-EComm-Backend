@@ -12,6 +12,7 @@ import { BILLING_STATUS, BILLING_TYPE } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Course } from './Course';
 import { CourseContract } from './CourseContract';
+import { MentorshipContract } from './MentorshipContract';
 import { MentorshipListing } from './MentorshipListing';
 
 @Table
@@ -93,4 +94,10 @@ export class Billing extends BaseEntity {
     targetKey: 'mentorshipListingId',
   })
   MentorshipListing: MentorshipListing;
+
+  @BelongsTo(() => MentorshipContract, {
+    foreignKey: 'contractId',
+    targetKey: 'mentorshipContractId',
+  })
+  MentorshipContract: MentorshipContract;
 }

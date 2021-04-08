@@ -107,6 +107,11 @@ export const WALLET_ERROR = {
   NO_MONEY:
     'Unable to withdraw as confirmed amount is still 0. Please note that 120 days have to elapse before pending amount is converted to confirmed amount due to our user refund policies',
   PAID_OUT: 'This withdrawal application has already been approved.',
+  INVALID_REFUND_REQUEST: 'Refund is invalid for this billing',
+  REFUNDED: 'Refund has already been made.',
+  EXISTING_REFUND:
+    'An existing refund request has been made. Please wait while we process your refund request.',
+  MISSING_REFUND_REQUEST: 'No refund has been requested for this billing.',
 };
 
 export const SOCIAL_ERRORS = {
