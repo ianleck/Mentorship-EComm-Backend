@@ -50,10 +50,11 @@ module.exports = {
           type: Sequelize.ENUM(
             'CONFIRMED',
             'FAILED',
+            'PAID',
             'PENDING_120_DAYS',
             'PENDING_WITHDRAWAL',
+            'REFUNDED',
             'REJECTED',
-            'PAID',
             'WITHDRAWN',
             'ADMIN'
           ),
