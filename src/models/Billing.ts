@@ -47,8 +47,6 @@ export class Billing extends BaseEntity {
   @Column(DataType.STRING)
   currency: string;
 
-  @AllowNull(false)
-  @Default(0)
   @Column(DataType.INTEGER)
   mentorPassCount: number;
 

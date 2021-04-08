@@ -39,9 +39,7 @@ module.exports = {
           default: 'SGD',
         },
         mentorPassCount: {
-          allowNull: false,
           type: Sequelize.INTEGER,
-          default: 0,
         },
         platformFee: {
           type: Sequelize.FLOAT,
