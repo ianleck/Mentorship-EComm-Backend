@@ -4,6 +4,7 @@ import {
   Column,
   DataType,
   Default,
+  HasMany,
   HasOne,
   PrimaryKey,
   Table,
@@ -12,8 +13,6 @@ import { APPROVAL_STATUS } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Admin } from './Admin';
 import { Billing } from './Billing';
-import { CourseContract } from './CourseContract';
-import { MentorshipContract } from './MentorshipContract';
 import { User } from './User';
 
 @Table
@@ -53,15 +52,6 @@ export class RefundRequest extends BaseEntity {
   @HasOne(() => Billing, 'billingId')
   Refund: Billing;
 
-  @BelongsTo(() => CourseContract, {
-    foreignKey: 'contractId',
-    targetKey: 'courseContractId',
-  })
-  CourseContract: CourseContract;
-
-  @BelongsTo(() => MentorshipContract, {
-    foreignKey: 'contractId',
-    targetKey: 'mentorshipContractId',
-  })
-  MentorshipContract: MentorshipContract;
+  @HasMany(() => Billing, 'billingId')
+  OriginalBillings: Billing;
 }

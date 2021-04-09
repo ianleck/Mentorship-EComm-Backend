@@ -111,7 +111,7 @@ export class PaypalController {
         ERRORS.STUDENT_DOES_NOT_EXIST,
         WALLET_ERROR.REFUNDED,
         WALLET_ERROR.EXISTING_REFUND,
-        WALLET_ERROR.INVALID_REFUND_REQUEST,
+        WALLET_ERROR.REFUND_PERIOD_OVER,
       ]);
     }
   }

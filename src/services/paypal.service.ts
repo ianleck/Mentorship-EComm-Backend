@@ -7,6 +7,7 @@ import {
   PAYPAL_FEE,
   RECIPIENT_TYPE,
   STARTING_BALANCE,
+  WITHDRAWAL_DAYS,
   WITHDRAWAL_TITLE,
 } from '../constants/constants';
 import {
@@ -77,16 +78,32 @@ export default class PaypalService {
       const user = await User.findByPk(accountId);
       if (!user) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
 
-      if (contractType === BILLING_TYPE.COURSE)
-        return await this.requestCourseRefund(contractId, user);
+      // Today - 120 days to be compared against createdAt; if createdAt is > today - 120 then it is still refundable
+      const refundablePeriod = new Date();
+      refundablePeriod.setDate(refundablePeriod.getDate() - WITHDRAWAL_DAYS);
 
-      return await this.requestMentorPassRefund(contractId, user);
+      if (contractType === BILLING_TYPE.COURSE)
+        return await this.requestCourseRefund(
+          contractId,
+          user,
+          refundablePeriod
+        );
+
+      return await this.requestMentorPassRefund(
+        contractId,
+        user,
+        refundablePeriod
+      );
     } catch (e) {
       throw e;
     }
   }
 
-  public static async requestCourseRefund(contractId: string, user: User) {
+  public static async requestCourseRefund(
+    contractId: string,
+    user: User,
+    refundablePeriod: Date
+  ) {
     const accountId = user.accountId;
 
     const existingRefund = await RefundRequest.findOne({
@@ -104,9 +121,13 @@ export default class PaypalService {
       where: {
         contractId,
         senderWalletId: user.walletId,
+        status: BILLING_STATUS.PAID,
         billingType: BILLING_TYPE.COURSE,
       },
     });
+
+    if (billing.createdAt < refundablePeriod)
+      throw new Error(WALLET_ERROR.REFUND_PERIOD_OVER);
 
     await new RefundRequest({
       contractId,
@@ -118,23 +139,28 @@ export default class PaypalService {
       include: [
         {
           model: Billing,
-          as: 'OriginalBilling',
-          where: { billingId: billing.billingId },
+          as: 'OriginalBillings',
+          on: { billingId: billing.billingId },
           include: [{ model: Course, as: 'Course' }],
         },
       ],
     });
   }
 
-  public static async requestMentorPassRefund(contractId: string, user: User) {
+  public static async requestMentorPassRefund(
+    contractId: string,
+    user: User,
+    refundablePeriod: Date
+  ) {
     const accountId = user.accountId;
 
     const existingRefunds = await RefundRequest.findAll({
       where: { contractId, studentId: accountId },
-      order: ['createdAt', 'DESC'],
+      order: [['createdAt', 'DESC']],
     });
 
     const mentorshipContract = await MentorshipContract.findByPk(contractId);
+
     if (existingRefunds.length >= 1) {
       const latestRefundRequest = existingRefunds[0];
       if (
@@ -152,17 +178,21 @@ export default class PaypalService {
         status: BILLING_STATUS.PAID,
         billingType: BILLING_TYPE.MENTORSHIP,
       },
-      order: ['createdAt', 'DESC'],
+      order: [['createdAt', 'DESC']],
     });
 
     let billingIds: string[] = [];
     let remainingNumPasses = mentorshipContract.mentorPassCount;
     for (let i = 0; i < paidBillings.length; i++) {
       if (remainingNumPasses <= 0) break;
-      const billing = paidBillings[0];
+      const billing = paidBillings[i];
+      if (billing.createdAt < refundablePeriod) break;
       remainingNumPasses -= billing.mentorPassCount;
       billingIds.push(billing.billingId);
     }
+
+    if (billingIds.length === 0)
+      throw new Error(WALLET_ERROR.REFUND_PERIOD_OVER);
 
     await new RefundRequest({
       contractId,
@@ -174,8 +204,8 @@ export default class PaypalService {
       include: [
         {
           model: Billing,
-          as: 'OriginalBilling',
-          where: { billingId: { [Op.in]: billingIds } },
+          as: 'OriginalBillings',
+          on: { billingId: { [Op.in]: billingIds } },
           include: [{ model: MentorshipListing, as: 'MentorshipListing' }],
         },
       ],
@@ -208,7 +238,7 @@ export default class PaypalService {
     //     status: BILLING_STATUS.REFUNDED,
     //     billingType: BILLING_TYPE.MENTORSHIP,
     //   },
-    //   order: ['createdAt', 'DESC'],
+    //   order: [['createdAt', 'DESC']],
     // });
 
     // const paidBillings = await Billing.findAll({
@@ -217,7 +247,7 @@ export default class PaypalService {
     //     status: BILLING_STATUS.PAID,
     //     billingType: BILLING_TYPE.MENTORSHIP,
     //   },
-    //   order: ['createdAt', 'DESC'],
+    //   order: [['createdAt', 'DESC']],
     // });
 
     // let prevRefundBillings; // billings related to previous refund

@@ -31,12 +31,12 @@ module.exports = {
         amount: {
           allowNull: false,
           type: Sequelize.FLOAT,
-          default: 0.0,
+          defaultValue: 0.0,
         },
         currency: {
           allowNull: false,
           type: Sequelize.STRING,
-          default: 'SGD',
+          defaultValue: 'SGD',
         },
         mentorPassCount: {
           type: Sequelize.INTEGER,
