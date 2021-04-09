@@ -115,6 +115,7 @@ export default class SocialService {
         where: {
           followerId: userId,
           followingId: accountId,
+          followingStatus: FOLLOWING_ENUM.APPROVED,
         },
       });
       if (!following) throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
@@ -164,6 +165,7 @@ export default class SocialService {
         where: {
           followerId: userId,
           followingId: accountId,
+          followingStatus: FOLLOWING_ENUM.APPROVED,
         },
       });
       if (!following) throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
@@ -209,6 +211,97 @@ export default class SocialService {
       ],
     });
     return listOfPost;
+  }
+
+  public static async getPostById(postId: string, userId: string) {
+    var isBlocking = false;
+
+    const post = await Post.findOne({
+      where: {
+        postId,
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['accountId', 'firstName', 'lastName', 'profileImgUrl'],
+        },
+        {
+          model: LikePost,
+          on: {
+            '$LikePost.postId$': {
+              [Op.col]: 'Post.postId',
+            },
+          },
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    if (!post) throw new Error(SOCIAL_ERRORS.POST_MISSING);
+
+    //owner of post
+    const userProfile = await User.findByPk(post.accountId);
+    if (!userProfile) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    //CHECK IF OWNER OF POST HAS BLOCKED USER LOGGED IN
+    if (userId !== userProfile.accountId) {
+      const followership = await UserFollowership.findOne({
+        where: {
+          followerId: userId,
+          followingId: userProfile.accountId,
+          followingStatus: FOLLOWING_ENUM.BLOCKED,
+        },
+      });
+      //return user who blocked
+      if (followership) {
+        const userProfile = await User.findByPk(post.accountId, {
+          attributes: ['accountId'],
+        });
+        return { post: null, userProfile, isBlocking: true };
+      }
+    }
+
+    //Check if owner of the post is private, if private, only user followers can see post
+    if (
+      userProfile.isPrivateProfile === true &&
+      userId !== userProfile.accountId
+    ) {
+      const userProfile = await User.findByPk(post.accountId, {
+        attributes: [
+          'accountId',
+          'username',
+          'firstName',
+          'lastName',
+          'profileImgUrl',
+          'isPrivateProfile',
+        ],
+      });
+
+      const following = await UserFollowership.findOne({
+        where: {
+          followerId: userId,
+          followingId: userProfile.accountId,
+          followingStatus: FOLLOWING_ENUM.APPROVED,
+        },
+      });
+      if (!following) {
+        return { post: null, userProfile, isBlocking };
+      }
+    }
+
+    return { post, userProfile, isBlocking };
   }
 
   // ======================================== FOLLOWING ========================================
@@ -390,6 +483,7 @@ export default class SocialService {
         where: {
           followingId: accountId,
           followerId: userId,
+          followingStatus: FOLLOWING_ENUM.APPROVED,
         },
       });
       if (!following) throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
@@ -436,6 +530,7 @@ export default class SocialService {
         where: {
           followingId: accountId,
           followerId: userId,
+          followingStatus: FOLLOWING_ENUM.APPROVED,
         },
       });
       if (!following) throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
@@ -614,5 +709,38 @@ export default class SocialService {
     });
 
     return pendingFollowerList;
+  }
+
+  public static async getUsersBlocked(accountId: string) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const usersBlocked = await UserFollowership.findAll({
+      where: {
+        followingId: accountId,
+        followingStatus: FOLLOWING_ENUM.BLOCKED,
+      },
+      include: [
+        {
+          model: User,
+          as: 'Follower',
+          on: {
+            '$Follower.accountId$': {
+              [Op.col]: 'UserFollowership.followerId',
+            },
+          },
+          attributes: [
+            'accountId',
+            'username',
+            'firstName',
+            'lastName',
+            'profileImgUrl',
+            'isPrivateProfile',
+          ],
+        },
+      ],
+    });
+
+    return usersBlocked;
   }
 }

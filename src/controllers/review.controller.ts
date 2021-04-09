@@ -80,7 +80,7 @@ export class ReviewController {
     const { accountId } = req.user;
     const { review } = req.body;
     try {
-      const updatedReview = await ReviewService.editMentorshipListingReview(
+      const updatedReview = await ReviewService.editCourseReview(
         courseId,
         accountId,
         review
