@@ -101,7 +101,6 @@ export class PaypalController {
         if (error) {
           throw new Error(error);
         } else {
-          console.log(JSON.stringify(payment, null, 2));
           return apiResponse.result(
             res,
             { message: 'success', payment },
