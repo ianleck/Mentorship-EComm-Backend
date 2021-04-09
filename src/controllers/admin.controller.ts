@@ -493,6 +493,7 @@ export class AdminController {
         refundsToMake,
         student,
         refundRequest,
+        numPassLeft,
       } = await PaypalService.populateApproveRefund(refundRequestId);
 
       await Promise.all(
@@ -517,7 +518,8 @@ export class AdminController {
                       billing,
                       student,
                       refundRequest,
-                      user.accountId
+                      user.accountId,
+                      numPassLeft
                     );
                   }
                 }
