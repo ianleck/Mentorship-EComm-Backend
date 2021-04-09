@@ -109,7 +109,7 @@ export class PaypalController {
         }
       });
     } catch (e) {
-      logger.error('[PaypalController.viewPayout]:' + e.message);
+      logger.error('[PaypalController.viewOrder]:' + e.message);
       return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
         message: e.message,
       });
