@@ -233,12 +233,13 @@ export default class PaypalService {
         };
         refundsToMake.push({ billing, paymentId, refund_details });
       }
-
+      const numPassLeft = Math.max(remainingNumPasses, 0);
       return {
         refundsToMake,
         student,
         refundRequest,
         title: mentorshipListing.name,
+        numPassLeft,
       };
     }
 
@@ -250,7 +251,8 @@ export default class PaypalService {
     originalBilling: Billing,
     student: User,
     refundRequest: RefundRequest,
-    accountId: string
+    accountId: string,
+    numPassLeft?: number
   ) {
     const admin = await Admin.findByPk(accountId);
     // 1. Create refund billing
@@ -271,14 +273,14 @@ export default class PaypalService {
     });
 
     // 3. Destroy CouseContract/Update mentorPassCount to 0
-    if (originalBilling.billingType === 'COURSE') {
+    if (originalBilling.billingType === BILLING_TYPE.COURSE) {
       await CourseContract.destroy({
         where: { courseContractId: originalBilling.contractId },
       });
     }
-    if (originalBilling.billingType === 'MENTORSHIP') {
+    if (originalBilling.billingType === BILLING_TYPE.MENTORSHIP) {
       await MentorshipContract.update(
-        { mentorPassCount: 0 },
+        { mentorPassCount: numPassLeft },
         { where: { mentorshipContractId: originalBilling.contractId } }
       );
     }

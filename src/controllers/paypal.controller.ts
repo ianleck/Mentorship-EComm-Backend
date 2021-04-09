@@ -132,6 +132,7 @@ export class PaypalController {
         student,
         refundRequest,
         title,
+        numPassLeft,
       } = await PaypalService.populateApproveRefund(refundRequestId);
 
       await Promise.all(
@@ -156,7 +157,8 @@ export class PaypalController {
                       billing,
                       student,
                       refundRequest,
-                      user.accountId
+                      user.accountId,
+                      numPassLeft
                     );
                   }
                 }
