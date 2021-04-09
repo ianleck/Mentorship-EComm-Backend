@@ -184,19 +184,36 @@ router.get(
 );
 
 // approve withdrawal
-router.put(
-  '/withdrawal/approve/:billingId',
+router.post(
+  '/withdrawal/:billingId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.params(wallet.billingIdP),
   Utility.asyncHandler(AdminController.approveWithdrawal)
 );
-
+// reject withdrawal
 router.put(
-  '/withdrawal/reject/:billingId',
+  '/withdrawal/:billingId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.params(wallet.billingIdP),
   Utility.asyncHandler(AdminController.rejectWithdrawal)
+);
+
+// approve refund
+router.post(
+  '/refund/:refundRequestId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  schemaValidator.params(wallet.refundRequestIdP),
+  Utility.asyncHandler(AdminController.approveRefund)
+);
+// reject refund
+router.put(
+  '/refund/:refundRequestId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  schemaValidator.params(wallet.refundRequestIdP),
+  Utility.asyncHandler(AdminController.rejectRefund)
 );
 export default router;
