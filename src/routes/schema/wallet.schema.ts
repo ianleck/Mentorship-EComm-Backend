@@ -16,7 +16,9 @@ export default {
     contractId: joi.string().required(),
     contractType: joi.string().valid('COURSE', 'MENTORSHIP'),
   }),
-
+  refundRequestIdP: joi.object({
+    refundRequestId: joi.string().required(),
+  }),
   billingFilterQ: joi.object({
     filter: joi.object({
       billingId: joi.string().optional(),

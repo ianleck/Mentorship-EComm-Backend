@@ -2,21 +2,23 @@ import {
   AllowNull,
   BelongsTo,
   Column,
+  CreatedAt,
   DataType,
   Default,
   HasMany,
   HasOne,
+  Model,
   PrimaryKey,
   Table,
+  UpdatedAt,
 } from 'sequelize-typescript';
 import { APPROVAL_STATUS } from '../constants/enum';
-import { BaseEntity } from './abstract/BaseEntity';
 import { Admin } from './Admin';
 import { Billing } from './Billing';
 import { User } from './User';
 
 @Table
-export class RefundRequest extends BaseEntity {
+export class RefundRequest extends Model<RefundRequest> {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
@@ -41,6 +43,13 @@ export class RefundRequest extends BaseEntity {
   @Column(DataType.UUID)
   adminId: string; // Approve/Reject
 
+  @CreatedAt
+  @Column
+  createdAt: Date;
+
+  @UpdatedAt
+  @Column
+  updatedAt: Date;
   // ==================== RELATIONSHIP MAPPINGS ====================
 
   @BelongsTo(() => User, { foreignKey: 'studentId', targetKey: 'accountId' })

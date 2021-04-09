@@ -1,3 +1,4 @@
+import httpStatusCodes from 'http-status-codes';
 import { Op } from 'sequelize';
 import {
   CURRENCY,
@@ -39,6 +40,20 @@ export interface MentorPass extends MentorshipListing {
     updatedAt: Date;
   };
 }
+
+export interface RefundDetails {
+  amount: {
+    currency: string;
+    total: string;
+  };
+}
+
+export interface RefundsToMake {
+  billing: Billing;
+  paymentId: string;
+  refund_details: RefundDetails;
+}
+
 export default class PaypalService {
   // ============================== Withdrawals ==============================
   public static async createPayout(application: Billing, email: string) {
@@ -69,6 +84,20 @@ export default class PaypalService {
 
   // ============================== Refunds ==============================
   // =============== Request Refunds ===============
+  public static async cancelRefundRequest(
+    refundRequestId: string,
+    accountId: string
+  ) {
+    const existingRefund = await RefundRequest.findByPk(refundRequestId);
+    if (!existingRefund) throw new Error(WALLET_ERROR.MISSING_REFUND_REQUEST);
+    if (existingRefund.studentId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    return await existingRefund.destroy();
+  }
+
   public static async requestRefund(
     contractId: string,
     contractType: string,
@@ -129,13 +158,14 @@ export default class PaypalService {
     if (billing.createdAt < refundablePeriod)
       throw new Error(WALLET_ERROR.REFUND_PERIOD_OVER);
 
-    await new RefundRequest({
+    const refundRequest = await new RefundRequest({
       contractId,
       studentId: accountId,
+      contractType: BILLING_TYPE.COURSE,
     }).save();
 
     return await RefundRequest.findOne({
-      where: { contractId, studentId: accountId },
+      where: { refundRequestId: refundRequest.refundRequestId },
       include: [
         {
           model: Billing,
@@ -169,7 +199,8 @@ export default class PaypalService {
       ) {
         throw new Error(WALLET_ERROR.REFUNDED); // alr refund
       }
-      throw new Error(WALLET_ERROR.EXISTING_REFUND); // pending refund
+      if (latestRefundRequest.approvalStatus === APPROVAL_STATUS.PENDING)
+        throw new Error(WALLET_ERROR.EXISTING_REFUND); // pending refund
     }
 
     const paidBillings = await Billing.findAll({
@@ -194,13 +225,14 @@ export default class PaypalService {
     if (billingIds.length === 0)
       throw new Error(WALLET_ERROR.REFUND_PERIOD_OVER);
 
-    await new RefundRequest({
+    const refundRequest = await new RefundRequest({
       contractId,
       studentId: accountId,
+      contractType: BILLING_TYPE.MENTORSHIP,
     }).save();
 
     return await RefundRequest.findOne({
-      where: { contractId, studentId: accountId },
+      where: { refundRequestId: refundRequest.refundRequestId },
       include: [
         {
           model: Billing,
@@ -213,63 +245,84 @@ export default class PaypalService {
   }
 
   // =============== Refund Approval/Rejection ===============
-  public static async populateApproveRefund(billingId: string) {
-    const billing = await Billing.findByPk(billingId);
-    if (!billing) throw new Error(WALLET_ERROR.MISSING_BILLING);
-    const paymentId = billing.paypalPaymentId;
-    if (!paymentId) throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
-    const student = await User.findOne({
-      where: {
-        walletId: billing.senderWalletId,
-      },
-    });
-    if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
-    const refundRequest = await RefundRequest.findOne({
-      where: {
-        studentId: student.accountId,
-        originalBillingId: billing.billingId,
-      },
-    });
+  public static async populateApproveRefund(refundRequestId: string) {
+    const refundRequest = await RefundRequest.findByPk(refundRequestId);
     if (!refundRequest) throw new Error(WALLET_ERROR.MISSING_REFUND_REQUEST);
+    if (refundRequest.approvalStatus === APPROVAL_STATUS.APPROVED)
+      throw new Error(WALLET_ERROR.REFUNDED);
+    if (refundRequest.approvalStatus === APPROVAL_STATUS.REJECTED)
+      throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
 
-    // const refundedBillings = await Billing.findAll({
-    //   where: {
-    //     contractId,
-    //     status: BILLING_STATUS.REFUNDED,
-    //     billingType: BILLING_TYPE.MENTORSHIP,
-    //   },
-    //   order: [['createdAt', 'DESC']],
-    // });
+    const student = await User.findByPk(refundRequest.studentId);
+    if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
 
-    // const paidBillings = await Billing.findAll({
-    //   where: {
-    //     contractId,
-    //     status: BILLING_STATUS.PAID,
-    //     billingType: BILLING_TYPE.MENTORSHIP,
-    //   },
-    //   order: [['createdAt', 'DESC']],
-    // });
+    const contractId = refundRequest.contractId;
 
-    // let prevRefundBillings; // billings related to previous refund
-    // if (refundedBillings.length !== 0) {
-    //   prevRefundBillings = await Billing.findAll({
-    //     where: {
-    //       contractId,
-    //       status: BILLING_STATUS.PAID,
-    //       billingType: BILLING_TYPE.MENTORSHIP,
-    //       createdAt: { [Op.lte]: refundedBillings[0].createdAt}
-    //     },
-    //   });
-    // }
-    // const relevantBillings = _.difference(paidBillings, prevRefundBillings);
-
-    const refund_details = {
-      amount: {
-        currency: billing.currency,
-        total: `${billing.amount}`,
+    const paidBillings = await Billing.findAll({
+      where: {
+        contractId,
+        status: BILLING_STATUS.PAID,
       },
-    };
-    return { paymentId, refund_details, billing, student, refundRequest };
+      order: [['createdAt', 'DESC']],
+    });
+    if (paidBillings.length === 0)
+      throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
+
+    let refundsToMake: RefundsToMake[] = [];
+
+    // Populate refund details for course
+    if (paidBillings[0].billingType === BILLING_TYPE.COURSE) {
+      const billing = paidBillings[0];
+      const paymentId = billing.paypalPaymentId;
+      const refund_details: RefundDetails = {
+        amount: {
+          currency: billing.currency,
+          total: `${billing.amount}`,
+        },
+      };
+
+      refundsToMake.push({ billing, paymentId, refund_details });
+      return {
+        refundsToMake,
+        student,
+        refundRequest,
+      };
+    }
+
+    if (paidBillings[0].billingType === BILLING_TYPE.MENTORSHIP) {
+      const mentorshipContract = await MentorshipContract.findByPk(contractId);
+      let remainingNumPasses = mentorshipContract.mentorPassCount;
+      // Today - 120 days to be compared against createdAt; if createdAt is > today - 120 then it is still refundable
+      const refundablePeriod = new Date();
+      refundablePeriod.setDate(refundablePeriod.getDate() - WITHDRAWAL_DAYS);
+
+      for (let i = 0; i < paidBillings.length; i++) {
+        if (remainingNumPasses <= 0) break;
+        const billing = paidBillings[i];
+        if (billing.createdAt < refundablePeriod) break;
+        let numPassesToRefund = remainingNumPasses;
+        if (remainingNumPasses >= billing.mentorPassCount) {
+          remainingNumPasses -= billing.mentorPassCount;
+          numPassesToRefund = billing.mentorPassCount;
+        }
+        const indivPassCost = Number(
+          (billing.amount / billing.mentorPassCount).toFixed(2)
+        );
+        const totalCost = numPassesToRefund * indivPassCost;
+        const paymentId = billing.paypalPaymentId;
+        const refund_details = {
+          amount: {
+            currency: billing.currency,
+            total: `${totalCost}`,
+          },
+        };
+        refundsToMake.push({ billing, paymentId, refund_details });
+      }
+      const numPassLeft = Math.max(remainingNumPasses, 0);
+      return { refundsToMake, student, refundRequest, numPassLeft };
+    }
+
+    throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
   }
 
   public static async approveRefund(
@@ -277,7 +330,8 @@ export default class PaypalService {
     originalBilling: Billing,
     student: User,
     refundRequest: RefundRequest,
-    accountId: string
+    accountId: string,
+    numPassLeft?: number
   ) {
     const admin = await Admin.findByPk(accountId);
     // 1. Create refund billing
@@ -288,7 +342,7 @@ export default class PaypalService {
       currency: originalBilling.currency,
       senderWalletId: admin.walletId,
       receiverWalletId: student.walletId,
-      status: BILLING_STATUS.PAID,
+      status: BILLING_STATUS.REFUNDED,
       billingType: BILLING_TYPE.REFUND,
     }).save();
     // 2. Update RefundRequest
@@ -297,31 +351,32 @@ export default class PaypalService {
       adminId: accountId,
     });
 
-    // 3. Destroy CouseContract/MentorshipContract
-    if (originalBilling.billingType === 'COURSE') {
+    // 3. Destroy CouseContract/Update mentorPassCount to 0
+    if (originalBilling.billingType === BILLING_TYPE.COURSE) {
       await CourseContract.destroy({
         where: { courseContractId: originalBilling.contractId },
       });
-    } else {
-      await MentorshipContract.destroy({
-        where: { mentorshipContractId: originalBilling.contractId },
-      });
+    }
+    if (originalBilling.billingType === BILLING_TYPE.MENTORSHIP) {
+      await MentorshipContract.update(
+        { mentorPassCount: numPassLeft },
+        { where: { mentorshipContractId: originalBilling.contractId } }
+      );
     }
   }
 
-  public static async rejectRefund(billingId: string) {
-    const billing = await Billing.findByPk(billingId);
-    if (!billing) throw new Error(WALLET_ERROR.MISSING_BILLING);
-    const paymentId = billing.paypalPaymentId;
-    if (!paymentId) throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
+  public static async rejectRefund(refundRequestId: string, accountId: string) {
+    const refundRequest = await RefundRequest.findByPk(refundRequestId);
+    if (!refundRequest) throw new Error(WALLET_ERROR.MISSING_REFUND_REQUEST);
+    if (refundRequest.approvalStatus === APPROVAL_STATUS.APPROVED)
+      throw new Error(WALLET_ERROR.REFUNDED);
+    if (refundRequest.approvalStatus === APPROVAL_STATUS.REJECTED)
+      throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
 
-    const refund_details = {
-      amount: {
-        currency: billing.currency,
-        total: `${billing.amount}`,
-      },
-    };
-    return { paymentId, refund_details };
+    await refundRequest.update({
+      approvalStatus: APPROVAL_STATUS.REJECTED,
+      adminId: accountId,
+    });
   }
 
   // ============================== Order ==============================

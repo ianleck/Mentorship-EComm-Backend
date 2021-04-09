@@ -1,6 +1,8 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { RESPONSE_ERROR } from '../constants/errors';
+import { RESPONSE_ERROR, WALLET_ERROR } from '../constants/errors';
+import { WITHDRAWAL_RESPONSE } from '../constants/successMessages';
+import Utility from '../constants/utility';
 import WalletService from '../services/wallet.service';
 import apiResponse from '../utilities/apiResponse';
 
@@ -59,9 +61,7 @@ export class WalletController {
       );
     } catch (e) {
       logger.error('[walletController.viewWallet]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      return Utility.apiErrorResponse(res, e, [WALLET_ERROR.UNAUTH_WALLET]);
     }
   }
 
@@ -75,14 +75,16 @@ export class WalletController {
       );
       return apiResponse.result(
         res,
-        { message: 'success', withdrawalApplication },
+        { message: WITHDRAWAL_RESPONSE.REQUEST_CREATE, withdrawalApplication },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[walletController.withdrawBalance]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-        message: e.message,
-      });
+      return Utility.apiErrorResponse(res, e, [
+        WALLET_ERROR.UNAUTH_WALLET,
+        WALLET_ERROR.NO_MONEY,
+        WALLET_ERROR.EXISTING_WITHDRAWAL,
+      ]);
     }
   }
 
