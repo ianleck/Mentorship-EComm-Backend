@@ -8,6 +8,7 @@ import {
   WITHDRAWAL_RESPONSE,
 } from '../constants/successMessages';
 import Utility from '../constants/utility';
+import EmailService from '../services/email.service';
 import PaypalService from '../services/paypal.service';
 import WalletService from '../services/wallet.service';
 import apiResponse from '../utilities/apiResponse';
@@ -130,6 +131,8 @@ export class PaypalController {
         refundsToMake,
         student,
         refundRequest,
+        title,
+        numPassLeft,
       } = await PaypalService.populateApproveRefund(refundRequestId);
 
       await Promise.all(
@@ -154,7 +157,8 @@ export class PaypalController {
                       billing,
                       student,
                       refundRequest,
-                      user.accountId
+                      user.accountId,
+                      numPassLeft
                     );
                   }
                 }
@@ -163,6 +167,9 @@ export class PaypalController {
           });
         })
       );
+
+      const additional = { title };
+      await EmailService.sendEmail(student.email, 'refundSuccess', additional);
       return apiResponse.result(
         res,
         { message: REFUND_RESPONSE.REQUEST_APPROVE },
@@ -191,7 +198,7 @@ export class PaypalController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[PaypalController.approveRefund]:' + e.message);
+      logger.error('[PaypalController.rejectRefund]:' + e.message);
       return Utility.apiErrorResponse(res, e, [
         WALLET_ERROR.MISSING_BILLING,
         WALLET_ERROR.INVALID_REFUND_REQUEST,

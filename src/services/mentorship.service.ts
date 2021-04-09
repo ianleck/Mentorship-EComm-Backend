@@ -384,8 +384,8 @@ export default class MentorshipService {
       senseiApproval: APPROVAL_STATUS.REJECTED,
     });
 
-    const mentorshipName = mentorshipListing.name;
-    const additional = { mentorshipName };
+    const title = mentorshipListing.name;
+    const additional = { title };
 
     //SEND EMAIL TO INFORM OF REJECTION OF APPLICATION
     await EmailService.sendEmail(student.email, 'rejectContract', additional);
