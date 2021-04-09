@@ -1,19 +1,21 @@
+import httpStatusCodes from 'http-status-codes';
 import { Op } from 'sequelize';
 import { WITHDRAWAL_DAYS } from '../constants/constants';
 import {
+  APPROVAL_STATUS,
   BILLING_STATUS,
   BILLING_TYPE,
   USER_TYPE_ENUM,
 } from '../constants/enum';
-import { WALLET_ERROR } from '../constants/errors';
+import { ERRORS, WALLET_ERROR } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
 import { Course } from '../models/Course';
+import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
+import { RefundRequest } from '../models/RefundRequest';
 import { User } from '../models/User';
 import { Wallet } from '../models/Wallet';
-import EmailService from './email.service';
-import PaypalService from './paypal.service';
 export default class WalletService {
   // ============================== Billings ==============================
   public static async createOrderBilling(
@@ -185,74 +187,168 @@ export default class WalletService {
       include: [{ model: Wallet }],
     });
   }
-  // ============================== Withdrawals ==============================
 
-  public static async approveWithdrawal(billingId: string) {
-    const existingApplication = await Billing.findByPk(billingId);
-    if (
-      !existingApplication ||
-      existingApplication.billingType !== BILLING_TYPE.WITHDRAWAL
-    )
-      throw new Error(WALLET_ERROR.MISSING_BILLING);
-
-    if (existingApplication.status !== BILLING_STATUS.PENDING_WITHDRAWAL) {
-      throw new Error(WALLET_ERROR.PAID_OUT);
-    }
-
-    const sensei = await User.findOne({
-      where: { walletId: existingApplication.receiverWalletId },
-    });
-    const payout_json = await PaypalService.createPayout(
-      existingApplication,
-      sensei.email
-    );
-
-    return { payout_json, billing: existingApplication };
-  }
-
-  public static async postWithdrawalHelper(
-    billing: Billing,
-    paymentId: string
+  // ============================== Refunds ==============================
+  public static async cancelRefundRequest(
+    refundRequestId: string,
+    accountId: string
   ) {
-    const wallet = await Wallet.findByPk(billing.receiverWalletId);
-    const receiver = await User.findByPk(wallet.accountId);
+    const existingRefund = await RefundRequest.findByPk(refundRequestId);
+    if (!existingRefund) throw new Error(WALLET_ERROR.MISSING_REFUND_REQUEST);
+    if (existingRefund.studentId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
 
-    await billing.update({
-      paypalPaymentId: paymentId,
-      status: BILLING_STATUS.WITHDRAWN,
-    });
-
-    const newAmount = wallet.confirmedAmount - billing.amount;
-
-    await wallet.update({
-      confirmedAmount: newAmount,
-    });
-
-    await EmailService.sendEmail(receiver.email, 'withdrawalSuccess');
+    return await existingRefund.destroy();
   }
 
-  public static async rejectWithdrawal(billingId: string) {
-    const existingApplication = await Billing.findByPk(billingId);
-    if (
-      !existingApplication ||
-      existingApplication.billingType !== BILLING_TYPE.WITHDRAWAL
-    )
-      throw new Error(WALLET_ERROR.MISSING_BILLING);
+  public static async requestRefund(
+    contractId: string,
+    contractType: string,
+    accountId: string
+  ) {
+    try {
+      const user = await User.findByPk(accountId);
+      if (!user) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
 
-    if (existingApplication.status !== BILLING_STATUS.PENDING_WITHDRAWAL) {
-      throw new Error(WALLET_ERROR.PAID_OUT);
+      // Today - 120 days to be compared against createdAt; if createdAt is > today - 120 then it is still refundable
+      const refundablePeriod = new Date();
+      refundablePeriod.setDate(refundablePeriod.getDate() - WITHDRAWAL_DAYS);
+
+      if (contractType === BILLING_TYPE.COURSE)
+        return await this.requestCourseRefund(
+          contractId,
+          user,
+          refundablePeriod
+        );
+
+      return await this.requestMentorPassRefund(
+        contractId,
+        user,
+        refundablePeriod
+      );
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public static async requestCourseRefund(
+    contractId: string,
+    user: User,
+    refundablePeriod: Date
+  ) {
+    const accountId = user.accountId;
+
+    const existingRefund = await RefundRequest.findOne({
+      where: { contractId, studentId: accountId },
+    });
+
+    if (existingRefund) {
+      if (existingRefund.approvalStatus === APPROVAL_STATUS.APPROVED) {
+        throw new Error(WALLET_ERROR.REFUNDED); // alr refund
+      }
+      throw new Error(WALLET_ERROR.EXISTING_REFUND); // pending refund
     }
 
-    const billing = await Billing.findByPk(billingId);
-    const wallet = await Wallet.findByPk(billing.receiverWalletId);
-    const receiver = await User.findByPk(wallet.accountId);
+    const billing = await Billing.findOne({
+      where: {
+        contractId,
+        senderWalletId: user.walletId,
+        status: BILLING_STATUS.PAID,
+        billingType: BILLING_TYPE.COURSE,
+      },
+    });
 
-    await EmailService.sendEmail(receiver.email, 'withdrawalFailure');
-    return await existingApplication.update({
-      status: BILLING_STATUS.REJECTED,
+    if (billing.createdAt < refundablePeriod)
+      throw new Error(WALLET_ERROR.REFUND_PERIOD_OVER);
+
+    const refundRequest = await new RefundRequest({
+      contractId,
+      studentId: accountId,
+      contractType: BILLING_TYPE.COURSE,
+    }).save();
+
+    return await RefundRequest.findOne({
+      where: { refundRequestId: refundRequest.refundRequestId },
+      include: [
+        {
+          model: Billing,
+          as: 'OriginalBillings',
+          on: { billingId: billing.billingId },
+          include: [{ model: Course, as: 'Course' }],
+        },
+      ],
     });
   }
 
+  public static async requestMentorPassRefund(
+    contractId: string,
+    user: User,
+    refundablePeriod: Date
+  ) {
+    const accountId = user.accountId;
+
+    const existingRefunds = await RefundRequest.findAll({
+      where: { contractId, studentId: accountId },
+      order: [['createdAt', 'DESC']],
+    });
+
+    const mentorshipContract = await MentorshipContract.findByPk(contractId);
+
+    if (existingRefunds.length >= 1) {
+      const latestRefundRequest = existingRefunds[0];
+      if (
+        latestRefundRequest.approvalStatus === APPROVAL_STATUS.APPROVED &&
+        mentorshipContract.mentorPassCount === 0
+      ) {
+        throw new Error(WALLET_ERROR.REFUNDED); // alr refund
+      }
+      if (latestRefundRequest.approvalStatus === APPROVAL_STATUS.PENDING)
+        throw new Error(WALLET_ERROR.EXISTING_REFUND); // pending refund
+    }
+
+    const paidBillings = await Billing.findAll({
+      where: {
+        contractId,
+        status: BILLING_STATUS.PAID,
+        billingType: BILLING_TYPE.MENTORSHIP,
+      },
+      order: [['createdAt', 'DESC']],
+    });
+
+    let billingIds: string[] = [];
+    let remainingNumPasses = mentorshipContract.mentorPassCount;
+    for (let i = 0; i < paidBillings.length; i++) {
+      if (remainingNumPasses <= 0) break;
+      const billing = paidBillings[i];
+      if (billing.createdAt < refundablePeriod) break;
+      remainingNumPasses -= billing.mentorPassCount;
+      billingIds.push(billing.billingId);
+    }
+
+    if (billingIds.length === 0)
+      throw new Error(WALLET_ERROR.REFUND_PERIOD_OVER);
+
+    const refundRequest = await new RefundRequest({
+      contractId,
+      studentId: accountId,
+      contractType: BILLING_TYPE.MENTORSHIP,
+    }).save();
+
+    return await RefundRequest.findOne({
+      where: { refundRequestId: refundRequest.refundRequestId },
+      include: [
+        {
+          model: Billing,
+          as: 'OriginalBillings',
+          on: { billingId: { [Op.in]: billingIds } },
+          include: [{ model: MentorshipListing, as: 'MentorshipListing' }],
+        },
+      ],
+    });
+  }
+  // ============================== Withdrawals ==============================
   public static async withdrawBalance(walletId: string, accountId: string) {
     const user = await User.findByPk(accountId);
     const admin = await Admin.findOne({
