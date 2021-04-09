@@ -1,6 +1,7 @@
 import express from 'express';
 import Utility from '../constants/utility';
 import { AdminController } from '../controllers/admin.controller';
+import { PaypalController } from '../controllers/paypal.controller';
 import { WalletController } from '../controllers/wallet.controller';
 import {
   requireAdmin,
@@ -189,7 +190,7 @@ router.post(
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.params(wallet.billingIdP),
-  Utility.asyncHandler(AdminController.approveWithdrawal)
+  Utility.asyncHandler(PaypalController.approveWithdrawal)
 );
 // reject withdrawal
 router.put(
@@ -197,7 +198,7 @@ router.put(
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.params(wallet.billingIdP),
-  Utility.asyncHandler(AdminController.rejectWithdrawal)
+  Utility.asyncHandler(PaypalController.rejectWithdrawal)
 );
 
 // approve refund
@@ -206,7 +207,7 @@ router.post(
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.params(wallet.refundRequestIdP),
-  Utility.asyncHandler(AdminController.approveRefund)
+  Utility.asyncHandler(PaypalController.approveRefund)
 );
 // reject refund
 router.put(
@@ -214,6 +215,6 @@ router.put(
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.params(wallet.refundRequestIdP),
-  Utility.asyncHandler(AdminController.rejectRefund)
+  Utility.asyncHandler(PaypalController.rejectRefund)
 );
 export default router;

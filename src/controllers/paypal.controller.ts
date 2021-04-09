@@ -1,10 +1,15 @@
 import httpStatusCodes from 'http-status-codes';
 import paypal from 'paypal-rest-sdk';
 import logger from '../config/logger';
+import { BILLING_STATUS, BILLING_TYPE } from '../constants/enum';
 import { ERRORS, WALLET_ERROR } from '../constants/errors';
-import { REFUND_RESPONSE } from '../constants/successMessages';
+import {
+  REFUND_RESPONSE,
+  WITHDRAWAL_RESPONSE,
+} from '../constants/successMessages';
 import Utility from '../constants/utility';
 import PaypalService from '../services/paypal.service';
+import WalletService from '../services/wallet.service';
 import apiResponse from '../utilities/apiResponse';
 export class PaypalController {
   // ============================== Orders ==============================
@@ -117,53 +122,152 @@ export class PaypalController {
   }
 
   // ============================== Refunds ==============================
-  public static async cancelRefundRequest(req, res) {
+  public static async approveRefund(req, res) {
     try {
       const { refundRequestId } = req.params;
       const { user } = req;
-      await PaypalService.cancelRefundRequest(refundRequestId, user.accountId);
+      const {
+        refundsToMake,
+        student,
+        refundRequest,
+      } = await PaypalService.populateApproveRefund(refundRequestId);
+
+      await Promise.all(
+        refundsToMake.map(async (refundToMake) => {
+          const { billing, paymentId, refund_details } = refundToMake;
+          await paypal.payment.get(paymentId, async function (error, payment) {
+            if (error) {
+              throw new Error(error);
+            } else {
+              const captureId = await payment.transactions[0]
+                .related_resources[0].sale.id;
+
+              await paypal.capture.refund(
+                `${captureId}`,
+                refund_details,
+                async function (error, refund) {
+                  if (error) {
+                    throw new Error(error);
+                  } else {
+                    await PaypalService.approveRefund(
+                      refund,
+                      billing,
+                      student,
+                      refundRequest,
+                      user.accountId
+                    );
+                  }
+                }
+              );
+            }
+          });
+        })
+      );
       return apiResponse.result(
         res,
-        { message: REFUND_RESPONSE.REQUEST_CANCEL },
+        { message: REFUND_RESPONSE.REQUEST_APPROVE },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[PaypalController.requestRefund]:' + e.message);
+      logger.error('[PaypalController.approveRefund]:' + e.message);
       return Utility.apiErrorResponse(res, e, [
         ERRORS.STUDENT_DOES_NOT_EXIST,
+        WALLET_ERROR.MISSING_REFUND_REQUEST,
+        WALLET_ERROR.INVALID_REFUND_REQUEST,
         WALLET_ERROR.REFUNDED,
-        WALLET_ERROR.EXISTING_REFUND,
-        WALLET_ERROR.REFUND_PERIOD_OVER,
       ]);
     }
   }
 
-  public static async requestRefund(req, res) {
+  public static async rejectRefund(req, res) {
     try {
-      const { contractId, contractType } = req.query;
+      const { refundRequestId } = req.params;
       const { user } = req;
-      const refundRequest = await PaypalService.requestRefund(
-        contractId,
-        contractType,
-        user.accountId
-      );
+
+      await PaypalService.rejectRefund(refundRequestId, user.accountId);
       return apiResponse.result(
         res,
-        { message: REFUND_RESPONSE.REQUEST_CREATE, refundRequest },
+        { message: REFUND_RESPONSE.REQUEST_REJECT },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[PaypalController.requestRefund]:' + e.message);
+      logger.error('[PaypalController.approveRefund]:' + e.message);
       return Utility.apiErrorResponse(res, e, [
-        ERRORS.STUDENT_DOES_NOT_EXIST,
-        WALLET_ERROR.REFUNDED,
-        WALLET_ERROR.EXISTING_REFUND,
-        WALLET_ERROR.REFUND_PERIOD_OVER,
+        WALLET_ERROR.MISSING_BILLING,
+        WALLET_ERROR.INVALID_REFUND_REQUEST,
       ]);
     }
   }
 
-  // ============================== Payout ==============================
+  // ============================== Withdrawal ==============================
+  public static async approveWithdrawal(req, res) {
+    try {
+      const { billingId } = req.params;
+
+      const { payout_json, billing } = await PaypalService.approveWithdrawal(
+        billingId
+      );
+
+      await paypal.payout.create(payout_json, async function (error, payout) {
+        if (error) {
+          throw new Error(error);
+        } else {
+          const payout_batch_id = payout.batch_header.payout_batch_id;
+
+          await PaypalService.postWithdrawalHelper(billing, payout_batch_id);
+
+          const filter = {
+            status: BILLING_STATUS.PENDING_WITHDRAWAL,
+            billingType: BILLING_TYPE.WITHDRAWAL,
+          };
+
+          const pendingWithdrawals = WalletService.viewBillingsByFilter(filter);
+          return apiResponse.result(
+            res,
+            {
+              message: WITHDRAWAL_RESPONSE.REQUEST_APPROVE,
+              pendingWithdrawals,
+            },
+            httpStatusCodes.OK
+          );
+        }
+      });
+    } catch (e) {
+      logger.error('[PaypalController.approveWithdrawal]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [
+        WALLET_ERROR.MISSING_BILLING,
+        WALLET_ERROR.PAID_OUT,
+      ]);
+    }
+  }
+
+  public static async rejectWithdrawal(req, res) {
+    try {
+      const { billingId } = req.params;
+
+      await PaypalService.rejectWithdrawal(billingId);
+
+      const filter = {
+        status: BILLING_STATUS.PENDING_WITHDRAWAL,
+        billingType: BILLING_TYPE.WITHDRAWAL,
+      };
+
+      const pendingWithdrawals = WalletService.viewBillingsByFilter(filter);
+
+      return apiResponse.result(
+        res,
+        { message: WITHDRAWAL_RESPONSE.REQUEST_REJECT, pendingWithdrawals },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[PaypalController.rejectWithdrawal]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [
+        WALLET_ERROR.MISSING_BILLING,
+        WALLET_ERROR.PAID_OUT,
+      ]);
+    }
+  }
+
   public static async viewPayout(req, res) {
     try {
       const { payoutId } = req.params;
