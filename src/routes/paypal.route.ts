@@ -49,4 +49,12 @@ router.post(
   schemaValidator.query(wallet.refundRequestQ),
   Utility.asyncHandler(PaypalController.requestRefund)
 );
+
+router.delete(
+  '/refund/:refundRequestId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.params(wallet.refundRequestIdP),
+  Utility.asyncHandler(PaypalController.cancelRefundRequest)
+);
 export default router;

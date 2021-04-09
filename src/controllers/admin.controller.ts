@@ -14,6 +14,7 @@ import {
   AUTH_RESPONSE,
   COMMENT_RESPONSE,
   USER_RESPONSE,
+  WITHDRAWAL_RESPONSE,
 } from '../constants/successMessages';
 import Utility from '../constants/utility';
 import AdminService from '../services/admin.service';
@@ -438,21 +439,20 @@ export class AdminController {
           const pendingWithdrawals = WalletService.viewBillingsByFilter(filter);
           return apiResponse.result(
             res,
-            { message: 'success', pendingWithdrawals },
+            {
+              message: WITHDRAWAL_RESPONSE.REQUEST_APPROVE,
+              pendingWithdrawals,
+            },
             httpStatusCodes.OK
           );
         }
       });
     } catch (e) {
-      if (e.message === WALLET_ERROR.PAID_OUT) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      }
       logger.error('[adminController.approveWithdrawal]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
+      return Utility.apiErrorResponse(res, e, [
+        WALLET_ERROR.MISSING_BILLING,
+        WALLET_ERROR.PAID_OUT,
+      ]);
     }
   }
 
@@ -475,15 +475,11 @@ export class AdminController {
         httpStatusCodes.OK
       );
     } catch (e) {
-      if (e.message === WALLET_ERROR.PAID_OUT) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      }
       logger.error('[adminController.rejectWithdrawal]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
+      return Utility.apiErrorResponse(res, e, [
+        WALLET_ERROR.MISSING_BILLING,
+        WALLET_ERROR.PAID_OUT,
+      ]);
     }
   }
 

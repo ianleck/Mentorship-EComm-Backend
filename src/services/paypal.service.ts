@@ -1,3 +1,4 @@
+import httpStatusCodes from 'http-status-codes';
 import { Op } from 'sequelize';
 import {
   CURRENCY,
@@ -69,6 +70,20 @@ export default class PaypalService {
 
   // ============================== Refunds ==============================
   // =============== Request Refunds ===============
+  public static async cancelRefundRequest(
+    refundRequestId: string,
+    accountId: string
+  ) {
+    const existingRefund = await RefundRequest.findByPk(refundRequestId);
+    if (!existingRefund) throw new Error(WALLET_ERROR.MISSING_REFUND_REQUEST);
+    if (existingRefund.studentId !== accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+
+    return await existingRefund.destroy();
+  }
+
   public static async requestRefund(
     contractId: string,
     contractType: string,
