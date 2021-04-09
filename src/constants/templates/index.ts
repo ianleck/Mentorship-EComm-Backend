@@ -58,6 +58,16 @@ export const TEMPLATES = {
 
   // ======================================== FINANCE ========================================
 
+  refundFailure: {
+    fileName: 'refundFailure.ejs',
+    subject: '[DigiDojo] Your refund request has been rejected.',
+  },
+
+  refundSuccess: {
+    fileName: 'refundSuccess.ejs',
+    subject: '[DigiDojo] Your refund request has been successfully approved!',
+  },
+
   withdrawalFailure: {
     fileName: 'withdrawalFailure.ejs',
     subject: '[DigiDojo] Your withdrawal application has been rejected.',

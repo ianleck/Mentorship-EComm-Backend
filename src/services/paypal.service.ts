@@ -179,6 +179,9 @@ export default class PaypalService {
 
     // Populate refund details for course
     if (paidBillings[0].billingType === BILLING_TYPE.COURSE) {
+      const courseContract = await CourseContract.findByPk(contractId);
+      const course = await Course.findByPk(courseContract.courseId);
+
       const billing = paidBillings[0];
       const paymentId = billing.paypalPaymentId;
       const refund_details: RefundDetails = {
@@ -193,11 +196,16 @@ export default class PaypalService {
         refundsToMake,
         student,
         refundRequest,
+        title: course.title,
       };
     }
 
     if (paidBillings[0].billingType === BILLING_TYPE.MENTORSHIP) {
       const mentorshipContract = await MentorshipContract.findByPk(contractId);
+      const mentorshipListing = await MentorshipListing.findByPk(
+        mentorshipContract.mentorshipListingId
+      );
+
       let remainingNumPasses = mentorshipContract.mentorPassCount;
       // Today - 120 days to be compared against createdAt; if createdAt is > today - 120 then it is still refundable
       const refundablePeriod = new Date();
@@ -226,7 +234,12 @@ export default class PaypalService {
         refundsToMake.push({ billing, paymentId, refund_details });
       }
 
-      return { refundsToMake, student, refundRequest };
+      return {
+        refundsToMake,
+        student,
+        refundRequest,
+        title: mentorshipListing.name,
+      };
     }
 
     throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
@@ -279,6 +292,22 @@ export default class PaypalService {
     if (refundRequest.approvalStatus === APPROVAL_STATUS.REJECTED)
       throw new Error(WALLET_ERROR.INVALID_REFUND_REQUEST);
 
+    const receiver = await User.findByPk(refundRequest.studentId);
+    let title;
+    const billing = await Billing.findOne({
+      where: { contractId: refundRequest.contractId },
+    });
+    if (billing.billingType === BILLING_TYPE.COURSE) {
+      const course = await Course.findByPk(billing.productId);
+      title = course.title;
+    }
+    if (billing.billingType === BILLING_TYPE.MENTORSHIP) {
+      const mentorship = await MentorshipListing.findByPk(billing.productId);
+      title = mentorship.name;
+    }
+
+    const additional = { title };
+    await EmailService.sendEmail(receiver.email, 'refundFailure', additional);
     await refundRequest.update({
       approvalStatus: APPROVAL_STATUS.REJECTED,
       adminId: accountId,
