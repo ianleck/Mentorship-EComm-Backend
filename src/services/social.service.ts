@@ -174,6 +174,7 @@ export default class SocialService {
     const allFollowingIdsRsp = await UserFollowership.findAll({
       where: {
         followerId: userId,
+        followingStatus: FOLLOWING_ENUM.APPROVED,
       },
     });
     const followingIds = allFollowingIdsRsp.map((uf) => uf.followingId);
@@ -595,8 +596,24 @@ export default class SocialService {
     const followingUser = await User.findByPk(followingId);
     if (!followingUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
-    const followerUser = await User.findByPk(followerId);
+    const followerUser = await User.findByPk(followerId); //user to block
     if (!followerUser) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    //Ensure that the user who blocked is not following the user being blocked anymore
+    const followershipToBeDestroyed = await UserFollowership.findOne({
+      where: {
+        followingId: followerUser.accountId,
+        followerId: followingUser.accountId,
+      },
+    });
+    if (followershipToBeDestroyed) {
+      await UserFollowership.destroy({
+        where: {
+          followingId: followerUser.accountId,
+          followerId: followingUser.accountId,
+        },
+      });
+    }
 
     const existingFollowership = await UserFollowership.findOne({
       where: {
@@ -648,6 +665,7 @@ export default class SocialService {
       },
     });
   }
+
   // return followerUser;
   public static async getPendingFollowerList(
     accountId: string,
