@@ -42,7 +42,7 @@ router.get(
   passport.authenticate('isAuthenticated', { session: false }),
   requireStudentOrFinance,
   schemaValidator.params(wallet.refundRequestIdP),
-  Utility.asyncHandler(WalletController.viewListOfRefunds)
+  Utility.asyncHandler(WalletController.viewRefundDetail)
 );
 
 // View wallet, includes viewing own transaction history
