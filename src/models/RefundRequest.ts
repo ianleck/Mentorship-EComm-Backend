@@ -15,8 +15,6 @@ import {
 import { APPROVAL_STATUS, BILLING_TYPE } from '../constants/enum';
 import { Admin } from './Admin';
 import { Billing } from './Billing';
-import { CourseContract } from './CourseContract';
-import { MentorshipContract } from './MentorshipContract';
 import { User } from './User';
 
 @Table
@@ -37,6 +35,9 @@ export class RefundRequest extends Model<RefundRequest> {
   @AllowNull(false)
   @Column(DataType.UUID)
   contractId: string;
+
+  @Column(DataType.UUID)
+  billingId: string;
 
   @AllowNull(false)
   @Column(DataType.UUID)
@@ -73,18 +74,6 @@ export class RefundRequest extends Model<RefundRequest> {
   @HasOne(() => Billing, 'billingId')
   Refund: Billing;
 
-  @HasMany(() => Billing, 'billingId')
+  @HasMany(() => Billing, 'refundRequestId')
   OriginalBillings: Billing;
-
-  @BelongsTo(() => CourseContract, {
-    foreignKey: 'contractId',
-    targetKey: 'courseContractId',
-  })
-  CourseContract: CourseContract;
-
-  @BelongsTo(() => MentorshipContract, {
-    foreignKey: 'contractId',
-    targetKey: 'mentorshipContractId',
-  })
-  MentorshipContract: MentorshipContract;
 }

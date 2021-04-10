@@ -266,7 +266,7 @@ export default class PaypalService {
   ) {
     const admin = await Admin.findByPk(accountId);
     // 1. Create refund billing
-    await new Billing({
+    const refundBilling = await new Billing({
       paypalPaymentId: refund.id,
       refundRequestId: refundRequest.refundRequestId,
       productId: originalBilling.productId,
@@ -280,6 +280,7 @@ export default class PaypalService {
     // 2. Update refundRequest and destroy CouseContract/Update mentorPassCount to 0
     if (originalBilling.billingType === BILLING_TYPE.COURSE) {
       await refundRequest.update({
+        billingId: refundBilling.billingId,
         approvalStatus: APPROVAL_STATUS.APPROVED,
         adminId: accountId,
       });
@@ -290,6 +291,7 @@ export default class PaypalService {
     }
     if (originalBilling.billingType === BILLING_TYPE.MENTORSHIP) {
       await refundRequest.update({
+        billingId: refundBilling.billingId,
         mentorPassCount: totalPassesRefunded,
         approvalStatus: APPROVAL_STATUS.APPROVED,
         adminId: accountId,

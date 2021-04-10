@@ -11,7 +11,6 @@ import { ERRORS, WALLET_ERROR } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
 import { Course } from '../models/Course';
-import { CourseContract } from '../models/CourseContract';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { RefundRequest } from '../models/RefundRequest';
@@ -201,6 +200,12 @@ export default class WalletService {
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
 
+    const billings = await Billing.findAll({ where: { refundRequestId } });
+    await Promise.all(
+      billings.map(async (billing) => {
+        billing.update({ refundRequestId: null });
+      })
+    );
     return await existingRefund.destroy();
   }
 
@@ -249,7 +254,9 @@ export default class WalletService {
       if (existingRefund.approvalStatus === APPROVAL_STATUS.APPROVED) {
         throw new Error(WALLET_ERROR.REFUNDED); // alr refund
       }
-      throw new Error(WALLET_ERROR.EXISTING_REFUND); // pending refund
+      if (existingRefund.approvalStatus === APPROVAL_STATUS.PENDING) {
+        throw new Error(WALLET_ERROR.EXISTING_REFUND); // pending refund
+      }
     }
 
     const billing = await Billing.findOne({
@@ -278,6 +285,7 @@ export default class WalletService {
         {
           model: Billing,
           as: 'OriginalBillings',
+          on: { billingId: billing.billingId },
           include: [{ model: Course, as: 'Course' }],
         },
       ],
@@ -370,15 +378,12 @@ export default class WalletService {
       where: filter,
       include: [
         { model: User, attributes: ['username', 'firstName', 'lastName'] },
+        { model: Billing, as: 'Refund' },
         {
-          model: CourseContract,
-          include: [{ model: Course, attributes: ['title'] }],
+          model: Billing,
+          as: 'OriginalBillings',
+          include: [MentorshipListing, Course],
         },
-        {
-          model: MentorshipContract,
-          include: [{ model: MentorshipListing, attributes: ['name'] }],
-        },
-        { model: Billing, as: 'OriginalBillings' },
       ],
     });
   }
@@ -388,6 +393,7 @@ export default class WalletService {
       where: { refundRequestId },
       include: [
         { model: User, attributes: ['username', 'firstName', 'lastName'] },
+        { model: Billing, as: 'Refund' },
         {
           model: Billing,
           as: 'OriginalBillings',
