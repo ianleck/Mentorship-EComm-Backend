@@ -3,7 +3,6 @@ import { Op } from 'sequelize';
 import {
   ADMIN_VERIFIED_ENUM,
   FOLLOWING_ENUM,
-  MENTORSHIP_CONTRACT_APPROVAL,
   PRIVACY_PERMISSIONS_ENUM,
   STATUS_ENUM,
   USER_TYPE_ENUM,
@@ -554,7 +553,6 @@ export default class UserService {
       const existingMentorshipContract = await MentorshipContract.findOne({
         where: {
           accountId: receiver.accountId,
-          senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
         },
       });
       if (existingMentorshipContract) {
