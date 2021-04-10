@@ -156,3 +156,12 @@ export const COMMENT_RESPONSE = {
   COMMENT_POST_CREATE: 'Successfully commented on post',
   COMMENT_POST_EDIT: 'Successfully edited comment on post',
 };
+
+// ==================== MESSAGE RESPONSE MESSAGES ====================
+export const MESSAGE_RESPONSE = {
+  MESSAGE_CREATE: 'Message has been successfully sent',
+  GROUP_CREATE: 'Chat group has been successfully created',
+  GROUP_DELETED: 'Chat group has been successfully deleted',
+  USER_ADDED: 'User has been successfully added to chat group',
+  USER_REMOVED: 'User has been successfully removed from chat group',
+};

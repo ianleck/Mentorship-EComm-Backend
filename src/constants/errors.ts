@@ -128,3 +128,10 @@ export const COMPLAINT_ERRORS = {
   COMPLAINT_MISSING: 'Complaint does not exist',
   COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
 };
+
+export const MESSAGE_ERRORS = {
+  PRIVATE_USER: 'You are not allowed to send a message to this user',
+  CHAT_GROUP_MISSING: 'Chat Group does not exist',
+  USER_CANNOT_BE_ADDED:
+    'You are not allowed to add this user to the chat group',
+};

@@ -86,4 +86,74 @@ router.delete(
   Utility.asyncHandler(UserController.deleteExperience)
 );
 
+// ================================ MESSAGE ================================
+
+//Send ONE message
+router.post(
+  '/message/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP), //accountId of receiver
+  schemaValidator.body(user.sendMessageB),
+  Utility.asyncHandler(UserController.sendMessage)
+);
+
+//Send GROUP message
+router.post(
+  '/message/chat-group/:chatGroupId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.chatGroupIdP), //accountId of receiver
+  schemaValidator.body(user.sendMessageB),
+  Utility.asyncHandler(UserController.sendGroupMessage)
+);
+
+//Get all messages between TWO users
+router.get(
+  '/all/messages/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(UserController.getAllMessages)
+);
+
+//Get WHOLE CHAT LIST of a user
+router.get(
+  '/all/chat-list/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUser,
+  Utility.asyncHandler(UserController.getChatList)
+);
+
+//Create Chat Group
+router.post(
+  '/chat-group/new/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUser,
+  schemaValidator.params(user.accountIdP), //creator of chat group
+  schemaValidator.body(user.chatGroupB),
+  Utility.asyncHandler(UserController.createChatGroup)
+);
+
+//Add user to Chat Group
+router.post(
+  '/chat-group/:chatGroupId/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.userToChatGroupP), //accountId to add to chat group
+  Utility.asyncHandler(UserController.addUserToChatGroup)
+);
+
+//Remove user from Chat Group
+router.delete(
+  '/chat-group/:chatGroupId/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.userToChatGroupP), //accountId to add to chat group
+  Utility.asyncHandler(UserController.removeUserFromChatGroup)
+);
+
+//Delete Chat Group
+router.delete(
+  '/chat-group/:chatGroupId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.chatGroupIdP),
+  Utility.asyncHandler(UserController.deleteChatGroup)
+);
+
 export default router;
