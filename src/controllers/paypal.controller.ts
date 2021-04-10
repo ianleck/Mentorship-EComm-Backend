@@ -173,6 +173,10 @@ export class PaypalController {
       const additional = { title };
       await EmailService.sendEmail(student.email, 'refundSuccess', additional);
 
+      await PaypalService.postApproveRefundHelper(
+        refundsToMake,
+        user.accountId
+      );
       return apiResponse.result(
         res,
         { message: REFUND_RESPONSE.REQUEST_APPROVE },

@@ -270,6 +270,7 @@ export default class PaypalService {
       paypalPaymentId: refund.id,
       refundRequestId: refundRequest.refundRequestId,
       productId: originalBilling.productId,
+      contractId: originalBilling.contractId,
       amount: originalBilling.amount,
       currency: originalBilling.currency,
       senderWalletId: admin.walletId,
@@ -302,6 +303,102 @@ export default class PaypalService {
         { where: { mentorshipContractId: originalBilling.contractId } }
       );
     }
+  }
+
+  public static async postApproveRefundHelper(
+    refundsToMake: RefundsToMake[],
+    accountId: string
+  ) {
+    const adminWallet = await Wallet.findOne({ where: { accountId } });
+    const senseiWalletsDictionary = new Map<
+      string,
+      { pendingAmountToRemove: number; totalEarnedToRemove: number }
+    >();
+    let toDeductFromPlatformEarned = 0;
+    let toDeductFromPlatformRevenue = 0;
+
+    await Promise.all(
+      refundsToMake.map(async (refund) => {
+        const { billing, refund_details } = refund;
+        const senseiBilling = await Billing.findOne({
+          where: {
+            contractId: billing.contractId,
+            status: BILLING_STATUS.PENDING_120_DAYS,
+          },
+        });
+        let toDeductFromSensei = 0;
+
+        const refundedAmount = Number(refund_details.amount.total); // amount we refunded to student
+        //1. Calculate how much to deduct
+        const platformFee = refundedAmount * MARKET_FEE;
+        const paypalFee = refundedAmount * PAYPAL_FEE + 0.5;
+        toDeductFromSensei = refundedAmount - paypalFee - platformFee;
+        toDeductFromPlatformEarned += refundedAmount - paypalFee;
+        toDeductFromPlatformRevenue += platformFee;
+
+        //2. Save amount to refund per sensei
+        const senseiWalletToUpdate = senseiWalletsDictionary.get(
+          senseiBilling.receiverWalletId
+        );
+        if (senseiWalletToUpdate) {
+          const updatedPendingAmount =
+            senseiWalletToUpdate.pendingAmountToRemove +
+            Number(toDeductFromSensei.toFixed(2));
+          const updatedTotalAmount =
+            senseiWalletToUpdate.totalEarnedToRemove +
+            Number(toDeductFromSensei.toFixed(2));
+          senseiWalletsDictionary.set(senseiBilling.receiverWalletId, {
+            pendingAmountToRemove: updatedPendingAmount,
+            totalEarnedToRemove: updatedTotalAmount,
+          });
+        } else {
+          senseiWalletsDictionary.set(senseiBilling.receiverWalletId, {
+            pendingAmountToRemove: Number(toDeductFromSensei.toFixed(2)),
+            totalEarnedToRemove: Number(toDeductFromSensei.toFixed(2)),
+          });
+        }
+
+        //3. Destroy old sensei billing that is pending 120 days if fully refunded
+        if (billing.amount === refundedAmount) {
+          await senseiBilling.destroy();
+        } else {
+          const updatedAmount = senseiBilling.amount - toDeductFromSensei;
+          const updatedFees = senseiBilling.platformFee - platformFee;
+          await senseiBilling.update({
+            amount: updatedAmount,
+            platformFee: updatedFees,
+          });
+        }
+      })
+    );
+
+    //4. Update admin wallet
+    const totalEarned = Number(
+      (adminWallet.totalEarned - toDeductFromPlatformEarned).toFixed(2)
+    );
+    const platformRevenue = Number(
+      (adminWallet.platformRevenue - toDeductFromPlatformRevenue).toFixed(2)
+    );
+    await adminWallet.update({
+      totalEarned,
+      platformRevenue,
+    });
+
+    //5. Update sensei wallet
+    await Promise.all(
+      Array.from(senseiWalletsDictionary).map(
+        async ([walletId, { pendingAmountToRemove, totalEarnedToRemove }]) => {
+          const senseiWallet = await Wallet.findByPk(walletId);
+          const pendingAmount =
+            senseiWallet.pendingAmount - pendingAmountToRemove;
+          const totalEarned = senseiWallet.totalEarned - totalEarnedToRemove;
+          await senseiWallet.update({
+            pendingAmount,
+            totalEarned,
+          });
+        }
+      )
+    );
   }
 
   public static async rejectRefund(refundRequestId: string, accountId: string) {
