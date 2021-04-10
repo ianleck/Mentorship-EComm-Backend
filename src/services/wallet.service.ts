@@ -11,6 +11,7 @@ import { ERRORS, WALLET_ERROR } from '../constants/errors';
 import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
 import { Course } from '../models/Course';
+import { CourseContract } from '../models/CourseContract';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { RefundRequest } from '../models/RefundRequest';
@@ -269,13 +270,14 @@ export default class WalletService {
       contractType: BILLING_TYPE.COURSE,
     }).save();
 
+    await billing.update({ refundRequestId: refundRequest.refundRequestId });
+
     return await RefundRequest.findOne({
       where: { refundRequestId: refundRequest.refundRequestId },
       include: [
         {
           model: Billing,
           as: 'OriginalBillings',
-          on: { billingId: billing.billingId },
           include: [{ model: Course, as: 'Course' }],
         },
       ],
@@ -313,11 +315,13 @@ export default class WalletService {
         contractId,
         status: BILLING_STATUS.PAID,
         billingType: BILLING_TYPE.MENTORSHIP,
+        refundRequestId: { [Op.is]: null },
       },
       order: [['createdAt', 'DESC']],
     });
 
     let billingIds: string[] = [];
+    let billings: Billing[] = [];
     let remainingNumPasses = mentorshipContract.mentorPassCount;
     for (let i = 0; i < paidBillings.length; i++) {
       if (remainingNumPasses <= 0) break;
@@ -325,6 +329,7 @@ export default class WalletService {
       if (billing.createdAt < refundablePeriod) break;
       remainingNumPasses -= billing.mentorPassCount;
       billingIds.push(billing.billingId);
+      billings.push(billing);
     }
 
     if (billingIds.length === 0)
@@ -335,6 +340,14 @@ export default class WalletService {
       studentId: accountId,
       contractType: BILLING_TYPE.MENTORSHIP,
     }).save();
+
+    await Promise.all(
+      billings.map(async (billing) => {
+        await billing.update({
+          refundRequestId: refundRequest.refundRequestId,
+        });
+      })
+    );
 
     return await RefundRequest.findOne({
       where: { refundRequestId: refundRequest.refundRequestId },
@@ -348,6 +361,45 @@ export default class WalletService {
       ],
     });
   }
+
+  public static async viewListOfRefunds(accountId: string) {
+    const checkUser = await User.findByPk(accountId);
+    let filter = {};
+    if (checkUser) filter = { studentId: accountId };
+    return RefundRequest.findAll({
+      where: filter,
+      include: [
+        { model: User, attributes: ['username', 'firstName', 'lastName'] },
+        {
+          model: CourseContract,
+          include: [{ model: Course, attributes: ['title'] }],
+        },
+        {
+          model: MentorshipContract,
+          include: [{ model: MentorshipListing, attributes: ['name'] }],
+        },
+        { model: Billing, as: 'OriginalBillings' },
+      ],
+    });
+  }
+
+  public static async viewRefundDetail(refundRequestId: string) {
+    return await RefundRequest.findOne({
+      where: { refundRequestId },
+      include: [
+        { model: User, attributes: ['username', 'firstName', 'lastName'] },
+        {
+          model: Billing,
+          as: 'OriginalBillings',
+          include: [
+            { model: Course, as: 'Course' },
+            { model: MentorshipListing, as: 'MentorshipListing' },
+          ],
+        },
+      ],
+    });
+  }
+
   // ============================== Withdrawals ==============================
   public static async withdrawBalance(walletId: string, accountId: string) {
     const user = await User.findByPk(accountId);

@@ -169,6 +169,7 @@ export default class PaypalService {
       where: {
         contractId,
         status: BILLING_STATUS.PAID,
+        refundRequestId,
       },
       order: [['createdAt', 'DESC']],
     });
@@ -178,7 +179,7 @@ export default class PaypalService {
     let refundsToMake: RefundsToMake[] = [];
 
     // Populate refund details for course
-    if (paidBillings[0].billingType === BILLING_TYPE.COURSE) {
+    if (refundRequest.contractType === BILLING_TYPE.COURSE) {
       const courseContract = await CourseContract.findByPk(contractId);
       const course = await Course.findByPk(courseContract.courseId);
 
@@ -200,13 +201,14 @@ export default class PaypalService {
       };
     }
 
-    if (paidBillings[0].billingType === BILLING_TYPE.MENTORSHIP) {
+    if (refundRequest.contractType === BILLING_TYPE.MENTORSHIP) {
       const mentorshipContract = await MentorshipContract.findByPk(contractId);
       const mentorshipListing = await MentorshipListing.findByPk(
         mentorshipContract.mentorshipListingId
       );
 
       let remainingNumPasses = mentorshipContract.mentorPassCount;
+      let totalPassesRefunded = 0;
       // Today - 120 days to be compared against createdAt; if createdAt is > today - 120 then it is still refundable
       const refundablePeriod = new Date();
       refundablePeriod.setDate(refundablePeriod.getDate() - WITHDRAWAL_DAYS);
@@ -220,6 +222,8 @@ export default class PaypalService {
           remainingNumPasses -= billing.mentorPassCount;
           numPassesToRefund = billing.mentorPassCount;
         }
+
+        totalPassesRefunded += numPassesToRefund;
         const indivPassCost = Number(
           (billing.amount / billing.mentorPassCount).toFixed(2)
         );
@@ -231,7 +235,11 @@ export default class PaypalService {
             total: `${totalCost}`,
           },
         };
-        refundsToMake.push({ billing, paymentId, refund_details });
+        refundsToMake.push({
+          billing,
+          paymentId,
+          refund_details,
+        });
       }
       const numPassLeft = Math.max(remainingNumPasses, 0);
       return {
@@ -240,6 +248,7 @@ export default class PaypalService {
         refundRequest,
         title: mentorshipListing.name,
         numPassLeft,
+        totalPassesRefunded,
       };
     }
 
@@ -252,12 +261,14 @@ export default class PaypalService {
     student: User,
     refundRequest: RefundRequest,
     accountId: string,
-    numPassLeft?: number
+    numPassLeft?: number,
+    totalPassesRefunded?: number
   ) {
     const admin = await Admin.findByPk(accountId);
     // 1. Create refund billing
     await new Billing({
       paypalPaymentId: refund.id,
+      refundRequestId: refundRequest.refundRequestId,
       productId: originalBilling.productId,
       amount: originalBilling.amount,
       currency: originalBilling.currency,
@@ -266,19 +277,24 @@ export default class PaypalService {
       status: BILLING_STATUS.REFUNDED,
       billingType: BILLING_TYPE.REFUND,
     }).save();
-    // 2. Update RefundRequest
-    await refundRequest.update({
-      approvalStatus: APPROVAL_STATUS.APPROVED,
-      adminId: accountId,
-    });
-
-    // 3. Destroy CouseContract/Update mentorPassCount to 0
+    // 2. Update refundRequest and destroy CouseContract/Update mentorPassCount to 0
     if (originalBilling.billingType === BILLING_TYPE.COURSE) {
+      await refundRequest.update({
+        approvalStatus: APPROVAL_STATUS.APPROVED,
+        adminId: accountId,
+      });
+
       await CourseContract.destroy({
         where: { courseContractId: originalBilling.contractId },
       });
     }
     if (originalBilling.billingType === BILLING_TYPE.MENTORSHIP) {
+      await refundRequest.update({
+        mentorPassCount: totalPassesRefunded,
+        approvalStatus: APPROVAL_STATUS.APPROVED,
+        adminId: accountId,
+      });
+
       await MentorshipContract.update(
         { mentorPassCount: numPassLeft },
         { where: { mentorshipContractId: originalBilling.contractId } }
@@ -296,15 +312,24 @@ export default class PaypalService {
 
     const receiver = await User.findByPk(refundRequest.studentId);
     let title;
-    const billing = await Billing.findOne({
-      where: { contractId: refundRequest.contractId },
+    const relatedBillings = await Billing.findAll({
+      where: { refundRequestId: refundRequest.refundRequestId },
     });
-    if (billing.billingType === BILLING_TYPE.COURSE) {
+    if (relatedBillings[0].billingType === BILLING_TYPE.COURSE) {
+      const billing = relatedBillings[0];
+      await billing.update({ refundRequestId: null });
       const course = await Course.findByPk(billing.productId);
       title = course.title;
     }
-    if (billing.billingType === BILLING_TYPE.MENTORSHIP) {
-      const mentorship = await MentorshipListing.findByPk(billing.productId);
+    if (relatedBillings[0].billingType === BILLING_TYPE.MENTORSHIP) {
+      await Promise.all(
+        relatedBillings.map(async (billing) => {
+          await billing.update({ refundRequestId: null });
+        })
+      );
+      const mentorship = await MentorshipListing.findByPk(
+        relatedBillings[0].productId
+      );
       title = mentorship.name;
     }
 
@@ -499,7 +524,10 @@ export default class PaypalService {
             },
           });
           const mentorPassCount = mentorshipContract.mentorPassCount + numSlots;
-          await mentorshipContract.update({ mentorPassCount });
+          await mentorshipContract.update({
+            mentorPassCount,
+            progress: CONTRACT_PROGRESS_ENUM.ONGOING,
+          });
           // 2. Create billing for mentorship
           await WalletService.createOrderBilling(
             studentId,

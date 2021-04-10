@@ -133,6 +133,7 @@ export class PaypalController {
         refundRequest,
         title,
         numPassLeft,
+        totalPassesRefunded,
       } = await PaypalService.populateApproveRefund(refundRequestId);
 
       await Promise.all(
@@ -158,7 +159,8 @@ export class PaypalController {
                       student,
                       refundRequest,
                       user.accountId,
-                      numPassLeft
+                      numPassLeft,
+                      totalPassesRefunded
                     );
                   }
                 }
@@ -170,9 +172,11 @@ export class PaypalController {
 
       const additional = { title };
       await EmailService.sendEmail(student.email, 'refundSuccess', additional);
+
+      const refunds = await WalletService.viewListOfRefunds(user.accountId);
       return apiResponse.result(
         res,
-        { message: REFUND_RESPONSE.REQUEST_APPROVE },
+        { message: REFUND_RESPONSE.REQUEST_APPROVE, refunds },
         httpStatusCodes.OK
       );
     } catch (e) {
@@ -192,9 +196,10 @@ export class PaypalController {
       const { user } = req;
 
       await PaypalService.rejectRefund(refundRequestId, user.accountId);
+      const refunds = await WalletService.viewListOfRefunds(user.accountId);
       return apiResponse.result(
         res,
-        { message: REFUND_RESPONSE.REQUEST_REJECT },
+        { message: REFUND_RESPONSE.REQUEST_REJECT, refunds },
         httpStatusCodes.OK
       );
     } catch (e) {

@@ -12,6 +12,7 @@ import { CONTRACT_PROGRESS_ENUM } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Billing } from './Billing';
 import { Course } from './Course';
+import { RefundRequest } from './RefundRequest';
 import { User } from './User';
 
 @Table
@@ -46,6 +47,9 @@ export class CourseContract extends BaseEntity {
 
   @HasOne(() => Billing, 'contractId')
   Billing: Billing;
+
+  @HasOne(() => RefundRequest, 'contractId')
+  RefundRequest: RefundRequest;
 }
 
 // one to one mapping for Review
