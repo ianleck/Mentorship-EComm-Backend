@@ -26,6 +26,15 @@ export const CART_RESPONSE = {
   UPDATE_QUANTITY: 'Mentorship Quantity has been successfully updated',
 };
 
+// ==================== COMMENT RESPONSE MESSAGES ====================
+export const COMMENT_RESPONSE = {
+  COMMENT_LESSON_CREATE: 'Successfully commented on lesson',
+  COMMENT_DELETE: 'Successfully deleted comment',
+
+  COMMENT_POST_CREATE: 'Successfully commented on post',
+  COMMENT_POST_EDIT: 'Successfully edited comment on post',
+};
+
 // ==================== COURSE RESPONSE MESSAGES ====================
 export const COURSE_RESPONSE = {
   COURSE_CREATE: 'Course Listing has been successfully created',
@@ -85,15 +94,42 @@ export const MENTORSHIP_RESPONSE = {
   TASK_DELETE: 'Task has been successfully deleted',
 };
 
-// ==================== PAYPAL RESPONSE MESSAGES ====================
-export const PAYPAL_RESPONSE = {
-  ORDER_CREATE: 'Order has been successfully created',
+// ==================== REFUND RESPONSE MESSAGES ====================
+export const REFUND_RESPONSE = {
+  REQUEST_CREATE: 'Refund has been successfully requested',
+  REQUEST_CANCEL: 'Refund has been successfully cancelled',
+  REQUEST_APPROVE: 'Refund has been successfully approved',
+  REQUEST_REJECT: 'Refund has been successfully rejected',
 };
 
 // ==================== REVIEW RESPONSE MESSAGES ====================
 export const REVIEW_RESPONSE = {
   REVIEW_CREATE: 'Review has been successfully posted',
   REVIEW_UPDATE: 'Review has been successfully updated',
+};
+
+// ==================== SOCIAL RESPONSE MESSAGES ====================
+export const SOCIAL_RESPONSE = {
+  POST_CREATE: 'Post has been successfully created',
+  POST_UPDATE: 'Post has been successfully updated',
+  POST_DELETE: 'Post has been successfully deleted',
+  POST_LIKED: 'Post has been successfully liked',
+  POST_UNLIKED: 'Post has been successfully unliked',
+
+  FOLLOWING_ADDED: 'User has been successfully followed',
+  FOLLOWING_REMOVED: 'User has been successfullly unfollowed',
+
+  FOLLOWING_REQUEST_CREATED:
+    'Request to follow user has been successfully created',
+  FOLLOWING_REQUEST_CANCELLED:
+    'Request to follow user has been successfully cancelled',
+  FOLLOWING_REQUEST_ACCEPTED:
+    'Request to follow user has been successfully accepted',
+  FOLLOWING_REQUEST_REJECTED:
+    'Request to follow user has been successfully rejected',
+
+  USER_BLOCKED: 'User has been successfully blocked',
+  USER_UNBLOCKED: 'User has been successfully unblocked',
 };
 
 // ==================== USER RESPONSE MESSAGES ====================
@@ -125,36 +161,10 @@ export const UPLOAD_RESPONSE = {
 };
 
 // ==================== SOCIAL RESPONSE MESSAGES ====================
-export const SOCIAL_RESPONSE = {
-  POST_CREATE: 'Post has been successfully created',
-  POST_UPDATE: 'Post has been successfully updated',
-  POST_DELETE: 'Post has been successfully deleted',
-  POST_LIKED: 'Post has been successfully liked',
-  POST_UNLIKED: 'Post has been successfully unliked',
-
-  FOLLOWING_ADDED: 'User has been successfully followed',
-  FOLLOWING_REMOVED: 'User has been successfullly unfollowed',
-
-  FOLLOWING_REQUEST_CREATED:
-    'Request to follow user has been successfully created',
-  FOLLOWING_REQUEST_CANCELLED:
-    'Request to follow user has been successfully cancelled',
-  FOLLOWING_REQUEST_ACCEPTED:
-    'Request to follow user has been successfully accepted',
-  FOLLOWING_REQUEST_REJECTED:
-    'Request to follow user has been successfully rejected',
-
-  USER_BLOCKED: 'User has been successfully blocked',
-  USER_UNBLOCKED: 'User has been successfully unblocked',
-};
-
-// ==================== COMMENT RESPONSE MESSAGES ====================
-export const COMMENT_RESPONSE = {
-  COMMENT_LESSON_CREATE: 'Successfully commented on lesson',
-  COMMENT_DELETE: 'Successfully deleted comment',
-
-  COMMENT_POST_CREATE: 'Successfully commented on post',
-  COMMENT_POST_EDIT: 'Successfully edited comment on post',
+export const WITHDRAWAL_RESPONSE = {
+  REQUEST_CREATE: 'Withdrawal has been successfully requested',
+  REQUEST_APPROVE: 'Withdrawal has been successfully approved',
+  REQUEST_REJECT: 'Withdrawal has been successfully rejected',
 };
 
 // ==================== MESSAGE RESPONSE MESSAGES ====================

@@ -671,8 +671,8 @@ export default class CourseService {
       adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
     });
 
-    const courseName = courseRequest.title;
-    const additional = { courseName };
+    const title = courseRequest.title;
+    const additional = { title };
 
     // Send Email to inform acceptance of course request
     await EmailService.sendEmail(sensei.email, 'acceptCourse', additional);
@@ -700,8 +700,8 @@ export default class CourseService {
       adminVerified: ADMIN_VERIFIED_ENUM.REJECTED,
     });
 
-    const courseName = courseRequest.title;
-    const additional = { courseName };
+    const title = courseRequest.title;
+    const additional = { title };
 
     // Send Email to inform acceptance of course request
     await EmailService.sendEmail(sensei.email, 'rejectCourse', additional);

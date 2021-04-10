@@ -29,20 +29,27 @@ module.exports = {
           type: Sequelize.UUID,
         },
         amount: {
+          allowNull: false,
           type: Sequelize.FLOAT,
-          default: '0.00',
+          defaultValue: 0.0,
         },
         currency: {
+          allowNull: false,
           type: Sequelize.STRING,
-          default: 'SGD',
+          defaultValue: 'SGD',
+        },
+        mentorPassCount: {
+          type: Sequelize.INTEGER,
         },
         platformFee: {
           type: Sequelize.FLOAT,
         },
         senderWalletId: {
+          allowNull: false,
           type: Sequelize.STRING,
         },
         receiverWalletId: {
+          allowNull: false,
           type: Sequelize.STRING,
         },
         status: {
@@ -50,10 +57,11 @@ module.exports = {
           type: Sequelize.ENUM(
             'CONFIRMED',
             'FAILED',
+            'PAID',
             'PENDING_120_DAYS',
             'PENDING_WITHDRAWAL',
+            'REFUNDED',
             'REJECTED',
-            'PAID',
             'WITHDRAWN',
             'ADMIN'
           ),

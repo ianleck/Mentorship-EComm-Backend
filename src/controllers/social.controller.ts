@@ -213,6 +213,33 @@ export class SocialController {
     }
   }
 
+  public static async getPostById(req, res) {
+    const { postId } = req.params;
+    const { user } = req;
+
+    try {
+      const { post, userProfile, isBlocking } = await SocialService.getPostById(
+        postId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          post,
+          userProfile,
+          isBlocking,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getPostById]:' + e.toString());
+      return Utility.apiErrorResponse(res, e, [
+        SOCIAL_ERRORS.POST_MISSING,
+        ERRORS.USER_DOES_NOT_EXIST,
+      ]);
+    }
+  }
   //================================== FOLLOWING =============================================
 
   public static async removeRequest(req, res) {
@@ -551,6 +578,26 @@ export class SocialController {
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
+    }
+  }
+
+  public static async getUsersBlocked(req, res) {
+    const { accountId } = req.params;
+
+    //return blocked status
+    try {
+      const usersBlocked = await SocialService.getUsersBlocked(accountId);
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          usersBlocked,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getUsersBlocked]:' + e.toString());
+      return Utility.apiErrorResponse(res, e, [ERRORS.USER_DOES_NOT_EXIST]);
     }
   }
 }

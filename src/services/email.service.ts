@@ -8,8 +8,6 @@ import { User } from '../models/User';
 
 interface AdditionalParams {
   url?: string;
-  mentorshipName?: string;
-  courseName?: string;
   commentBody?: string;
   numSlots?: string;
   duration?: string;
@@ -17,6 +15,7 @@ interface AdditionalParams {
   mentorName?: string;
   announcementContent?: Text;
   announcementTitle?: string;
+  title?: string; // course or mentorship name
 }
 export default class EmailService {
   public static async sendEmail(
@@ -127,7 +126,7 @@ export default class EmailService {
         return await ejs.renderFile(filePath, {
           announcementContent: additional.announcementContent,
           announcementTitle: additional.announcementTitle,
-          courseName: additional.courseName,
+          courseName: additional.title,
         });
     }
   }
@@ -177,20 +176,20 @@ export default class EmailService {
       case 'acceptCourse':
         return await ejs.renderFile(filePath, {
           name,
-          courseName: additional.courseName,
+          courseName: additional.title,
         });
 
       case 'rejectCourse':
         return await ejs.renderFile(filePath, {
           name,
-          courseName: additional.courseName,
+          courseName: additional.title,
         });
 
       // MENTORSHIPCONTRACTS
       case 'acceptContract':
         return await ejs.renderFile(filePath, {
           name,
-          mentorshipName: additional.mentorshipName,
+          mentorshipName: additional.title,
           numSlots: additional.numSlots,
           duration: additional.duration,
           message: additional.message,
@@ -200,7 +199,7 @@ export default class EmailService {
       case 'rejectContract':
         return await ejs.renderFile(filePath, {
           name,
-          mentorshipName: additional.mentorshipName,
+          mentorshipName: additional.title,
         });
 
       // SENSEI
@@ -218,6 +217,23 @@ export default class EmailService {
       case 'withdrawalSuccess':
         return await ejs.renderFile(filePath, {
           name,
+        });
+
+      case 'withdrawalFailure':
+        return await ejs.renderFile(filePath, {
+          name,
+        });
+
+      case 'refundSuccess':
+        return await ejs.renderFile(filePath, {
+          name,
+          title: additional.title,
+        });
+
+      case 'refundFailure':
+        return await ejs.renderFile(filePath, {
+          name,
+          title: additional.title,
         });
     }
   }

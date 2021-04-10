@@ -1,6 +1,7 @@
 import express from 'express';
 import Utility from '../constants/utility';
 import { AdminController } from '../controllers/admin.controller';
+import { PaypalController } from '../controllers/paypal.controller';
 import { WalletController } from '../controllers/wallet.controller';
 import {
   requireAdmin,
@@ -184,19 +185,36 @@ router.get(
 );
 
 // approve withdrawal
-router.put(
-  '/withdrawal/approve/:billingId',
+router.post(
+  '/withdrawal/:billingId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
   schemaValidator.params(wallet.billingIdP),
-  Utility.asyncHandler(AdminController.approveWithdrawal)
+  Utility.asyncHandler(PaypalController.approveWithdrawal)
+);
+// reject withdrawal
+router.put(
+  '/withdrawal/:billingId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  schemaValidator.params(wallet.billingIdP),
+  Utility.asyncHandler(PaypalController.rejectWithdrawal)
 );
 
-router.put(
-  '/withdrawal/reject/:billingId',
+// approve refund
+router.post(
+  '/refund/:refundRequestId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireFinance,
-  schemaValidator.params(wallet.billingIdP),
-  Utility.asyncHandler(AdminController.rejectWithdrawal)
+  schemaValidator.params(wallet.refundRequestIdP),
+  Utility.asyncHandler(PaypalController.approveRefund)
+);
+// reject refund
+router.put(
+  '/refund/:refundRequestId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireFinance,
+  schemaValidator.params(wallet.refundRequestIdP),
+  Utility.asyncHandler(PaypalController.rejectRefund)
 );
 export default router;

@@ -10,9 +10,9 @@ const router = express.Router();
 const schemaValidator = require('express-joi-validation').createValidator({});
 
 router.get(
-  '/',
+  '/:query',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.query(search.getFilter),
+  schemaValidator.params(search.filterSearch),
   Utility.asyncHandler(SearchController.searchByFilter)
 );
 

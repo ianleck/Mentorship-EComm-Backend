@@ -12,7 +12,13 @@ export default {
   billingIdP: joi.object({
     billingId: joi.string().required(),
   }),
-
+  refundRequestQ: joi.object({
+    contractId: joi.string().required(),
+    contractType: joi.string().valid('COURSE', 'MENTORSHIP'),
+  }),
+  refundRequestIdP: joi.object({
+    refundRequestId: joi.string().required(),
+  }),
   billingFilterQ: joi.object({
     filter: joi.object({
       billingId: joi.string().optional(),

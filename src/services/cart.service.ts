@@ -1,8 +1,8 @@
 import { Op } from 'sequelize';
 import {
   ADMIN_VERIFIED_ENUM,
+  APPROVAL_STATUS,
   CONTRACT_PROGRESS_ENUM,
-  MENTORSHIP_CONTRACT_APPROVAL,
   VISIBILITY_ENUM,
 } from '../constants/enum';
 import {
@@ -67,7 +67,7 @@ export default class CartService {
       where: {
         mentorshipContractId,
         progress: CONTRACT_PROGRESS_ENUM.NOT_STARTED,
-        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
+        senseiApproval: APPROVAL_STATUS.APPROVED,
       },
     });
     if (!mentorshipContract)
