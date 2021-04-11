@@ -1,9 +1,9 @@
 import express from 'express';
+import passport from 'passport';
 import { FileController } from '../controllers/file.controller';
 import { downloadAuthentication } from '../middlewares/authenticationMiddleware';
 const path = require('path');
 
-const passport = require('passport');
 const router = express.Router();
 const fs = require('fs');
 

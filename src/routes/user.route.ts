@@ -1,4 +1,5 @@
 import express from 'express';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { UserController } from '../controllers/user.controller';
 import {
@@ -7,8 +8,6 @@ import {
   requireSameUserOrAdmin,
 } from '../middlewares/authenticationMiddleware';
 import user from './schema/user.schema';
-
-const passport = require('passport');
 
 const router = express.Router();
 

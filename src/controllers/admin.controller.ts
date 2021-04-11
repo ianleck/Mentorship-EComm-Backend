@@ -1,4 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
+import passport from 'passport';
 import logger from '../config/logger';
 import { STATUS_ENUM } from '../constants/enum';
 import {
@@ -16,8 +17,6 @@ import {
 import AdminService from '../services/admin.service';
 import UserService from '../services/user.service';
 import apiResponse from '../utilities/apiResponse';
-
-const passport = require('passport');
 
 export class AdminController {
   // ======================================== ADMIN AUTH ========================================
