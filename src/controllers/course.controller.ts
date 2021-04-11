@@ -1,4 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
+import courseSchema from 'src/routes/schema/course.schema';
 import logger from '../config/logger';
 import {
   AUTH_ERRORS,
@@ -650,13 +651,13 @@ export class CourseController {
 
     const { courseId } = req.params;
     try {
-      const createdListing = await CourseService.createContract(
+      const courseContract = await CourseService.createContract(
         user.accountId,
         courseId
       );
       return apiResponse.result(
         res,
-        { message: COURSE_RESPONSE.CONTRACT_CREATE, createdListing },
+        { message: COURSE_RESPONSE.CONTRACT_CREATE, courseContract },
         httpStatusCodes.CREATED
       );
     } catch (e) {
@@ -706,6 +707,28 @@ export class CourseController {
           message: RESPONSE_ERROR.RES_ERROR,
         });
       }
+    }
+  }
+
+  public static async markLessonCompleted(req, res) {
+    const { courseContractId, lessonId } = req.params;
+    try {
+      const courseContract = await CourseService.markLessonCompleted(
+        courseContractId,
+        lessonId
+      );
+      return apiResponse.result(
+        res,
+        { message: COURSE_RESPONSE.LESSON_COMPLETED, courseContract },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.markLessonCompleted]:' + e.message);
+      Utility.apiErrorResponse(res, e, [
+        COURSE_ERRORS.COURSE_MISSING,
+        ERRORS.SENSEI_DOES_NOT_EXIST,
+        AUTH_ERRORS.USER_BANNED,
+      ]);
     }
   }
 }

@@ -241,7 +241,23 @@ export default class CourseService {
   public static async getOneCourse(courseId: string, user?) {
     const courseWithoutContracts = await this.getCourseWithAssociations({
       courseId,
-      extraModels: [Lesson, Review],
+      extraModels: [
+        Lesson,
+        {
+          model: Review,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+                'occupation',
+              ],
+            },
+          ],
+        },
+      ],
     });
     if (!courseWithoutContracts) throw new Error(COURSE_ERRORS.COURSE_MISSING);
     /** if user is not logged in
@@ -259,7 +275,24 @@ export default class CourseService {
     // else return course with contract (for publishing sensei and admins)
     return this.getCourseWithAssociations({
       courseId,
-      extraModels: [Lesson, Review, CourseContract],
+      extraModels: [
+        Lesson,
+        {
+          model: Review,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+                'occupation',
+              ],
+            },
+          ],
+        },
+        CourseContract,
+      ],
     });
   }
 
@@ -318,6 +351,29 @@ export default class CourseService {
         lessonId,
       },
     });
+
+    // update all course contract lesson progress
+    const existingContracts = await CourseContract.findAll({
+      where: { courseId: lesson.courseId },
+    });
+
+    // find courseContracts to update
+    const contractsToUpdate = existingContracts.filter(
+      (c) => c.lessonProgress.indexOf(lessonId) != -1
+    );
+
+    await Promise.all(
+      contractsToUpdate.map((contract) => {
+        const lessonProgress = contract.lessonProgress;
+
+        // remove lessonId from lessonProgress if it exist in lessonProgress
+        const index = lessonProgress.indexOf(lessonId);
+        lessonProgress.splice(index, 1);
+        return contract.update({
+          lessonProgress,
+        });
+      })
+    );
   }
 
   // ======================================== NOTES ========================================
@@ -623,6 +679,26 @@ export default class CourseService {
     });
 
     return purchasedCourses;
+  }
+
+  public static async markLessonCompleted(
+    courseContractId: string,
+    lessonId: string
+  ) {
+    const courseContract = await CourseContract.findByPk(courseContractId);
+    if (!courseContract) throw new Error(COURSE_ERRORS.CONTRACT_MISSING);
+
+    const lesson = await Lesson.findByPk(lessonId);
+    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
+
+    const lessonProgress = courseContract.lessonProgress;
+    if (lessonProgress.indexOf(lessonId) == -1) {
+      // if lesson has not been completed
+      lessonProgress.push(lessonId);
+    }
+    return courseContract.update({
+      lessonProgress,
+    });
   }
 
   // ======================================== COURSE REQUESTS ========================================

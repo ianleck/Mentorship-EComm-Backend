@@ -208,4 +208,12 @@ router.get(
   Utility.asyncHandler(CourseController.getAllPurchasedCourses)
 );
 
+router.put(
+  '/contract/lesson/:courseContractId/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.params(course.markLessonAsCompletedP),
+  Utility.asyncHandler(CourseController.markLessonCompleted)
+);
+
 export default router;

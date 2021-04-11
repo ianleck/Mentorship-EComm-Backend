@@ -60,6 +60,8 @@ export const COURSE_RESPONSE = {
   ANNOUNCEMENT_CREATE: 'Announcement has been successfully written',
   ANNOUNCEMENT_UPDATE: 'Announcement has been successfully updated',
   ANNOUNCEMENT_DELETE: 'Announcement has been successfully deleted',
+
+  LESSON_COMPLETED: 'Lesson has been marked as completed',
 };
 
 // ==================== MENTORSHIP RESPONSE MESSAGES ====================
