@@ -22,6 +22,9 @@ module.exports = {
         paypalPaymentId: {
           type: Sequelize.STRING,
         },
+        refundRequestId: {
+          type: Sequelize.STRING,
+        },
         productId: {
           type: Sequelize.UUID,
         },

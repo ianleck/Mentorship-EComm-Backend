@@ -1,9 +1,8 @@
 import express from 'express';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { SearchController } from '../controllers/search.controller';
 import search from './schema/search.schema';
-
-const passport = require('passport');
 
 const router = express.Router();
 

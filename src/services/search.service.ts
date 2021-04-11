@@ -39,6 +39,12 @@ export default class SearchService {
           [Op.like]: `%${query}%`,
         },
       },
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl'],
+        },
+      ],
     });
     if (mentorshipResults.length === 0) {
       return [];
@@ -53,6 +59,12 @@ export default class SearchService {
         },
         adminVerified: ADMIN_VERIFIED_ENUM.ACCEPTED,
       },
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'profileImgUrl'],
+        },
+      ],
     });
     if (courseResults.length === 0) {
       return [];

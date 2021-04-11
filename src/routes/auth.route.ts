@@ -1,9 +1,8 @@
 import express from 'express';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { AuthController } from '../controllers/auth.controller';
 import auth from './schema/auth.schema';
-
-const passport = require('passport');
 
 const router = express.Router();
 

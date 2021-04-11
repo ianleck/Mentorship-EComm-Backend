@@ -115,6 +115,36 @@ export class WalletController {
     }
   }
 
+  public static async viewListOfRefunds(req, res) {
+    try {
+      const { user } = req;
+      const refunds = await WalletService.viewListOfRefunds(user.accountId);
+      return apiResponse.result(
+        res,
+        { message: 'success', refunds },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[WalletController.viewListOfRefunds]:' + e.message);
+      return Utility.apiErrorResponse(res, e, []);
+    }
+  }
+
+  public static async viewRefundDetail(req, res) {
+    try {
+      const { refundRequestId } = req.params;
+      const refund = await WalletService.viewRefundDetail(refundRequestId);
+      return apiResponse.result(
+        res,
+        { message: 'success', refund },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[WalletController.viewRefundDetail]:' + e.message);
+      return Utility.apiErrorResponse(res, e, []);
+    }
+  }
+
   // ============================== Withdrawal ==============================
   public static async withdrawBalance(req, res) {
     try {

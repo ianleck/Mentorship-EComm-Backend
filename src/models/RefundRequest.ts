@@ -12,7 +12,7 @@ import {
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
-import { APPROVAL_STATUS } from '../constants/enum';
+import { APPROVAL_STATUS, BILLING_TYPE } from '../constants/enum';
 import { Admin } from './Admin';
 import { Billing } from './Billing';
 import { User } from './User';
@@ -36,12 +36,25 @@ export class RefundRequest extends Model<RefundRequest> {
   @Column(DataType.UUID)
   contractId: string;
 
+  @Column(DataType.UUID)
+  billingId: string;
+
   @AllowNull(false)
   @Column(DataType.UUID)
   studentId: string; //request owner
 
   @Column(DataType.UUID)
   adminId: string; // Approve/Reject
+
+  @Column({
+    allowNull: false,
+    type: DataType.ENUM,
+    values: Object.values(BILLING_TYPE),
+  })
+  contractType: BILLING_TYPE;
+
+  @Column(DataType.INTEGER)
+  mentorPassCount: number;
 
   @CreatedAt
   @Column
@@ -61,6 +74,6 @@ export class RefundRequest extends Model<RefundRequest> {
   @HasOne(() => Billing, 'billingId')
   Refund: Billing;
 
-  @HasMany(() => Billing, 'billingId')
+  @HasMany(() => Billing, 'refundRequestId')
   OriginalBillings: Billing;
 }

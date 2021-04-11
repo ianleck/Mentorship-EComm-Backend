@@ -14,6 +14,7 @@ import { Course } from './Course';
 import { CourseContract } from './CourseContract';
 import { MentorshipContract } from './MentorshipContract';
 import { MentorshipListing } from './MentorshipListing';
+import { RefundRequest } from './RefundRequest';
 
 @Table
 export class Billing extends BaseEntity {
@@ -27,6 +28,9 @@ export class Billing extends BaseEntity {
 
   @Column(DataType.STRING)
   paypalPaymentId: string;
+
+  @Column(DataType.STRING)
+  refundRequestId: string;
 
   // Id of Course/Mentorshiplisting
   @Column(DataType.UUID)
@@ -103,4 +107,7 @@ export class Billing extends BaseEntity {
     targetKey: 'mentorshipContractId',
   })
   MentorshipContract: MentorshipContract;
+
+  @BelongsTo(() => RefundRequest, 'refundRequestId')
+  RefundRequest: RefundRequest;
 }
