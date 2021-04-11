@@ -625,6 +625,26 @@ export default class CourseService {
     return purchasedCourses;
   }
 
+  public static async markLessonCompleted(
+    courseContractId: string,
+    lessonId: string
+  ) {
+    const courseContract = await CourseContract.findByPk(courseContractId);
+    if (!courseContract) throw new Error(COURSE_ERRORS.CONTRACT_MISSING);
+
+    const lesson = await Lesson.findByPk(lessonId);
+    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
+
+    const lessonProgress = courseContract.lessonProgress;
+    if (lessonProgress.indexOf(lessonId) == -1) {
+      // if lesson has not been completed
+      lessonProgress.push(lessonId);
+    }
+    return courseContract.update({
+      lessonProgress,
+    });
+  }
+
   // ======================================== COURSE REQUESTS ========================================
   public static async getAllRequests() {
     const courseRequests = Course.findAll({

@@ -61,6 +61,10 @@ export default {
     adminVerified: joi.string().valid(...Object.values(ADMIN_VERIFIED_ENUM)),
     visibility: joi.string().valid(...Object.values(VISIBILITY_ENUM)),
   }),
+  markLessonAsCompletedP: joi.object({
+    courseContractId: joi.string().required(),
+    lessonId: joi.string().required(),
+  }),
   updateCourseB: joi.object({
     updatedCourse: joi
       .object({
