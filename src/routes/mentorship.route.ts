@@ -4,6 +4,7 @@ import Utility from '../constants/utility';
 import { MentorshipController } from '../controllers/mentorship.controller';
 import {
   requireAdmin,
+  requireSameUser,
   requireSameUserOrAdmin,
   requireSensei,
   requireStudent,
@@ -183,6 +184,15 @@ router.get(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.query(mentorship.getFilter),
   Utility.asyncHandler(MentorshipController.getTestimonialsByFilter)
+);
+
+//View List of Testimonials For ONE sensei
+router.get(
+  '/testimonial/list/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUser,
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(MentorshipController.getAllTestimonials)
 );
 
 // ==================================== TASKS ====================================
