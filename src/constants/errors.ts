@@ -31,6 +31,23 @@ export const CART_ERRORS = {
   ITEM_MISSING: 'There is no such item in shopping cart',
 };
 
+export const CONSULTATION_ERRORS = {
+  CONSULTATION_CLASH:
+    'There is an existing consultation that clashes with the new consultation. Please change the time and try again.',
+  CONSULTATION_MISSING: 'Consultation does not exist',
+};
+
+export const COMMENT_ERRORS = {
+  COMMENT_MISSING: 'Comment does not exist',
+};
+
+export const COMPLAINT_ERRORS = {
+  COMPLAINT_REASON_EXISTS: 'Similar complaint reason already exists',
+
+  COMPLAINT_MISSING: 'Complaint does not exist',
+  COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
+};
+
 export const COURSE_ERRORS = {
   COURSE_MISSING: 'Course does not exist',
   COURSE_DRAFT_MISSING: 'Course draft does not exist',
@@ -123,15 +140,4 @@ export const SOCIAL_ERRORS = {
   FOLLOWING_MISSING: 'User is not following',
 
   PRIVATE_USER: 'User account is private',
-};
-
-export const COMMENT_ERRORS = {
-  COMMENT_MISSING: 'Comment does not exist',
-};
-
-export const COMPLAINT_ERRORS = {
-  COMPLAINT_REASON_EXISTS: 'Similar complaint reason already exists',
-
-  COMPLAINT_MISSING: 'Complaint does not exist',
-  COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
 };
