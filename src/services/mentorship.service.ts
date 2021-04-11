@@ -700,6 +700,25 @@ export default class MentorshipService {
     return await Testimonial.findAll({ where: filter });
   }
 
+  public static async getAllTestimonials(accountId: string) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const mentorshipListings = await MentorshipListing.findAll({
+      where: {
+        accountId,
+      },
+    });
+
+    const mentorshipListingIds = mentorshipListings.map(
+      (ml) => ml.mentorshipListingId
+    );
+
+    return await Testimonial.findAll({
+      where: { mentorshipListingId: { [Op.in]: mentorshipListingIds } },
+    });
+  }
+
   // =========================================== TASKS ====================================================
 
   //====================== TASK BUCKET =======================

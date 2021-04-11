@@ -574,7 +574,29 @@ export class MentorshipController {
       });
     }
   }
+  public static async getAllTestimonials(req, res) {
+    const { accountId } = req.params;
 
+    try {
+      const testimonials = await MentorshipService.getAllTestimonials(
+        accountId
+      );
+
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          testimonials,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.getAllTestimonials]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
   // ====================================== TASKS ======================================
 
   //================= TASK BUCKET =====================
