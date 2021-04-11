@@ -1,3 +1,4 @@
+import { SSL_OP_NO_TICKET } from 'constants';
 import cors from 'cors';
 import express from 'express';
 import fileUpload from 'express-fileupload';
@@ -10,6 +11,8 @@ import { BASE, CHILD_FOLDERS } from './constants/constants';
 import * as errorHandler from './middlewares/apiErrorHandler';
 import joiErrorHandler from './middlewares/joiErrorHandler';
 import indexRoute from './routes/index.route';
+import socket from './socket';
+const socketIo = require('socket.io');
 
 const PORT = process.env.PORT || 5000;
 require('./config/auth/passport')(passport);
@@ -69,9 +72,11 @@ sequelize
     app.use(errorHandler.notFoundErrorHandler);
     app.use(errorHandler.internalServerError);
 
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       logger.info(`Server running at ${PORT}`);
     });
+
+    socket.init(server);
   })
   .catch((error: Error) => {
     logger.info(`Database connection failed with error ${error}`);
