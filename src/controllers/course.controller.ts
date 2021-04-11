@@ -681,7 +681,7 @@ export class CourseController {
     const { accountId } = req.params;
 
     try {
-      const requests = await CourseService.getAllPurchasedCourses(
+      const courses = await CourseService.getAllPurchasedCourses(
         user.accountId,
         accountId
       );
@@ -689,7 +689,7 @@ export class CourseController {
         res,
         {
           message: 'success',
-          requests,
+          courses,
         },
         httpStatusCodes.OK
       );
