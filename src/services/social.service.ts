@@ -214,7 +214,7 @@ export default class SocialService {
   }
 
   public static async getPostById(postId: string, userId: string) {
-    var isBlocking = false;
+    let isBlocking = false;
 
     const post = await Post.findOne({
       where: {

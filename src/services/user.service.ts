@@ -28,7 +28,7 @@ export default class UserService {
   }
 
   public static async findUserById(accountId: string, userId: string) {
-    var isBlocking = false;
+    let isBlocking = false;
     const userProfile = await User.findByPk(accountId, {
       include: [Experience],
     });
