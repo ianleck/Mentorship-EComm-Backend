@@ -683,7 +683,7 @@ export default class MentorshipService {
     );
 
     return await Testimonial.findAll({
-      where: { mentorshipListingId: { [Op.in]: [...mentorshipListingIds] } },
+      where: { mentorshipListingId: { [Op.in]: mentorshipListingIds } },
     });
   }
 
