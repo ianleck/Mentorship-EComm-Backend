@@ -1,7 +1,7 @@
 import httpStatusCodes from 'http-status-codes';
+import passport from 'passport';
 import logger from '../config/logger';
 import { ADMIN_ROLE_ENUM, USER_TYPE_ENUM } from '../constants/enum';
-const passport = require('passport');
 
 export const downloadAuthentication = (req, res, next) => {
   const { user } = req;

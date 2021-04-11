@@ -1,4 +1,5 @@
 import express from 'express';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { AdminController } from '../controllers/admin.controller';
 import { PaypalController } from '../controllers/paypal.controller';
@@ -16,7 +17,6 @@ import user from './schema/user.schema';
 import wallet from './schema/wallet.schema';
 
 const router = express.Router();
-const passport = require('passport');
 const schemaValidator = require('express-joi-validation').createValidator({});
 
 // ======================================== ADMIN AUTH ========================================

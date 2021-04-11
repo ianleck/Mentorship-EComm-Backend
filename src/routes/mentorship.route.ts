@@ -1,4 +1,5 @@
 import express from 'express';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { MentorshipController } from '../controllers/mentorship.controller';
 import {
@@ -9,7 +10,6 @@ import {
 } from '../middlewares/authenticationMiddleware';
 import mentorship from './schema/mentorship.schema';
 import user from './schema/user.schema';
-const passport = require('passport');
 
 const router = express.Router();
 
