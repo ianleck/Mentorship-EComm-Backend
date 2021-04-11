@@ -1,11 +1,10 @@
 import httpStatusCodes from 'http-status-codes';
+import passport from 'passport';
 import logger from '../config/logger';
 import { AUTH_ERRORS, ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { AUTH_RESPONSE } from '../constants/successMessages';
 import AuthService from '../services/auth.service';
 import apiResponse from '../utilities/apiResponse';
-
-const passport = require('passport');
 
 export class AuthController {
   // ================================ USER AUTH ================================

@@ -1,4 +1,5 @@
 import express from 'express';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { CourseController } from '../controllers/course.controller';
 import {
@@ -11,7 +12,6 @@ import {
 import course from './schema/course.schema';
 import user from './schema/user.schema';
 
-const passport = require('passport');
 const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});

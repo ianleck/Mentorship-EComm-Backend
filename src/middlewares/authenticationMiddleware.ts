@@ -1,7 +1,7 @@
 import httpStatusCodes from 'http-status-codes';
+import passport from 'passport';
 import logger from '../config/logger';
 import { ADMIN_ROLE_ENUM, USER_TYPE_ENUM } from '../constants/enum';
-const passport = require('passport');
 
 export const downloadAuthentication = (req, res, next) => {
   const { user } = req;
@@ -136,6 +136,20 @@ export const requireFinanceIfAdmin = (req, res, next) => {
   if (
     req.user.userType === USER_TYPE_ENUM.ADMIN &&
     req.user.role === ADMIN_ROLE_ENUM.ADMIN
+  ) {
+    res.status(httpStatusCodes.UNAUTHORIZED).json({
+      message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+    });
+  } else {
+    next();
+  }
+};
+
+export const requireStudentOrFinance = (req, res, next) => {
+  if (
+    req.user.userType === USER_TYPE_ENUM.SENSEI ||
+    (req.user.userType === USER_TYPE_ENUM.ADMIN &&
+      req.user.role === ADMIN_ROLE_ENUM.ADMIN)
   ) {
     res.status(httpStatusCodes.UNAUTHORIZED).json({
       message: httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),

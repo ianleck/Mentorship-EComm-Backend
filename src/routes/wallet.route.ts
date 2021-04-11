@@ -5,12 +5,45 @@ import { WalletController } from '../controllers/wallet.controller';
 import {
   requireFinanceIfAdmin,
   requireSensei,
+  requireStudent,
+  requireStudentOrFinance,
 } from '../middlewares/authenticationMiddleware';
 import wallet from './schema/wallet.schema';
 
 const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
+
+router.post(
+  '/refund',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.query(wallet.refundRequestQ),
+  Utility.asyncHandler(WalletController.requestRefund)
+);
+
+router.delete(
+  '/refund/:refundRequestId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.params(wallet.refundRequestIdP),
+  Utility.asyncHandler(WalletController.cancelRefundRequest)
+);
+
+router.get(
+  '/refund',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudentOrFinance,
+  Utility.asyncHandler(WalletController.viewListOfRefunds)
+);
+
+router.get(
+  '/refund/:refundRequestId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudentOrFinance,
+  schemaValidator.params(wallet.refundRequestIdP),
+  Utility.asyncHandler(WalletController.viewRefundDetail)
+);
 
 // View wallet, includes viewing own transaction history
 router.get(
