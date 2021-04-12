@@ -170,16 +170,6 @@ export default class ChatService {
         },
       ],
     });
-
-    // const sortByDate = (chats) => {
-    //   const sorter = (a, b) => {
-    //     return (
-    //       new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-    //     );
-    //   };
-    //   chats.sort(sorter);
-    // };
-    // sortByDate(chats);
     return chats;
   }
 
