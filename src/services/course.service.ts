@@ -362,7 +362,7 @@ export default class CourseService {
     );
 
     await Promise.all(
-      contractsToUpdate.map((contract) => {
+      contractsToUpdate.map(async (contract) => {
         const lessonProgress = contract.lessonProgress;
 
         // remove lessonId from lessonProgress if it exist in lessonProgress
