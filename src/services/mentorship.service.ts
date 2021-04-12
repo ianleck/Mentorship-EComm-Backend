@@ -227,7 +227,22 @@ export default class MentorshipService {
   ): Promise<MentorshipListing> {
     const listingWithoutContracts = await this.getListingWithAssociations({
       mentorshipListingId,
-      extraModels: [Review],
+      extraModels: [
+        {
+          model: Review,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+                'occupation',
+              ],
+            },
+          ],
+        },
+      ],
     });
 
     if (!listingWithoutContracts)
@@ -246,7 +261,24 @@ export default class MentorshipService {
 
     // else return listing with contract
     return MentorshipListing.findByPk(mentorshipListingId, {
-      include: [Review, MentorshipContract],
+      include: [
+        {
+          model: Review,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+                'occupation',
+              ],
+            },
+          ],
+        },
+        ,
+        MentorshipContract,
+      ],
     });
   }
 
@@ -683,7 +715,7 @@ export default class MentorshipService {
     );
 
     return await Testimonial.findAll({
-      where: { mentorshipListingId: { [Op.in]: [...mentorshipListingIds] } },
+      where: { mentorshipListingId: { [Op.in]: mentorshipListingIds } },
     });
   }
 
