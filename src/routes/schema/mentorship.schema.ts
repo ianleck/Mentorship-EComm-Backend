@@ -112,4 +112,23 @@ export default {
       })
       .required(),
   }),
+  noteIdP: joi.object({
+    noteId: joi.string().required(),
+  }),
+  createNoteB: joi.object({
+    newNote: joi
+      .object({
+        title: joi.string().required(),
+        body: joi.string().required(),
+      })
+      .required(),
+  }),
+  updateNoteB: joi.object({
+    updateNote: joi
+      .object({
+        title: joi.string().optional(),
+        body: joi.string().optional(),
+      })
+      .required(),
+  }),
 };
