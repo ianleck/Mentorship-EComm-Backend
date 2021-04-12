@@ -13,6 +13,7 @@ import { Category } from '../models/Category';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
+import { Note } from '../models/Note';
 import { Review } from '../models/Review';
 import { Task } from '../models/Task';
 import { TaskBucket } from '../models/TaskBucket';
@@ -932,6 +933,96 @@ export default class MentorshipService {
       (user.userType === USER_TYPE_ENUM.STUDENT &&
         mentorshipContract.accountId !== accountId)
     )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+  }
+
+  // ======================================== NOTES ========================================
+  public static async addNoteToMentorship(
+    mentorshipContractId: string,
+    accountId: string,
+    note: {
+      title: string;
+      body: string;
+    }
+  ): Promise<Note> {
+    await MentorshipService.noteAuthorizationCheck(
+      mentorshipContractId,
+      accountId
+    );
+
+    const { title, body } = note;
+
+    const newNote = new Note({
+      mentorshipContractId,
+      title,
+      body,
+    });
+
+    await newNote.save();
+
+    return newNote;
+  }
+
+  public static async editNoteInMentorship(
+    noteId: string,
+    accountId: string,
+    updateNote
+  ): Promise<Note> {
+    const note = await Note.findByPk(noteId);
+    if (!note) throw new Error(MENTORSHIP_ERRORS.NOTE_MISSING);
+
+    await MentorshipService.noteAuthorizationCheck(
+      note.mentorshipContractId,
+      accountId
+    );
+
+    return await note.update(updateNote);
+  }
+
+  public static async getAllNotes(mentorshipContractId, accountId) {
+    const mentorshipContract = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+    if (!mentorshipListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+
+    const user = await User.findByPk(accountId);
+    if (
+      user.accountId !== mentorshipListing.accountId &&
+      user.accountId !== mentorshipContract.accountId
+    )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    const notes = Note.findAll({
+      where: {
+        mentorshipContractId,
+      },
+    });
+    return notes;
+  }
+
+  public static async noteAuthorizationCheck(mentorshipContractId, accountId) {
+    const mentorshipContract = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+    if (!mentorshipListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+
+    const user = await User.findByPk(accountId);
+    if (user.accountId !== mentorshipListing.accountId)
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
