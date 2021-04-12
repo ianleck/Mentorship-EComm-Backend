@@ -137,6 +137,7 @@ export default class ChatService {
           { [Op.or]: [{ accountId1: accountId }, { accountId2: accountId }] },
         ],
       },
+      order: [['updatedAt', 'DESC']],
       attributes: [
         'chatId',
         'accountId1',
@@ -162,46 +163,24 @@ export default class ChatService {
           include: [
             {
               model: User,
-              /*as: 'Sender',
-              on: {
-                '$Sender.accountId$': {
-                  [Op.col]: 'Message.senderId',
-                },
-              },*/
+
               attributes: ['accountId', 'username', 'firstName', 'lastName'],
             },
-            /*{
-              model: User,
-              as: 'Receiver',
-              on: {
-                '$Receiver.accountId$': {
-                  [Op.col]: 'Message.receiverId',
-                },
-              },
-              attributes: ['accountId', 'username', 'firstName', 'lastName'],
-            },*/
           ],
         },
       ],
     });
 
-    // const sortedList = chats.sort((a, b) => b.updatedAt - a.updatedAt);
-
-    const sortByDate = (chats) => {
-      const sorter = (a, b) => {
-        return (
-          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-        );
-      };
-      chats.sort(sorter);
-    };
-    sortByDate(chats);
+    // const sortByDate = (chats) => {
+    //   const sorter = (a, b) => {
+    //     return (
+    //       new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    //     );
+    //   };
+    //   chats.sort(sorter);
+    // };
+    // sortByDate(chats);
     return chats;
-
-    //const sortedChats = chats.sort({'updatedAt':1});
-    //const sortedChats = chats.slice().sort((a,b) => b.updatedAt - a.updatedAt);
-
-    //return chats;
   }
 
   public static async createChatGroup(
@@ -386,116 +365,3 @@ export default class ChatService {
     }
   }
 }
-
-/*
-  public static async getAllMessages(accountId, userId) {
-    let identifier;
-    let n = userId.localeCompare(accountId); //returns 1 if userId is after accountId, -1 if userId is before
-    if (n === 1) {
-      identifier = accountId.concat(userId);
-    } else {
-      identifier = userId.concat(accountId);
-    }
-    const messages = await Message.findAll({
-      where: {
-        uniqueIdentifier: identifier,
-      },
-      include: [
-        {
-          model: User,
-          as: 'Sender',
-          on: {
-            '$Sender.accountId$': {
-              [Op.col]: 'Message.senderId',
-            },
-          },
-          attributes: ['accountId', 'username', 'firstName', 'lastName'],
-        },
-      ],
-    });
-    return messages;
-
-
-    public static async getChatList2(accountId) {
-    //Get List of Chat Groups user is in
-
-    const chatGroupsUserIsIn = await UserToChat.findAll({
-      where: {
-        accountId,
-      },
-    });
-
-    const chatGroupIds = chatGroupsUserIsIn.map((cg) => cg.chatId);
-    const chatGroups = await Chat.findAll({
-      where: { chatGroupId: { [Op.in]: chatGroupIds } },
-      attributes: ['chatGroupId', 'accountId', 'name'],
-      include: [
-        {
-          model: GroupMessage,
-          attributes: ['messageId', 'senderId', 'chatGroupId', 'messageBody'],
-          include: [
-            {
-              model: User,
-              attributes: [
-                'accountId',
-                'firstName',
-                'lastName',
-                'username',
-                'profileImgUrl',
-              ],
-            },
-          ],
-        },
-      ],
-    });
-    /* const userMessages = {}; 
-    const messages = await Message.findAll({
-      where: {
-        [Op.or]: [{ senderId: accountId }, { receiverId: accountId }],
-      },
-      include: [
-        {
-          model: User,
-          as: 'Sender',
-          on: {
-            '$Sender.accountId$': {
-              [Op.col]: 'Message.senderId',
-            },
-          },
-          attributes: ['accountId', 'username', 'firstName', 'lastName'],
-        },
-        {
-          model: User,
-          as: 'Receiver',
-          on: {
-            '$Receiver.accountId$': {
-              [Op.col]: 'Message.receiverId',
-            },
-          },
-          attributes: ['accountId', 'username', 'firstName', 'lastName'],
-        },
-      ],
-    });
-    const userIds = messages.map(msg => {
-      const oppUser = msg.senderId !== accountId? msg.senderId : msg.receiverId;
-      if(!userMessages[oppUser]) {
-        userMessages[oppUser] = []
-      }
-      userMsgs[oppUser].push(msg)
-      return oppUser; 
-    })
-    //const chatList = [].concat(groupMessages, messages);
-    /*const sortedList = chatList.sort((a, b) => b.updatedAt - a.updatedAt);*/
-
-/* const sortByDate = (chatList) => {
-      const sorter = (a, b) => {
-        return (
-          new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()
-        );
-      };
-      chatList.sort(sorter);
-    };
-    sortByDate(chatList);
-    return chatGroups;
-  }
-  }*/

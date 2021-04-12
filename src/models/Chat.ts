@@ -8,6 +8,7 @@ import {
   HasMany,
   PrimaryKey,
   Table,
+  Unique,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Message } from './Message';
@@ -29,6 +30,7 @@ export class Chat extends BaseEntity {
   @Column(DataType.UUID)
   accountId2: string;
 
+  @Unique
   @Column(DataType.STRING)
   nameOfGroup: string; //For Chat Group
 
