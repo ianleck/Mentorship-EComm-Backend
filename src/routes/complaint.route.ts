@@ -1,11 +1,11 @@
 import express from 'express';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { ComplaintController } from '../controllers/complaint.controller';
 import { requireAdmin } from '../middlewares/authenticationMiddleware';
 import comment from './schema/comment.schema';
 import complaint from './schema/complaint.schema';
 
-const passport = require('passport');
 const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});

@@ -8,7 +8,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
-import { MentorshipListing } from './MentorshipListing';
+import { MentorshipContract } from './MentorshipContract';
 import { User } from './User';
 
 @Table
@@ -20,7 +20,7 @@ export class Testimonial extends BaseEntity {
 
   @AllowNull(false)
   @Column(DataType.UUID)
-  mentorshipListingId: string;
+  mentorshipContractId: string;
 
   @AllowNull(false)
   @Column(DataType.UUID)
@@ -34,8 +34,8 @@ export class Testimonial extends BaseEntity {
   @BelongsTo(() => User, 'accountId')
   Student: User;
 
-  @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
-  MentorshipListing: MentorshipListing;
+  @BelongsTo(() => MentorshipContract, 'mentorshipContractId')
+  MentorshipContract: MentorshipContract;
 }
 
 //Block - Cannot view profile at all

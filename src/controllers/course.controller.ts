@@ -1,4 +1,5 @@
 import httpStatusCodes from 'http-status-codes';
+import courseSchema from 'src/routes/schema/course.schema';
 import logger from '../config/logger';
 import {
   AUTH_ERRORS,
@@ -264,112 +265,6 @@ export class CourseController {
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
-    }
-  }
-  // ======================================== NOTES ================================================
-  public static async addNoteToLesson(req, res) {
-    const { user } = req;
-    const { lessonId } = req.params;
-    const { newNote } = req.body;
-
-    try {
-      const addedNote = await CourseService.addNoteToLesson(
-        lessonId,
-        user.accountId,
-        newNote
-      );
-      return apiResponse.result(
-        res,
-        {
-          message: COURSE_RESPONSE.NOTE_CREATE,
-          note: addedNote,
-        },
-        httpStatusCodes.CREATED
-      );
-    } catch (e) {
-      logger.error('[courseController.addNoteToLesson]:' + e.message);
-      if (
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
-        e.message === COURSE_ERRORS.COURSE_MISSING ||
-        e.message === COURSE_ERRORS.LESSON_MISSING
-      ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      }
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
-    }
-  }
-
-  public static async editNoteInLesson(req, res) {
-    const { user } = req;
-    const { noteId } = req.params;
-    const { updateNote } = req.body;
-    try {
-      const updatedNote = await CourseService.editNoteInLesson(
-        noteId,
-        user.accountId,
-        updateNote
-      );
-      return apiResponse.result(
-        res,
-        {
-          message: COURSE_RESPONSE.NOTE_UPDATE,
-          note: updatedNote,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[courseController.editNoteInLesson]:' + e.message);
-      if (
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
-        e.message === COURSE_ERRORS.NOTE_MISSING ||
-        e.message === COURSE_ERRORS.COURSE_MISSING ||
-        e.message === COURSE_ERRORS.LESSON_MISSING
-      ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      }
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
-    }
-  }
-
-  public static async getAllNotes(req, res) {
-    const { lessonId } = req.params;
-    const { user } = req;
-    try {
-      const notes = await CourseService.getAllNotes(lessonId, user.accountId);
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          notes,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[courseController.getAllNotes]:' + e.message);
-      if (
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
-        e.message === COURSE_ERRORS.COURSE_MISSING ||
-        e.message === COURSE_ERRORS.LESSON_MISSING
-      ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
     }
   }
 
@@ -650,13 +545,13 @@ export class CourseController {
 
     const { courseId } = req.params;
     try {
-      const createdListing = await CourseService.createContract(
+      const courseContract = await CourseService.createContract(
         user.accountId,
         courseId
       );
       return apiResponse.result(
         res,
-        { message: COURSE_RESPONSE.CONTRACT_CREATE, createdListing },
+        { message: COURSE_RESPONSE.CONTRACT_CREATE, courseContract },
         httpStatusCodes.CREATED
       );
     } catch (e) {
@@ -680,7 +575,7 @@ export class CourseController {
     const { accountId } = req.params;
 
     try {
-      const requests = await CourseService.getAllPurchasedCourses(
+      const courses = await CourseService.getAllPurchasedCourses(
         user.accountId,
         accountId
       );
@@ -688,7 +583,7 @@ export class CourseController {
         res,
         {
           message: 'success',
-          requests,
+          courses,
         },
         httpStatusCodes.OK
       );
@@ -706,6 +601,28 @@ export class CourseController {
           message: RESPONSE_ERROR.RES_ERROR,
         });
       }
+    }
+  }
+
+  public static async markLessonCompleted(req, res) {
+    const { courseContractId, lessonId } = req.params;
+    try {
+      const courseContract = await CourseService.markLessonCompleted(
+        courseContractId,
+        lessonId
+      );
+      return apiResponse.result(
+        res,
+        { message: COURSE_RESPONSE.LESSON_COMPLETED, courseContract },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.markLessonCompleted]:' + e.message);
+      Utility.apiErrorResponse(res, e, [
+        COURSE_ERRORS.COURSE_MISSING,
+        ERRORS.SENSEI_DOES_NOT_EXIST,
+        AUTH_ERRORS.USER_BANNED,
+      ]);
     }
   }
 }

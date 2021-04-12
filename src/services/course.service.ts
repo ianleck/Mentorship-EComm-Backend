@@ -15,7 +15,6 @@ import { Course } from '../models/Course';
 import { CourseContract } from '../models/CourseContract';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { Lesson } from '../models/Lesson';
-import { Note } from '../models/Note';
 import { Review } from '../models/Review';
 import { User } from '../models/User';
 import EmailService from './email.service';
@@ -241,7 +240,23 @@ export default class CourseService {
   public static async getOneCourse(courseId: string, user?) {
     const courseWithoutContracts = await this.getCourseWithAssociations({
       courseId,
-      extraModels: [Lesson, Review],
+      extraModels: [
+        Lesson,
+        {
+          model: Review,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+                'occupation',
+              ],
+            },
+          ],
+        },
+      ],
     });
     if (!courseWithoutContracts) throw new Error(COURSE_ERRORS.COURSE_MISSING);
     /** if user is not logged in
@@ -259,7 +274,24 @@ export default class CourseService {
     // else return course with contract (for publishing sensei and admins)
     return this.getCourseWithAssociations({
       courseId,
-      extraModels: [Lesson, Review, CourseContract],
+      extraModels: [
+        Lesson,
+        {
+          model: Review,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+                'occupation',
+              ],
+            },
+          ],
+        },
+        CourseContract,
+      ],
     });
   }
 
@@ -318,66 +350,29 @@ export default class CourseService {
         lessonId,
       },
     });
-  }
 
-  // ======================================== NOTES ========================================
-  public static async addNoteToLesson(
-    lessonId: string,
-    accountId: string,
-    note: {
-      title: string;
-      body: string;
-    }
-  ): Promise<Note> {
-    await CourseService.noteAuthorizationCheck(lessonId, accountId);
-
-    const { title, body } = note;
-
-    const newNote = new Note({
-      lessonId,
-      title,
-      body,
+    // update all course contract lesson progress
+    const existingContracts = await CourseContract.findAll({
+      where: { courseId: lesson.courseId },
     });
 
-    await newNote.save();
+    // find courseContracts to update
+    const contractsToUpdate = existingContracts.filter(
+      (c) => c.lessonProgress.indexOf(lessonId) != -1
+    );
 
-    return newNote;
-  }
+    await Promise.all(
+      contractsToUpdate.map((contract) => {
+        const lessonProgress = contract.lessonProgress;
 
-  public static async editNoteInLesson(
-    noteId: string,
-    accountId: string,
-    updateNote
-  ): Promise<Note> {
-    const note = await Note.findByPk(noteId);
-    if (!note) throw new Error(COURSE_ERRORS.NOTE_MISSING);
-
-    await CourseService.noteAuthorizationCheck(note.lessonId, accountId);
-
-    return await note.update(updateNote);
-  }
-
-  public static async getAllNotes(lessonId, accountId) {
-    const lessonNotes = Note.findAll({
-      where: {
-        lessonId,
-      },
-    });
-    return lessonNotes;
-  }
-
-  public static async noteAuthorizationCheck(lessonId, accountId) {
-    const lesson = await Lesson.findByPk(lessonId);
-    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
-
-    const course = await Course.findByPk(lesson.courseId);
-    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
-
-    const user = await User.findByPk(accountId);
-    if (user.accountId !== course.accountId)
-      throw new Error(
-        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      );
+        // remove lessonId from lessonProgress if it exist in lessonProgress
+        const index = lessonProgress.indexOf(lessonId);
+        lessonProgress.splice(index, 1);
+        return contract.update({
+          lessonProgress,
+        });
+      })
+    );
   }
 
   // ======================================== ANNOUNCEMENTS ========================================
@@ -622,7 +617,40 @@ export default class CourseService {
       include: [{ model: CourseContract, where: { accountId } }],
     });
 
-    return purchasedCourses;
+    const lessonCounts = await Promise.all(
+      purchasedCourses.map((course) => {
+        return Lesson.count({ where: { courseId: course.courseId } });
+      })
+    );
+
+    const returnCourses = purchasedCourses.map((course, i) => {
+      return {
+        ...course,
+        numLessons: lessonCounts[i],
+      };
+    });
+
+    return returnCourses;
+  }
+
+  public static async markLessonCompleted(
+    courseContractId: string,
+    lessonId: string
+  ) {
+    const courseContract = await CourseContract.findByPk(courseContractId);
+    if (!courseContract) throw new Error(COURSE_ERRORS.CONTRACT_MISSING);
+
+    const lesson = await Lesson.findByPk(lessonId);
+    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
+
+    const lessonProgress = courseContract.lessonProgress;
+    if (lessonProgress.indexOf(lessonId) == -1) {
+      // if lesson has not been completed
+      lessonProgress.push(lessonId);
+    }
+    return courseContract.update({
+      lessonProgress,
+    });
   }
 
   // ======================================== COURSE REQUESTS ========================================

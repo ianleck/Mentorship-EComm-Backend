@@ -27,7 +27,7 @@ export default class EmailService {
       // Set up emailClient
       const { SENDER_EMAIL_ADDRESS, SENDER_EMAIL_PASSWORD } = process.env;
 
-      var transporter = nodemailer.createTransport({
+      let transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
@@ -75,7 +75,7 @@ export default class EmailService {
       // Set up emailClient
       const { SENDER_EMAIL_ADDRESS, SENDER_EMAIL_PASSWORD } = process.env;
 
-      var transporter = nodemailer.createTransport({
+      let transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,

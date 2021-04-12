@@ -14,14 +14,6 @@ export default {
       })
       .required(),
   }),
-  createNoteB: joi.object({
-    newNote: joi
-      .object({
-        title: joi.string().required(),
-        body: joi.string().required(),
-      })
-      .required(),
-  }),
   createCourseB: joi.object({
     newCourse: joi
       .object({
@@ -47,9 +39,6 @@ export default {
   lessonIdP: joi.object({
     lessonId: joi.string().required(),
   }),
-  noteIdP: joi.object({
-    noteId: joi.string().required(),
-  }),
   announcementIdP: joi.object({
     announcementId: joi.string().required(),
   }),
@@ -60,6 +49,10 @@ export default {
   getFilter: joi.object({
     adminVerified: joi.string().valid(...Object.values(ADMIN_VERIFIED_ENUM)),
     visibility: joi.string().valid(...Object.values(VISIBILITY_ENUM)),
+  }),
+  markLessonAsCompletedP: joi.object({
+    courseContractId: joi.string().required(),
+    lessonId: joi.string().required(),
   }),
   updateCourseB: joi.object({
     updatedCourse: joi
@@ -95,14 +88,6 @@ export default {
       .object({
         title: joi.string().optional(),
         description: joi.string().optional(),
-      })
-      .required(),
-  }),
-  updateNoteB: joi.object({
-    updateNote: joi
-      .object({
-        title: joi.string().optional(),
-        body: joi.string().optional(),
       })
       .required(),
   }),

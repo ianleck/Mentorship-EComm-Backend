@@ -1,4 +1,5 @@
 import express from 'express';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { CourseController } from '../controllers/course.controller';
 import {
@@ -11,7 +12,6 @@ import {
 import course from './schema/course.schema';
 import user from './schema/user.schema';
 
-const passport = require('passport');
 const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
@@ -87,33 +87,6 @@ router.delete(
   requireSensei,
   schemaValidator.params(course.lessonIdP),
   Utility.asyncHandler(CourseController.deleteLesson)
-);
-
-// ======================================== NOTES ========================================
-router.post(
-  '/note/:lessonId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireSensei,
-  schemaValidator.params(course.lessonIdP),
-  schemaValidator.body(course.createNoteB),
-  Utility.asyncHandler(CourseController.addNoteToLesson)
-);
-
-router.put(
-  '/note/:noteId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  requireSensei,
-  schemaValidator.params(course.noteIdP),
-  schemaValidator.body(course.updateNoteB),
-  Utility.asyncHandler(CourseController.editNoteInLesson)
-);
-
-//Get ALL notes added for lesson
-router.get(
-  '/note/all/:lessonId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(course.lessonIdP),
-  Utility.asyncHandler(CourseController.getAllNotes)
 );
 
 // ======================================== ANNOUNCEMENTS ========================================
@@ -206,6 +179,14 @@ router.get(
   requireStudent,
   schemaValidator.params(course.studentIdP),
   Utility.asyncHandler(CourseController.getAllPurchasedCourses)
+);
+
+router.put(
+  '/contract/lesson/:courseContractId/:lessonId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.params(course.markLessonAsCompletedP),
+  Utility.asyncHandler(CourseController.markLessonCompleted)
 );
 
 export default router;

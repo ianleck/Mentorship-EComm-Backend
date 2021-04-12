@@ -1,15 +1,16 @@
 import express from 'express';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { MentorshipController } from '../controllers/mentorship.controller';
 import {
   requireAdmin,
+  requireSameUser,
   requireSameUserOrAdmin,
   requireSensei,
   requireStudent,
 } from '../middlewares/authenticationMiddleware';
 import mentorship from './schema/mentorship.schema';
 import user from './schema/user.schema';
-const passport = require('passport');
 
 const router = express.Router();
 
@@ -160,7 +161,7 @@ router.get(
 
 // ==================================== TESTIMONIALS ====================================
 router.post(
-  '/testimonial/:mentorshipListingId/:accountId',
+  '/testimonial/:mentorshipContractId/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(mentorship.createTestimonialParams),
@@ -183,6 +184,15 @@ router.get(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.query(mentorship.getFilter),
   Utility.asyncHandler(MentorshipController.getTestimonialsByFilter)
+);
+
+//View List of Testimonials For ONE sensei
+router.get(
+  '/testimonial/list/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUser,
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(MentorshipController.getAllTestimonials)
 );
 
 // ==================================== TASKS ====================================
@@ -255,6 +265,33 @@ router.get(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.taskBucketP),
   Utility.asyncHandler(MentorshipController.getTasks)
+);
+
+// ======================================== NOTES ========================================
+router.post(
+  '/note/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.mentorshipContractP),
+  schemaValidator.body(mentorship.createNoteB),
+  Utility.asyncHandler(MentorshipController.addNoteToMentorship)
+);
+
+router.put(
+  '/note/:noteId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.noteIdP),
+  schemaValidator.body(mentorship.updateNoteB),
+  Utility.asyncHandler(MentorshipController.editNoteInMentorship)
+);
+
+//Get ALL notes added for mentorshipContract
+router.get(
+  '/note/all/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.mentorshipContractP),
+  Utility.asyncHandler(MentorshipController.getAllNotes)
 );
 
 // ==================================== SENSEI MENTEE ====================================

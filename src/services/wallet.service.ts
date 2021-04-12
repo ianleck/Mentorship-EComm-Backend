@@ -200,6 +200,12 @@ export default class WalletService {
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
 
+    const billings = await Billing.findAll({ where: { refundRequestId } });
+    await Promise.all(
+      billings.map(async (billing) => {
+        billing.update({ refundRequestId: null });
+      })
+    );
     return await existingRefund.destroy();
   }
 
@@ -248,7 +254,9 @@ export default class WalletService {
       if (existingRefund.approvalStatus === APPROVAL_STATUS.APPROVED) {
         throw new Error(WALLET_ERROR.REFUNDED); // alr refund
       }
-      throw new Error(WALLET_ERROR.EXISTING_REFUND); // pending refund
+      if (existingRefund.approvalStatus === APPROVAL_STATUS.PENDING) {
+        throw new Error(WALLET_ERROR.EXISTING_REFUND); // pending refund
+      }
     }
 
     const billing = await Billing.findOne({
@@ -268,6 +276,8 @@ export default class WalletService {
       studentId: accountId,
       contractType: BILLING_TYPE.COURSE,
     }).save();
+
+    await billing.update({ refundRequestId: refundRequest.refundRequestId });
 
     return await RefundRequest.findOne({
       where: { refundRequestId: refundRequest.refundRequestId },
@@ -313,11 +323,13 @@ export default class WalletService {
         contractId,
         status: BILLING_STATUS.PAID,
         billingType: BILLING_TYPE.MENTORSHIP,
+        refundRequestId: { [Op.is]: null },
       },
       order: [['createdAt', 'DESC']],
     });
 
     let billingIds: string[] = [];
+    let billings: Billing[] = [];
     let remainingNumPasses = mentorshipContract.mentorPassCount;
     for (let i = 0; i < paidBillings.length; i++) {
       if (remainingNumPasses <= 0) break;
@@ -325,6 +337,7 @@ export default class WalletService {
       if (billing.createdAt < refundablePeriod) break;
       remainingNumPasses -= billing.mentorPassCount;
       billingIds.push(billing.billingId);
+      billings.push(billing);
     }
 
     if (billingIds.length === 0)
@@ -335,6 +348,14 @@ export default class WalletService {
       studentId: accountId,
       contractType: BILLING_TYPE.MENTORSHIP,
     }).save();
+
+    await Promise.all(
+      billings.map(async (billing) => {
+        await billing.update({
+          refundRequestId: refundRequest.refundRequestId,
+        });
+      })
+    );
 
     return await RefundRequest.findOne({
       where: { refundRequestId: refundRequest.refundRequestId },
@@ -348,6 +369,43 @@ export default class WalletService {
       ],
     });
   }
+
+  public static async viewListOfRefunds(accountId: string) {
+    const checkUser = await User.findByPk(accountId);
+    let filter = {};
+    if (checkUser) filter = { studentId: accountId };
+    return RefundRequest.findAll({
+      where: filter,
+      include: [
+        { model: User, attributes: ['username', 'firstName', 'lastName'] },
+        { model: Billing, as: 'Refund' },
+        {
+          model: Billing,
+          as: 'OriginalBillings',
+          include: [MentorshipListing, Course],
+        },
+      ],
+    });
+  }
+
+  public static async viewRefundDetail(refundRequestId: string) {
+    return await RefundRequest.findOne({
+      where: { refundRequestId },
+      include: [
+        { model: User, attributes: ['username', 'firstName', 'lastName'] },
+        { model: Billing, as: 'Refund' },
+        {
+          model: Billing,
+          as: 'OriginalBillings',
+          include: [
+            { model: Course, as: 'Course' },
+            { model: MentorshipListing, as: 'MentorshipListing' },
+          ],
+        },
+      ],
+    });
+  }
+
   // ============================== Withdrawals ==============================
   public static async withdrawBalance(walletId: string, accountId: string) {
     const user = await User.findByPk(accountId);

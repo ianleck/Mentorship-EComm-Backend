@@ -1,10 +1,10 @@
 import express from 'express';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { UploadController } from '../controllers/upload.controller';
 import course from './schema/course.schema';
 import mentorship from './schema/mentorship.schema';
 import user from './schema/user.schema';
-const passport = require('passport');
 const router = express.Router();
 const schemaValidator = require('express-joi-validation').createValidator({});
 
