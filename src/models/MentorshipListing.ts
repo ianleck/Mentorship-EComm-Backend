@@ -21,7 +21,6 @@ import { Category } from './Category';
 import { MentorshipContract } from './MentorshipContract';
 import { MentorshipListingToCategory } from './MentorshipListingToCategory';
 import { Review } from './Review';
-import { Testimonial } from './Testimonial';
 import { User } from './User';
 
 @Table
@@ -95,8 +94,8 @@ export class MentorshipListing extends BaseEntity {
   @HasMany(() => Billing, 'productId')
   Billings: Billing;
 
-  @HasMany(() => Testimonial, 'mentorshipListingId')
-  Testimonials: Testimonial[];
+  // @HasMany(() => Testimonial, 'mentorshipListingId')
+  // Testimonials: Testimonial[];
 }
 
 // MentorshipListing.hasMany(Review, { foreignKey: 'reviewId' })

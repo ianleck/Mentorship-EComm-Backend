@@ -479,13 +479,13 @@ export class MentorshipController {
   public static async addTestimonial(req, res) {
     const { user } = req;
     const { newTestimonial } = req.body;
-    const { mentorshipListingId, accountId } = req.params;
+    const { mentorshipContractId, accountId } = req.params;
 
     try {
       const createdTestimonial = await MentorshipService.addTestimonial(
         user.accountId,
         accountId,
-        mentorshipListingId,
+        mentorshipContractId,
         newTestimonial
       );
       return apiResponse.result(
@@ -531,20 +531,12 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.editTestimonial]:' + e.message);
-      if (
-        e.message === MENTORSHIP_ERRORS.TESTIMONIAL_MISSING ||
-        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.TESTIMONIAL_MISSING,
+        MENTORSHIP_ERRORS.CONTRACT_MISSING,
+        MENTORSHIP_ERRORS.LISTING_MISSING,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      ]);
     }
   }
 

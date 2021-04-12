@@ -57,12 +57,12 @@ export default {
   }),
 
   getFilter: joi.object({
-    mentorshipListingId: joi.string().optional(),
+    mentorshipContractId: joi.string().optional(),
     accountId: joi.string().optional(),
   }),
 
   createTestimonialParams: joi.object({
-    mentorshipListingId: joi.string().required(),
+    mentorshipContractId: joi.string().required(),
     accountId: joi.string().required(),
   }),
 
