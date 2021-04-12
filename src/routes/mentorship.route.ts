@@ -161,7 +161,7 @@ router.get(
 
 // ==================================== TESTIMONIALS ====================================
 router.post(
-  '/testimonial/:mentorshipListingId/:accountId',
+  '/testimonial/:mentorshipContractId/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(mentorship.createTestimonialParams),
@@ -265,6 +265,33 @@ router.get(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(mentorship.taskBucketP),
   Utility.asyncHandler(MentorshipController.getTasks)
+);
+
+// ======================================== NOTES ========================================
+router.post(
+  '/note/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.mentorshipContractP),
+  schemaValidator.body(mentorship.createNoteB),
+  Utility.asyncHandler(MentorshipController.addNoteToMentorship)
+);
+
+router.put(
+  '/note/:noteId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSensei,
+  schemaValidator.params(mentorship.noteIdP),
+  schemaValidator.body(mentorship.updateNoteB),
+  Utility.asyncHandler(MentorshipController.editNoteInMentorship)
+);
+
+//Get ALL notes added for mentorshipContract
+router.get(
+  '/note/all/:mentorshipContractId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(mentorship.mentorshipContractP),
+  Utility.asyncHandler(MentorshipController.getAllNotes)
 );
 
 // ==================================== SENSEI MENTEE ====================================

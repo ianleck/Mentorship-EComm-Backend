@@ -15,7 +15,6 @@ import { Course } from '../models/Course';
 import { CourseContract } from '../models/CourseContract';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { Lesson } from '../models/Lesson';
-import { Note } from '../models/Note';
 import { Review } from '../models/Review';
 import { User } from '../models/User';
 import EmailService from './email.service';
@@ -363,7 +362,7 @@ export default class CourseService {
     );
 
     await Promise.all(
-      contractsToUpdate.map((contract) => {
+      contractsToUpdate.map(async (contract) => {
         const lessonProgress = contract.lessonProgress;
 
         // remove lessonId from lessonProgress if it exist in lessonProgress
@@ -374,66 +373,6 @@ export default class CourseService {
         });
       })
     );
-  }
-
-  // ======================================== NOTES ========================================
-  public static async addNoteToLesson(
-    lessonId: string,
-    accountId: string,
-    note: {
-      title: string;
-      body: string;
-    }
-  ): Promise<Note> {
-    await CourseService.noteAuthorizationCheck(lessonId, accountId);
-
-    const { title, body } = note;
-
-    const newNote = new Note({
-      lessonId,
-      title,
-      body,
-    });
-
-    await newNote.save();
-
-    return newNote;
-  }
-
-  public static async editNoteInLesson(
-    noteId: string,
-    accountId: string,
-    updateNote
-  ): Promise<Note> {
-    const note = await Note.findByPk(noteId);
-    if (!note) throw new Error(COURSE_ERRORS.NOTE_MISSING);
-
-    await CourseService.noteAuthorizationCheck(note.lessonId, accountId);
-
-    return await note.update(updateNote);
-  }
-
-  public static async getAllNotes(lessonId, accountId) {
-    const lessonNotes = Note.findAll({
-      where: {
-        lessonId,
-      },
-    });
-    return lessonNotes;
-  }
-
-  public static async noteAuthorizationCheck(lessonId, accountId) {
-    const lesson = await Lesson.findByPk(lessonId);
-    if (!lesson) throw new Error(COURSE_ERRORS.LESSON_MISSING);
-
-    const course = await Course.findByPk(lesson.courseId);
-    if (!course) throw new Error(COURSE_ERRORS.COURSE_MISSING);
-
-    const user = await User.findByPk(accountId);
-    if (user.accountId !== course.accountId)
-      throw new Error(
-        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      );
   }
 
   // ======================================== ANNOUNCEMENTS ========================================
@@ -678,7 +617,20 @@ export default class CourseService {
       include: [{ model: CourseContract, where: { accountId } }],
     });
 
-    return purchasedCourses;
+    const lessonCounts = await Promise.all(
+      purchasedCourses.map(async (course) => {
+        return Lesson.count({ where: { courseId: course.courseId } });
+      })
+    );
+
+    const returnCourses = purchasedCourses.map((course, i) => {
+      return {
+        ...course.get({ plain: true }),
+        numLessons: lessonCounts[i],
+      };
+    });
+
+    return returnCourses;
   }
 
   public static async markLessonCompleted(

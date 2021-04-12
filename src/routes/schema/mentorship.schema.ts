@@ -57,12 +57,12 @@ export default {
   }),
 
   getFilter: joi.object({
-    mentorshipListingId: joi.string().optional(),
+    mentorshipContractId: joi.string().optional(),
     accountId: joi.string().optional(),
   }),
 
   createTestimonialParams: joi.object({
-    mentorshipListingId: joi.string().required(),
+    mentorshipContractId: joi.string().required(),
     accountId: joi.string().required(),
   }),
 
@@ -109,6 +109,25 @@ export default {
           .string()
           .valid(...Object.values(CONTRACT_PROGRESS_ENUM))
           .optional(),
+      })
+      .required(),
+  }),
+  noteIdP: joi.object({
+    noteId: joi.string().required(),
+  }),
+  createNoteB: joi.object({
+    newNote: joi
+      .object({
+        title: joi.string().required(),
+        body: joi.string().required(),
+      })
+      .required(),
+  }),
+  updateNoteB: joi.object({
+    updateNote: joi
+      .object({
+        title: joi.string().optional(),
+        body: joi.string().optional(),
       })
       .required(),
   }),

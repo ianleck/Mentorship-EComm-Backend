@@ -4,6 +4,7 @@ import { ERRORS, RESPONSE_ERROR, SOCIAL_ERRORS } from '../constants/errors';
 import { USER_RESPONSE } from '../constants/successMessages';
 import UserService from '../services/user.service';
 import apiResponse from '../utilities/apiResponse';
+
 export class UserController {
   // ================================ USER ================================
 

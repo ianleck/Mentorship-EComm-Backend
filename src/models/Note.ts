@@ -8,7 +8,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
-import { Lesson } from './Lesson';
+import { MentorshipContract } from './MentorshipContract';
 
 @Table
 export class Note extends BaseEntity {
@@ -19,7 +19,7 @@ export class Note extends BaseEntity {
 
   @AllowNull(false)
   @Column(DataType.UUID)
-  lessonId: string;
+  mentorshipContractId: string;
 
   @Default('')
   @Column(DataType.STRING)
@@ -30,6 +30,6 @@ export class Note extends BaseEntity {
   body: string;
 
   // ==================== RELATIONSHIP MAPPINGS ====================
-  @BelongsTo(() => Lesson, 'lessonId')
-  Lesson: Lesson;
+  @BelongsTo(() => MentorshipContract, 'mentorshipContractId')
+  MentorshipContract: MentorshipContract;
 }

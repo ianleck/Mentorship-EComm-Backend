@@ -65,7 +65,6 @@ export const COURSE_ERRORS = {
   DELETE_DISALLOWED:
     'Digi Dojo does not allow any deletion of published courses',
   LESSON_MISSING: 'Lesson does not exist',
-  NOTE_MISSING: 'Note does not exist',
   ANNOUNCEMENT_MISSING: 'Annoucement does not exist',
   USER_NOT_VERIFIED:
     'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your course or submitting your course request for approval.',
@@ -92,6 +91,7 @@ export const MENTORSHIP_ERRORS = {
     'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your mentorship listing.',
   TASK_BUCKET_MISSING: 'Task bucket does not exist',
   TASK_MISSING: 'Task does not exist',
+  NOTE_MISSING: 'Note does not exist',
 };
 
 export const REVIEW_ERRORS = {
@@ -147,4 +147,12 @@ export const SOCIAL_ERRORS = {
   FOLLOWING_MISSING: 'User is not following',
 
   PRIVATE_USER: 'User account is private',
+};
+
+export const MESSAGE_ERRORS = {
+  PRIVATE_USER: 'You are not allowed to send a message to this user',
+  CHAT_GROUP_MISSING: 'Chat Group does not exist',
+  USER_CANNOT_BE_ADDED:
+    'You are not allowed to add this user to the chat group',
+  USER_BANNED: 'User has been banned',
 };

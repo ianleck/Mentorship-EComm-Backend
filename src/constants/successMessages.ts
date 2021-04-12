@@ -57,9 +57,6 @@ export const COURSE_RESPONSE = {
   LESSON_UPDATE: 'Lesson has been successfully updated',
   LESSON_DELETE: 'Lesson has been successfully deleted',
 
-  NOTE_CREATE: 'Note has been successfully created',
-  NOTE_UPDATE: 'Note has been successfully updated',
-
   COURSE_REQUEST_ACCEPTED: 'Course Request has been successfully accepted',
   COURSE_REQUEST_REJECTED: 'Course Request has been successfully rejected',
 
@@ -106,6 +103,9 @@ export const MENTORSHIP_RESPONSE = {
   TASK_CREATE: 'Task has been successfully created',
   TASK_EDIT: 'Task has been successfully edited',
   TASK_DELETE: 'Task has been successfully deleted',
+
+  NOTE_CREATE: 'Note has been successfully created',
+  NOTE_UPDATE: 'Note has been successfully updated',
 };
 
 // ==================== REFUND RESPONSE MESSAGES ====================
@@ -179,4 +179,13 @@ export const WITHDRAWAL_RESPONSE = {
   REQUEST_CREATE: 'Withdrawal has been successfully requested',
   REQUEST_APPROVE: 'Withdrawal has been successfully approved',
   REQUEST_REJECT: 'Withdrawal has been successfully rejected',
+};
+
+// ==================== MESSAGE RESPONSE MESSAGES ====================
+export const MESSAGE_RESPONSE = {
+  MESSAGE_CREATE: 'Message has been successfully sent',
+  GROUP_CREATE: 'Chat group has been successfully created',
+  GROUP_DELETED: 'Chat group has been successfully deleted',
+  USER_ADDED: 'User has been successfully added to chat group',
+  USER_REMOVED: 'User has been successfully removed from chat group',
 };
