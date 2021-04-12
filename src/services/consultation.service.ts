@@ -90,7 +90,7 @@ export default class ConsultationService {
       if (!existingMentorship)
         throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
 
-      const newPassCount = existingMentorship.mentorPassCount - 1;
+      const newPassCount = existingMentorship.mentorPassCount + 1;
       await existingMentorship.update({ mentorPassCount: newPassCount });
     }
 
