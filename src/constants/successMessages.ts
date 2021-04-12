@@ -43,6 +43,8 @@ export const CONSULTATION_RESPONSE = {
 
   CONSULTATION_REGISTERED:
     'You have been successfully registered for the selected consultation slot',
+  CONSULTATION_UNREGISTERED:
+    'You have been successfully cancelled your registration for the selected consultation slot',
 };
 
 // ==================== COURSE RESPONSE MESSAGES ====================

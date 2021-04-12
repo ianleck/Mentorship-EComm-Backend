@@ -6,8 +6,8 @@ export default {
       .object({
         title: joi.string().required(),
         mentorshipListingId: joi.string().required(),
-        startTime: joi.date().required(),
-        endTime: joi.date().required(),
+        timeStart: joi.date().required(),
+        timeEnd: joi.date().required(),
       })
       .required(),
   }),
@@ -22,8 +22,14 @@ export default {
       })
       .required(),
   }),
-
-  consultationIdP: joi.object({
+  viewRangeQ: joi.object({
+    dateStart: joi.date().required(),
+    dateEnd: joi.date().required(),
+    accountId: joi.string().optional(),
+  }),
+  consultationIdQ: joi.object({
     consultationId: joi.string().required(),
+    dateStart: joi.date().required(),
+    dateEnd: joi.date().required(),
   }),
 };

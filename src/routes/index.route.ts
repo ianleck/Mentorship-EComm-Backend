@@ -26,7 +26,7 @@ router.use('/cart', cartRoute);
 router.use('/category', categoryRoute);
 router.use('/comment', commentRoute);
 router.use('/complaint', complaintRoute);
-router.use('/consultations', consultationRoute);
+router.use('/consultation', consultationRoute);
 router.use('/course', courseRoute);
 router.use('/email', emailRoute);
 router.use('/file', fileRoute);

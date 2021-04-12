@@ -42,8 +42,8 @@ export class Consultation extends BaseEntity {
   timeEnd: Date;
 
   @AllowNull(false)
-  @Column(DataType.BOOLEAN)
   @Default(false)
+  @Column(DataType.BOOLEAN)
   cancelApproved: boolean;
 
   // ==================== RELATIONSHIP MAPPINGS ====================

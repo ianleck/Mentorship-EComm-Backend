@@ -35,6 +35,13 @@ export const CONSULTATION_ERRORS = {
   CONSULTATION_CLASH:
     'There is an existing consultation that clashes with the new consultation. Please change the time and try again.',
   CONSULTATION_MISSING: 'Consultation does not exist',
+  CONSULTATION_TAKEN: 'Consultation has been taken',
+  INSUFFICIENT_PASS:
+    'You do not have any more passes left to book this consultation slot. Please purchase more and try again.',
+  CONSULTATION_BOOKED:
+    'This consultation has been booked and can no longer be edited. If you wish to reschedule the consultation, please cancel this consultation and create a new consultation.',
+  UNREGISTER_FAILURE:
+    'You are no longer able to unregister for the consultation due to the lack of lead time of 3 days.',
 };
 
 export const COMMENT_ERRORS = {
