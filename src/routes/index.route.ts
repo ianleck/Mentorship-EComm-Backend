@@ -3,6 +3,7 @@ import adminRoute from './admin.route';
 import authRoute from './auth.route';
 import cartRoute from './cart.route';
 import categoryRoute from './category.route';
+import chatRoute from './chat.route';
 import commentRoute from './comment.route';
 import complaintRoute from './complaint.route';
 import courseRoute from './course.route';
@@ -36,5 +37,6 @@ router.use('/user', userRoute);
 router.use('/wallet', walletRoute);
 router.use('/social', socialRoute);
 router.use('/search', searchRoute);
+router.use('/chat', chatRoute);
 
 export default router;

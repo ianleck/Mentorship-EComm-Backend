@@ -168,3 +168,12 @@ export const WITHDRAWAL_RESPONSE = {
   REQUEST_APPROVE: 'Withdrawal has been successfully approved',
   REQUEST_REJECT: 'Withdrawal has been successfully rejected',
 };
+
+// ==================== MESSAGE RESPONSE MESSAGES ====================
+export const MESSAGE_RESPONSE = {
+  MESSAGE_CREATE: 'Message has been successfully sent',
+  GROUP_CREATE: 'Chat group has been successfully created',
+  GROUP_DELETED: 'Chat group has been successfully deleted',
+  USER_ADDED: 'User has been successfully added to chat group',
+  USER_REMOVED: 'User has been successfully removed from chat group',
+};
