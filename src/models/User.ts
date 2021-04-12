@@ -19,6 +19,7 @@ import { Account } from './abstract/Account';
 import { Experience } from './Experience';
 import { MentorshipContract } from './MentorshipContract';
 import { Post } from './Post';
+import { Testimonial } from './Testimonial';
 import { Wallet } from './Wallet';
 @Table
 export class User extends Account {
@@ -123,8 +124,8 @@ export class User extends Account {
   @HasMany(() => Post, 'accountId')
   Posts: Post[];
 
-  //@HasMany(() => Testimonial, 'testimonialId')
-  //Testimonials: Testimonial[];
+  @HasMany(() => Testimonial, 'accountId')
+  Testimonials: Testimonial[];
 
   // @Column
   // achievements: Achievement;

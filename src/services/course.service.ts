@@ -678,7 +678,20 @@ export default class CourseService {
       include: [{ model: CourseContract, where: { accountId } }],
     });
 
-    return purchasedCourses;
+    const lessonCounts = await Promise.all(
+      purchasedCourses.map((course) => {
+        return Lesson.count({ where: { courseId: course.courseId } });
+      })
+    );
+
+    const returnCourses = purchasedCourses.map((course, i) => {
+      return {
+        ...course,
+        numLessons: lessonCounts[i],
+      };
+    });
+
+    return returnCourses;
   }
 
   public static async markLessonCompleted(
