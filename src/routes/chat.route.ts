@@ -10,7 +10,7 @@ const router = express.Router();
 
 const schemaValidator = require('express-joi-validation').createValidator({});
 
-//Send ONE message
+//Send message to ONE user
 router.post(
   '/message/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -21,19 +21,11 @@ router.post(
 
 //Send GROUP message
 router.post(
-  '/message/chat-group/:chatGroupId',
+  '/message/chat-group/:chatId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(chat.chatGroupIdP), //accountId of receiver
+  schemaValidator.params(chat.chatIdP), //accountId of CHAT GROUP
   schemaValidator.body(chat.sendMessageB),
   Utility.asyncHandler(ChatController.sendGroupMessage)
-);
-
-//Get all messages between TWO users
-router.get(
-  '/all/messages/:accountId',
-  passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(chat.accountIdP),
-  Utility.asyncHandler(ChatController.getAllMessages)
 );
 
 //Get WHOLE CHAT LIST of a user
@@ -46,17 +38,15 @@ router.get(
 
 //Create Chat Group
 router.post(
-  '/chat-group/new/:accountId',
+  '/chat-group/',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireSameUser,
-  schemaValidator.params(chat.accountIdP), //creator of chat group
   schemaValidator.body(chat.chatGroupB),
   Utility.asyncHandler(ChatController.createChatGroup)
 );
 
 //Add user to Chat Group
 router.post(
-  '/chat-group/:chatGroupId/:accountId',
+  '/chat-group/:chatId/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(chat.userToChatGroupP), //accountId to add to chat group
   Utility.asyncHandler(ChatController.addUserToChatGroup)
@@ -64,7 +54,7 @@ router.post(
 
 //Remove user from Chat Group
 router.delete(
-  '/chat-group/:chatGroupId/:accountId',
+  '/chat-group/:chatId/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(chat.userToChatGroupP), //accountId to add to chat group
   Utility.asyncHandler(ChatController.removeUserFromChatGroup)
@@ -72,9 +62,9 @@ router.delete(
 
 //Delete Chat Group
 router.delete(
-  '/chat-group/:chatGroupId',
+  '/chat-group/:chatId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(chat.chatGroupIdP),
+  schemaValidator.params(chat.chatIdP),
   Utility.asyncHandler(ChatController.deleteChatGroup)
 );
 

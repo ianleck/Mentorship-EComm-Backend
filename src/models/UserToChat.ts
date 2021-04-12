@@ -7,14 +7,14 @@ import {
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
-import { ChatGroup } from './ChatGroup';
+import { Chat } from './Chat';
 import { User } from './User';
 
 @Table
-export class UserToChatGroup extends Model<UserToChatGroup> {
-  @ForeignKey(() => ChatGroup)
+export class UserToChat extends Model<UserToChat> {
+  @ForeignKey(() => Chat)
   @Column(DataType.UUID)
-  chatGroupId: string;
+  chatId: string;
 
   @ForeignKey(() => User)
   @Column(DataType.UUID)

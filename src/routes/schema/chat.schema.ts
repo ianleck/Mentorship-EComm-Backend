@@ -6,11 +6,11 @@ export default {
   }),
   sendMessageB: joi.object({
     newMessage: joi.object({
-      description: joi.string().required(),
+      messageBody: joi.string().required(),
     }),
   }),
   userToChatGroupP: joi.object({
-    chatGroupId: joi.string().required(),
+    chatId: joi.string().required(),
     accountId: joi.string().required(),
   }),
   chatGroupB: joi.object({
@@ -18,7 +18,7 @@ export default {
       name: joi.string().required(),
     }),
   }),
-  chatGroupIdP: joi.object({
-    chatGroupId: joi.string().required(),
+  chatIdP: joi.object({
+    chatId: joi.string().required(),
   }),
 };

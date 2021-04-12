@@ -36,13 +36,13 @@ export class ChatController {
   }
 
   public static async sendGroupMessage(req, res) {
-    const { chatGroupId } = req.params; //chat group Id
+    const { chatId } = req.params; //chat group Id
     const { user } = req; //sender
     const { newMessage } = req.body;
 
     try {
       const sentMessage = await ChatService.sendGroupMessage(
-        chatGroupId,
+        chatId,
         user.accountId,
         newMessage
       );
@@ -60,30 +60,6 @@ export class ChatController {
         ERRORS.USER_DOES_NOT_EXIST,
         MESSAGE_ERRORS.CHAT_GROUP_MISSING,
       ]);
-    }
-  }
-
-  public static async getAllMessages(req, res) {
-    const { accountId } = req.params;
-    const { user } = req;
-    try {
-      const listOfMessages = await ChatService.getAllMessages(
-        accountId,
-        user.accountId
-      );
-      return apiResponse.result(
-        res,
-        {
-          message: 'success',
-          listOfMessages,
-        },
-        httpStatusCodes.OK
-      );
-    } catch (e) {
-      logger.error('[chatController.getAllMessages]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
     }
   }
 
@@ -132,13 +108,13 @@ export class ChatController {
   }
   public static async addUserToChatGroup(req, res) {
     const { user } = req;
-    const { chatGroupId, accountId } = req.params;
+    const { chatId, accountId } = req.params;
 
     try {
       const userAdded = await ChatService.addUserToChatGroup(
         user.accountId,
         accountId,
-        chatGroupId
+        chatId
       );
       return apiResponse.result(
         res,
@@ -164,7 +140,7 @@ export class ChatController {
     const { chatGroupId, accountId } = req.params;
 
     try {
-      await ChatService.removeUserFromChatGroup(
+      await ChatService.removeUserFromChat(
         user.accountId,
         accountId,
         chatGroupId
@@ -186,10 +162,10 @@ export class ChatController {
 
   public static async deleteChatGroup(req, res) {
     const { user } = req;
-    const { chatGroupId } = req.params;
+    const { chatId } = req.params;
 
     try {
-      await ChatService.deleteChatGroup(user.accountId, chatGroupId);
+      await ChatService.deleteChat(user.accountId, chatId);
       return apiResponse.result(
         res,
         { message: MESSAGE_RESPONSE.GROUP_DELETED },

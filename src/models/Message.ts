@@ -1,4 +1,5 @@
 import {
+  AllowNull,
   BelongsTo,
   Column,
   CreatedAt,
@@ -9,7 +10,7 @@ import {
   UpdatedAt,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
-import { ChatGroup } from './ChatGroup';
+import { Chat } from './Chat';
 import { User } from './User';
 
 @Table
@@ -26,10 +27,11 @@ export class Message extends BaseEntity {
   receiverId: string;
 
   @Column(DataType.UUID)
-  chatGroupId: string;
+  chatId: string;
 
+  @AllowNull(false)
   @Column(DataType.TEXT)
-  description: string;
+  messageBody: string;
 
   @Column(DataType.STRING)
   uniqueIdentifier: string;
@@ -51,6 +53,6 @@ export class Message extends BaseEntity {
   })
   Sender: User;
 
-  @BelongsTo(() => ChatGroup, 'chatGroupId')
-  ChatGroup: ChatGroup;
+  @BelongsTo(() => Chat, 'chatId')
+  Chat: Chat;
 }
