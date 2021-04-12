@@ -141,4 +141,5 @@ export const MESSAGE_ERRORS = {
   CHAT_GROUP_MISSING: 'Chat Group does not exist',
   USER_CANNOT_BE_ADDED:
     'You are not allowed to add this user to the chat group',
+  USER_BANNED: 'User has been banned',
 };

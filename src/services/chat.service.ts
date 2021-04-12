@@ -1,6 +1,10 @@
 import httpStatusCodes from 'http-status-codes';
 import { Op } from 'sequelize';
-import { FOLLOWING_ENUM, PRIVACY_PERMISSIONS_ENUM } from '../constants/enum';
+import {
+  FOLLOWING_ENUM,
+  PRIVACY_PERMISSIONS_ENUM,
+  STATUS_ENUM,
+} from '../constants/enum';
 import { ERRORS, MESSAGE_ERRORS } from '../constants/errors';
 import { Chat } from '../models/Chat';
 import { Course } from '../models/Course';
@@ -111,6 +115,13 @@ export default class ChatService {
   }
 
   public static async getChatList(accountId) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    if (user.status === STATUS_ENUM.BANNED) {
+      throw new Error(MESSAGE_ERRORS.USER_BANNED);
+    }
+
     const chatGroupsUserIsIn = await UserToChat.findAll({
       where: {
         accountId,

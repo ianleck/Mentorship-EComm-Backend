@@ -1,6 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { ERRORS, MESSAGE_ERRORS, RESPONSE_ERROR } from '../constants/errors';
+import { ERRORS, MESSAGE_ERRORS } from '../constants/errors';
 import { MESSAGE_RESPONSE } from '../constants/successMessages';
 import Utility from '../constants/utility';
 import ChatService from '../services/chat.service';
@@ -78,12 +78,9 @@ export class ChatController {
       );
     } catch (e) {
       logger.error('[chatController.getChatList]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
+      return Utility.apiErrorResponse(res, e, [ERRORS.USER_DOES_NOT_EXIST]);
     }
   }
-
   public static async createChatGroup(req, res) {
     const { user } = req; //creator of chat group
     const { newChatGroup } = req.body;
