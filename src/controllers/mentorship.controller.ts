@@ -884,6 +884,116 @@ export class MentorshipController {
     }
   }
 
+  // ======================================== NOTES ================================================
+  public static async addNoteToMentorship(req, res) {
+    const { user } = req;
+    const { mentorshipContractId } = req.params;
+    const { newNote } = req.body;
+
+    try {
+      const addedNote = await MentorshipService.addNoteToMentorship(
+        mentorshipContractId,
+        user.accountId,
+        newNote
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: MENTORSHIP_RESPONSE.NOTE_CREATE,
+          note: addedNote,
+        },
+        httpStatusCodes.CREATED
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.addNoteToMentorship]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async editNoteInMentorship(req, res) {
+    const { user } = req;
+    const { noteId } = req.params;
+    const { updateNote } = req.body;
+    try {
+      const updatedNote = await MentorshipService.editNoteInMentorship(
+        noteId,
+        user.accountId,
+        updateNote
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: MENTORSHIP_RESPONSE.NOTE_UPDATE,
+          note: updatedNote,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.editNoteInMentorship]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === MENTORSHIP_ERRORS.NOTE_MISSING ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getAllNotes(req, res) {
+    const { mentorshipContractId } = req.params;
+    const { user } = req;
+    try {
+      const notes = await MentorshipService.getAllNotes(
+        mentorshipContractId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          notes,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.getAllNotes]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
   // ==================================== SENSEI MENTEE ====================================
   public static async getSenseiMenteeList(req, res) {
     const { accountId } = req.params;
