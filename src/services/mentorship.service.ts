@@ -714,11 +714,27 @@ export default class MentorshipService {
   public static async getAllTestimonials(accountId: string) {
     const user = await User.findByPk(accountId);
     if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
-
-    return Testimonial.findAll({
+    const mentorshipListings = await MentorshipListing.findAll({
       where: {
         accountId,
       },
+    });
+
+    const mentorshipListingIds = mentorshipListings.map(
+      (ml) => ml.mentorshipListingId
+    );
+
+    const mentorshipContracts = await MentorshipContract.findAll({
+      where: { mentorshipListingId: { [Op.in]: mentorshipListingIds } },
+    });
+
+    const mentorshipContractIds = mentorshipContracts.map(
+      (mc) => mc.mentorshipContractId
+    );
+
+    return await Testimonial.findAll({
+      where: { mentorshipContractId: { [Op.in]: mentorshipContractIds } },
+      include: [MentorshipContract, User],
     });
   }
 
