@@ -618,14 +618,14 @@ export default class CourseService {
     });
 
     const lessonCounts = await Promise.all(
-      purchasedCourses.map((course) => {
+      purchasedCourses.map(async (course) => {
         return Lesson.count({ where: { courseId: course.courseId } });
       })
     );
 
     const returnCourses = purchasedCourses.map((course, i) => {
       return {
-        ...course,
+        ...course.get({ plain: true }),
         numLessons: lessonCounts[i],
       };
     });
