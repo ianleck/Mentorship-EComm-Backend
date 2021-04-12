@@ -41,11 +41,6 @@ export class Consultation extends BaseEntity {
   @Column(DataType.DATE)
   timeEnd: Date;
 
-  @AllowNull(false)
-  @Default(false)
-  @Column(DataType.BOOLEAN)
-  cancelApproved: boolean;
-
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsTo(() => MentorshipListing, 'mentorshipListingId')
   MentorshipListing: MentorshipListing;
