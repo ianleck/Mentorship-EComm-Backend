@@ -161,7 +161,7 @@ router.get(
 
 // ==================================== TESTIMONIALS ====================================
 router.post(
-  '/testimonial/:mentorshipListingId/:accountId',
+  '/testimonial/:mentorshipContractId/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSensei,
   schemaValidator.params(mentorship.createTestimonialParams),

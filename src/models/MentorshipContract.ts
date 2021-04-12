@@ -5,6 +5,7 @@ import {
   DataType,
   Default,
   HasMany,
+  HasOne,
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
@@ -12,6 +13,7 @@ import { APPROVAL_STATUS, CONTRACT_PROGRESS_ENUM } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { MentorshipListing } from './MentorshipListing';
 import { TaskBucket } from './TaskBucket';
+import { Testimonial } from './Testimonial';
 import { User } from './User';
 
 @Table
@@ -59,6 +61,9 @@ export class MentorshipContract extends BaseEntity {
 
   @HasMany(() => TaskBucket, 'mentorshipContractId')
   TaskBuckets: TaskBucket[];
+
+  @HasOne(() => Testimonial, 'mentorshipContractId')
+  Testimonial: Testimonial;
 }
 
 // one to one mapping for Review
