@@ -16,6 +16,13 @@ import { TaskBucket } from './TaskBucket';
 import { Testimonial } from './Testimonial';
 import { User } from './User';
 
+export interface MentorshipApplicationFields {
+  applicationReason: Text;
+  stepsTaken?: Text;
+  idealDuration?: number;
+  goals: Text;
+  additionalInfo?: Text;
+}
 @Table
 export class MentorshipContract extends BaseEntity {
   @PrimaryKey
@@ -31,8 +38,9 @@ export class MentorshipContract extends BaseEntity {
   @Column(DataType.UUID)
   mentorshipListingId: string;
 
-  @Column(DataType.STRING)
-  statement: string;
+  @AllowNull(false)
+  @Column(DataType.JSON)
+  applicationFields: MentorshipApplicationFields;
 
   @Column({
     allowNull: false,

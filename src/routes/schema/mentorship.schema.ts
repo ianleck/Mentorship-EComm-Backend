@@ -33,7 +33,13 @@ export default {
   }),
 
   mentorshipContractB: joi.object({
-    statement: joi.string().required(),
+    applicationFields: joi.object({
+      applicationReason: joi.string().required(),
+      stepsTaken: joi.string().optional(),
+      idealDuration: joi.string().optional(),
+      goals: joi.string().required(),
+      additionalInfo: joi.string().optional(),
+    }),
   }),
 
   acceptMentorshipB: joi.object({

@@ -10,7 +10,10 @@ import {
 } from '../constants/enum';
 import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
 import { Category } from '../models/Category';
-import { MentorshipContract } from '../models/MentorshipContract';
+import {
+  MentorshipApplicationFields,
+  MentorshipContract,
+} from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
 import { Note } from '../models/Note';
@@ -287,35 +290,26 @@ export default class MentorshipService {
   public static async createContract(
     mentorshipListingId: string,
     accountId: string,
-    statement: string
+    applicationFields: MentorshipApplicationFields
   ): Promise<MentorshipContract> {
     const listing = await MentorshipListing.findByPk(mentorshipListingId);
     if (!listing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
 
-    const pendingContract = await MentorshipContract.findOne({
-      where: {
-        mentorshipListingId,
-        accountId,
-        senseiApproval: APPROVAL_STATUS.PENDING,
-      },
-    });
     const existingContract = await MentorshipContract.findOne({
       where: {
         mentorshipListingId,
         accountId,
-        senseiApproval: APPROVAL_STATUS.APPROVED,
         progress:
           CONTRACT_PROGRESS_ENUM.NOT_STARTED || CONTRACT_PROGRESS_ENUM.ONGOING,
       },
     });
 
-    if (pendingContract || existingContract)
-      throw new Error(MENTORSHIP_ERRORS.CONTRACT_EXISTS);
+    if (existingContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_EXISTS);
 
     const newContract = new MentorshipContract({
       mentorshipListingId,
       accountId,
-      statement,
+      applicationFields,
     });
 
     await newContract.save();
@@ -325,8 +319,8 @@ export default class MentorshipService {
 
   public static async updateContract(
     mentorshipContractId: string,
-    statement: string,
-    accountId
+    accountId: string,
+    applicationFields: MentorshipApplicationFields
   ): Promise<MentorshipContract> {
     const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
@@ -338,7 +332,7 @@ export default class MentorshipService {
       );
 
     const updatedContract = await currContract.update({
-      statement,
+      applicationFields,
     });
 
     return updatedContract;
