@@ -29,6 +29,10 @@ export class CourseContract extends BaseEntity {
   @Column(DataType.UUID)
   courseId: string;
 
+  @Default([])
+  @Column(DataType.JSON)
+  lessonProgress: string[];
+
   @Column({
     allowNull: false,
     type: DataType.ENUM,

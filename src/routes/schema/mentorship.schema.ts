@@ -24,8 +24,22 @@ export default {
     mentorshipContractId: joi.string().required(),
   }),
 
+  terminateMentorshipQ: joi.object({
+    mentorshipContractId: joi.string().required(),
+    action: joi
+      .string()
+      .valid(...Object.values(CONTRACT_PROGRESS_ENUM))
+      .required(),
+  }),
+
   mentorshipContractB: joi.object({
-    statement: joi.string().required(),
+    applicationFields: joi.object({
+      applicationReason: joi.string().required(),
+      stepsTaken: joi.string().optional(),
+      idealDuration: joi.string().optional(),
+      goals: joi.string().required(),
+      additionalInfo: joi.string().optional(),
+    }),
   }),
 
   acceptMentorshipB: joi.object({
@@ -57,12 +71,12 @@ export default {
   }),
 
   getFilter: joi.object({
-    mentorshipListingId: joi.string().optional(),
+    mentorshipContractId: joi.string().optional(),
     accountId: joi.string().optional(),
   }),
 
   createTestimonialParams: joi.object({
-    mentorshipListingId: joi.string().required(),
+    mentorshipContractId: joi.string().required(),
     accountId: joi.string().required(),
   }),
 
@@ -109,6 +123,25 @@ export default {
           .string()
           .valid(...Object.values(CONTRACT_PROGRESS_ENUM))
           .optional(),
+      })
+      .required(),
+  }),
+  noteIdP: joi.object({
+    noteId: joi.string().required(),
+  }),
+  createNoteB: joi.object({
+    newNote: joi
+      .object({
+        title: joi.string().required(),
+        body: joi.string().required(),
+      })
+      .required(),
+  }),
+  updateNoteB: joi.object({
+    updateNote: joi
+      .object({
+        title: joi.string().optional(),
+        body: joi.string().optional(),
       })
       .required(),
   }),

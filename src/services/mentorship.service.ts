@@ -10,9 +10,13 @@ import {
 } from '../constants/enum';
 import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
 import { Category } from '../models/Category';
-import { MentorshipContract } from '../models/MentorshipContract';
+import {
+  MentorshipApplicationFields,
+  MentorshipContract,
+} from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
+import { Note } from '../models/Note';
 import { Review } from '../models/Review';
 import { Task } from '../models/Task';
 import { TaskBucket } from '../models/TaskBucket';
@@ -227,7 +231,22 @@ export default class MentorshipService {
   ): Promise<MentorshipListing> {
     const listingWithoutContracts = await this.getListingWithAssociations({
       mentorshipListingId,
-      extraModels: [Review],
+      extraModels: [
+        {
+          model: Review,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+                'occupation',
+              ],
+            },
+          ],
+        },
+      ],
     });
 
     if (!listingWithoutContracts)
@@ -246,7 +265,24 @@ export default class MentorshipService {
 
     // else return listing with contract
     return MentorshipListing.findByPk(mentorshipListingId, {
-      include: [Review, MentorshipContract],
+      include: [
+        {
+          model: Review,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+                'occupation',
+              ],
+            },
+          ],
+        },
+        MentorshipContract,
+      ],
     });
   }
 
@@ -254,35 +290,26 @@ export default class MentorshipService {
   public static async createContract(
     mentorshipListingId: string,
     accountId: string,
-    statement: string
+    applicationFields: MentorshipApplicationFields
   ): Promise<MentorshipContract> {
     const listing = await MentorshipListing.findByPk(mentorshipListingId);
     if (!listing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
 
-    const pendingContract = await MentorshipContract.findOne({
-      where: {
-        mentorshipListingId,
-        accountId,
-        senseiApproval: APPROVAL_STATUS.PENDING,
-      },
-    });
     const existingContract = await MentorshipContract.findOne({
       where: {
         mentorshipListingId,
         accountId,
-        senseiApproval: APPROVAL_STATUS.APPROVED,
         progress:
           CONTRACT_PROGRESS_ENUM.NOT_STARTED || CONTRACT_PROGRESS_ENUM.ONGOING,
       },
     });
 
-    if (pendingContract || existingContract)
-      throw new Error(MENTORSHIP_ERRORS.CONTRACT_EXISTS);
+    if (existingContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_EXISTS);
 
     const newContract = new MentorshipContract({
       mentorshipListingId,
       accountId,
-      statement,
+      applicationFields,
     });
 
     await newContract.save();
@@ -292,8 +319,8 @@ export default class MentorshipService {
 
   public static async updateContract(
     mentorshipContractId: string,
-    statement: string,
-    accountId
+    accountId: string,
+    applicationFields: MentorshipApplicationFields
   ): Promise<MentorshipContract> {
     const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
@@ -305,7 +332,7 @@ export default class MentorshipService {
       );
 
     const updatedContract = await currContract.update({
-      statement,
+      applicationFields,
     });
 
     return updatedContract;
@@ -410,6 +437,58 @@ export default class MentorshipService {
       where: {
         mentorshipContractId,
       },
+    });
+  }
+
+  public static async terminateContract(
+    // Complete or Cancel
+    mentorshipContractId: string,
+    user: User,
+    action: CONTRACT_PROGRESS_ENUM
+  ): Promise<void> {
+    const currContract = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!currContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    if (user.userType === USER_TYPE_ENUM.STUDENT) {
+      // student can only cancel
+      if (
+        currContract.accountId !== user.accountId ||
+        action !== CONTRACT_PROGRESS_ENUM.CANCELLED
+      )
+        throw new Error(
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+        );
+    }
+
+    if (user.userType === USER_TYPE_ENUM.SENSEI) {
+      // sensei can only complete
+      const mentorshipListing = await MentorshipListing.findByPk(
+        currContract.mentorshipListingId
+      );
+      if (
+        mentorshipListing.accountId !== user.accountId ||
+        action !== CONTRACT_PROGRESS_ENUM.COMPLETED
+      )
+        throw new Error(
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+        );
+    }
+
+    if (
+      currContract.progress === CONTRACT_PROGRESS_ENUM.NOT_STARTED &&
+      action === CONTRACT_PROGRESS_ENUM.COMPLETED
+    )
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_NOT_STARTED);
+    if (
+      currContract.progress === CONTRACT_PROGRESS_ENUM.CANCELLED ||
+      currContract.progress === CONTRACT_PROGRESS_ENUM.COMPLETED
+    )
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_TERMINATED);
+
+    await currContract.update({
+      progress: action,
     });
   }
 
@@ -574,14 +653,14 @@ export default class MentorshipService {
   public static async addTestimonial(
     userId: string,
     accountId: string, //studentId
-    mentorshipListingId: string,
+    mentorshipContractId: string,
     testimonial: {
       body: string;
     }
   ): Promise<Testimonial> {
     const existingTestimonial = await Testimonial.findOne({
       where: {
-        mentorshipListingId,
+        mentorshipContractId,
         accountId,
       },
     });
@@ -593,7 +672,7 @@ export default class MentorshipService {
     //Check if mentorship has been completed before testimonial is created
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
-        mentorshipListingId,
+        mentorshipContractId,
         accountId,
         progress: CONTRACT_PROGRESS_ENUM.COMPLETED,
       },
@@ -603,7 +682,7 @@ export default class MentorshipService {
     }
 
     const mentorshipListing = await MentorshipListing.findByPk(
-      mentorshipListingId,
+      mentorshipContract.mentorshipListingId,
       { paranoid: false }
     );
 
@@ -620,7 +699,7 @@ export default class MentorshipService {
     const { body } = testimonial;
 
     const newTestimonial = new Testimonial({
-      mentorshipListingId,
+      mentorshipContractId,
       accountId,
       body,
     });
@@ -640,9 +719,20 @@ export default class MentorshipService {
     if (!existingTestimonial)
       throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
 
+    const mentorshipContract = await MentorshipContract.findOne({
+      where: {
+        mentorshipContractId: existingTestimonial.mentorshipContractId,
+      },
+      paranoid: false,
+    });
+
+    if (!mentorshipContract) {
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+    }
+
     const mentorshipListing = await MentorshipListing.findOne({
       where: {
-        mentorshipListingId: existingTestimonial.mentorshipListingId,
+        mentorshipListingId: mentorshipContract.mentorshipListingId,
       },
       paranoid: false,
     });
@@ -663,9 +753,59 @@ export default class MentorshipService {
   //get list of testimonials by filter
   public static async getTestimonialsByFilter(filter: {
     accountId?: string;
-    mentorshipListingId?: string;
+    mentorshipContractId?: string;
   }) {
-    return await Testimonial.findAll({ where: filter });
+    return await Testimonial.findAll({
+      where: filter,
+      include: [
+        {
+          model: MentorshipContract,
+          include: [
+            {
+              model: MentorshipListing,
+              include: [
+                {
+                  model: User,
+                  attributes: [
+                    'firstName',
+                    'lastName',
+                    'profileImgUrl',
+                    'occupation',
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  }
+
+  public static async getAllTestimonials(accountId: string) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    const mentorshipListings = await MentorshipListing.findAll({
+      where: {
+        accountId,
+      },
+    });
+
+    const mentorshipListingIds = mentorshipListings.map(
+      (ml) => ml.mentorshipListingId
+    );
+
+    const mentorshipContracts = await MentorshipContract.findAll({
+      where: { mentorshipListingId: { [Op.in]: mentorshipListingIds } },
+    });
+
+    const mentorshipContractIds = mentorshipContracts.map(
+      (mc) => mc.mentorshipContractId
+    );
+
+    return await Testimonial.findAll({
+      where: { mentorshipContractId: { [Op.in]: mentorshipContractIds } },
+      include: [MentorshipContract, User],
+    });
   }
 
   // =========================================== TASKS ====================================================
@@ -883,6 +1023,96 @@ export default class MentorshipService {
       );
   }
 
+  // ======================================== NOTES ========================================
+  public static async addNoteToMentorship(
+    mentorshipContractId: string,
+    accountId: string,
+    note: {
+      title: string;
+      body: string;
+    }
+  ): Promise<Note> {
+    await MentorshipService.noteAuthorizationCheck(
+      mentorshipContractId,
+      accountId
+    );
+
+    const { title, body } = note;
+
+    const newNote = new Note({
+      mentorshipContractId,
+      title,
+      body,
+    });
+
+    await newNote.save();
+
+    return newNote;
+  }
+
+  public static async editNoteInMentorship(
+    noteId: string,
+    accountId: string,
+    updateNote
+  ): Promise<Note> {
+    const note = await Note.findByPk(noteId);
+    if (!note) throw new Error(MENTORSHIP_ERRORS.NOTE_MISSING);
+
+    await MentorshipService.noteAuthorizationCheck(
+      note.mentorshipContractId,
+      accountId
+    );
+
+    return await note.update(updateNote);
+  }
+
+  public static async getAllNotes(mentorshipContractId, accountId) {
+    const mentorshipContract = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+    if (!mentorshipListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+
+    const user = await User.findByPk(accountId);
+    if (
+      user.accountId !== mentorshipListing.accountId &&
+      user.accountId !== mentorshipContract.accountId
+    )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    const notes = Note.findAll({
+      where: {
+        mentorshipContractId,
+      },
+    });
+    return notes;
+  }
+
+  public static async noteAuthorizationCheck(mentorshipContractId, accountId) {
+    const mentorshipContract = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+    if (!mentorshipListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+
+    const user = await User.findByPk(accountId);
+    if (user.accountId !== mentorshipListing.accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+  }
+
   // ==================================== SENSEI MENTEE ====================================
   public static async getSenseiMenteeList(accountId: string): Promise<User[]> {
     const user = await User.findByPk(accountId);
@@ -898,6 +1128,7 @@ export default class MentorshipService {
         {
           model: MentorshipContract,
           where: { mentorshipListingId: mentorshipListingIds },
+          include: [Testimonial],
         },
       ],
     });
