@@ -315,6 +315,32 @@ export class MentorshipController {
     }
   }
 
+  public static async terminateContract(req, res) {
+    const { mentorshipContractId, action } = req.query;
+    const { user } = req;
+
+    try {
+      await MentorshipService.terminateContract(
+        mentorshipContractId,
+        user,
+        action
+      );
+      return apiResponse.result(
+        res,
+        { message: MENTORSHIP_RESPONSE.CONTRACT_UPDATE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.terminateContract]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.CONTRACT_MISSING,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+        MENTORSHIP_ERRORS.CONTRACT_NOT_STARTED,
+        MENTORSHIP_ERRORS.CONTRACT_TERMINATED,
+      ]);
+    }
+  }
+
   //get ALL mentorship contracts
   public static async getAllMentorshipContracts(req, res) {
     try {

@@ -92,6 +92,9 @@ export const MENTORSHIP_ERRORS = {
   TASK_BUCKET_MISSING: 'Task bucket does not exist',
   TASK_MISSING: 'Task does not exist',
   NOTE_MISSING: 'Note does not exist',
+  CONTRACT_NOT_STARTED: 'You cannot complete a contract that has not started',
+  CONTRACT_TERMINATED:
+    'This contract is no longer ongoing and can neither be cancelled nor completed.',
 };
 
 export const REVIEW_ERRORS = {
