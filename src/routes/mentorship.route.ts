@@ -90,6 +90,13 @@ router.delete(
   Utility.asyncHandler(MentorshipController.deleteContract)
 );
 
+router.put(
+  '/terminate',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.query(mentorship.terminateMentorshipQ),
+  Utility.asyncHandler(MentorshipController.terminateContract)
+);
+
 //Accept Mentorship Application
 router.put(
   '/accept/application/:mentorshipContractId',
