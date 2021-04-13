@@ -118,14 +118,14 @@ export class ConsultationController {
       return apiResponse.result(
         res,
         {
-          message: CONSULTATION_RESPONSE.CONSULTATION_DELETE,
+          message: 'success',
           consultationSlots,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error(
-        '[consultationController.viewAllConsultationSlots]:' + e.message
+        '[consultationController.viewFilteredConsultationSlots]:' + e.message
       );
       return Utility.apiErrorResponse(res, e, [
         CONSULTATION_ERRORS.CONSULTATION_MISSING,
