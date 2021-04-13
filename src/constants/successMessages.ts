@@ -35,6 +35,18 @@ export const COMMENT_RESPONSE = {
   COMMENT_POST_EDIT: 'Successfully edited comment on post',
 };
 
+// ==================== CONSULTATION RESPONSE MESSAGES ====================
+export const CONSULTATION_RESPONSE = {
+  CONSULTATION_CREATE: 'Consultation has been successfully created',
+  CONSULTATION_EDIT: 'Consultation has been successfully edited',
+  CONSULTATION_DELETE: 'Consultation has been successfully deleted',
+
+  CONSULTATION_REGISTERED:
+    'You have been successfully registered for the selected consultation slot',
+  CONSULTATION_UNREGISTERED:
+    'You have been successfully cancelled your registration for the selected consultation slot',
+};
+
 // ==================== COURSE RESPONSE MESSAGES ====================
 export const COURSE_RESPONSE = {
   COURSE_CREATE: 'Course Listing has been successfully created',

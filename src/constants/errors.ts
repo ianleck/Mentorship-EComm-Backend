@@ -31,6 +31,30 @@ export const CART_ERRORS = {
   ITEM_MISSING: 'There is no such item in shopping cart',
 };
 
+export const CONSULTATION_ERRORS = {
+  CONSULTATION_CLASH:
+    'There is an existing consultation that clashes with the new consultation. Please change the time and try again.',
+  CONSULTATION_MISSING: 'Consultation does not exist',
+  CONSULTATION_TAKEN: 'Consultation has been taken',
+  INSUFFICIENT_PASS:
+    'You do not have any more passes left to book this consultation slot. Please purchase more and try again.',
+  CONSULTATION_BOOKED:
+    'This consultation has been booked and can no longer be edited. If you wish to reschedule the consultation, please cancel this consultation and create a new consultation.',
+  UNREGISTER_FAILURE:
+    'You are no longer able to unregister for the consultation due to the lack of lead time of 3 days.',
+};
+
+export const COMMENT_ERRORS = {
+  COMMENT_MISSING: 'Comment does not exist',
+};
+
+export const COMPLAINT_ERRORS = {
+  COMPLAINT_REASON_EXISTS: 'Similar complaint reason already exists',
+
+  COMPLAINT_MISSING: 'Complaint does not exist',
+  COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
+};
+
 export const COURSE_ERRORS = {
   COURSE_MISSING: 'Course does not exist',
   COURSE_DRAFT_MISSING: 'Course draft does not exist',
@@ -126,17 +150,6 @@ export const SOCIAL_ERRORS = {
   FOLLOWING_MISSING: 'User is not following',
 
   PRIVATE_USER: 'User account is private',
-};
-
-export const COMMENT_ERRORS = {
-  COMMENT_MISSING: 'Comment does not exist',
-};
-
-export const COMPLAINT_ERRORS = {
-  COMPLAINT_REASON_EXISTS: 'Similar complaint reason already exists',
-
-  COMPLAINT_MISSING: 'Complaint does not exist',
-  COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
 };
 
 export const MESSAGE_ERRORS = {
