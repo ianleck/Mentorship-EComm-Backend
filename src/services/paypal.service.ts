@@ -512,7 +512,7 @@ export default class PaypalService {
 
     const populatedTransactions = [
       {
-        amount: { total: `${totalPrice}`, currency: `${CURRENCY}` },
+        amount: { total: `${totalPrice.toFixed(2)}`, currency: `${CURRENCY}` },
         description: `DigiDojo Order Checkout`,
         item_list: {
           items,
