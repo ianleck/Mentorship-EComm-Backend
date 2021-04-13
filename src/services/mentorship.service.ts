@@ -269,6 +269,7 @@ export default class MentorshipService {
             {
               model: User,
               attributes: [
+                'accountId',
                 'firstName',
                 'lastName',
                 'profileImgUrl',
@@ -760,7 +761,30 @@ export default class MentorshipService {
     accountId?: string;
     mentorshipContractId?: string;
   }) {
-    return await Testimonial.findAll({ where: filter });
+    return await Testimonial.findAll({
+      where: filter,
+      include: [
+        {
+          model: MentorshipContract,
+          include: [
+            {
+              model: MentorshipListing,
+              include: [
+                {
+                  model: User,
+                  attributes: [
+                    'firstName',
+                    'lastName',
+                    'profileImgUrl',
+                    'occupation',
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
   }
 
   public static async getAllTestimonials(accountId: string) {
