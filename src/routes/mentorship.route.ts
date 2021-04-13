@@ -91,7 +91,7 @@ router.delete(
 );
 
 router.put(
-  '/contract/terminate',
+  '/contract',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.query(mentorship.terminateMentorshipQ),
   Utility.asyncHandler(MentorshipController.terminateContract)
