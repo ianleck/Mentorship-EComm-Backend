@@ -35,6 +35,18 @@ export const COMMENT_RESPONSE = {
   COMMENT_POST_EDIT: 'Successfully edited comment on post',
 };
 
+// ==================== CONSULTATION RESPONSE MESSAGES ====================
+export const CONSULTATION_RESPONSE = {
+  CONSULTATION_CREATE: 'Consultation has been successfully created',
+  CONSULTATION_EDIT: 'Consultation has been successfully edited',
+  CONSULTATION_DELETE: 'Consultation has been successfully deleted',
+
+  CONSULTATION_REGISTERED:
+    'You have been successfully registered for the selected consultation slot',
+  CONSULTATION_UNREGISTERED:
+    'You have been successfully cancelled your registration for the selected consultation slot',
+};
+
 // ==================== COURSE RESPONSE MESSAGES ====================
 export const COURSE_RESPONSE = {
   COURSE_CREATE: 'Course Listing has been successfully created',
@@ -167,4 +179,13 @@ export const WITHDRAWAL_RESPONSE = {
   REQUEST_CREATE: 'Withdrawal has been successfully requested',
   REQUEST_APPROVE: 'Withdrawal has been successfully approved',
   REQUEST_REJECT: 'Withdrawal has been successfully rejected',
+};
+
+// ==================== MESSAGE RESPONSE MESSAGES ====================
+export const MESSAGE_RESPONSE = {
+  MESSAGE_CREATE: 'Message has been successfully sent',
+  GROUP_CREATE: 'Chat group has been successfully created',
+  GROUP_DELETED: 'Chat group has been successfully deleted',
+  USER_ADDED: 'User has been successfully added to chat group',
+  USER_REMOVED: 'User has been successfully removed from chat group',
 };
