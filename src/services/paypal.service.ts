@@ -230,7 +230,9 @@ export default class PaypalService {
         const indivPassCost = Number(
           (billing.amount / billing.mentorPassCount).toFixed(2)
         );
-        const totalCost = numPassesToRefund * indivPassCost;
+        const totalCost = Number(
+          (numPassesToRefund * indivPassCost).toFixed(2)
+        );
         const paymentId = billing.paypalPaymentId;
         const refund_details = {
           amount: {
@@ -333,8 +335,10 @@ export default class PaypalService {
 
         const refundedAmount = Number(refund_details.amount.total); // amount we refunded to student
         //1. Calculate how much to deduct
-        const platformFee = refundedAmount * MARKET_FEE;
-        const paypalFee = refundedAmount * PAYPAL_FEE + 0.5;
+        const platformFee = Number((refundedAmount * MARKET_FEE).toFixed(2));
+        const paypalFee = Number(
+          (refundedAmount * PAYPAL_FEE + 0.5).toFixed(2)
+        );
         toDeductFromSensei = refundedAmount - paypalFee - platformFee;
         toDeductFromPlatformEarned += refundedAmount - paypalFee;
         toDeductFromPlatformRevenue += platformFee;
@@ -501,7 +505,9 @@ export default class PaypalService {
             price: `${mentorPass.priceAmount}`,
             currency: mentorPass.currency,
           });
-          const totalCost = mentorPass.priceAmount * numSlots;
+          const totalCost = Number(
+            (mentorPass.priceAmount * numSlots).toFixed(2)
+          );
           totalPrice += totalCost;
         })
       );
@@ -509,7 +515,7 @@ export default class PaypalService {
 
     const populatedTransactions = [
       {
-        amount: { total: `${totalPrice}`, currency: `${CURRENCY}` },
+        amount: { total: `${totalPrice.toFixed(2)}`, currency: `${CURRENCY}` },
         description: `DigiDojo Order Checkout`,
         item_list: {
           items,
@@ -568,8 +574,8 @@ export default class PaypalService {
             BILLING_TYPE.COURSE
           );
           // 3. Calculate Revenue + Earnings
-          const platformFee = coursePrice * MARKET_FEE;
-          const paypalFee = coursePrice * PAYPAL_FEE + 0.5;
+          const platformFee = Number((coursePrice * MARKET_FEE).toFixed(2));
+          const paypalFee = Number((coursePrice * PAYPAL_FEE + 0.5).toFixed(2));
           const payable = coursePrice - paypalFee - platformFee;
           newPlatformEarned += coursePrice - paypalFee;
           newPlatformRevenue += platformFee;
@@ -672,7 +678,9 @@ export default class PaypalService {
           //Calculate total number of slots purchased
           slotsCount = slotsCount + numSlots;
           // Total cost = price * quantity
-          const mentorPassCost = mentorPass.priceAmount * numSlots;
+          const mentorPassCost = Number(
+            (mentorPass.priceAmount * numSlots).toFixed(2)
+          );
           // 1. Update mentorshipContract for user
           const mentorshipContract = await MentorshipContract.findOne({
             where: {
@@ -700,8 +708,10 @@ export default class PaypalService {
             numSlots
           );
           // 3. Calculate Revenue + Earnings
-          const platformFee = mentorPassCost * MARKET_FEE;
-          const paypalFee = mentorPassCost * PAYPAL_FEE + 0.5;
+          const platformFee = Number((mentorPassCost * MARKET_FEE).toFixed(2));
+          const paypalFee = Number(
+            (mentorPassCost * PAYPAL_FEE + 0.5).toFixed(2)
+          );
           const payable = mentorPassCost - paypalFee - platformFee;
           newPlatformEarned += mentorPassCost - paypalFee;
           newPlatformRevenue += platformFee;

@@ -24,8 +24,22 @@ export default {
     mentorshipContractId: joi.string().required(),
   }),
 
+  terminateMentorshipQ: joi.object({
+    mentorshipContractId: joi.string().required(),
+    action: joi
+      .string()
+      .valid(...Object.values(CONTRACT_PROGRESS_ENUM))
+      .required(),
+  }),
+
   mentorshipContractB: joi.object({
-    statement: joi.string().required(),
+    applicationFields: joi.object({
+      applicationReason: joi.string().required(),
+      stepsTaken: joi.string().optional(),
+      idealDuration: joi.string().optional(),
+      goals: joi.string().required(),
+      additionalInfo: joi.string().optional(),
+    }),
   }),
 
   acceptMentorshipB: joi.object({

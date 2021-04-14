@@ -30,7 +30,7 @@ router.post(
 
 //Get WHOLE CHAT LIST of a user
 router.get(
-  '/all/chat-list/:accountId',
+  '/list/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   requireSameUser,
   Utility.asyncHandler(ChatController.getChatList)

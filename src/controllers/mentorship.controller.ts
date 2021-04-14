@@ -173,14 +173,14 @@ export class MentorshipController {
   public static async createContract(req, res) {
     const { mentorshipListingId } = req.params;
     const { accountId } = req.user;
-    const { statement } = req.body;
+    const { applicationFields } = req.body;
 
     // Check that there is no existing mentorship contract
     try {
       const createdContract = await MentorshipService.createContract(
         mentorshipListingId,
         accountId,
-        statement
+        applicationFields
       );
       return apiResponse.result(
         res,
@@ -198,15 +198,15 @@ export class MentorshipController {
 
   public static async updateContract(req, res) {
     const { mentorshipContractId } = req.params;
-    const { statement } = req.body;
     const { accountId } = req.user;
+    const { applicationFields } = req.body;
 
     // Check that there is an existing mentorship contract
     try {
       const updatedContract = await MentorshipService.updateContract(
         mentorshipContractId,
-        statement,
-        accountId
+        accountId,
+        applicationFields
       );
       return apiResponse.result(
         res,
@@ -312,6 +312,32 @@ export class MentorshipController {
           message: RESPONSE_ERROR.RES_ERROR,
         });
       }
+    }
+  }
+
+  public static async terminateContract(req, res) {
+    const { mentorshipContractId, action } = req.query;
+    const { user } = req;
+
+    try {
+      await MentorshipService.terminateContract(
+        mentorshipContractId,
+        user,
+        action
+      );
+      return apiResponse.result(
+        res,
+        { message: MENTORSHIP_RESPONSE.CONTRACT_UPDATE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.terminateContract]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.CONTRACT_MISSING,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+        MENTORSHIP_ERRORS.CONTRACT_NOT_STARTED,
+        MENTORSHIP_ERRORS.CONTRACT_TERMINATED,
+      ]);
     }
   }
 
