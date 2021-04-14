@@ -2,6 +2,7 @@ import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
 import { Op } from 'sequelize';
 import {
+  ACHIEVEMENT_ENUM,
   ADMIN_VERIFIED_ENUM,
   APPROVAL_STATUS,
   CONTRACT_PROGRESS_ENUM,
@@ -9,6 +10,7 @@ import {
   VISIBILITY_ENUM,
 } from '../constants/enum';
 import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
+import { Achievement } from '../models/Achievement';
 import { Category } from '../models/Category';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
@@ -19,6 +21,7 @@ import { Task } from '../models/Task';
 import { TaskBucket } from '../models/TaskBucket';
 import { Testimonial } from '../models/Testimonial';
 import { User } from '../models/User';
+import { UserToAchievement } from '../models/UserToAchievement';
 import EmailService from './email.service';
 
 /*type getFilter = {
@@ -120,6 +123,61 @@ export default class MentorshipService {
       updatedListing.visibility === VISIBILITY_ENUM.PUBLISHED
     )
       throw new Error(MENTORSHIP_ERRORS.USER_NOT_VERIFIED);
+
+    //=============UPDATE MENTORSHIP ACHIEVEMENTS UPON PUBLISHED===============
+    if (
+      !currListing.publishedAt &&
+      updatedListing.visibility === VISIBILITY_ENUM.PUBLISHED
+    ) {
+      const mentorshipAchievement = await Achievement.findOne({
+        where: {
+          title: 'Mentorship Listings Created',
+        },
+      });
+      const existingMentorshipListingAchievement = await UserToAchievement.findOne(
+        {
+          where: {
+            accountId: user.accountId,
+            achievementId: mentorshipAchievement.achievementId,
+          },
+        }
+      );
+      if (!existingMentorshipListingAchievement) {
+        const newAchievement = new UserToAchievement({
+          achievementId: mentorshipAchievement.achievementId,
+          accountId: user.accountId,
+          currentCount: 1,
+          title: mentorshipAchievement.title,
+        });
+        await newAchievement.save();
+      } else {
+        const newCount = existingMentorshipListingAchievement.currentCount + 1;
+        await existingMentorshipListingAchievement.update({
+          currentCount: newCount,
+        });
+        //Check if currentCount is 5/10/50, if it is then update ENUM
+        switch (true) {
+          case newCount >= 5 && newCount < 10:
+            await existingMentorshipListingAchievement.update({
+              medal: ACHIEVEMENT_ENUM.BRONZE,
+            });
+            break;
+
+          case newCount >= 10 && newCount < 50:
+            await existingMentorshipListingAchievement.update({
+              medal: ACHIEVEMENT_ENUM.SILVER,
+            });
+            break;
+
+          case newCount >= 50:
+            await existingMentorshipListingAchievement.update({
+              medal: ACHIEVEMENT_ENUM.GOLD,
+            });
+            break;
+        }
+      }
+    }
+    //=================== END OF ACHIEVEMENT UPDATE ========================
 
     const { categories, ...listingWithoutCategories } = updatedListing;
     await this.updateMentorshipCategory(mentorshipListingId, updatedListing);
@@ -379,6 +437,55 @@ export default class MentorshipService {
     const acceptedApplication = await mentorshipContract.update({
       senseiApproval: APPROVAL_STATUS.APPROVED,
     });
+
+    //=============UPDATE ACHIEVEMENTS UPON ACCPETING CONTRACT===============
+    const achievement = await Achievement.findOne({
+      where: {
+        title: 'Students Mentored',
+      },
+    });
+    const existingMentorshipAchievement = await UserToAchievement.findOne({
+      where: {
+        accountId: sensei.accountId,
+        achievementId: achievement.achievementId,
+      },
+    });
+    if (!existingMentorshipAchievement) {
+      const newAchievement = new UserToAchievement({
+        achievementId: achievement.achievementId,
+        accountId: sensei.accountId,
+        currentCount: 1,
+        title: achievement.title,
+      });
+      await newAchievement.save();
+    } else {
+      const newCount = existingMentorshipAchievement.currentCount + 1;
+      await existingMentorshipAchievement.update({
+        currentCount: newCount,
+      });
+      //Check if currentCount is 10/20/50, if it is then update ENUM
+      switch (true) {
+        case newCount >= 10 && newCount < 20:
+          await existingMentorshipAchievement.update({
+            medal: ACHIEVEMENT_ENUM.BRONZE,
+          });
+          break;
+
+        case newCount >= 20 && newCount < 50:
+          await existingMentorshipAchievement.update({
+            medal: ACHIEVEMENT_ENUM.SILVER,
+          });
+          break;
+
+        case newCount >= 50:
+          await existingMentorshipAchievement.update({
+            medal: ACHIEVEMENT_ENUM.GOLD,
+          });
+          break;
+      }
+    }
+
+    //================== END OF ACHIEVEMENT UPDATE =========================
 
     const mentorshipName = mentorshipListing.name;
     const additional = { mentorshipName, ...emailParams, mentorName };
@@ -856,10 +963,69 @@ export default class MentorshipService {
     const taskBucket = await TaskBucket.findByPk(existingTask.taskBucketId);
     if (!taskBucket) throw new Error(MENTORSHIP_ERRORS.TASK_BUCKET_MISSING);
 
+    const mentorshipContract = await MentorshipContract.findByPk(
+      taskBucket.mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
     await MentorshipService.authorizationCheck(
       taskBucket.mentorshipContractId,
       accountId
     );
+
+    //=============UPDATE TASK ACHIEVEMENTS UPON COMPLETION===============
+    if (
+      existingTask.progress === CONTRACT_PROGRESS_ENUM.ONGOING &&
+      editedTask.progress === CONTRACT_PROGRESS_ENUM.COMPLETED
+    ) {
+      const taskAchievement = await Achievement.findOne({
+        where: {
+          title: 'Tasks Completed',
+        },
+      });
+      const existingTaskAchievement = await UserToAchievement.findOne({
+        where: {
+          accountId: mentorshipContract.accountId,
+          achievementId: taskAchievement.achievementId,
+        },
+      });
+      if (!existingTaskAchievement) {
+        const newAchievement = new UserToAchievement({
+          achievementId: taskAchievement.achievementId,
+          accountId: mentorshipContract.accountId,
+          currentCount: 1,
+          title: taskAchievement.title,
+        });
+        await newAchievement.save();
+      } else {
+        const newCount = existingTaskAchievement.currentCount + 1;
+        await existingTaskAchievement.update({
+          currentCount: newCount,
+        });
+        //Check if currentCount is 10/20/50, if it is then update ENUM
+        switch (existingTaskAchievement.currentCount) {
+          case 10:
+            await existingTaskAchievement.update({
+              medal: ACHIEVEMENT_ENUM.BRONZE,
+            });
+            break;
+
+          case 20:
+            await existingTaskAchievement.update({
+              medal: ACHIEVEMENT_ENUM.SILVER,
+            });
+            break;
+
+          case 50:
+            await existingTaskAchievement.update({
+              medal: ACHIEVEMENT_ENUM.GOLD,
+            });
+            break;
+        }
+      }
+    }
+    //=================== END OF ACHIEVEMENT UPDATE ========================
 
     return await existingTask.update(editedTask);
   }
