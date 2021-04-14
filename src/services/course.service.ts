@@ -305,6 +305,7 @@ export default class CourseService {
             {
               model: User,
               attributes: [
+                'accountId',
                 'firstName',
                 'lastName',
                 'profileImgUrl',
@@ -339,6 +340,7 @@ export default class CourseService {
             {
               model: User,
               attributes: [
+                'accountId',
                 'firstName',
                 'lastName',
                 'profileImgUrl',
