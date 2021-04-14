@@ -11,12 +11,14 @@ import {
   WITHDRAWAL_TITLE,
 } from '../constants/constants';
 import {
+  ACHIEVEMENT_ENUM,
   APPROVAL_STATUS,
   BILLING_STATUS,
   BILLING_TYPE,
   CONTRACT_PROGRESS_ENUM,
 } from '../constants/enum';
 import { ERRORS, WALLET_ERROR } from '../constants/errors';
+import { Achievement } from '../models/Achievement';
 import { Admin } from '../models/Admin';
 import { Billing } from '../models/Billing';
 import { Cart } from '../models/Cart';
@@ -26,6 +28,7 @@ import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { RefundRequest } from '../models/RefundRequest';
 import { User } from '../models/User';
+import { UserToAchievement } from '../models/UserToAchievement';
 import { Wallet } from '../models/Wallet';
 import CourseService from './course.service';
 import EmailService from './email.service';
@@ -614,10 +617,66 @@ export default class PaypalService {
       );
     }
 
+    //=============UPDATE COURSE ACHIEVEMENTS UPON PURCHASE===============
+    if (courses && courses.length > 0) {
+      const courseAchievement = await Achievement.findOne({
+        where: {
+          title: 'Courses Purchased',
+        },
+      });
+      const existingCoursePurchasedAchievement = await UserToAchievement.findOne(
+        {
+          where: {
+            accountId: studentId,
+            achievementId: courseAchievement.achievementId,
+          },
+        }
+      );
+      if (!existingCoursePurchasedAchievement) {
+        const newAchievement = new UserToAchievement({
+          achievementId: courseAchievement.achievementId,
+          accountId: studentId,
+          currentCount: courses.length,
+          title: courseAchievement.title,
+        });
+        await newAchievement.save();
+      } else {
+        const newCount =
+          existingCoursePurchasedAchievement.currentCount + courses.length;
+        await existingCoursePurchasedAchievement.update({
+          currentCount: newCount,
+        });
+        //Check if currentCount is 5/10/50, if it is then update ENUM
+        switch (true) {
+          case newCount >= 5 && newCount < 10:
+            await existingCoursePurchasedAchievement.update({
+              medal: ACHIEVEMENT_ENUM.BRONZE,
+            });
+            break;
+
+          case newCount >= 10 && newCount < 50:
+            await existingCoursePurchasedAchievement.update({
+              medal: ACHIEVEMENT_ENUM.SILVER,
+            });
+            break;
+
+          case newCount >= 50:
+            await existingCoursePurchasedAchievement.update({
+              medal: ACHIEVEMENT_ENUM.GOLD,
+            });
+            break;
+        }
+      }
+    }
+
+    //=============== END OF COURSE ACHIEVEMENT UPDATE =======================
+    let slotsCount = 0;
     if (mentorPasses && mentorPasses.length > 0) {
       await Promise.all(
         mentorPasses.map(async (mentorPass: MentorPass) => {
           const numSlots = mentorPass.CartToMentorshipListing.numSlots;
+          //Calculate total number of slots purchased
+          slotsCount = slotsCount + numSlots;
           // Total cost = price * quantity
           const mentorPassCost = Number(
             (mentorPass.priceAmount * numSlots).toFixed(2)
@@ -694,6 +753,56 @@ export default class PaypalService {
       );
     }
 
+    //=============UPDATE MENTORSHIP ACHIEVEMENTS UPON PURCHASE===============
+    if (mentorPasses && mentorPasses.length > 0) {
+      const achievement = await Achievement.findOne({
+        where: {
+          title: 'Mentorship Passes Purchased',
+        },
+      });
+      const existingMentorshipAchievement = await UserToAchievement.findOne({
+        where: {
+          accountId: studentId,
+          achievementId: achievement.achievementId,
+        },
+      });
+      if (!existingMentorshipAchievement) {
+        const newAchievement = await new UserToAchievement({
+          achievementId: achievement.achievementId,
+          accountId: studentId,
+          currentCount: slotsCount,
+          title: achievement.title,
+        }).save();
+      } else {
+        const newCount =
+          existingMentorshipAchievement.currentCount + slotsCount;
+        await existingMentorshipAchievement.update({
+          currentCount: newCount,
+        });
+        //Check if currentCount is 10/20/50, if it is then update ENUM
+        switch (true) {
+          case newCount >= 10 && newCount < 20:
+            await existingMentorshipAchievement.update({
+              medal: ACHIEVEMENT_ENUM.BRONZE,
+            });
+            break;
+
+          case newCount >= 20 && newCount < 50:
+            await existingMentorshipAchievement.update({
+              medal: ACHIEVEMENT_ENUM.SILVER,
+            });
+            break;
+
+          case newCount >= 50:
+            await existingMentorshipAchievement.update({
+              medal: ACHIEVEMENT_ENUM.GOLD,
+            });
+            break;
+        }
+      }
+    }
+    //============================ END OF MENTORSHIP ACHIEVEMENT UPDATE ===================
+
     const totalEarned = Number(
       (adminWallet.totalEarned + newPlatformEarned).toFixed(2)
     );
@@ -706,6 +815,7 @@ export default class PaypalService {
       totalEarned,
       platformRevenue,
     });
+
     // 7. Update sensei wallet
     return await Promise.all(
       Array.from(senseiWalletsDictionary).map(

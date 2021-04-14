@@ -85,4 +85,14 @@ router.delete(
   Utility.asyncHandler(UserController.deleteExperience)
 );
 
+// ========================================== ACHIEVEMENTS ============================================
+
+//VIEW PERSONAL ACHIEVEMENTS
+router.get(
+  '/achievements/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(UserController.getAllAchievements)
+);
+
 export default router;
