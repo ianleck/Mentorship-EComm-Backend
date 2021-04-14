@@ -11,6 +11,7 @@ import { Category } from '../models/Category';
 import { Experience } from '../models/Experience';
 import { User } from '../models/User';
 import { UserFollowership } from '../models/UserFollowership';
+import { UserToAchievement } from '../models/UserToAchievement';
 import { UserToCategories } from '../models/UserToCategories';
 
 export default class UserService {
@@ -283,5 +284,16 @@ export default class UserService {
     });
     if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     return user.Experience;
+  }
+
+  // ========================================== ACHIEVEMENTS ============================================
+  public static async getAllAchievements(accountId: string) {
+    const achievements = UserToAchievement.findAll({
+      where: {
+        accountId,
+      },
+      attributes: ['title', 'medal', 'currentCount'],
+    });
+    return achievements;
   }
 }

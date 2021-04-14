@@ -94,3 +94,9 @@ export enum FOLLOWING_ENUM {
   APPROVED = 'APPROVED',
   BLOCKED = 'BLOCKED',
 }
+
+export enum ACHIEVEMENT_ENUM {
+  BRONZE = 'BRONZE',
+  SILVER = 'SILVER',
+  GOLD = 'GOLD',
+}
