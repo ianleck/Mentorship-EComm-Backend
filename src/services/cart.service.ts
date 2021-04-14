@@ -19,10 +19,8 @@ import { CartToMentorshipListing } from '../models/CartToMentorshipListing';
 import { Category } from '../models/Category';
 import { Course } from '../models/Course';
 import { CourseContract } from '../models/CourseContract';
-import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
-import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
 import { User } from '../models/User';
 
 export default class CartService {
@@ -190,7 +188,7 @@ export default class CartService {
   // 1. On course page
   public static async upsellOnCourses(courseId: string, accountId: string) {
     const course = await Course.findByPk(courseId, {
-      include: [CourseListingToCategory],
+      include: [Category],
     });
     // Show mentorships by same sensei
     const senseiMentorships = await MentorshipListing.findAll({
@@ -205,24 +203,30 @@ export default class CartService {
         },
       ],
     });
-    if (senseiMentorships) return senseiMentorships;
+
+    if (senseiMentorships.length > 0) return senseiMentorships;
+
     // If don't have, show other mentorships in same category
     const courseCategoryIds = course.Categories.map((category) => {
       return category.categoryId;
     });
     const categoryMentorships = await MentorshipListing.findAll({
       where: {
-        '$Categories.categoryId$': { [Op.in]: courseCategoryIds },
         visibility: VISIBILITY_ENUM.PUBLISHED,
       },
       include: [
+        {
+          model: Category,
+          where: { categoryId: { [Op.in]: courseCategoryIds } },
+        },
         {
           model: User,
           attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
         },
       ],
     });
-    if (categoryMentorships) return categoryMentorships;
+    if (categoryMentorships.length > 0) return categoryMentorships;
+
     // If don't have, show random mentorships in categories of interest
     const user = await User.findByPk(accountId, { include: [Category] });
     const userInterests = user.Interests.map((category) => {
@@ -230,17 +234,21 @@ export default class CartService {
     });
     const interestMentorships = await MentorshipListing.findAll({
       where: {
-        '$Categories.categoryId$': { [Op.in]: userInterests },
         visibility: VISIBILITY_ENUM.PUBLISHED,
       },
       include: [
+        {
+          model: Category,
+          where: { categoryId: { [Op.in]: userInterests } },
+        },
         {
           model: User,
           attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
         },
       ],
     });
-    if (interestMentorships) return interestMentorships;
+    if (interestMentorships.length > 0) return interestMentorships;
+
     // If don't have show random mentorships
     const mentorshipListings = await MentorshipListing.findAll({
       where: {
@@ -253,7 +261,7 @@ export default class CartService {
         },
       ],
       order: sequelize.random(),
-      limit: 10,
+      limit: 5,
     });
     return mentorshipListings;
   }
@@ -264,7 +272,7 @@ export default class CartService {
     accountId: string
   ): Promise<Course[]> {
     const mentorship = await MentorshipListing.findByPk(mentorshipListingId, {
-      include: [MentorshipListingToCategory],
+      include: [Category],
     });
     // Show courses by same sensei
     const senseiCourses = await Course.findAll({
@@ -279,24 +287,29 @@ export default class CartService {
         },
       ],
     });
-    if (senseiCourses) return senseiCourses;
+    if (senseiCourses.length > 0) return senseiCourses;
+
     // If don't have, show other courses in same category
     const mentorshipCategoryIds = mentorship.Categories.map((category) => {
       return category.categoryId;
     });
     const categoryCourses = await Course.findAll({
       where: {
-        '$Categories.categoryId$': { [Op.in]: mentorshipCategoryIds },
         visibility: VISIBILITY_ENUM.PUBLISHED,
       },
       include: [
+        {
+          model: Category,
+          where: { categoryId: { [Op.in]: mentorshipCategoryIds } },
+        },
         {
           model: User,
           attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
         },
       ],
     });
-    if (categoryCourses) return categoryCourses;
+    if (categoryCourses.length > 0) return categoryCourses;
+
     // If don't have, show random courses in categories of interest
     const user = await User.findByPk(accountId, { include: [Category] });
     const userInterests = user.Interests.map((category) => {
@@ -304,17 +317,21 @@ export default class CartService {
     });
     const interestCourses = await Course.findAll({
       where: {
-        '$Categories.categoryId$': { [Op.in]: userInterests },
         visibility: VISIBILITY_ENUM.PUBLISHED,
       },
       include: [
+        {
+          model: Category,
+          where: { categoryId: { [Op.in]: userInterests } },
+        },
         {
           model: User,
           attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
         },
       ],
     });
-    if (interestCourses) return interestCourses;
+    if (interestCourses.length > 0) return interestCourses;
+
     // If don't have, show random courses
     const courses = await Course.findAll({
       where: {
@@ -327,7 +344,7 @@ export default class CartService {
         },
       ],
       order: sequelize.random(),
-      limit: 10,
+      limit: 5,
     });
     return courses;
   }
@@ -340,8 +357,8 @@ export default class CartService {
  */
   public static async upsellCheckout(accountId: string) {
     const cart = await this.viewCart(accountId);
-    if (cart.MentorPasses) {
-      if (cart.Courses) {
+    if (cart.MentorPasses.length > 0) {
+      if (cart.Courses.length > 0) {
         //take all categories of courses/mentorships in cart
         //then randomly pick 5 course and 5 mentorships
         const courseCategoryIds = cart.Courses.map((course) => {
@@ -366,10 +383,13 @@ export default class CartService {
         const mentorshipListings = await MentorshipListing.findAll({
           where: {
             mentorshipListingIds: { [Op.notIn]: mentorshipListingIds },
-            '$Categories.categoryId$': { [Op.in]: categoryIds },
             visibility: VISIBILITY_ENUM.PUBLISHED,
           },
           include: [
+            {
+              model: Category,
+              where: { categoryId: { [Op.in]: categoryIds } },
+            },
             {
               model: User,
               attributes: [
@@ -386,10 +406,13 @@ export default class CartService {
         const courses = await Course.findAll({
           where: {
             courseIds: { [Op.notIn]: courseIds },
-            '$Categories.categoryId$': { [Op.in]: categoryIds },
             visibility: VISIBILITY_ENUM.PUBLISHED,
           },
           include: [
+            {
+              model: Category,
+              where: { categoryId: { [Op.in]: categoryIds } },
+            },
             {
               model: User,
               attributes: [
@@ -405,14 +428,14 @@ export default class CartService {
         });
         return { mentorshipListings, courses };
       }
-
+      // only mentorships in cart
       const upsoldCourses = await this.upsellOnMentorships(
         cart.MentorPasses[0].mentorshipListingId,
         accountId
       );
       return { courses: upsoldCourses };
     }
-
+    // only courses in cart
     const upsoldMentorships = await this.upsellOnCourses(
       cart.Courses[0].courseId,
       accountId
