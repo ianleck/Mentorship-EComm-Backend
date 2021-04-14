@@ -57,4 +57,12 @@ router.put(
   Utility.asyncHandler(ConsultationController.registerConsultation)
 );
 
+router.put(
+  '/unregister/',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireStudent,
+  schemaValidator.query(consultation.consultationIdQ),
+  Utility.asyncHandler(ConsultationController.unregisterConsultation)
+);
+
 export default router;
