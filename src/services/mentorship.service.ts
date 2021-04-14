@@ -289,6 +289,7 @@ export default class MentorshipService {
             {
               model: User,
               attributes: [
+                'accountId',
                 'firstName',
                 'lastName',
                 'profileImgUrl',
@@ -752,7 +753,12 @@ export default class MentorshipService {
           include: [
             {
               model: User,
-              attributes: ['firstName', 'lastName'],
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+              ],
             },
           ],
         },
@@ -786,7 +792,12 @@ export default class MentorshipService {
           include: [
             {
               model: User,
-              attributes: ['firstName', 'lastName'],
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+              ],
             },
           ],
         },
