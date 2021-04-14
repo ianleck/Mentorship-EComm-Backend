@@ -76,6 +76,7 @@ export default {
       adminVerified: joi.string().valid(...Object.values(ADMIN_VERIFIED_ENUM)),
       profileImgUrl: joi.string().optional(),
     }),
+    interests: joi.array().items(joi.string()).optional(),
   }),
   updateUserOccupationB: joi.object({
     occupation: joi.object({

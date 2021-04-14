@@ -24,13 +24,6 @@ import { Testimonial } from '../models/Testimonial';
 import { User } from '../models/User';
 import EmailService from './email.service';
 
-/*type getFilter = {
-  where: {
-    adminVerified: ADMIN_VERIFIED_ENUM;
-    visibility: VISIBILITY_ENUM;
-  };
-};*/
-
 export default class MentorshipService {
   // ==================== Mentorship Listings ====================
 
