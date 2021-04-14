@@ -598,6 +598,57 @@ export default class MentorshipService {
     )
       throw new Error(MENTORSHIP_ERRORS.CONTRACT_TERMINATED);
 
+    //=============UPDATE MENTORSHIP ACHIEVEMENTS UPON COMPLETION===============
+    if (user.userType === USER_TYPE_ENUM.SENSEI) {
+      const achievement = await Achievement.findOne({
+        where: {
+          title: 'Mentorships Completed',
+        },
+      });
+      const existingMentorshipAchievement = await UserToAchievement.findOne({
+        where: {
+          accountId: currContract.accountId,
+          achievementId: achievement.achievementId,
+        },
+      });
+      if (!existingMentorshipAchievement) {
+        const newAchievement = new UserToAchievement({
+          achievementId: achievement.achievementId,
+          accountId: currContract.accountId,
+          currentCount: 1,
+          title: achievement.title,
+        });
+        await newAchievement.save();
+      } else {
+        const newCount = existingMentorshipAchievement.currentCount + 1;
+        await existingMentorshipAchievement.update({
+          currentCount: newCount,
+        });
+        //Check if currentCount is 5/10/50, if it is then update ENUM
+        switch (true) {
+          case newCount >= 5 && newCount < 10:
+            await existingMentorshipAchievement.update({
+              medal: ACHIEVEMENT_ENUM.BRONZE,
+            });
+            break;
+
+          case newCount >= 10 && newCount < 50:
+            await existingMentorshipAchievement.update({
+              medal: ACHIEVEMENT_ENUM.SILVER,
+            });
+            break;
+
+          case newCount >= 50:
+            await existingMentorshipAchievement.update({
+              medal: ACHIEVEMENT_ENUM.GOLD,
+            });
+            break;
+        }
+      }
+    }
+
+    //=================== END OF ACHIEVEMENT UPDATE ========================
+
     await currContract.update({
       progress: action,
     });
@@ -1093,20 +1144,20 @@ export default class MentorshipService {
           currentCount: newCount,
         });
         //Check if currentCount is 10/20/50, if it is then update ENUM
-        switch (existingTaskAchievement.currentCount) {
-          case 10:
+        switch (true) {
+          case newCount >= 10 && newCount < 20:
             await existingTaskAchievement.update({
               medal: ACHIEVEMENT_ENUM.BRONZE,
             });
             break;
 
-          case 20:
+          case newCount >= 20 && newCount < 50:
             await existingTaskAchievement.update({
               medal: ACHIEVEMENT_ENUM.SILVER,
             });
             break;
 
-          case 50:
+          case newCount >= 50:
             await existingTaskAchievement.update({
               medal: ACHIEVEMENT_ENUM.GOLD,
             });

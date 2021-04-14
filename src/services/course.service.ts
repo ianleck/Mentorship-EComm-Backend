@@ -705,6 +705,62 @@ export default class CourseService {
       // if lesson has not been completed
       lessonProgress.push(lessonId);
     }
+
+    //=============UPDATE COURSE ACHIEVEMENTS UPON COMPLETION===============
+    const allLessons = await Lesson.findAll({
+      where: {
+        courseId: courseContract.courseId,
+      },
+    });
+    if (lessonProgress.length === allLessons.length) {
+      const achievement = await Achievement.findOne({
+        where: {
+          title: 'Courses Completed',
+        },
+      });
+      const existingCourseAchievement = await UserToAchievement.findOne({
+        where: {
+          accountId: courseContract.accountId,
+          achievementId: achievement.achievementId,
+        },
+      });
+      if (!existingCourseAchievement) {
+        const newAchievement = new UserToAchievement({
+          achievementId: achievement.achievementId,
+          accountId: courseContract.accountId,
+          currentCount: 1,
+          title: achievement.title,
+        });
+        await newAchievement.save();
+      } else {
+        const newCount = existingCourseAchievement.currentCount + 1;
+        await existingCourseAchievement.update({
+          currentCount: newCount,
+        });
+        //Check if currentCount is 5/10/50, if it is then update ENUM
+        switch (true) {
+          case newCount >= 5 && newCount < 10:
+            await existingCourseAchievement.update({
+              medal: ACHIEVEMENT_ENUM.BRONZE,
+            });
+            break;
+
+          case newCount >= 10 && newCount < 50:
+            await existingCourseAchievement.update({
+              medal: ACHIEVEMENT_ENUM.SILVER,
+            });
+            break;
+
+          case newCount >= 50:
+            await existingCourseAchievement.update({
+              medal: ACHIEVEMENT_ENUM.GOLD,
+            });
+            break;
+        }
+      }
+    }
+
+    //=================== END OF ACHIEVEMENT UPDATE ========================
     return courseContract.update({
       lessonProgress,
     });
