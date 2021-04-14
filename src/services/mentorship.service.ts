@@ -27,13 +27,6 @@ import { User } from '../models/User';
 import { UserToAchievement } from '../models/UserToAchievement';
 import EmailService from './email.service';
 
-/*type getFilter = {
-  where: {
-    adminVerified: ADMIN_VERIFIED_ENUM;
-    visibility: VISIBILITY_ENUM;
-  };
-};*/
-
 export default class MentorshipService {
   // ==================== Mentorship Listings ====================
 

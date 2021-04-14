@@ -106,10 +106,14 @@ export class UserController {
 
   public static async updateUser(req, res) {
     const { accountId } = req.params;
-    const { user } = req.body;
+    const { user, interests } = req.body;
 
     try {
-      const userEntity = await UserService.updateUser(accountId, user);
+      const userEntity = await UserService.updateUser(
+        accountId,
+        user,
+        interests
+      );
       apiResponse.result(
         res,
         { message: USER_RESPONSE.USER_UPDATE, user: userEntity },

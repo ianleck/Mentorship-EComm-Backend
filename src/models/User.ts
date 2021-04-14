@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import {
+  BelongsToMany,
   Column,
   DataType,
   Default,
@@ -16,10 +17,12 @@ import {
   USER_TYPE_ENUM,
 } from '../constants/enum';
 import { Account } from './abstract/Account';
+import { Category } from './Category';
 import { Experience } from './Experience';
 import { MentorshipContract } from './MentorshipContract';
 import { Post } from './Post';
 import { Testimonial } from './Testimonial';
+import { UserToCategories } from './UserToCategories';
 import { Wallet } from './Wallet';
 @Table
 export class User extends Account {
@@ -127,24 +130,11 @@ export class User extends Account {
   @HasMany(() => Testimonial, 'accountId')
   Testimonials: Testimonial[];
 
-  // @Column
-  // achievements: Achievement;
-
-  // @HasMany(() => CourseContract)
-  // courses: CourseContract;
-  //
-
-  // achievements
-
-  // @HasMany(() => Course)
-  // coursesTaught: Course[];
-  //
-  // @HasMany(() => MentorshipListing)
-  // mentorshipListing: MentorshipListing[];
-  //
-  // @HasMany(() => Post)
-  // posts: Post[];
-  //
+  @BelongsToMany(() => Category, {
+    through: () => UserToCategories,
+    foreignKey: 'accountId',
+  })
+  Interests: Category[];
 
   // ==================== USER FUNCTIONS ====================
   generateJWT() {
