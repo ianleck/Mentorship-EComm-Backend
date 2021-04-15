@@ -686,7 +686,12 @@ export default class PaypalService {
             where: {
               accountId: studentId,
               mentorshipListingId: mentorPass.mentorshipListingId,
-              progress: CONTRACT_PROGRESS_ENUM.NOT_STARTED,
+              progress: {
+                [Op.or]: [
+                  CONTRACT_PROGRESS_ENUM.NOT_STARTED,
+                  CONTRACT_PROGRESS_ENUM.ONGOING,
+                ],
+              },
             },
           });
           const mentorPassCount = mentorshipContract.mentorPassCount + numSlots;
