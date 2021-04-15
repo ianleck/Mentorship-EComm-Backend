@@ -4,13 +4,15 @@
     "password": "x94yr1ee6f5oovn9",
     "database": "defaultdb",
     "host": "db-mysql-sgp1-52474-do-user-9022228-0.b.db.ondigitalocean.com",
+    "port": "25060",
     "dialect": "mysql"
   },
   "test": {
-    "username": "root",
-    "password": null,
-    "database": "database_test",
-    "host": "127.0.0.1",
+    "username": "doadmin",
+    "password": "x94yr1ee6f5oovn9",
+    "database": "defaultdb",
+    "host": "db-mysql-sgp1-52474-do-user-9022228-0.b.db.ondigitalocean.com",
+    "port": "25060",
     "dialect": "mysql"
   },
   "production": {
@@ -18,6 +20,7 @@
     "password": "x94yr1ee6f5oovn9",
     "database": "defaultdb",
     "host": "db-mysql-sgp1-52474-do-user-9022228-0.b.db.ondigitalocean.com",
+    "port": "25060",
     "dialect": "mysql"
   }
 }
