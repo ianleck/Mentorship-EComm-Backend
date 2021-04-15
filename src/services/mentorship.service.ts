@@ -701,7 +701,34 @@ export default class MentorshipService {
       mentorshipContractId,
       {
         include: [
-          MentorshipListing,
+          {
+            model: MentorshipListing,
+            include: [
+              {
+                model: User,
+                attributes: [
+                  'accountId',
+                  'firstName',
+                  'lastName',
+                  'profileImgUrl',
+                ],
+              },
+              {
+                model: Review,
+                include: [
+                  {
+                    model: User,
+                    attributes: [
+                      'accountId',
+                      'firstName',
+                      'lastName',
+                      'profileImgUrl',
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
           {
             model: TaskBucket,
             include: [
