@@ -34,6 +34,7 @@ export class ConsultationController {
       );
       return Utility.apiErrorResponse(res, e, [
         CONSULTATION_ERRORS.CONSULTATION_CLASH,
+        CONSULTATION_ERRORS.START_AFTER_END,
       ]);
     }
   }
@@ -161,6 +162,7 @@ export class ConsultationController {
       );
       return Utility.apiErrorResponse(res, e, [
         CONSULTATION_ERRORS.CONSULTATION_MISSING,
+        CONSULTATION_ERRORS.CONSULTATION_PAST,
         CONSULTATION_ERRORS.CONSULTATION_TAKEN,
         CONSULTATION_ERRORS.INSUFFICIENT_PASS,
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),

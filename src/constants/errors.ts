@@ -41,7 +41,11 @@ export const CONSULTATION_ERRORS = {
   CONSULTATION_BOOKED:
     'This consultation has been booked and can no longer be edited. If you wish to reschedule the consultation, please cancel this consultation and create a new consultation.',
   UNREGISTER_FAILURE:
-    'You are no longer able to unregister for the consultation due to the lack of lead time of 3 days.',
+    'Your request to cancel your registration for the consultation has been rejected due to the lack of lead time of 3 days.',
+  CONSULTATION_PAST:
+    'Your request to register for this consultation has been rejected as it has already ended.',
+  START_AFTER_END:
+    'Start time of consultation cannot be after end time of consultation.',
 };
 
 export const COMMENT_ERRORS = {

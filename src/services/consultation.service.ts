@@ -1,6 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import { Op } from 'sequelize';
-import { USER_TYPE_ENUM } from '../constants/enum';
+import { CONTRACT_PROGRESS_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import {
   CONSULTATION_ERRORS,
   ERRORS,
@@ -24,6 +24,9 @@ export default class ConsultationService {
     newSlot: ConsultationSlot
   ) {
     const { title, mentorshipListingId, timeStart, timeEnd } = newSlot;
+    if (timeStart > timeEnd)
+      throw new Error(CONSULTATION_ERRORS.START_AFTER_END);
+
     const overlappingSlot = await Consultation.findAll({
       where: {
         senseiId: accountId,
@@ -117,9 +120,30 @@ export default class ConsultationService {
     }
 
     if (user.userType === USER_TYPE_ENUM.STUDENT) {
+      const mentorshipContracts = await MentorshipContract.findAll({
+        where: {
+          accountId,
+          progress: {
+            [Op.or]: [
+              CONTRACT_PROGRESS_ENUM.ONGOING,
+              CONTRACT_PROGRESS_ENUM.NOT_STARTED,
+            ],
+          },
+        },
+      });
+
+      const mentorshipListingIds = mentorshipContracts.map(
+        (mentorship) => mentorship.mentorshipListingId
+      );
+      const mentorshipListings = await MentorshipListing.findAll({
+        where: { mentorshipListingId: { [Op.in]: mentorshipListingIds } },
+      });
+      const senseiIds = mentorshipListings.map(
+        (mentorship) => mentorship.accountId
+      );
       filter = {
         where: {
-          studentId: accountId,
+          senseiId: { [Op.in]: senseiIds },
           timeStart: { [Op.gte]: dateStart },
           timeEnd: { [Op.lte]: dateEnd },
         },
@@ -166,6 +190,9 @@ export default class ConsultationService {
     if (existingMentorship.mentorPassCount === 0)
       throw new Error(CONSULTATION_ERRORS.INSUFFICIENT_PASS);
 
+    const today = new Date();
+    if (existingConsultation.timeStart < today)
+      throw new Error(CONSULTATION_ERRORS.CONSULTATION_PAST);
     const newPassCount = existingMentorship.mentorPassCount - 1;
     await existingMentorship.update({ mentorPassCount: newPassCount });
     return await existingConsultation.update({ studentId: accountId });
