@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Op } from 'sequelize';
 import {
   ADMIN_VERIFIED_ENUM,
@@ -200,19 +201,61 @@ export default class UserService {
     const user = await User.findByPk(accountId);
     if (user) {
       await user.update(fields);
-      if (interests)
-        await UserToCategories.bulkCreate(
-          interests.map((categoryId) => ({
-            accountId,
-            categoryId,
-          }))
-        );
+      if (interests) await this.updateUserInterests(accountId, interests);
       return await User.findByPk(accountId, {
         include: [Experience, Category],
       });
     } else {
       throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     }
+  }
+
+  public static async updateUserInterests(
+    accountId: string,
+    updatedInterests: any
+  ) {
+    // Find all category associations with listing
+    const userInterests: UserToCategories[] = await UserToCategories.findAll({
+      where: { accountId },
+    });
+
+    const existingInterests: string[] = userInterests.map(
+      ({ categoryId }) => categoryId
+    );
+
+    const categoriesToAdd = _.difference(updatedInterests, existingInterests);
+    const categoriesToRemove = _.difference(
+      existingInterests,
+      updatedInterests
+    );
+
+    // Create new associations to new categories
+    await UserToCategories.bulkCreate(
+      categoriesToAdd.map((categoryId) => ({
+        accountId,
+        categoryId,
+      }))
+    );
+
+    // Delete associations to removed categories
+    await this.removeUserInterests(accountId, categoriesToRemove);
+  }
+
+  public static async removeUserInterests(
+    accountId: string,
+    categoriesToRemove: string[]
+  ): Promise<void> {
+    await Promise.all(
+      categoriesToRemove.map(
+        async (categoryId) =>
+          await UserToCategories.destroy({
+            where: {
+              accountId,
+              categoryId,
+            },
+          })
+      )
+    );
   }
 
   // ================================ USER EXPERIENCE ================================
