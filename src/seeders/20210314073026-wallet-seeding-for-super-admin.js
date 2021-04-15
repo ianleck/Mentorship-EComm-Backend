@@ -6,13 +6,6 @@ const uuid = require('uuid');
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.sequelize.transaction(async (transaction) => {
-      const superAdminId = await queryInterface.sequelize.query(
-        `
-        SELECT accountId
-        FROM Admin a
-        WHERE a.username = "superAdmin1"
-        `
-      );
       const walletId = uuid.v4();
       await queryInterface.sequelize.query(
         `
@@ -23,11 +16,11 @@ module.exports = {
         )
         values (
           $1,
-          $2
+          'b2749bba-25da-4ec4-a3ea-1fdb3d7778de'
         )
         `,
         {
-          bind: [walletId, superAdminId[0][0].accountId],
+          bind: [walletId],
           type: QueryTypes.INSERT,
           transaction,
         }
@@ -36,10 +29,10 @@ module.exports = {
         `
         UPDATE Admin a 
         SET walletId = $1 
-        WHERE a.accountId = $2
+        WHERE a.accountId = 'b2749bba-25da-4ec4-a3ea-1fdb3d7778de'
         `,
         {
-          bind: [walletId, superAdminId[0][0].accountId],
+          bind: [walletId],
           type: QueryTypes.UPDATE,
           transaction,
         }
@@ -49,31 +42,22 @@ module.exports = {
 
   down: (queryInterface, Sequelize) =>
     queryInterface.sequelize.transaction(async (transaction) => {
-      const superAdminId = await queryInterface.sequelize.query(
-        `
-        SELECT accountId
-        FROM Admin a
-        WHERE a.username = "superAdmin1"
-        `
-      );
       await queryInterface.sequelize.query(
         `
         UPDATE Admin a 
         SET walletId = NULL 
-        WHERE a.accountId = $1
+        WHERE a.accountId = 'b2749bba-25da-4ec4-a3ea-1fdb3d7778de'
         `,
         {
-          bind: [superAdminId[0][0].accountId],
           type: QueryTypes.UPDATE,
           transaction,
         }
       );
       await queryInterface.sequelize.query(
         `
-      delete from "Wallet" where accountId = $1;
+      delete from "Wallet" where accountId = 'b2749bba-25da-4ec4-a3ea-1fdb3d7778de';
       `,
         {
-          bind: [superAdminId[0][0].accountId],
           type: QueryTypes.DELETE,
           transaction,
         }

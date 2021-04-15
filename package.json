@@ -10,7 +10,7 @@
   "scripts": {
     "test": "jest --collectCoverage --runInBand",
     "prebuild": "rimraf dist/",
-    "start": "NODE_ENV=production && npx ts-node src/index.ts",
+    "start": "NODE_ENV=production npx ts-node src/index.ts",
     "start-dev": "NODE_ENV=development yarn setup && npx ts-node src/index.ts",
     "docker-start": "docker-compose -f ./docker/mysql.yml up",
     "db:migrate": "npx sequelize-cli db:migrate",
