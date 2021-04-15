@@ -58,6 +58,7 @@ export class MentorshipContract extends BaseEntity {
   })
   senseiApproval: APPROVAL_STATUS;
 
+  @Default(0)
   @Column(DataType.INTEGER)
   mentorPassCount: number; // Number of mentor passes
   // ==================== RELATIONSHIP MAPPINGS ====================

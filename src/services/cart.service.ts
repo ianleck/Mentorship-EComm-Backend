@@ -71,8 +71,12 @@ export default class CartService {
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
         mentorshipContractId,
-        progress:
-          CONTRACT_PROGRESS_ENUM.NOT_STARTED || CONTRACT_PROGRESS_ENUM.ONGOING,
+        progress: {
+          [Op.or]: [
+            CONTRACT_PROGRESS_ENUM.NOT_STARTED,
+            CONTRACT_PROGRESS_ENUM.ONGOING,
+          ],
+        },
         senseiApproval: APPROVAL_STATUS.APPROVED,
       },
     });
