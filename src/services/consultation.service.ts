@@ -1,6 +1,6 @@
 import httpStatusCodes from 'http-status-codes';
 import { Op } from 'sequelize';
-import { USER_TYPE_ENUM } from '../constants/enum';
+import { CONTRACT_PROGRESS_ENUM, USER_TYPE_ENUM } from '../constants/enum';
 import {
   CONSULTATION_ERRORS,
   ERRORS,
@@ -117,9 +117,16 @@ export default class ConsultationService {
     }
 
     if (user.userType === USER_TYPE_ENUM.STUDENT) {
+      const mentorships = await MentorshipContract.findAll({
+        where: {
+          accountId,
+          progress: CONTRACT_PROGRESS_ENUM.ONGOING,
+        },
+      });
+      const senseiIds = mentorships.map((mentorship) => mentorship.accountId);
       filter = {
         where: {
-          studentId: accountId,
+          senseiId: { [Op.in]: senseiIds },
           timeStart: { [Op.gte]: dateStart },
           timeEnd: { [Op.lte]: dateEnd },
         },
