@@ -117,13 +117,27 @@ export default class ConsultationService {
     }
 
     if (user.userType === USER_TYPE_ENUM.STUDENT) {
-      const mentorships = await MentorshipContract.findAll({
+      const mentorshipContracts = await MentorshipContract.findAll({
         where: {
           accountId,
-          progress: CONTRACT_PROGRESS_ENUM.ONGOING,
+          progress: {
+            [Op.or]: [
+              CONTRACT_PROGRESS_ENUM.ONGOING,
+              CONTRACT_PROGRESS_ENUM.NOT_STARTED,
+            ],
+          },
         },
       });
-      const senseiIds = mentorships.map((mentorship) => mentorship.accountId);
+
+      const mentorshipListingIds = mentorshipContracts.map(
+        (mentorship) => mentorship.mentorshipListingId
+      );
+      const mentorshipListings = await MentorshipListing.findAll({
+        where: { mentorshipListingId: { [Op.in]: mentorshipListingIds } },
+      });
+      const senseiIds = mentorshipListings.map(
+        (mentorship) => mentorship.accountId
+      );
       filter = {
         where: {
           senseiId: { [Op.in]: senseiIds },
@@ -173,6 +187,9 @@ export default class ConsultationService {
     if (existingMentorship.mentorPassCount === 0)
       throw new Error(CONSULTATION_ERRORS.INSUFFICIENT_PASS);
 
+    const today = new Date();
+    if (existingConsultation.timeStart < today)
+      throw new Error(CONSULTATION_ERRORS.CONSULTATION_PAST);
     const newPassCount = existingMentorship.mentorPassCount - 1;
     await existingMentorship.update({ mentorPassCount: newPassCount });
     return await existingConsultation.update({ studentId: accountId });

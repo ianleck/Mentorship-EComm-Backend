@@ -163,6 +163,7 @@ export class ConsultationController {
         CONSULTATION_ERRORS.CONSULTATION_MISSING,
         CONSULTATION_ERRORS.CONSULTATION_TAKEN,
         CONSULTATION_ERRORS.INSUFFICIENT_PASS,
+        CONSULTATION_ERRORS.CONSULTATION_PAST,
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
       ]);
     }
