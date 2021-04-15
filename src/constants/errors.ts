@@ -44,6 +44,8 @@ export const CONSULTATION_ERRORS = {
     'Your request to cancel your registration for the consultation has been rejected due to the lack of lead time of 3 days.',
   CONSULTATION_PAST:
     'Your request to register for this consultation has been rejected as it has already ended.',
+  START_AFTER_END:
+    'Start time of consultation cannot be after end time of consultation.',
 };
 
 export const COMMENT_ERRORS = {

@@ -24,6 +24,9 @@ export default class ConsultationService {
     newSlot: ConsultationSlot
   ) {
     const { title, mentorshipListingId, timeStart, timeEnd } = newSlot;
+    if (timeStart > timeEnd)
+      throw new Error(CONSULTATION_ERRORS.START_AFTER_END);
+
     const overlappingSlot = await Consultation.findAll({
       where: {
         senseiId: accountId,
