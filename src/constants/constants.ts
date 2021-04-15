@@ -33,7 +33,7 @@ export const ALLOWED_ATTACHEMENT_TYPES = ['.docx', '.pdf', '.doc', '.zip'];
 /**
  * API constants
  */
-export const BACKEND_API = 'http://139.59.242.207';
+export const BACKEND_API = 'http://localhost:5000/api';
 export const RESET_PASSWORD_URL = 'http://localhost:3000/auth';
 
 /**
