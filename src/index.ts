@@ -31,7 +31,7 @@ sequelize
     logger.info('database connection created');
 
     const corsOptions = {
-      origin: ['http://139.59.242.207:3000'],
+      origin: ['http://localhost:3000'],
       optionsSuccessStatus: 200, // For legacy browser support
     };
     app.use(function (req, res, next) {
