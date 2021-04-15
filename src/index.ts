@@ -1,4 +1,3 @@
-import { SSL_OP_NO_TICKET } from 'constants';
 import cors from 'cors';
 import express from 'express';
 import fileUpload from 'express-fileupload';
@@ -12,6 +11,8 @@ import * as errorHandler from './middlewares/apiErrorHandler';
 import joiErrorHandler from './middlewares/joiErrorHandler';
 import indexRoute from './routes/index.route';
 import socket from './socket';
+import { FRONTEND_API } from '../src/constants/constants';
+
 const socketIo = require('socket.io');
 
 const PORT = process.env.PORT || 5000;
@@ -34,7 +35,7 @@ sequelize
     logger.info('database connection created');
 
     const corsOptions = {
-      origin: ['http://localhost:3000'],
+      origin: [FRONTEND_API],
       optionsSuccessStatus: 200, // For legacy browser support
     };
     app.use(function (req, res, next) {

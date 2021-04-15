@@ -133,15 +133,67 @@ export default class ConsultationService {
         {
           model: User,
           as: 'Sensei',
-          attributes: ['firstName', 'lastName', 'profileImgUrl', 'occupation'],
+          attributes: [
+            'accountId',
+            'firstName',
+            'lastName',
+            'profileImgUrl',
+            'occupation',
+          ],
         },
         {
           model: User,
           as: 'Student',
-          attributes: ['firstName', 'lastName', 'profileImgUrl'],
+          attributes: ['accountId', 'firstName', 'lastName', 'profileImgUrl'],
         },
       ],
     });
+  }
+
+  public static async viewConsultationById(
+    consultationId: string,
+    accountId: string
+  ) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+
+    const consultation = await Consultation.findByPk(consultationId, {
+      include: [
+        MentorshipListing,
+        {
+          model: User,
+          as: 'Sensei',
+          attributes: [
+            'accountId',
+            'firstName',
+            'lastName',
+            'profileImgUrl',
+            'occupation',
+          ],
+        },
+        {
+          model: User,
+          as: 'Student',
+          attributes: ['accountId', 'firstName', 'lastName', 'profileImgUrl'],
+        },
+      ],
+    });
+    if (!consultation)
+      throw new Error(CONSULTATION_ERRORS.CONSULTATION_MISSING);
+
+    // check if student or sensei signed up for the consultation
+    if (
+      (user.userType === USER_TYPE_ENUM.STUDENT &&
+        consultation.studentId !== accountId) ||
+      (user.userType === USER_TYPE_ENUM.SENSEI &&
+        consultation.senseiId !== accountId)
+    ) {
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    }
+
+    return consultation;
   }
 
   public static async registerConsultation(
