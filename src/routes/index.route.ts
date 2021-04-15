@@ -1,5 +1,6 @@
 import * as express from 'express';
 import adminRoute from './admin.route';
+import analyticsRoute from './analytics.route';
 import authRoute from './auth.route';
 import cartRoute from './cart.route';
 import categoryRoute from './category.route';
@@ -42,5 +43,6 @@ router.use('/wallet', walletRoute);
 router.use('/social', socialRoute);
 router.use('/search', searchRoute);
 router.use('/chat', chatRoute);
+router.use('/analytics', analyticsRoute);
 
 export default router;
