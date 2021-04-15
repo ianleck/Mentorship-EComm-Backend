@@ -8,15 +8,15 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     ports:
-      - '3306:3306'
+      - '25060:25060'
     expose:
-      - 3306
+      - 25060
     environment:
-      MYSQL_DATABASE: 'node-db'
-      MYSQL_USER: 'administrator'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_ROOT_PASSWORD: 'password'
-      MYSQL_TCP_PORT: 3306
+      MYSQL_DATABASE: 'defaultdb'
+      MYSQL_USER: 'doadmin'
+      MYSQL_PASSWORD: 'x94yr1ee6f5oovn9'
+      MYSQL_ROOT_PASSWORD: 'x94yr1ee6f5oovn9'
+      MYSQL_TCP_PORT: 25060
     networks:
       - backend
 

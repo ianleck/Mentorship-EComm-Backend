@@ -6,7 +6,7 @@ import passport from 'passport';
 import paypal from 'paypal-rest-sdk';
 import { sequelize } from './config/db';
 import logger from './config/logger';
-import { BASE, CHILD_FOLDERS } from './constants/constants';
+import { CHILD_FOLDERS } from './constants/constants';
 import * as errorHandler from './middlewares/apiErrorHandler';
 import joiErrorHandler from './middlewares/joiErrorHandler';
 import indexRoute from './routes/index.route';
@@ -31,7 +31,7 @@ sequelize
     logger.info('database connection created');
 
     const corsOptions = {
-      origin: ['http://localhost:3000'],
+      origin: ['http://139.59.242.207:3000'],
       optionsSuccessStatus: 200, // For legacy browser support
     };
     app.use(function (req, res, next) {
@@ -62,7 +62,7 @@ sequelize
     // app.use(passport.session());
 
     // Router/
-    app.use(BASE, indexRoute);
+    app.use(indexRoute);
     // Joi Error Handler
     app.use(joiErrorHandler);
     // Error Handler
