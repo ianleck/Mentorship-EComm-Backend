@@ -8,8 +8,12 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
-import { MentorshipListingToCategory } from './MentorshipListingToCategory';
+import { Course } from './Course';
+import { CourseListingToCategory } from './CourseListingToCategory';
 import { MentorshipListing } from './MentorshipListing';
+import { MentorshipListingToCategory } from './MentorshipListingToCategory';
+import { User } from './User';
+import { UserToCategories } from './UserToCategories';
 
 @Table
 export class Category extends BaseEntity {
@@ -28,4 +32,16 @@ export class Category extends BaseEntity {
     foreignKey: 'categoryId',
   })
   MentorshipListings: MentorshipListing[];
+
+  @BelongsToMany(() => Course, {
+    through: () => CourseListingToCategory,
+    foreignKey: 'categoryId',
+  })
+  Courses: Course[];
+
+  @BelongsToMany(() => User, {
+    through: () => UserToCategories,
+    foreignKey: 'categoryId',
+  })
+  UserInterests: User[];
 }

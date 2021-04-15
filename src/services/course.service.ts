@@ -2,6 +2,7 @@ import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
 import { Op } from 'sequelize';
 import {
+  ACHIEVEMENT_ENUM,
   ADMIN_VERIFIED_ENUM,
   LEVEL_ENUM,
   STATUS_ENUM,
@@ -9,6 +10,7 @@ import {
   VISIBILITY_ENUM,
 } from '../constants/enum';
 import { AUTH_ERRORS, COURSE_ERRORS, ERRORS } from '../constants/errors';
+import { Achievement } from '../models/Achievement';
 import { Announcement } from '../models/Announcement';
 import { Category } from '../models/Category';
 import { Course } from '../models/Course';
@@ -17,6 +19,7 @@ import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { Lesson } from '../models/Lesson';
 import { Review } from '../models/Review';
 import { User } from '../models/User';
+import { UserToAchievement } from '../models/UserToAchievement';
 import EmailService from './email.service';
 
 type newCourseType = {
@@ -87,7 +90,7 @@ export default class CourseService {
 
     const user = await User.findByPk(accountId);
     if (
-      // if user is submitting course request or if user is tryign to publish course
+      // if user is submitting course request or if user is trying to publish course
       // but user account has not been verified/accepted by admin, throw error.
       (course.adminVerified === ADMIN_VERIFIED_ENUM.PENDING ||
         updatedDraft.visibility === VISIBILITY_ENUM.PUBLISHED) &&
@@ -102,6 +105,60 @@ export default class CourseService {
     )
       throw new Error(COURSE_ERRORS.COURSE_NOT_VERIFIED);
     const { categories, ...courseWithoutCategories } = updatedDraft;
+
+    //=============UPDATE COURSE ACHIEVEMENTS UPON PUBLISHED===============
+    if (
+      !course.publishedAt &&
+      updatedDraft.visibility === VISIBILITY_ENUM.PUBLISHED
+    ) {
+      const courseAchievement = await Achievement.findOne({
+        where: {
+          title: 'Courses Published',
+        },
+      });
+      const existingCourseAchievement = await UserToAchievement.findOne({
+        where: {
+          accountId: user.accountId,
+          achievementId: courseAchievement.achievementId,
+        },
+      });
+      if (!existingCourseAchievement) {
+        const newAchievement = new UserToAchievement({
+          achievementId: courseAchievement.achievementId,
+          accountId: user.accountId,
+          currentCount: 1,
+          title: courseAchievement.title,
+        });
+        await newAchievement.save();
+      } else {
+        const newCount = existingCourseAchievement.currentCount + 1;
+        await existingCourseAchievement.update({
+          currentCount: newCount,
+        });
+        //Check if currentCount is 5/10/50, if it is then update ENUM
+        switch (true) {
+          case newCount >= 5 && newCount < 10:
+            await existingCourseAchievement.update({
+              medal: ACHIEVEMENT_ENUM.BRONZE,
+            });
+            break;
+
+          case newCount >= 10 && newCount < 50:
+            await existingCourseAchievement.update({
+              medal: ACHIEVEMENT_ENUM.SILVER,
+            });
+            break;
+
+          case newCount >= 50:
+            await existingCourseAchievement.update({
+              medal: ACHIEVEMENT_ENUM.GOLD,
+            });
+            break;
+        }
+      }
+    }
+
+    //=============== END OF ACHIEVEMENT UPDATE ===================
 
     if (categories != null)
       await this.updateCourseCategory(courseId, updatedDraft); // update categories
@@ -248,6 +305,7 @@ export default class CourseService {
             {
               model: User,
               attributes: [
+                'accountId',
                 'firstName',
                 'lastName',
                 'profileImgUrl',
@@ -282,6 +340,7 @@ export default class CourseService {
             {
               model: User,
               attributes: [
+                'accountId',
                 'firstName',
                 'lastName',
                 'profileImgUrl',
@@ -648,6 +707,62 @@ export default class CourseService {
       // if lesson has not been completed
       lessonProgress.push(lessonId);
     }
+
+    //=============UPDATE COURSE ACHIEVEMENTS UPON COMPLETION===============
+    const allLessons = await Lesson.findAll({
+      where: {
+        courseId: courseContract.courseId,
+      },
+    });
+    if (lessonProgress.length === allLessons.length) {
+      const achievement = await Achievement.findOne({
+        where: {
+          title: 'Courses Completed',
+        },
+      });
+      const existingCourseAchievement = await UserToAchievement.findOne({
+        where: {
+          accountId: courseContract.accountId,
+          achievementId: achievement.achievementId,
+        },
+      });
+      if (!existingCourseAchievement) {
+        const newAchievement = new UserToAchievement({
+          achievementId: achievement.achievementId,
+          accountId: courseContract.accountId,
+          currentCount: 1,
+          title: achievement.title,
+        });
+        await newAchievement.save();
+      } else {
+        const newCount = existingCourseAchievement.currentCount + 1;
+        await existingCourseAchievement.update({
+          currentCount: newCount,
+        });
+        //Check if currentCount is 5/10/50, if it is then update ENUM
+        switch (true) {
+          case newCount >= 5 && newCount < 10:
+            await existingCourseAchievement.update({
+              medal: ACHIEVEMENT_ENUM.BRONZE,
+            });
+            break;
+
+          case newCount >= 10 && newCount < 50:
+            await existingCourseAchievement.update({
+              medal: ACHIEVEMENT_ENUM.SILVER,
+            });
+            break;
+
+          case newCount >= 50:
+            await existingCourseAchievement.update({
+              medal: ACHIEVEMENT_ENUM.GOLD,
+            });
+            break;
+        }
+      }
+    }
+
+    //=================== END OF ACHIEVEMENT UPDATE ========================
     return courseContract.update({
       lessonProgress,
     });

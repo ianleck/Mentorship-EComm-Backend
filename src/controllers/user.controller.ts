@@ -106,10 +106,14 @@ export class UserController {
 
   public static async updateUser(req, res) {
     const { accountId } = req.params;
-    const { user } = req.body;
+    const { user, interests } = req.body;
 
     try {
-      const userEntity = await UserService.updateUser(accountId, user);
+      const userEntity = await UserService.updateUser(
+        accountId,
+        user,
+        interests
+      );
       apiResponse.result(
         res,
         { message: USER_RESPONSE.USER_UPDATE, user: userEntity },
@@ -205,6 +209,27 @@ export class UserController {
           message: RESPONSE_ERROR.RES_ERROR,
         });
       }
+    }
+  }
+
+  // ========================================== ACHIEVEMENTS ============================================
+  public static async getAllAchievements(req, res) {
+    const { accountId } = req.params;
+    try {
+      const achievements = await UserService.getAllAchievements(accountId);
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          achievements,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[userController.getAllAchievements]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
     }
   }
 }

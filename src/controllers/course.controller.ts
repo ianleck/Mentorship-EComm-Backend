@@ -1,11 +1,10 @@
 import httpStatusCodes from 'http-status-codes';
-import courseSchema from 'src/routes/schema/course.schema';
 import logger from '../config/logger';
 import {
   AUTH_ERRORS,
   COURSE_ERRORS,
   ERRORS,
-  RESPONSE_ERROR,
+  RESPONSE_ERROR
 } from '../constants/errors';
 import { COURSE_RESPONSE } from '../constants/successMessages';
 import Utility from '../constants/utility';

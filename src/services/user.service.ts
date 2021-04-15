@@ -7,9 +7,12 @@ import {
 } from '../constants/enum';
 import { ERRORS } from '../constants/errors';
 import { Admin } from '../models/Admin';
+import { Category } from '../models/Category';
 import { Experience } from '../models/Experience';
 import { User } from '../models/User';
 import { UserFollowership } from '../models/UserFollowership';
+import { UserToAchievement } from '../models/UserToAchievement';
+import { UserToCategories } from '../models/UserToCategories';
 
 export default class UserService {
   // ================================ USER ================================
@@ -30,7 +33,7 @@ export default class UserService {
   public static async findUserById(accountId: string, userId: string) {
     let isBlocking = false;
     const userProfile = await User.findByPk(accountId, {
-      include: [Experience],
+      include: [Experience, Category],
     });
     if (!userProfile) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
@@ -191,12 +194,22 @@ export default class UserService {
 
   public static async updateUser(
     accountId: string,
-    fields: { [key: string]: string }
+    fields: { [key: string]: string },
+    interests: string[]
   ) {
     const user = await User.findByPk(accountId);
     if (user) {
       await user.update(fields);
-      return await User.findByPk(accountId);
+      if (interests)
+        await UserToCategories.bulkCreate(
+          interests.map((categoryId) => ({
+            accountId,
+            categoryId,
+          }))
+        );
+      return await User.findByPk(accountId, {
+        include: [Experience, Category],
+      });
     } else {
       throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     }
@@ -271,5 +284,16 @@ export default class UserService {
     });
     if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     return user.Experience;
+  }
+
+  // ========================================== ACHIEVEMENTS ============================================
+  public static async getAllAchievements(accountId: string) {
+    const achievements = UserToAchievement.findAll({
+      where: {
+        accountId,
+      },
+      attributes: ['title', 'medal', 'currentCount'],
+    });
+    return achievements;
   }
 }

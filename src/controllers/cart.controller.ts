@@ -12,6 +12,8 @@ import CartService from '../services/cart.service';
 import apiResponse from '../utilities/apiResponse';
 
 export class CartController {
+  // ======================================== CART ========================================
+
   public static async addCourse(req, res) {
     try {
       const { courseId } = req.body;
@@ -110,6 +112,58 @@ export class CartController {
     } catch (e) {
       logger.error('[cartController.viewCart]:' + e.message);
       return Utility.apiErrorResponse(res, e, [ERRORS.STUDENT_DOES_NOT_EXIST]);
+    }
+  }
+
+  // ======================================== UPSELL ========================================
+
+  public static async upsellOnCourses(req, res) {
+    try {
+      const { user } = req;
+      const { courseId } = req.params;
+      const cart = await CartService.upsellOnCourses(courseId, user.accountId);
+      return apiResponse.result(
+        res,
+        { message: 'success', cart },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[cartController.upsellOnCourses]:' + e.message);
+      return Utility.apiErrorResponse(res, e, []);
+    }
+  }
+
+  public static async upsellOnMentorships(req, res) {
+    try {
+      const { user } = req;
+      const { mentorshipListingId } = req.params;
+      const cart = await CartService.upsellOnMentorships(
+        mentorshipListingId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        { message: 'success', cart },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[cartController.upsellOnMentorships]:' + e.message);
+      return Utility.apiErrorResponse(res, e, []);
+    }
+  }
+
+  public static async upsellCheckout(req, res) {
+    try {
+      const { user } = req;
+      const cart = await CartService.upsellCheckout(user.accountId);
+      return apiResponse.result(
+        res,
+        { message: 'success', cart },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[cartController.upsellCheckout]:' + e.message);
+      return Utility.apiErrorResponse(res, e, []);
     }
   }
 }
