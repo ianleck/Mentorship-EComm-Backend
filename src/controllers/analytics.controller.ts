@@ -61,7 +61,7 @@ export class AnalyticsController {
     const { accountId } = req.user;
     const { dateStart, dateEnd } = req.query;
     try {
-      const all = await AnalyticsService.getAllApplications(
+      const applications = await AnalyticsService.getAllApplications(
         accountId,
         dateStart,
         dateEnd
@@ -70,7 +70,7 @@ export class AnalyticsController {
         res,
         {
           message: 'success',
-          all,
+          applications,
         },
         httpStatusCodes.OK
       );

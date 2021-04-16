@@ -219,6 +219,7 @@ export default class AnalyticsService {
           'applicationsCount',
         ],
         'mentorshipListingId',
+        // 'name',
       ],
     });
     const applicationsByListing = applications.map((application) => {
