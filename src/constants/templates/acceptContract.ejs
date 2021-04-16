@@ -43,15 +43,14 @@
                                       <br />
                                       Based on your mentorship application, <%= mentorName %> suggests that you purchase
                                         <%= numSlots %> mentorship passes, to be used over a suggested mentorship period
-                                          of <%= duration %> months.
-                                            <br />
-                                            <%if (message) { %>
-                                              Additionally, your mentor has a message for you: <br />
-                                              <p>
-                                                <%= message %>
-                                              </p>
-                                              <% } %>
-                                  </p>
+                                          of <%= duration %>.
+                                        </p>
+                                        <%if (message) { %>
+                                          Additionally, your mentor has a message for you: <br />
+                                          <p>
+                                            <%= message %>
+                                          </p>
+                                          <% } %>
                                 </td>
                               </tr>
                             </tbody>
