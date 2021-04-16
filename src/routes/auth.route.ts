@@ -33,7 +33,7 @@ router.put(
 
 router.post(
   '/forgot-password/:email',
-  schemaValidator.params(auth.emailQ),
+  schemaValidator.params(auth.emailP),
   Utility.asyncHandler(AuthController.forgotPassword)
 );
 
