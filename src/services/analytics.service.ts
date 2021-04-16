@@ -6,6 +6,7 @@ import {
   USER_TYPE_ENUM,
 } from '../constants/enum';
 import { Billing } from '../models/Billing';
+import { Category } from '../models/Category';
 import { Course } from '../models/Course';
 import { CourseListingToCategory } from '../models/CourseListingToCategory';
 import { MentorshipContract } from '../models/MentorshipContract';
@@ -263,7 +264,7 @@ export default class AnalyticsService {
       },
     });
 
-    let categoryIdArr = [];
+    let categoryNameArr = [];
 
     //For each billing, insert the categoryIds of the Course in the array
     await Promise.all(
@@ -276,7 +277,13 @@ export default class AnalyticsService {
         });
         //array of categoryIds in course
         const categoryIds = categories.map((c) => c.categoryId);
-        categoryIdArr = categoryIdArr.concat(categoryIds);
+        const categoriesRetrieved = await Category.findAll({
+          where: {
+            categoryId: { [Op.in]: categoryIds },
+          },
+        });
+        const categoryNames = categoriesRetrieved.map((cat) => cat.name);
+        categoryNameArr = categoryNameArr.concat(categoryNames);
       })
     );
 
@@ -290,7 +297,7 @@ export default class AnalyticsService {
       }
       return tally;
     };
-    let categoryCount = categoryIdArr.reduce(reducer, initialValue);
+    let categoryCount = categoryNameArr.reduce(reducer, initialValue);
     return categoryCount;
   }
 
@@ -309,7 +316,7 @@ export default class AnalyticsService {
       },
     });
 
-    let categoryIdArr = [];
+    let categoryNameArr = [];
 
     //For each billing, insert the categoryIds of the Mentorship in the array
     await Promise.all(
@@ -322,7 +329,13 @@ export default class AnalyticsService {
         });
         //array of categoryIds in mentorship
         const categoryIds = categories.map((c) => c.categoryId);
-        categoryIdArr = categoryIdArr.concat(categoryIds);
+        const categoriesRetrieved = await Category.findAll({
+          where: {
+            categoryId: { [Op.in]: categoryIds },
+          },
+        });
+        const categoryNames = categoriesRetrieved.map((cat) => cat.name);
+        categoryNameArr = categoryNameArr.concat(categoryNames);
       })
     );
 
@@ -336,7 +349,7 @@ export default class AnalyticsService {
       }
       return tally;
     };
-    let categoryCount = categoryIdArr.reduce(reducer, initialValue);
+    let categoryCount = categoryNameArr.reduce(reducer, initialValue);
     return categoryCount;
   }
 }
