@@ -32,4 +32,7 @@ export default {
     dateStart: joi.date().required(),
     dateEnd: joi.date().required(),
   }),
+  consultationIdP: joi.object({
+    consultationId: joi.string().required(),
+  }),
 };
