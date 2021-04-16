@@ -1383,12 +1383,16 @@ export default class MentorshipService {
     });
     const mentorshipListingIds = mentorshipListings.map(
       (ml) => ml.mentorshipListingId
-    );
+    ); //2 mentorship listings with 1 user
     return await User.findAll({
+      //this will return
       include: [
         {
           model: MentorshipContract,
-          where: { mentorshipListingId: mentorshipListingIds },
+          where: {
+            mentorshipListingId: mentorshipListingIds,
+            senseiApproval: APPROVAL_STATUS.APPROVED,
+          },
           include: [Testimonial],
         },
       ],
