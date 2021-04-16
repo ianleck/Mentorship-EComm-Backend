@@ -1,6 +1,10 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
-import { CONSULTATION_ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
+import {
+  CONSULTATION_ERRORS,
+  ERRORS,
+  MENTORSHIP_ERRORS,
+} from '../constants/errors';
 import { CONSULTATION_RESPONSE } from '../constants/successMessages';
 import Utility from '../constants/utility';
 import ConsultationService from '../services/consultation.service';
@@ -129,6 +133,31 @@ export class ConsultationController {
         '[consultationController.viewFilteredConsultationSlots]:' + e.message
       );
       return Utility.apiErrorResponse(res, e, [
+        CONSULTATION_ERRORS.CONSULTATION_MISSING,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      ]);
+    }
+  }
+
+  public static async viewConsultationById(req, res) {
+    const { user } = req;
+    const { consultationId } = req.params;
+    try {
+      const consultation = await ConsultationService.viewConsultationById(
+        consultationId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          consultation,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      return Utility.apiErrorResponse(res, e, [
+        ERRORS.USER_DOES_NOT_EXIST,
         CONSULTATION_ERRORS.CONSULTATION_MISSING,
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
       ]);
