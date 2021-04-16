@@ -134,14 +134,10 @@ export class ChatController {
 
   public static async removeUserFromChatGroup(req, res) {
     const { user } = req;
-    const { chatGroupId, accountId } = req.params;
+    const { chatId, accountId } = req.params;
 
     try {
-      await ChatService.removeUserFromChat(
-        user.accountId,
-        accountId,
-        chatGroupId
-      );
+      await ChatService.removeUserFromChat(user.accountId, accountId, chatId);
       return apiResponse.result(
         res,
         { message: MESSAGE_RESPONSE.USER_REMOVED },

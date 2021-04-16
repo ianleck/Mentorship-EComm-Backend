@@ -56,7 +56,7 @@ router.post(
 router.delete(
   '/chat-group/:chatId/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(chat.userToChatGroupP), //accountId to add to chat group
+  schemaValidator.params(chat.userToChatGroupP), //accountId to remove from chat group
   Utility.asyncHandler(ChatController.removeUserFromChatGroup)
 );
 
