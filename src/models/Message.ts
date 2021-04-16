@@ -53,6 +53,14 @@ export class Message extends BaseEntity {
   })
   Sender: User;
 
+  @BelongsTo(() => User, {
+    foreignKey: {
+      name: 'receiverId',
+      allowNull: false,
+    },
+  })
+  Receiver: User;
+
   @BelongsTo(() => Chat, 'chatId')
   Chat: Chat;
 }

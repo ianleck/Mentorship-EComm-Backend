@@ -100,6 +100,7 @@ export default class ChatService {
 
     const newMessage = new Message({
       senderId: userId,
+      receiverId: userId,
       messageBody,
       chatId,
     });
@@ -163,7 +164,12 @@ export default class ChatService {
           include: [
             {
               model: User,
-
+              as: 'Sender',
+              attributes: ['accountId', 'username', 'firstName', 'lastName'],
+            },
+            {
+              model: User,
+              as: 'Receiver',
               attributes: ['accountId', 'username', 'firstName', 'lastName'],
             },
           ],
