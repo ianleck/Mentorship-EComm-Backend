@@ -214,6 +214,7 @@ export default class AnalyticsService {
           'applicationsCount',
         ],
         'mentorshipListingId',
+        // 'name',
       ],
     });
     return applications;
