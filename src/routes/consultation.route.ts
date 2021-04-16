@@ -49,6 +49,13 @@ router.get(
   Utility.asyncHandler(ConsultationController.viewFilteredConsultationSlots)
 );
 
+router.get(
+  '/:consultationId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(consultation.consultationIdP),
+  Utility.asyncHandler(ConsultationController.viewConsultationById)
+);
+
 router.put(
   '/register/',
   passport.authenticate('isAuthenticated', { session: false }),
