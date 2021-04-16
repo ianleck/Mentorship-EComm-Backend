@@ -18,7 +18,7 @@ export default {
     }),
   }),
 
-  emailQ: joi.object({
+  emailP: joi.object({
     email: joi.string().required(),
   }),
 
