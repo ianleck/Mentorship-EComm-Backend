@@ -11,7 +11,7 @@ import * as errorHandler from './middlewares/apiErrorHandler';
 import joiErrorHandler from './middlewares/joiErrorHandler';
 import indexRoute from './routes/index.route';
 import socket from './socket';
-import { FRONTEND_API } from '../src/constants/constants';
+import { FRONTEND_APIS } from '../src/constants/constants';
 
 const socketIo = require('socket.io');
 
@@ -35,7 +35,7 @@ sequelize
     logger.info('database connection created');
 
     const corsOptions = {
-      origin: [FRONTEND_API],
+      origin: FRONTEND_APIS,
       optionsSuccessStatus: 200, // For legacy browser support
     };
     app.use(function (req, res, next) {
