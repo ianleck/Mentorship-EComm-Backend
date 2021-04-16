@@ -333,6 +333,7 @@ export default class MentorshipService {
             },
           ],
         },
+        Category,
         MentorshipContract,
       ],
     });

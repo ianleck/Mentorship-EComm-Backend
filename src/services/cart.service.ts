@@ -71,8 +71,12 @@ export default class CartService {
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
         mentorshipContractId,
-        progress:
-          CONTRACT_PROGRESS_ENUM.NOT_STARTED || CONTRACT_PROGRESS_ENUM.ONGOING,
+        progress: {
+          [Op.or]: [
+            CONTRACT_PROGRESS_ENUM.NOT_STARTED,
+            CONTRACT_PROGRESS_ENUM.ONGOING,
+          ],
+        },
         senseiApproval: APPROVAL_STATUS.APPROVED,
       },
     });
@@ -382,7 +386,7 @@ export default class CartService {
         });
         const mentorshipListings = await MentorshipListing.findAll({
           where: {
-            mentorshipListingIds: { [Op.notIn]: mentorshipListingIds },
+            mentorshipListingId: { [Op.notIn]: mentorshipListingIds },
             visibility: VISIBILITY_ENUM.PUBLISHED,
           },
           include: [
@@ -405,7 +409,7 @@ export default class CartService {
         });
         const courses = await Course.findAll({
           where: {
-            courseIds: { [Op.notIn]: courseIds },
+            courseId: { [Op.notIn]: courseIds },
             visibility: VISIBILITY_ENUM.PUBLISHED,
           },
           include: [
@@ -435,11 +439,15 @@ export default class CartService {
       );
       return { courses: upsoldCourses };
     }
+
     // only courses in cart
-    const upsoldMentorships = await this.upsellOnCourses(
-      cart.Courses[0].courseId,
-      accountId
-    );
-    return { mentorships: upsoldMentorships };
+    if (cart.Courses.length > 0) {
+      const upsoldMentorships = await this.upsellOnCourses(
+        cart.Courses[0].courseId,
+        accountId
+      );
+      return { mentorships: upsoldMentorships };
+    }
+    return {};
   }
 }
