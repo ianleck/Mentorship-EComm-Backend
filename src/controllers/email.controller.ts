@@ -9,8 +9,8 @@ export class EmailController {
   public static async sendEmail(req, res) {
     try {
       const { email, template } = req.query;
-
-      await EmailService.sendEmail(email, template);
+      const { additional } = req.body;
+      await EmailService.sendEmail(email, template, additional);
       return apiResponse.result(
         res,
         { message: EMAIL_SUCCESS },
