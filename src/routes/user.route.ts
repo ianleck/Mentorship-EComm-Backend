@@ -92,6 +92,13 @@ router.get(
   '/achievements/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(UserController.getUserAchievements)
+);
+
+//VIEW ALL ACHIEVEMENTS
+router.get(
+  '/all/achievements',
+  passport.authenticate('isAuthenticated', { session: false }),
   Utility.asyncHandler(UserController.getAllAchievements)
 );
 
