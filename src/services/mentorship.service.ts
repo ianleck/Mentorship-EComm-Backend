@@ -489,7 +489,7 @@ export default class MentorshipService {
     //================== END OF ACHIEVEMENT UPDATE =========================
 
     const mentorshipName = mentorshipListing.name;
-    const additional = { mentorshipName, ...emailParams, mentorName };
+    const additional = { title: mentorshipName, ...emailParams, mentorName };
 
     //SEND EMAIL TO INFORM OF ACCEPTANCE OF APPLICATION
     await EmailService.sendEmail(student.email, 'acceptContract', additional);
