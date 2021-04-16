@@ -17,10 +17,12 @@ import searchRoute from './search.route';
 import socialRoute from './social.route';
 import uploadRoute from './upload.route';
 import userRoute from './user.route';
+import achievementRoute from './achievement.route';
 import walletRoute from './wallet.route';
 
 const router = express.Router();
 
+router.use('/achievement', achievementRoute);
 router.use('/auth', authRoute);
 router.use('/admin', adminRoute);
 router.use('/cart', cartRoute);
