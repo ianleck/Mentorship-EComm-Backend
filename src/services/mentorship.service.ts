@@ -1388,7 +1388,10 @@ export default class MentorshipService {
       include: [
         {
           model: MentorshipContract,
-          where: { mentorshipListingId: mentorshipListingIds },
+          where: {
+            mentorshipListingId: mentorshipListingIds,
+            senseiApproval: APPROVAL_STATUS.APPROVED,
+          },
           include: [Testimonial],
         },
       ],
