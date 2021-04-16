@@ -27,11 +27,11 @@ export default class AchievementService {
 
     const fileName = `${user.accountId}.pdf`;
     const doc = new PDFDocument({ layout: 'landscape' });
-    doc.pipe(
-      fs.createWriteStream(
-        `${__dirname}/../../uploads/user-achievement/${fileName}`
-      )
+    const writeStream = fs.createWriteStream(
+      `${__dirname}/../../uploads/user-achievement/${fileName}`
     );
+
+    doc.pipe(writeStream);
     doc.image(`${__dirname}/../assets/achievement-cert-template.jpg`, 0, 0, {
       width: doc.page.width,
       height: doc.page.height,
@@ -110,8 +110,15 @@ export default class AchievementService {
         );
       margin = margin + 20;
     }
-
     doc.end();
-    return `${__dirname}/../../uploads/user-achievement/${fileName}`;
+
+    return new Promise((resolve, reject) => {
+      writeStream.on('finish', function () {
+        resolve(`${__dirname}/../../uploads/user-achievement/${fileName}`);
+      });
+      writeStream.on('error', function (err) {
+        reject(Error());
+      });
+    });
   }
 }
