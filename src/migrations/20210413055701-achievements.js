@@ -24,6 +24,15 @@ module.exports = {
         description: {
           type: Sequelize.STRING,
         },
+        bronze: {
+          type: Sequelize.STRING,
+        },
+        silver: {
+          type: Sequelize.STRING,
+        },
+        gold: {
+          type: Sequelize.STRING,
+        },
         createdAt: {
           allowNull: false,
           type: Sequelize.DATE,
