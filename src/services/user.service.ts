@@ -336,7 +336,7 @@ export default class UserService {
       where: {
         accountId,
       },
-      attributes: ['title', 'medal', 'currentCount'],
+      attributes: ['achievementId', 'title', 'medal', 'currentCount'],
     });
     return achievements;
   }
