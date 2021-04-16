@@ -1,16 +1,17 @@
 // const http = require('http');
 const socketIo = require('socket.io');
-import { FRONTEND_API } from '../src/constants/constants';
+import { FRONTEND_APIS } from '../src/constants/constants';
 let io;
 
 const users = {};
 const usersToConsultationId = {};
+const consultNotes = {};
 class socket {
   static init(server) {
     io = socketIo(server, {
       cors: {
         cors: true,
-        origin: [FRONTEND_API],
+        origin: FRONTEND_APIS,
         optionsSuccessStatus: 200, // For legacy browser support
         methods: ['GET', 'POST'],
         allowedHeaders: ['my-custom-header'],
@@ -30,35 +31,8 @@ class socket {
       // frontend will emit 'init', sending consultationId and accountId that is connected
       socket.on('init', (data) => {
         if (data.consultationId && data.accountId) {
-          if (!users[data.consultationId]) {
-            users[data.consultationId] = {};
-          }
-
-          /**
-           * _user = {
-           *   <consultationId>: {
-           *     <accountId>: <socketId>
-           *   }
-           * }
-           */
-          users[data.consultationId][data.accountId] = socket.id;
-          usersToConsultationId[socket.id] = data.consultationId;
-          const consultConnectedSocketIds = Object.values(
-            users[data.consultationId]
-          );
-
-          if (consultConnectedSocketIds.length > 2) {
-            io.to(socket.id).emit('tooManyUsers');
-            delete users[data.consultationId][socket.id];
-          } else {
-            // emit socketIds connected to the consultation to all consultation sensei & student
-            consultConnectedSocketIds.map((_socket) => {
-              io.to(_socket).emit(
-                'consultationUsers',
-                users[data.consultationId]
-              );
-            });
-          }
+          this.initUsers(socket.id, data.consultationId, data.accountId);
+          this.initConsultNotes(data.consultationId);
         } else {
           if (!data.consultation) {
             io.to(socket.id).emit('error', 'No existing consultation');
@@ -78,8 +52,15 @@ class socket {
           const socketIndex = userSocketIds.indexOf(socket.id);
           if (socketIndex != -1) {
             const userAccountId = userKeys[socketIndex];
+
+            // delete account socket mapping
             delete users[consultationId][userAccountId];
+            // delete socketId to consultation mapping
             delete usersToConsultationId[socket.id];
+            // delete consultation to notes mapping if all users disconnected
+            if (Object.values(users[consultationId]).length == 0) {
+              delete consultNotes[consultationId];
+            }
 
             // emit to remaining user
             const consultConnectedSocketIds = Object.values(
@@ -112,6 +93,66 @@ class socket {
       socket.on('acceptCall', (data) => {
         io.to(data.to).emit('callAccepted', data.signal);
       });
+
+      // consult notes
+      socket.on('addNote', (data) => {
+        const { newNote, consultationId } = data;
+        if (consultationId) {
+          consultNotes[consultationId].push(newNote);
+
+          this.emitToConsultationUsers(
+            consultationId,
+            'allNotes',
+            consultNotes[consultationId]
+          );
+        }
+      });
+    });
+  }
+
+  static initUsers(socketId, consultationId, accountId) {
+    if (!users[consultationId]) {
+      users[consultationId] = {};
+    }
+
+    /**
+     * _user = {
+     *   <consultationId>: {
+     *     <accountId>: <socketId>
+     *   }
+     * }
+     */
+    users[consultationId][accountId] = socketId;
+    usersToConsultationId[socketId] = consultationId;
+    const consultConnectedSocketIds = Object.values(users[consultationId]);
+
+    if (consultConnectedSocketIds.length > 2) {
+      io.to(socketId).emit('tooManyUsers');
+      delete users[consultationId][socketId];
+    } else {
+      // emit socketIds connected to the consultation to all consultation sensei & student
+      consultConnectedSocketIds.map((_socket) => {
+        io.to(_socket).emit('consultationUsers', users[consultationId]);
+      });
+    }
+  }
+
+  static initConsultNotes(consultationId) {
+    if (!consultNotes[consultationId]) {
+      consultNotes[consultationId] = [];
+    }
+    this.emitToConsultationUsers(
+      consultationId,
+      'allNotes',
+      consultNotes[consultationId]
+    );
+  }
+
+  static emitToConsultationUsers(consultationId, event, data) {
+    const consultConnectedSocketIds = Object.values(users[consultationId]);
+
+    consultConnectedSocketIds.map((_socket) => {
+      io.to(_socket).emit(event, data);
     });
   }
 }

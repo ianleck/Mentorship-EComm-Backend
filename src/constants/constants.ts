@@ -35,8 +35,11 @@ export const ALLOWED_ATTACHEMENT_TYPES = ['.docx', '.pdf', '.doc', '.zip'];
  */
 export const BACKEND_API = 'http://localhost:5000/api';
 // export const BACKEND_API = 'https://321adf23df2.ngrok.io'; // to be replaced with ngrok
-// export const FRONTEND_API = 'http://localhost:3000';
-export const FRONTEND_API = 'https://1517c6fa4b70.ngrok.io'; // To be replaced with ngrok.
+// export const FRONTEND_APIS = 'http://localhost:3000';
+export const FRONTEND_APIS = [
+  'http://localhost:3000',
+  'https://1517c6fa4b70.ngrok.io',
+]; // To be replaced with ngrok.
 export const RESET_PASSWORD_URL = 'http://localhost:3000/auth';
 
 /**
