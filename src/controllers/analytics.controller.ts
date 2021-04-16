@@ -61,16 +61,6 @@ export class AnalyticsController {
     const { accountId } = req.user;
     const { dateStart, dateEnd } = req.query;
     try {
-      const approved = await AnalyticsService.getApprovedApplications(
-        accountId,
-        dateStart,
-        dateEnd
-      );
-      const rejected = await AnalyticsService.getRejectedApplications(
-        accountId,
-        dateStart,
-        dateEnd
-      );
       const all = await AnalyticsService.getAllApplications(
         accountId,
         dateStart,
@@ -80,8 +70,6 @@ export class AnalyticsController {
         res,
         {
           message: 'success',
-          approved,
-          rejected,
           all,
         },
         httpStatusCodes.OK
