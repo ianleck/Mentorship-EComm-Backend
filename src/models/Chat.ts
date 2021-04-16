@@ -11,7 +11,6 @@ import {
   Unique,
 } from 'sequelize-typescript';
 import { BaseEntity } from './abstract/BaseEntity';
-import { GroupMessage } from './GroupMessage';
 import { Message } from './Message';
 //import { Message } from './Message';
 import { User } from './User';
@@ -56,7 +55,4 @@ export class Chat extends BaseEntity {
 
   @HasMany(() => Message, 'chatId')
   Messages: Message[];
-
-  @HasMany(() => GroupMessage, 'chatId')
-  GroupMessages: GroupMessage[];
 }

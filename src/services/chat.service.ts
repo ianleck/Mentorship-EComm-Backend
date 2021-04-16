@@ -9,7 +9,6 @@ import { ERRORS, MESSAGE_ERRORS } from '../constants/errors';
 import { Chat } from '../models/Chat';
 import { Course } from '../models/Course';
 import { CourseContract } from '../models/CourseContract';
-import { GroupMessage } from '../models/GroupMessage';
 import { MentorshipContract } from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { Message } from '../models/Message';
@@ -90,7 +89,7 @@ export default class ChatService {
     message: {
       messageBody: string;
     }
-  ): Promise<GroupMessage> {
+  ): Promise<Message> {
     const chatGroup = await Chat.findByPk(chatId);
     if (!chatGroup) throw new Error(MESSAGE_ERRORS.CHAT_GROUP_MISSING);
 
@@ -99,8 +98,9 @@ export default class ChatService {
 
     const { messageBody } = message;
 
-    const newMessage = new GroupMessage({
+    const newMessage = new Message({
       senderId: userId,
+      receiverId: userId,
       messageBody,
       chatId,
     });
@@ -165,37 +165,11 @@ export default class ChatService {
             {
               model: User,
               as: 'Sender',
-              on: {
-                '$Sender.accountId$': {
-                  [Op.col]: 'Message.senderId',
-                },
-              },
               attributes: ['accountId', 'username', 'firstName', 'lastName'],
             },
             {
               model: User,
               as: 'Receiver',
-              on: {
-                '$Receiver.accountId$': {
-                  [Op.col]: 'Message.receiverId',
-                },
-              },
-              attributes: ['accountId', 'username', 'firstName', 'lastName'],
-            },
-          ],
-        },
-        {
-          model: GroupMessage,
-          attributes: [
-            'messageId',
-            'senderId',
-            'chatId',
-            'messageBody',
-            'updatedAt',
-          ],
-          include: [
-            {
-              model: User,
               attributes: ['accountId', 'username', 'firstName', 'lastName'],
             },
           ],
