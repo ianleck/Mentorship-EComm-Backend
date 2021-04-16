@@ -51,6 +51,8 @@ export default class AuthService {
 
   public static async register(registerBody: {
     username: string;
+    firstName: string;
+    lastName: string;
     email: string;
     password: string;
     confirmPassword: string;
@@ -58,6 +60,8 @@ export default class AuthService {
   }): Promise<User> {
     const {
       username,
+      firstName,
+      lastName,
       email,
       password,
       confirmPassword,
@@ -86,6 +90,8 @@ export default class AuthService {
       if (isStudent) {
         newUser = new User({
           username,
+          firstName,
+          lastName,
           email,
           password,
           userType: USER_TYPE_ENUM.STUDENT,
@@ -94,6 +100,8 @@ export default class AuthService {
       } else {
         newUser = new User({
           username,
+          firstName,
+          lastName,
           email,
           password,
           userType: USER_TYPE_ENUM.SENSEI,
