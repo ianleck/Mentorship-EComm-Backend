@@ -213,10 +213,29 @@ export class UserController {
   }
 
   // ========================================== ACHIEVEMENTS ============================================
-  public static async getAllAchievements(req, res) {
+  public static async getUserAchievements(req, res) {
     const { accountId } = req.params;
     try {
-      const achievements = await UserService.getAllAchievements(accountId);
+      const achievements = await UserService.getUserAchievements(accountId);
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          achievements,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[userController.getUserAchievements]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getAllAchievements(req, res) {
+    try {
+      const achievements = await UserService.getAllAchievements();
       return apiResponse.result(
         res,
         {

@@ -27,6 +27,15 @@ export class Achievement extends BaseEntity {
   @Column(DataType.TEXT)
   description: string;
 
+  @Column(DataType.STRING)
+  bronze: string;
+
+  @Column(DataType.STRING)
+  silver: string;
+
+  @Column(DataType.STRING)
+  gold: string;
+
   // ==================== RELATIONSHIP MAPPINGS ====================
   @BelongsToMany(() => User, {
     through: () => UserToAchievement,
