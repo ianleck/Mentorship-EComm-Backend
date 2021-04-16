@@ -266,13 +266,7 @@ export default class ChatService {
     const chatGroup = await Chat.findByPk(chatId);
     if (!chatGroup) throw new Error(MESSAGE_ERRORS.CHAT_GROUP_MISSING);
 
-    //CHECK IF USER DELETING GROUP IS OWNER OF GROUP
-    if (chatGroup.accountId1 !== userId)
-      throw new Error(
-        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      );
-
-    await Chat.destroy({ where: { chatId, accountId: userId } });
+    await Chat.destroy({ where: { chatId } });
   }
 
   public static async authorizationCheck(sender, receiver, fuctionName) {
