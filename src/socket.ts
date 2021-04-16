@@ -97,7 +97,7 @@ class socket {
       // consult notes
       socket.on('addNote', (data) => {
         const { newNote, consultationId } = data;
-        if (consultationId) {
+        if (consultationId && consultNotes[consultationId]) {
           consultNotes[consultationId].push(newNote);
 
           this.emitToConsultationUsers(
