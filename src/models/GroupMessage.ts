@@ -14,7 +14,7 @@ import { Chat } from './Chat';
 import { User } from './User';
 
 @Table
-export class Message extends BaseEntity {
+export class GroupMessage extends BaseEntity {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
@@ -24,17 +24,11 @@ export class Message extends BaseEntity {
   senderId: string;
 
   @Column(DataType.UUID)
-  receiverId: string;
-
-  @Column(DataType.UUID)
   chatId: string;
 
   @AllowNull(false)
   @Column(DataType.TEXT)
   messageBody: string;
-
-  @Column(DataType.STRING)
-  uniqueIdentifier: string;
 
   @CreatedAt
   @Column
@@ -52,14 +46,6 @@ export class Message extends BaseEntity {
     },
   })
   Sender: User;
-
-  @BelongsTo(() => User, {
-    foreignKey: {
-      name: 'receiverId',
-      allowNull: false,
-    },
-  })
-  Receiver: User;
 
   @BelongsTo(() => Chat, 'chatId')
   Chat: Chat;
