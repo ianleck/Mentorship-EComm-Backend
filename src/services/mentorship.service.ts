@@ -42,6 +42,14 @@ export default class MentorshipService {
   ): Promise<MentorshipListing> {
     const { categories, ...listingWithoutCategories } = mentorshipListing;
 
+    const user = await User.findByPk(accountId);
+    if (
+      // if user is trying to publish course but user has not been verified by admin, throw error
+      user.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED &&
+      mentorshipListing.visibility === VISIBILITY_ENUM.PUBLISHED
+    )
+      throw new Error(MENTORSHIP_ERRORS.USER_NOT_VERIFIED);
+
     const newListing = new MentorshipListing({
       accountId,
       ...listingWithoutCategories,
@@ -481,7 +489,7 @@ export default class MentorshipService {
     //================== END OF ACHIEVEMENT UPDATE =========================
 
     const mentorshipName = mentorshipListing.name;
-    const additional = { mentorshipName, ...emailParams, mentorName };
+    const additional = { title: mentorshipName, ...emailParams, mentorName };
 
     //SEND EMAIL TO INFORM OF ACCEPTANCE OF APPLICATION
     await EmailService.sendEmail(student.email, 'acceptContract', additional);
@@ -1380,7 +1388,10 @@ export default class MentorshipService {
       include: [
         {
           model: MentorshipContract,
-          where: { mentorshipListingId: mentorshipListingIds },
+          where: {
+            mentorshipListingId: mentorshipListingIds,
+            senseiApproval: APPROVAL_STATUS.APPROVED,
+          },
           include: [Testimonial],
         },
       ],

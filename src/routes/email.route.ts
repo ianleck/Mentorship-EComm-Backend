@@ -10,6 +10,7 @@ const schemaValidator = require('express-joi-validation').createValidator({});
 router.post(
   '/',
   schemaValidator.query(email.emailQ),
+  schemaValidator.body(email.emailB),
   Utility.asyncHandler(EmailController.sendEmail)
 );
 

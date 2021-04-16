@@ -7,6 +7,7 @@ import {
   USER_TYPE_ENUM,
 } from '../constants/enum';
 import { ERRORS } from '../constants/errors';
+import { Achievement } from '../models/Achievement';
 import { Admin } from '../models/Admin';
 import { Category } from '../models/Category';
 import { Experience } from '../models/Experience';
@@ -330,13 +331,21 @@ export default class UserService {
   }
 
   // ========================================== ACHIEVEMENTS ============================================
-  public static async getAllAchievements(accountId: string) {
-    const achievements = UserToAchievement.findAll({
+  public static async getUserAchievements(accountId: string) {
+    const achievements = await UserToAchievement.findAll({
       where: {
         accountId,
       },
-      attributes: ['title', 'medal', 'currentCount'],
+      attributes: ['achievementId', 'title', 'medal', 'currentCount'],
     });
+    return achievements;
+  }
+
+  public static async getAllAchievements() {
+    let achievements = await Achievement.findAll({
+      attributes: ['achievementId', 'title', 'bronze', 'silver', 'gold'],
+    });
+
     return achievements;
   }
 }

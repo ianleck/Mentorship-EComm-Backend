@@ -71,7 +71,7 @@ export const COURSE_ERRORS = {
   LESSON_MISSING: 'Lesson does not exist',
   ANNOUNCEMENT_MISSING: 'Annoucement does not exist',
   USER_NOT_VERIFIED:
-    'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your course or submitting your course request for approval.',
+    'Your account has not been verified by Digi Dojo. Please complete your verification first before publishing your course or submitting your course request for approval.',
   COURSE_NOT_VERIFIED:
     'Course has not been approved yet. Please submit your course for approval before publishing it.',
   COURSE_NOT_ACCEPTED:
@@ -92,7 +92,7 @@ export const MENTORSHIP_ERRORS = {
   CONTRACT_NOT_COMPLETED:
     'Mentorship contract has not been completed or does not exist. Please only add a testimonial for completed mentorships.',
   USER_NOT_VERIFIED:
-    'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your mentorship listing.',
+    'Your account has not been verified by Digi Dojo. Please complete your verification first before publishing your mentorship listing.',
   TASK_BUCKET_MISSING: 'Task bucket does not exist',
   TASK_MISSING: 'Task does not exist',
   NOTE_MISSING: 'Note does not exist',

@@ -148,11 +148,9 @@ export default class EmailService {
     switch (template) {
       // AUTH
       case 'register':
-        const placeHolder = 'https://www.google.com';
         return await ejs.renderFile(filePath, {
           name,
           userType: lowerCase(user.userType),
-          url: placeHolder,
         });
 
       case 'forgotPassword':

@@ -25,9 +25,9 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.createListing]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.USER_NOT_VERIFIED,
+      ]);
     }
   }
 
