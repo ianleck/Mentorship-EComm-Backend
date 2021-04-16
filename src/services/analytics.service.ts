@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import {
   APPROVAL_STATUS,
   BILLING_STATUS,
@@ -20,7 +20,6 @@ export default class AnalyticsService {
     dateStart: Date,
     dateEnd: Date
   ) {
-    const Sequelize = require('sequelize');
     if (userType == USER_TYPE_ENUM.ADMIN) {
       const listings = await MentorshipListing.findAll();
       const listingIds = listings.map((l) => l.mentorshipListingId);
@@ -95,7 +94,6 @@ export default class AnalyticsService {
     dateStart: Date,
     dateEnd: Date
   ) {
-    const Sequelize = require('sequelize');
     if (userType == USER_TYPE_ENUM.ADMIN) {
       const courses = await Course.findAll();
       const courseIds = courses.map((c) => c.courseId);
@@ -194,7 +192,6 @@ export default class AnalyticsService {
     dateStart: Date,
     dateEnd: Date
   ) {
-    const Sequelize = require('sequelize');
     const listings = await MentorshipListing.findAll({
       where: {
         accountId,
@@ -227,7 +224,6 @@ export default class AnalyticsService {
     dateEnd: Date,
     senseiApproval?: APPROVAL_STATUS
   ) {
-    const Sequelize = require('sequelize');
     const listings = await MentorshipListing.findAll({
       where: {
         accountId,
