@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Op, Sequelize } from 'sequelize';
 import {
   APPROVAL_STATUS,
@@ -199,6 +200,10 @@ export default class AnalyticsService {
       },
     });
     const listingIds = listings.map((l) => l.mentorshipListingId);
+    const listingDict = _.keyBy(
+      listings,
+      (listing) => listing.mentorshipListingId
+    );
     const applications = await MentorshipContract.findAll({
       where: {
         mentorshipListingId: { [Op.in]: listingIds },
@@ -217,7 +222,11 @@ export default class AnalyticsService {
         // 'name',
       ],
     });
-    return applications;
+    const applicationsByListing = applications.map((application) => {
+      const name = listingDict[application.mentorshipListingId].name;
+      return { name, application };
+    });
+    return applicationsByListing;
   }
 
   public static async applicationCount(
