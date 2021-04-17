@@ -1,4 +1,5 @@
 import express from 'express';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { UserController } from '../controllers/user.controller';
 import {
@@ -7,8 +8,6 @@ import {
   requireSameUserOrAdmin,
 } from '../middlewares/authenticationMiddleware';
 import user from './schema/user.schema';
-
-const passport = require('passport');
 
 const router = express.Router();
 
@@ -84,6 +83,23 @@ router.delete(
   requireSameUser, // if request.user is sending a request to update an account that is not his/hers, return unauthorized
   schemaValidator.params(user.deleteExperienceParams),
   Utility.asyncHandler(UserController.deleteExperience)
+);
+
+// ========================================== ACHIEVEMENTS ============================================
+
+//VIEW PERSONAL ACHIEVEMENTS
+router.get(
+  '/achievements/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(UserController.getUserAchievements)
+);
+
+//VIEW ALL ACHIEVEMENTS
+router.get(
+  '/all/achievements',
+  passport.authenticate('isAuthenticated', { session: false }),
+  Utility.asyncHandler(UserController.getAllAchievements)
 );
 
 export default router;

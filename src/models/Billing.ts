@@ -12,7 +12,9 @@ import { BILLING_STATUS, BILLING_TYPE } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Course } from './Course';
 import { CourseContract } from './CourseContract';
+import { MentorshipContract } from './MentorshipContract';
 import { MentorshipListing } from './MentorshipListing';
+import { RefundRequest } from './RefundRequest';
 
 @Table
 export class Billing extends BaseEntity {
@@ -27,6 +29,9 @@ export class Billing extends BaseEntity {
   @Column(DataType.STRING)
   paypalPaymentId: string;
 
+  @Column(DataType.STRING)
+  refundRequestId: string;
+
   // Id of Course/Mentorshiplisting
   @Column(DataType.UUID)
   productId: string;
@@ -35,7 +40,7 @@ export class Billing extends BaseEntity {
   @Column(DataType.UUID)
   contractId: string;
 
-  // Price of course
+  // Price
   @AllowNull(false)
   @Default(STARTING_BALANCE)
   @Column(DataType.FLOAT)
@@ -45,6 +50,9 @@ export class Billing extends BaseEntity {
   @Default(CURRENCY)
   @Column(DataType.STRING)
   currency: string;
+
+  @Column(DataType.INTEGER)
+  mentorPassCount: number;
 
   // Only appears for billings from admin to sensei, where the platform fee = amount * 5% (Our platform revenue)
   @Column(DataType.FLOAT)
@@ -93,4 +101,13 @@ export class Billing extends BaseEntity {
     targetKey: 'mentorshipListingId',
   })
   MentorshipListing: MentorshipListing;
+
+  @BelongsTo(() => MentorshipContract, {
+    foreignKey: 'contractId',
+    targetKey: 'mentorshipContractId',
+  })
+  MentorshipContract: MentorshipContract;
+
+  @BelongsTo(() => RefundRequest, 'refundRequestId')
+  RefundRequest: RefundRequest;
 }

@@ -4,7 +4,7 @@ import {
   AUTH_ERRORS,
   COURSE_ERRORS,
   ERRORS,
-  RESPONSE_ERROR,
+  RESPONSE_ERROR
 } from '../constants/errors';
 import { COURSE_RESPONSE } from '../constants/successMessages';
 import Utility from '../constants/utility';
@@ -544,13 +544,13 @@ export class CourseController {
 
     const { courseId } = req.params;
     try {
-      const createdListing = await CourseService.createContract(
+      const courseContract = await CourseService.createContract(
         user.accountId,
         courseId
       );
       return apiResponse.result(
         res,
-        { message: COURSE_RESPONSE.CONTRACT_CREATE, createdListing },
+        { message: COURSE_RESPONSE.CONTRACT_CREATE, courseContract },
         httpStatusCodes.CREATED
       );
     } catch (e) {
@@ -574,7 +574,7 @@ export class CourseController {
     const { accountId } = req.params;
 
     try {
-      const requests = await CourseService.getAllPurchasedCourses(
+      const courses = await CourseService.getAllPurchasedCourses(
         user.accountId,
         accountId
       );
@@ -582,7 +582,7 @@ export class CourseController {
         res,
         {
           message: 'success',
-          requests,
+          courses,
         },
         httpStatusCodes.OK
       );
@@ -600,6 +600,28 @@ export class CourseController {
           message: RESPONSE_ERROR.RES_ERROR,
         });
       }
+    }
+  }
+
+  public static async markLessonCompleted(req, res) {
+    const { courseContractId, lessonId } = req.params;
+    try {
+      const courseContract = await CourseService.markLessonCompleted(
+        courseContractId,
+        lessonId
+      );
+      return apiResponse.result(
+        res,
+        { message: COURSE_RESPONSE.LESSON_COMPLETED, courseContract },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[courseController.markLessonCompleted]:' + e.message);
+      Utility.apiErrorResponse(res, e, [
+        COURSE_ERRORS.COURSE_MISSING,
+        ERRORS.SENSEI_DOES_NOT_EXIST,
+        AUTH_ERRORS.USER_BANNED,
+      ]);
     }
   }
 }

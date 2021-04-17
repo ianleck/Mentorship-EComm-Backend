@@ -17,10 +17,12 @@ import {
   USER_TYPE_ENUM,
 } from '../constants/enum';
 import { Account } from './abstract/Account';
+import { Category } from './Category';
 import { Experience } from './Experience';
 import { MentorshipContract } from './MentorshipContract';
 import { Post } from './Post';
-import { UserFollowership } from './UserFollowership';
+import { Testimonial } from './Testimonial';
+import { UserToCategories } from './UserToCategories';
 import { Wallet } from './Wallet';
 @Table
 export class User extends Account {
@@ -116,12 +118,6 @@ export class User extends Account {
   @HasMany(() => Experience, 'accountId')
   Experience: Experience[];
 
-  @BelongsToMany(() => User, () => UserFollowership, 'followerId')
-  Following: User[];
-
-  @BelongsToMany(() => User, () => UserFollowership, 'followingId')
-  Followers: User[];
-
   @HasMany(() => MentorshipContract, 'accountId')
   MentorshipContracts: MentorshipContract[];
 
@@ -131,27 +127,14 @@ export class User extends Account {
   @HasMany(() => Post, 'accountId')
   Posts: Post[];
 
-  //@HasMany(() => Testimonial, 'testimonialId')
-  //Testimonials: Testimonial[];
+  @HasMany(() => Testimonial, 'accountId')
+  Testimonials: Testimonial[];
 
-  // @Column
-  // achievements: Achievement;
-
-  // @HasMany(() => CourseContract)
-  // courses: CourseContract;
-  //
-
-  // achievements
-
-  // @HasMany(() => Course)
-  // coursesTaught: Course[];
-  //
-  // @HasMany(() => MentorshipListing)
-  // mentorshipListing: MentorshipListing[];
-  //
-  // @HasMany(() => Post)
-  // posts: Post[];
-  //
+  @BelongsToMany(() => Category, {
+    through: () => UserToCategories,
+    foreignKey: 'accountId',
+  })
+  Interests: Category[];
 
   // ==================== USER FUNCTIONS ====================
   generateJWT() {

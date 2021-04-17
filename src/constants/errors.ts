@@ -28,6 +28,35 @@ export const CART_ERRORS = {
   COURSE_PURCHASED: 'Course has already been purchased',
   MENTORSHIP_CONTRACT_ADDED:
     'Mentorship Listing has already been added to shopping cart',
+  ITEM_MISSING: 'There is no such item in shopping cart',
+};
+
+export const CONSULTATION_ERRORS = {
+  CONSULTATION_CLASH:
+    'There is an existing consultation that clashes with the new consultation. Please change the time and try again.',
+  CONSULTATION_MISSING: 'Consultation does not exist',
+  CONSULTATION_TAKEN: 'Consultation has been taken',
+  INSUFFICIENT_PASS:
+    'You do not have any more passes left to book this consultation slot. Please purchase more and try again.',
+  CONSULTATION_BOOKED:
+    'This consultation has been booked and can no longer be edited. If you wish to reschedule the consultation, please cancel this consultation and create a new consultation.',
+  UNREGISTER_FAILURE:
+    'Your request to cancel your registration for the consultation has been rejected due to the lack of lead time of 3 days.',
+  CONSULTATION_PAST:
+    'Your request to register for this consultation has been rejected as it has already ended.',
+  START_AFTER_END:
+    'Start time of consultation cannot be after end time of consultation.',
+};
+
+export const COMMENT_ERRORS = {
+  COMMENT_MISSING: 'Comment does not exist',
+};
+
+export const COMPLAINT_ERRORS = {
+  COMPLAINT_REASON_EXISTS: 'Similar complaint reason already exists',
+
+  COMPLAINT_MISSING: 'Complaint does not exist',
+  COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
 };
 
 export const COURSE_ERRORS = {
@@ -42,7 +71,7 @@ export const COURSE_ERRORS = {
   LESSON_MISSING: 'Lesson does not exist',
   ANNOUNCEMENT_MISSING: 'Annoucement does not exist',
   USER_NOT_VERIFIED:
-    'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your course or submitting your course request for approval.',
+    'Your account has not been verified by Digi Dojo. Please complete your verification first before publishing your course or submitting your course request for approval.',
   COURSE_NOT_VERIFIED:
     'Course has not been approved yet. Please submit your course for approval before publishing it.',
   COURSE_NOT_ACCEPTED:
@@ -63,9 +92,13 @@ export const MENTORSHIP_ERRORS = {
   CONTRACT_NOT_COMPLETED:
     'Mentorship contract has not been completed or does not exist. Please only add a testimonial for completed mentorships.',
   USER_NOT_VERIFIED:
-    'Your account has not been verified by Diji Dojo. Please complete your verification first before publishing your mentorship listing.',
+    'Your account has not been verified by Digi Dojo. Please complete your verification first before publishing your mentorship listing.',
   TASK_BUCKET_MISSING: 'Task bucket does not exist',
   TASK_MISSING: 'Task does not exist',
+  NOTE_MISSING: 'Note does not exist',
+  CONTRACT_NOT_STARTED: 'You cannot complete a contract that has not started',
+  CONTRACT_TERMINATED:
+    'This contract is no longer ongoing and can neither be cancelled nor completed.',
 };
 
 export const REVIEW_ERRORS = {
@@ -75,6 +108,7 @@ export const REVIEW_ERRORS = {
 
 export const UPLOAD_ERRORS = {
   INVALID_FILE_TYPE: 'Invalid File Type',
+  INVALID_ATTACHMENT_TYPE: 'Invalid File Type',
   NO_FILE_UPLOADED: 'No files were uploaded',
   ZIP_FILE_ALLOWED: 'Only zip files are allowed',
   FAILED_TRANSCRIPT_SAVE: 'Failed to save transcript',
@@ -83,6 +117,8 @@ export const UPLOAD_ERRORS = {
   FAILED_VIDEO_SAVE: 'Failed to save video',
   FILE_MISSING: 'File does not exist',
   FAILED_FILE_SAVE: 'Failed to save file',
+  FAILED_ATTACHMENT_SAVE: 'Failed to save attachment',
+  ATTACHMENT_MISSING: 'Attachment does not exist',
 };
 
 export const REGISTER_ERRORS = {
@@ -102,6 +138,13 @@ export const WALLET_ERROR = {
   NO_MONEY:
     'Unable to withdraw as confirmed amount is still 0. Please note that 120 days have to elapse before pending amount is converted to confirmed amount due to our user refund policies',
   PAID_OUT: 'This withdrawal application has already been approved.',
+  INVALID_REFUND_REQUEST: 'Refund request is invalid',
+  REFUNDED: 'Refund has already been made.',
+  EXISTING_REFUND:
+    'An existing refund request has been made. Please wait while we process your refund request.',
+  MISSING_REFUND_REQUEST: 'No refund has been requested for this billing.',
+  REFUND_PERIOD_OVER:
+    'The refund period has ended for this item as 120 days have elapsed since the last purchase was made.',
 };
 
 export const SOCIAL_ERRORS = {
@@ -113,13 +156,10 @@ export const SOCIAL_ERRORS = {
   PRIVATE_USER: 'User account is private',
 };
 
-export const COMMENT_ERRORS = {
-  COMMENT_MISSING: 'Comment does not exist',
-};
-
-export const COMPLAINT_ERRORS = {
-  COMPLAINT_REASON_EXISTS: 'Similar complaint reason already exists',
-
-  COMPLAINT_MISSING: 'Complaint does not exist',
-  COMPLAINT_ALREADY_EXISTS: 'You have submitted a complaint previously',
+export const MESSAGE_ERRORS = {
+  PRIVATE_USER: 'You are not allowed to send a message to this user',
+  CHAT_GROUP_MISSING: 'Chat Group does not exist',
+  USER_CANNOT_BE_ADDED:
+    'You are not allowed to add this user to the chat group',
+  USER_BANNED: 'User has been banned',
 };

@@ -4,6 +4,7 @@ import { ERRORS, RESPONSE_ERROR, SOCIAL_ERRORS } from '../constants/errors';
 import { USER_RESPONSE } from '../constants/successMessages';
 import UserService from '../services/user.service';
 import apiResponse from '../utilities/apiResponse';
+
 export class UserController {
   // ================================ USER ================================
 
@@ -35,7 +36,7 @@ export class UserController {
     const { accountId } = req.params;
     const { user } = req;
     try {
-      const userProfile = await UserService.findUserById(
+      const { userProfile, isBlocking } = await UserService.findUserById(
         accountId,
         user.accountId
       );
@@ -44,11 +45,12 @@ export class UserController {
         {
           message: 'success',
           userProfile,
+          isBlocking,
         },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[userController.getUser]:' + e.message);
+      logger.error('[userController.getUserProfile]:' + e.message);
       if (
         e.message === ERRORS.USER_DOES_NOT_EXIST ||
         e.message === SOCIAL_ERRORS.PRIVATE_USER
@@ -104,10 +106,14 @@ export class UserController {
 
   public static async updateUser(req, res) {
     const { accountId } = req.params;
-    const { user } = req.body;
+    const { user, interests } = req.body;
 
     try {
-      const userEntity = await UserService.updateUser(accountId, user);
+      const userEntity = await UserService.updateUser(
+        accountId,
+        user,
+        interests
+      );
       apiResponse.result(
         res,
         { message: USER_RESPONSE.USER_UPDATE, user: userEntity },
@@ -203,6 +209,46 @@ export class UserController {
           message: RESPONSE_ERROR.RES_ERROR,
         });
       }
+    }
+  }
+
+  // ========================================== ACHIEVEMENTS ============================================
+  public static async getUserAchievements(req, res) {
+    const { accountId } = req.params;
+    try {
+      const achievements = await UserService.getUserAchievements(accountId);
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          achievements,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[userController.getUserAchievements]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getAllAchievements(req, res) {
+    try {
+      const achievements = await UserService.getAllAchievements();
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          achievements,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[userController.getAllAchievements]:' + e.message);
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
     }
   }
 }

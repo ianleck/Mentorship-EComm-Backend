@@ -11,6 +11,7 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
+import { CURRENCY } from '../constants/constants';
 import { VISIBILITY_ENUM } from '../constants/enum';
 import { BaseEntity } from './abstract/BaseEntity';
 import { Billing } from './Billing';
@@ -20,7 +21,6 @@ import { Category } from './Category';
 import { MentorshipContract } from './MentorshipContract';
 import { MentorshipListingToCategory } from './MentorshipListingToCategory';
 import { Review } from './Review';
-import { Testimonial } from './Testimonial';
 import { User } from './User';
 
 @Table
@@ -51,6 +51,11 @@ export class MentorshipListing extends BaseEntity {
   @AllowNull(false)
   @Column(DataType.FLOAT)
   priceAmount: number;
+
+  @AllowNull(false)
+  @Default(CURRENCY)
+  @Column(DataType.STRING)
+  currency: string;
 
   @Column({
     allowNull: false,
@@ -88,9 +93,4 @@ export class MentorshipListing extends BaseEntity {
 
   @HasMany(() => Billing, 'productId')
   Billings: Billing;
-
-  @HasMany(() => Testimonial, 'mentorshipListingId')
-  Testimonials: Testimonial[];
 }
-
-// MentorshipListing.hasMany(Review, { foreignKey: 'reviewId' })

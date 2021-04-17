@@ -1,25 +1,29 @@
 import {
+  BelongsTo,
   Column,
   CreatedAt,
   DataType,
+  Default,
   ForeignKey,
   Model,
+  PrimaryKey,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript';
+import { FOLLOWING_ENUM } from '../constants/enum';
 import { User } from './User';
-import {
-  FOLLOWING_ENUM,
-} from '../constants/enum';
 
 @Table
 export class UserFollowership extends Model<UserFollowership> {
-  @ForeignKey(() => User)
-  @Column
+  @PrimaryKey
+  @Default(DataType.UUIDV4)
+  @Column(DataType.UUID)
+  followershipId: string;
+
+  @Column(DataType.UUID)
   followerId: string;
 
-  @ForeignKey(() => User)
-  @Column
+  @Column(DataType.UUID)
   followingId: string;
 
   @Column({
@@ -27,7 +31,7 @@ export class UserFollowership extends Model<UserFollowership> {
     values: Object.values(FOLLOWING_ENUM),
     defaultValue: FOLLOWING_ENUM.PENDING,
   })
-  followingStatus: FOLLOWING_ENUM; 
+  followingStatus: FOLLOWING_ENUM;
 
   @CreatedAt
   @Column
@@ -37,7 +41,20 @@ export class UserFollowership extends Model<UserFollowership> {
   @Column
   updatedAt: Date;
 
+  // ==================== RELATIONSHIP MAPPINGS ====================
+  @BelongsTo(() => User, {
+    foreignKey: {
+      name: 'followerId',
+      allowNull: false,
+    },
+  })
+  Following: User;
 
-
-
+  @BelongsTo(() => User, {
+    foreignKey: {
+      name: 'followingId',
+      allowNull: false,
+    },
+  })
+  Follower: User;
 }

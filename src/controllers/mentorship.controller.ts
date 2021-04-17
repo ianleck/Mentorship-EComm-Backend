@@ -1,8 +1,8 @@
 import httpStatusCodes from 'http-status-codes';
-import Utility from '../constants/utility';
 import logger from '../config/logger';
 import { ERRORS, MENTORSHIP_ERRORS, RESPONSE_ERROR } from '../constants/errors';
 import { MENTORSHIP_RESPONSE } from '../constants/successMessages';
+import Utility from '../constants/utility';
 import MentorshipService from '../services/mentorship.service';
 import UserService from '../services/user.service';
 import apiResponse from '../utilities/apiResponse';
@@ -25,9 +25,9 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.createListing]:' + e.message);
-      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-        message: RESPONSE_ERROR.RES_ERROR,
-      });
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.USER_NOT_VERIFIED,
+      ]);
     }
   }
 
@@ -173,14 +173,14 @@ export class MentorshipController {
   public static async createContract(req, res) {
     const { mentorshipListingId } = req.params;
     const { accountId } = req.user;
-    const { statement } = req.body;
+    const { applicationFields } = req.body;
 
     // Check that there is no existing mentorship contract
     try {
       const createdContract = await MentorshipService.createContract(
         mentorshipListingId,
         accountId,
-        statement
+        applicationFields
       );
       return apiResponse.result(
         res,
@@ -198,15 +198,15 @@ export class MentorshipController {
 
   public static async updateContract(req, res) {
     const { mentorshipContractId } = req.params;
-    const { statement } = req.body;
     const { accountId } = req.user;
+    const { applicationFields } = req.body;
 
     // Check that there is an existing mentorship contract
     try {
       const updatedContract = await MentorshipService.updateContract(
         mentorshipContractId,
-        statement,
-        accountId
+        accountId,
+        applicationFields
       );
       return apiResponse.result(
         res,
@@ -234,11 +234,13 @@ export class MentorshipController {
   public static async acceptMentorshipContract(req, res) {
     const { mentorshipContractId } = req.params;
     const { user } = req;
+    const { emailParams } = req.body;
 
     try {
       const mentorshipContract = await MentorshipService.acceptContract(
         mentorshipContractId,
-        user.accountId
+        user.accountId,
+        emailParams
       );
       return apiResponse.result(
         res,
@@ -249,20 +251,12 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.acceptMentorshipContract]:' + e.message
       );
-      if (
-        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
-        e.message === ERRORS.STUDENT_DOES_NOT_EXIST ||
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.CONTRACT_MISSING,
+        ERRORS.STUDENT_DOES_NOT_EXIST,
+        ERRORS.SENSEI_DOES_NOT_EXIST,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      ]);
     }
   }
 
@@ -284,20 +278,11 @@ export class MentorshipController {
       logger.error(
         '[mentorshipController.rejectMentorshipContract]:' + e.message
       );
-      if (
-        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
-        e.message === ERRORS.STUDENT_DOES_NOT_EXIST ||
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.CONTRACT_MISSING,
+        ERRORS.STUDENT_DOES_NOT_EXIST,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      ]);
     }
   }
 
@@ -327,6 +312,32 @@ export class MentorshipController {
           message: RESPONSE_ERROR.RES_ERROR,
         });
       }
+    }
+  }
+
+  public static async terminateContract(req, res) {
+    const { mentorshipContractId, action } = req.query;
+    const { user } = req;
+
+    try {
+      await MentorshipService.terminateContract(
+        mentorshipContractId,
+        user,
+        action
+      );
+      return apiResponse.result(
+        res,
+        { message: MENTORSHIP_RESPONSE.CONTRACT_UPDATE },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.terminateContract]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.CONTRACT_MISSING,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+        MENTORSHIP_ERRORS.CONTRACT_NOT_STARTED,
+        MENTORSHIP_ERRORS.CONTRACT_TERMINATED,
+      ]);
     }
   }
 
@@ -411,7 +422,7 @@ export class MentorshipController {
     }
   }
 
-  //get ALL mentorship contracts of ONE sensei
+  //get ONE active mentorship
   public static async getSenseiMentorshipContracts(req, res) {
     const { accountId } = req.params; //accountId of the sensei
     const { user } = req; //user is the user who is making the request
@@ -438,17 +449,69 @@ export class MentorshipController {
     }
   }
 
+  public static async getActiveMentorship(req, res) {
+    const { mentorshipContractId } = req.params;
+
+    try {
+      const activeContract = await MentorshipService.getActiveMentorship(
+        mentorshipContractId
+      );
+
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          activeContract,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.getActiveMentorship]:' + e.toString()
+      );
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  //get ALL active mentorship contracts of ONE student
+  public static async getAllActiveMentorships(req, res) {
+    const { accountId } = req.params;
+
+    try {
+      const activeContracts = await MentorshipService.getAllActiveMentorships(
+        accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          activeContracts,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error(
+        '[mentorshipController.getAllActiveMentorships]:' + e.toString()
+      );
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
   // ============================= TESTIMONIALS =================================================
   public static async addTestimonial(req, res) {
     const { user } = req;
     const { newTestimonial } = req.body;
-    const { mentorshipListingId, accountId } = req.params;
+    const { mentorshipContractId, accountId } = req.params;
 
     try {
       const createdTestimonial = await MentorshipService.addTestimonial(
         user.accountId,
         accountId,
-        mentorshipListingId,
+        mentorshipContractId,
         newTestimonial
       );
       return apiResponse.result(
@@ -494,20 +557,12 @@ export class MentorshipController {
       );
     } catch (e) {
       logger.error('[mentorshipController.editTestimonial]:' + e.message);
-      if (
-        e.message === MENTORSHIP_ERRORS.TESTIMONIAL_MISSING ||
-        e.message === MENTORSHIP_ERRORS.LISTING_MISSING ||
-        e.message ===
-          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
-      ) {
-        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
-          message: e.message,
-        });
-      } else {
-        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
-          message: RESPONSE_ERROR.RES_ERROR,
-        });
-      }
+      return Utility.apiErrorResponse(res, e, [
+        MENTORSHIP_ERRORS.TESTIMONIAL_MISSING,
+        MENTORSHIP_ERRORS.CONTRACT_MISSING,
+        MENTORSHIP_ERRORS.LISTING_MISSING,
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED),
+      ]);
     }
   }
 
@@ -537,7 +592,29 @@ export class MentorshipController {
       });
     }
   }
+  public static async getAllTestimonials(req, res) {
+    const { accountId } = req.params;
 
+    try {
+      const testimonials = await MentorshipService.getAllTestimonials(
+        accountId
+      );
+
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          testimonials,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.getAllTestimonials]:' + e.toString());
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
   // ====================================== TASKS ======================================
 
   //================= TASK BUCKET =====================
@@ -758,11 +835,11 @@ export class MentorshipController {
   }
 
   public static async deleteTask(req, res) {
-    const { taskBucketId } = req.params;
+    const { taskId } = req.params;
     const { user } = req;
 
     try {
-      await MentorshipService.deleteTask(taskBucketId, user.accountId);
+      await MentorshipService.deleteTask(taskId, user.accountId);
       return apiResponse.result(
         res,
         { message: MENTORSHIP_RESPONSE.TASK_DELETE },
@@ -813,6 +890,116 @@ export class MentorshipController {
       if (
         e.message ===
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      } else {
+        return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+          message: RESPONSE_ERROR.RES_ERROR,
+        });
+      }
+    }
+  }
+
+  // ======================================== NOTES ================================================
+  public static async addNoteToMentorship(req, res) {
+    const { user } = req;
+    const { mentorshipContractId } = req.params;
+    const { newNote } = req.body;
+
+    try {
+      const addedNote = await MentorshipService.addNoteToMentorship(
+        mentorshipContractId,
+        user.accountId,
+        newNote
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: MENTORSHIP_RESPONSE.NOTE_CREATE,
+          note: addedNote,
+        },
+        httpStatusCodes.CREATED
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.addNoteToMentorship]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async editNoteInMentorship(req, res) {
+    const { user } = req;
+    const { noteId } = req.params;
+    const { updateNote } = req.body;
+    try {
+      const updatedNote = await MentorshipService.editNoteInMentorship(
+        noteId,
+        user.accountId,
+        updateNote
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: MENTORSHIP_RESPONSE.NOTE_UPDATE,
+          note: updatedNote,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.editNoteInMentorship]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === MENTORSHIP_ERRORS.NOTE_MISSING ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING
+      ) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getAllNotes(req, res) {
+    const { mentorshipContractId } = req.params;
+    const { user } = req;
+    try {
+      const notes = await MentorshipService.getAllNotes(
+        mentorshipContractId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          notes,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[mentorshipController.getAllNotes]:' + e.message);
+      if (
+        e.message ===
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED) ||
+        e.message === MENTORSHIP_ERRORS.CONTRACT_MISSING ||
+        e.message === MENTORSHIP_ERRORS.LISTING_MISSING
       ) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,

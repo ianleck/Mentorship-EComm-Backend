@@ -1,7 +1,9 @@
 import httpStatusCodes from 'http-status-codes';
 import logger from '../config/logger';
+import { FOLLOWING_ENUM } from '../constants/enum';
 import { ERRORS, RESPONSE_ERROR, SOCIAL_ERRORS } from '../constants/errors';
 import { SOCIAL_RESPONSE } from '../constants/successMessages';
+import Utility from '../constants/utility';
 import SocialService from '../services/social.service';
 import apiResponse from '../utilities/apiResponse';
 
@@ -181,21 +183,26 @@ export class SocialController {
     }
   }
 
-  //================================== FOLLOWING =============================================
-  public static async requestFollowing(req, res) {
-    const { accountId } = req.params; //accountId of following
-    const { user } = req; //follower
+  public static async getFollowingFeed(req, res) {
+    const { accountId } = req.params;
+    const { user } = req;
 
     try {
-      await SocialService.requestFollowing(accountId, user.accountId);
+      const listOfPost = await SocialService.getFollowingFeed(
+        accountId,
+        user.accountId
+      );
       return apiResponse.result(
         res,
-        { message: SOCIAL_RESPONSE.FOLLOWING_REQUEST_CREATED },
+        {
+          message: 'success',
+          listOfPost,
+        },
         httpStatusCodes.OK
       );
     } catch (e) {
-      logger.error('[socialController.requestFollowing]:' + e.message);
-      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
+      logger.error('[socialService.getFollowingFeed]:' + e.toString());
+      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
@@ -205,6 +212,35 @@ export class SocialController {
       });
     }
   }
+
+  public static async getPostById(req, res) {
+    const { postId } = req.params;
+    const { user } = req;
+
+    try {
+      const { post, userProfile, isBlocking } = await SocialService.getPostById(
+        postId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          post,
+          userProfile,
+          isBlocking,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getPostById]:' + e.toString());
+      return Utility.apiErrorResponse(res, e, [
+        SOCIAL_ERRORS.POST_MISSING,
+        ERRORS.USER_DOES_NOT_EXIST,
+      ]);
+    }
+  }
+  //================================== FOLLOWING =============================================
 
   public static async removeRequest(req, res) {
     const { accountId } = req.params; //accountId of following
@@ -292,18 +328,24 @@ export class SocialController {
     const { user } = req; //follower
 
     try {
-      await SocialService.followUser(accountId, user.accountId);
+      const response = await SocialService.followUser(
+        accountId,
+        user.accountId
+      );
       return apiResponse.result(
         res,
-        { message: SOCIAL_RESPONSE.FOLLOWING_ADDED },
+        {
+          message:
+            response.followingStatus === FOLLOWING_ENUM.APPROVED
+              ? SOCIAL_RESPONSE.FOLLOWING_ADDED
+              : SOCIAL_RESPONSE.FOLLOWING_REQUEST_CREATED,
+          followingStatus: response.followingStatus,
+        },
         httpStatusCodes.OK
       );
     } catch (e) {
       logger.error('[socialController.followUser]:' + e.message);
-      if (
-        e.message === ERRORS.USER_DOES_NOT_EXIST ||
-        e.message === SOCIAL_ERRORS.PRIVATE_USER
-      ) {
+      if (e.message === ERRORS.USER_DOES_NOT_EXIST) {
         return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
           message: e.message,
         });
@@ -400,6 +442,162 @@ export class SocialController {
       return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
         message: RESPONSE_ERROR.RES_ERROR,
       });
+    }
+  }
+
+  public static async getFollowerList(req, res) {
+    const { accountId } = req.params;
+    const { user } = req;
+
+    try {
+      const followerList = await SocialService.getFollowerList(
+        accountId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          followerList,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getFollowerList]:' + e.toString());
+      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getPendingFollowingList(req, res) {
+    const { accountId } = req.params;
+    const { user } = req;
+
+    try {
+      const pendingFollowingList = await SocialService.getPendingFollowingList(
+        accountId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          pendingFollowingList,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getPendingFollowingList]:' + e.toString());
+      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async blockUser(req, res) {
+    const { accountId } = req.params; //user to block
+    const { user } = req;
+
+    //return blocked status
+    try {
+      const response = await SocialService.blockUser(accountId, user.accountId);
+      return apiResponse.result(
+        res,
+        {
+          message: SOCIAL_RESPONSE.USER_BLOCKED,
+          followingStatus: response.followingStatus,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialController.blockUser]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [ERRORS.USER_DOES_NOT_EXIST]);
+    }
+  }
+
+  //Unblock User
+  public static async unblockUser(req, res) {
+    const { accountId } = req.params; //user to unblock
+    const { user } = req;
+
+    //return profile of user unblocked
+    try {
+      const userUnblocked = await SocialService.unblockUser(
+        accountId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: SOCIAL_RESPONSE.USER_UNBLOCKED,
+          //userUnblocked,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialController.unblockUser]:' + e.message);
+      return Utility.apiErrorResponse(res, e, [ERRORS.USER_DOES_NOT_EXIST]);
+    }
+  }
+
+  public static async getPendingFollowerList(req, res) {
+    const { accountId } = req.params;
+    const { user } = req;
+
+    try {
+      const pendingFollowerList = await SocialService.getPendingFollowerList(
+        accountId,
+        user.accountId
+      );
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          pendingFollowerList,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getPendingFollowerList]:' + e.toString());
+      if (e.message === SOCIAL_ERRORS.PRIVATE_USER) {
+        return apiResponse.error(res, httpStatusCodes.BAD_REQUEST, {
+          message: e.message,
+        });
+      }
+      return apiResponse.error(res, httpStatusCodes.INTERNAL_SERVER_ERROR, {
+        message: RESPONSE_ERROR.RES_ERROR,
+      });
+    }
+  }
+
+  public static async getUsersBlocked(req, res) {
+    const { accountId } = req.params;
+
+    //return blocked status
+    try {
+      const usersBlocked = await SocialService.getUsersBlocked(accountId);
+      return apiResponse.result(
+        res,
+        {
+          message: 'success',
+          usersBlocked,
+        },
+        httpStatusCodes.OK
+      );
+    } catch (e) {
+      logger.error('[socialService.getUsersBlocked]:' + e.toString());
+      return Utility.apiErrorResponse(res, e, [ERRORS.USER_DOES_NOT_EXIST]);
     }
   }
 }

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Op } from 'sequelize';
 import {
   ADMIN_VERIFIED_ENUM,
@@ -5,11 +6,15 @@ import {
   STATUS_ENUM,
   USER_TYPE_ENUM,
 } from '../constants/enum';
-import { ERRORS, SOCIAL_ERRORS } from '../constants/errors';
+import { ERRORS } from '../constants/errors';
+import { Achievement } from '../models/Achievement';
 import { Admin } from '../models/Admin';
+import { Category } from '../models/Category';
 import { Experience } from '../models/Experience';
 import { User } from '../models/User';
 import { UserFollowership } from '../models/UserFollowership';
+import { UserToAchievement } from '../models/UserToAchievement';
+import { UserToCategories } from '../models/UserToCategories';
 
 export default class UserService {
   // ================================ USER ================================
@@ -27,23 +32,60 @@ export default class UserService {
     }
   }
 
-  public static async findUserById(
-    accountId: string,
-    userId: string
-  ): Promise<User> {
-    const user = await User.findByPk(accountId, {
-      include: [Experience],
+  public static async findUserById(accountId: string, userId: string) {
+    let isBlocking = false;
+    const userProfile = await User.findByPk(accountId, {
+      include: [Experience, Category],
     });
-    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    if (!userProfile) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
 
+    // CHECK IF ADMIN
     const userReq = await User.findByPk(userId);
-    //Admin
     if (!userReq) {
-      return user;
+      return { userProfile, isBlocking };
     }
 
-    //if user's account is private AND not following and requestor is NOT Admin/own account, return error
-    if (userReq.accountId !== accountId && user.isPrivateProfile === true) {
+    //CHECK IF BLOCKED BY ACCOUNTID USER (user logged in is the followerId)
+    if (userReq.accountId !== accountId) {
+      const followership = await UserFollowership.findOne({
+        where: {
+          followerId: userId,
+          followingId: accountId,
+          followingStatus: FOLLOWING_ENUM.BLOCKED,
+        },
+      });
+      //return user who blocked
+      if (followership) {
+        const userProfile = await User.findByPk(accountId, {
+          attributes: ['accountId'],
+        });
+        return { userProfile, isBlocking: true };
+      }
+    }
+
+    //CHECK IF USER LOGGED IN HAS BLOCKED ACCOUNTID
+    if (userReq.accountId !== accountId) {
+      const followership = await UserFollowership.findOne({
+        where: {
+          followerId: accountId,
+          followingId: userId,
+          followingStatus: FOLLOWING_ENUM.BLOCKED,
+        },
+      });
+      //return user who blocked
+      if (followership) {
+        const userProfile = await User.findByPk(userId, {
+          attributes: ['accountId'],
+        });
+        return { userProfile, isBlocking: true };
+      }
+    }
+
+    //CHECK IF ACCOUNTID USER IS PRIVATE
+    if (
+      userReq.accountId !== accountId &&
+      userProfile.isPrivateProfile === true
+    ) {
       //try to find a followership
       const followership = await UserFollowership.findOne({
         where: {
@@ -52,10 +94,22 @@ export default class UserService {
           followingStatus: FOLLOWING_ENUM.APPROVED,
         },
       });
-      if (!followership) throw new Error(SOCIAL_ERRORS.PRIVATE_USER);
+      if (!followership) {
+        const userProfile = await User.findByPk(accountId, {
+          attributes: [
+            'accountId',
+            'username',
+            'firstName',
+            'lastName',
+            'profileImgUrl',
+            'isPrivateProfile',
+          ],
+        });
+        return { userProfile, isBlocking };
+      }
     }
 
-    return user;
+    return { userProfile, isBlocking };
   }
 
   public static async findUserOrAdminById(
@@ -142,15 +196,67 @@ export default class UserService {
 
   public static async updateUser(
     accountId: string,
-    fields: { [key: string]: string }
+    fields: { [key: string]: string },
+    interests: string[]
   ) {
     const user = await User.findByPk(accountId);
     if (user) {
       await user.update(fields);
-      return await User.findByPk(accountId);
+      if (interests) await this.updateUserInterests(accountId, interests);
+      return await User.findByPk(accountId, {
+        include: [Experience, Category],
+      });
     } else {
       throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     }
+  }
+
+  public static async updateUserInterests(
+    accountId: string,
+    updatedInterests: any
+  ) {
+    // Find all category associations with listing
+    const userInterests: UserToCategories[] = await UserToCategories.findAll({
+      where: { accountId },
+    });
+
+    const existingInterests: string[] = userInterests.map(
+      ({ categoryId }) => categoryId
+    );
+
+    const categoriesToAdd = _.difference(updatedInterests, existingInterests);
+    const categoriesToRemove = _.difference(
+      existingInterests,
+      updatedInterests
+    );
+
+    // Create new associations to new categories
+    await UserToCategories.bulkCreate(
+      categoriesToAdd.map((categoryId) => ({
+        accountId,
+        categoryId,
+      }))
+    );
+
+    // Delete associations to removed categories
+    await this.removeUserInterests(accountId, categoriesToRemove);
+  }
+
+  public static async removeUserInterests(
+    accountId: string,
+    categoriesToRemove: string[]
+  ): Promise<void> {
+    await Promise.all(
+      categoriesToRemove.map(
+        async (categoryId) =>
+          await UserToCategories.destroy({
+            where: {
+              accountId,
+              categoryId,
+            },
+          })
+      )
+    );
   }
 
   // ================================ USER EXPERIENCE ================================
@@ -222,5 +328,24 @@ export default class UserService {
     });
     if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
     return user.Experience;
+  }
+
+  // ========================================== ACHIEVEMENTS ============================================
+  public static async getUserAchievements(accountId: string) {
+    const achievements = await UserToAchievement.findAll({
+      where: {
+        accountId,
+      },
+      attributes: ['achievementId', 'title', 'medal', 'currentCount'],
+    });
+    return achievements;
+  }
+
+  public static async getAllAchievements() {
+    let achievements = await Achievement.findAll({
+      attributes: ['achievementId', 'title', 'bronze', 'silver', 'gold'],
+    });
+
+    return achievements;
   }
 }

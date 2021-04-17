@@ -2,31 +2,30 @@ import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
 import { Op } from 'sequelize';
 import {
+  ACHIEVEMENT_ENUM,
   ADMIN_VERIFIED_ENUM,
+  APPROVAL_STATUS,
   CONTRACT_PROGRESS_ENUM,
-  MENTORSHIP_CONTRACT_APPROVAL,
   USER_TYPE_ENUM,
   VISIBILITY_ENUM,
 } from '../constants/enum';
 import { ERRORS, MENTORSHIP_ERRORS } from '../constants/errors';
+import { Achievement } from '../models/Achievement';
 import { Category } from '../models/Category';
-import { MentorshipContract } from '../models/MentorshipContract';
+import {
+  MentorshipApplicationFields,
+  MentorshipContract,
+} from '../models/MentorshipContract';
 import { MentorshipListing } from '../models/MentorshipListing';
 import { MentorshipListingToCategory } from '../models/MentorshipListingToCategory';
+import { Note } from '../models/Note';
 import { Review } from '../models/Review';
 import { Task } from '../models/Task';
 import { TaskBucket } from '../models/TaskBucket';
 import { Testimonial } from '../models/Testimonial';
 import { User } from '../models/User';
-import CartService from './cart.service';
+import { UserToAchievement } from '../models/UserToAchievement';
 import EmailService from './email.service';
-
-/*type getFilter = {
-  where: {
-    adminVerified: ADMIN_VERIFIED_ENUM;
-    visibility: VISIBILITY_ENUM;
-  };
-};*/
 
 export default class MentorshipService {
   // ==================== Mentorship Listings ====================
@@ -42,6 +41,14 @@ export default class MentorshipService {
     }
   ): Promise<MentorshipListing> {
     const { categories, ...listingWithoutCategories } = mentorshipListing;
+
+    const user = await User.findByPk(accountId);
+    if (
+      // if user is trying to publish course but user has not been verified by admin, throw error
+      user.adminVerified !== ADMIN_VERIFIED_ENUM.ACCEPTED &&
+      mentorshipListing.visibility === VISIBILITY_ENUM.PUBLISHED
+    )
+      throw new Error(MENTORSHIP_ERRORS.USER_NOT_VERIFIED);
 
     const newListing = new MentorshipListing({
       accountId,
@@ -120,6 +127,61 @@ export default class MentorshipService {
       updatedListing.visibility === VISIBILITY_ENUM.PUBLISHED
     )
       throw new Error(MENTORSHIP_ERRORS.USER_NOT_VERIFIED);
+
+    //=============UPDATE MENTORSHIP ACHIEVEMENTS UPON PUBLISHED===============
+    if (
+      !currListing.publishedAt &&
+      updatedListing.visibility === VISIBILITY_ENUM.PUBLISHED
+    ) {
+      const mentorshipAchievement = await Achievement.findOne({
+        where: {
+          title: 'Mentorship Listings Created',
+        },
+      });
+      const existingMentorshipListingAchievement = await UserToAchievement.findOne(
+        {
+          where: {
+            accountId: user.accountId,
+            achievementId: mentorshipAchievement.achievementId,
+          },
+        }
+      );
+      if (!existingMentorshipListingAchievement) {
+        const newAchievement = new UserToAchievement({
+          achievementId: mentorshipAchievement.achievementId,
+          accountId: user.accountId,
+          currentCount: 1,
+          title: mentorshipAchievement.title,
+        });
+        await newAchievement.save();
+      } else {
+        const newCount = existingMentorshipListingAchievement.currentCount + 1;
+        await existingMentorshipListingAchievement.update({
+          currentCount: newCount,
+        });
+        //Check if currentCount is 5/10/50, if it is then update ENUM
+        switch (true) {
+          case newCount >= 5 && newCount < 10:
+            await existingMentorshipListingAchievement.update({
+              medal: ACHIEVEMENT_ENUM.BRONZE,
+            });
+            break;
+
+          case newCount >= 10 && newCount < 50:
+            await existingMentorshipListingAchievement.update({
+              medal: ACHIEVEMENT_ENUM.SILVER,
+            });
+            break;
+
+          case newCount >= 50:
+            await existingMentorshipListingAchievement.update({
+              medal: ACHIEVEMENT_ENUM.GOLD,
+            });
+            break;
+        }
+      }
+    }
+    //=================== END OF ACHIEVEMENT UPDATE ========================
 
     const { categories, ...listingWithoutCategories } = updatedListing;
     await this.updateMentorshipCategory(mentorshipListingId, updatedListing);
@@ -228,7 +290,23 @@ export default class MentorshipService {
   ): Promise<MentorshipListing> {
     const listingWithoutContracts = await this.getListingWithAssociations({
       mentorshipListingId,
-      extraModels: [Review],
+      extraModels: [
+        {
+          model: Review,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+                'occupation',
+              ],
+            },
+          ],
+        },
+      ],
     });
 
     if (!listingWithoutContracts)
@@ -247,7 +325,25 @@ export default class MentorshipService {
 
     // else return listing with contract
     return MentorshipListing.findByPk(mentorshipListingId, {
-      include: [Review, MentorshipContract],
+      include: [
+        {
+          model: Review,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+                'occupation',
+              ],
+            },
+          ],
+        },
+        Category,
+        MentorshipContract,
+      ],
     });
   }
 
@@ -255,35 +351,30 @@ export default class MentorshipService {
   public static async createContract(
     mentorshipListingId: string,
     accountId: string,
-    statement: string
+    applicationFields: MentorshipApplicationFields
   ): Promise<MentorshipContract> {
     const listing = await MentorshipListing.findByPk(mentorshipListingId);
     if (!listing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
 
-    const pendingContract = await MentorshipContract.findOne({
-      where: {
-        mentorshipListingId,
-        accountId,
-        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
-      },
-    });
     const existingContract = await MentorshipContract.findOne({
       where: {
         mentorshipListingId,
         accountId,
-        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
-        progress:
-          CONTRACT_PROGRESS_ENUM.NOT_STARTED || CONTRACT_PROGRESS_ENUM.ONGOING,
+        progress: {
+          [Op.or]: [
+            CONTRACT_PROGRESS_ENUM.NOT_STARTED,
+            CONTRACT_PROGRESS_ENUM.ONGOING,
+          ],
+        },
       },
     });
 
-    if (pendingContract || existingContract)
-      throw new Error(MENTORSHIP_ERRORS.CONTRACT_EXISTS);
+    if (existingContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_EXISTS);
 
     const newContract = new MentorshipContract({
       mentorshipListingId,
       accountId,
-      statement,
+      applicationFields,
     });
 
     await newContract.save();
@@ -293,8 +384,8 @@ export default class MentorshipService {
 
   public static async updateContract(
     mentorshipContractId: string,
-    statement: string,
-    accountId
+    accountId: string,
+    applicationFields: MentorshipApplicationFields
   ): Promise<MentorshipContract> {
     const currContract = await MentorshipContract.findByPk(
       mentorshipContractId
@@ -306,18 +397,22 @@ export default class MentorshipService {
       );
 
     const updatedContract = await currContract.update({
-      statement,
+      applicationFields,
     });
 
     return updatedContract;
   }
 
-  public static async acceptContract(mentorshipContractId, accountId) {
+  public static async acceptContract(
+    mentorshipContractId: string,
+    accountId: string,
+    emailParams: { numSlots: string; duration: string; message?: Text }
+  ) {
     // Check for existing mentorship contract that is pending
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
         mentorshipContractId,
-        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+        senseiApproval: APPROVAL_STATUS.PENDING,
       },
     });
     if (!mentorshipContract)
@@ -336,17 +431,66 @@ export default class MentorshipService {
     const student = await User.findByPk(mentorshipContract.accountId);
     if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
 
+    const sensei = await User.findByPk(mentorshipListing.accountId);
+    if (!sensei) throw new Error(ERRORS.SENSEI_DOES_NOT_EXIST);
+    const mentorName = `${sensei.firstName} ${sensei.lastName}`;
+
     const acceptedApplication = await mentorshipContract.update({
-      senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.APPROVED,
+      senseiApproval: APPROVAL_STATUS.APPROVED,
     });
 
-    const mentorshipName = mentorshipListing.name;
-    const additional = { mentorshipName };
+    //=============UPDATE ACHIEVEMENTS UPON ACCPETING CONTRACT===============
+    const achievement = await Achievement.findOne({
+      where: {
+        title: 'Students Mentored',
+      },
+    });
+    const existingMentorshipAchievement = await UserToAchievement.findOne({
+      where: {
+        accountId: sensei.accountId,
+        achievementId: achievement.achievementId,
+      },
+    });
+    if (!existingMentorshipAchievement) {
+      const newAchievement = new UserToAchievement({
+        achievementId: achievement.achievementId,
+        accountId: sensei.accountId,
+        currentCount: 1,
+        title: achievement.title,
+      });
+      await newAchievement.save();
+    } else {
+      const newCount = existingMentorshipAchievement.currentCount + 1;
+      await existingMentorshipAchievement.update({
+        currentCount: newCount,
+      });
+      //Check if currentCount is 10/20/50, if it is then update ENUM
+      switch (true) {
+        case newCount >= 10 && newCount < 20:
+          await existingMentorshipAchievement.update({
+            medal: ACHIEVEMENT_ENUM.BRONZE,
+          });
+          break;
 
-    await CartService.addMentorshipListing(
-      acceptedApplication.mentorshipContractId,
-      student.accountId
-    );
+        case newCount >= 20 && newCount < 50:
+          await existingMentorshipAchievement.update({
+            medal: ACHIEVEMENT_ENUM.SILVER,
+          });
+          break;
+
+        case newCount >= 50:
+          await existingMentorshipAchievement.update({
+            medal: ACHIEVEMENT_ENUM.GOLD,
+          });
+          break;
+      }
+    }
+
+    //================== END OF ACHIEVEMENT UPDATE =========================
+
+    const mentorshipName = mentorshipListing.name;
+    const additional = { title: mentorshipName, ...emailParams, mentorName };
+
     //SEND EMAIL TO INFORM OF ACCEPTANCE OF APPLICATION
     await EmailService.sendEmail(student.email, 'acceptContract', additional);
 
@@ -358,7 +502,7 @@ export default class MentorshipService {
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
         mentorshipContractId,
-        senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.PENDING,
+        senseiApproval: APPROVAL_STATUS.PENDING,
       },
     });
     if (!mentorshipContract)
@@ -378,11 +522,11 @@ export default class MentorshipService {
     if (!student) throw new Error(ERRORS.STUDENT_DOES_NOT_EXIST);
 
     const rejectedApplication = await mentorshipContract.update({
-      senseiApproval: MENTORSHIP_CONTRACT_APPROVAL.REJECTED,
+      senseiApproval: APPROVAL_STATUS.REJECTED,
     });
 
-    const mentorshipName = mentorshipListing.name;
-    const additional = { mentorshipName };
+    const title = mentorshipListing.name;
+    const additional = { title };
 
     //SEND EMAIL TO INFORM OF REJECTION OF APPLICATION
     await EmailService.sendEmail(student.email, 'rejectContract', additional);
@@ -402,12 +546,114 @@ export default class MentorshipService {
       throw new Error(
         httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
       );
-    // Manual cascade deletion of associations - Subscription
 
     await MentorshipContract.destroy({
       where: {
         mentorshipContractId,
       },
+    });
+  }
+
+  public static async terminateContract(
+    // Complete or Cancel
+    mentorshipContractId: string,
+    user: User,
+    action: CONTRACT_PROGRESS_ENUM
+  ): Promise<void> {
+    const currContract = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!currContract) throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    if (user.userType === USER_TYPE_ENUM.STUDENT) {
+      // student can only cancel
+      if (
+        currContract.accountId !== user.accountId ||
+        action !== CONTRACT_PROGRESS_ENUM.CANCELLED
+      )
+        throw new Error(
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+        );
+    }
+
+    if (user.userType === USER_TYPE_ENUM.SENSEI) {
+      // sensei can only complete
+      const mentorshipListing = await MentorshipListing.findByPk(
+        currContract.mentorshipListingId
+      );
+      if (
+        mentorshipListing.accountId !== user.accountId ||
+        action !== CONTRACT_PROGRESS_ENUM.COMPLETED
+      )
+        throw new Error(
+          httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+        );
+    }
+
+    if (
+      currContract.progress === CONTRACT_PROGRESS_ENUM.NOT_STARTED &&
+      action === CONTRACT_PROGRESS_ENUM.COMPLETED
+    )
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_NOT_STARTED);
+    if (
+      currContract.progress === CONTRACT_PROGRESS_ENUM.CANCELLED ||
+      currContract.progress === CONTRACT_PROGRESS_ENUM.COMPLETED
+    )
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_TERMINATED);
+
+    //=============UPDATE MENTORSHIP ACHIEVEMENTS UPON COMPLETION===============
+    if (user.userType === USER_TYPE_ENUM.SENSEI) {
+      const achievement = await Achievement.findOne({
+        where: {
+          title: 'Mentorships Completed',
+        },
+      });
+      const existingMentorshipAchievement = await UserToAchievement.findOne({
+        where: {
+          accountId: currContract.accountId,
+          achievementId: achievement.achievementId,
+        },
+      });
+      if (!existingMentorshipAchievement) {
+        const newAchievement = new UserToAchievement({
+          achievementId: achievement.achievementId,
+          accountId: currContract.accountId,
+          currentCount: 1,
+          title: achievement.title,
+        });
+        await newAchievement.save();
+      } else {
+        const newCount = existingMentorshipAchievement.currentCount + 1;
+        await existingMentorshipAchievement.update({
+          currentCount: newCount,
+        });
+        //Check if currentCount is 5/10/50, if it is then update ENUM
+        switch (true) {
+          case newCount >= 5 && newCount < 10:
+            await existingMentorshipAchievement.update({
+              medal: ACHIEVEMENT_ENUM.BRONZE,
+            });
+            break;
+
+          case newCount >= 10 && newCount < 50:
+            await existingMentorshipAchievement.update({
+              medal: ACHIEVEMENT_ENUM.SILVER,
+            });
+            break;
+
+          case newCount >= 50:
+            await existingMentorshipAchievement.update({
+              medal: ACHIEVEMENT_ENUM.GOLD,
+            });
+            break;
+        }
+      }
+    }
+
+    //=================== END OF ACHIEVEMENT UPDATE ========================
+
+    await currContract.update({
+      progress: action,
     });
   }
 
@@ -464,7 +710,34 @@ export default class MentorshipService {
       mentorshipContractId,
       {
         include: [
-          MentorshipListing,
+          {
+            model: MentorshipListing,
+            include: [
+              {
+                model: User,
+                attributes: [
+                  'accountId',
+                  'firstName',
+                  'lastName',
+                  'profileImgUrl',
+                ],
+              },
+              {
+                model: Review,
+                include: [
+                  {
+                    model: User,
+                    attributes: [
+                      'accountId',
+                      'firstName',
+                      'lastName',
+                      'profileImgUrl',
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
           {
             model: TaskBucket,
             include: [
@@ -503,18 +776,93 @@ export default class MentorshipService {
     return mentorshipContracts;
   }
 
+  //get ONE Active mentorship contract of ONE student
+  public static async getActiveMentorship(mentorshipContractId: string) {
+    const mentorshipContract = await MentorshipContract.findOne({
+      where: {
+        mentorshipContractId,
+        progress: CONTRACT_PROGRESS_ENUM.ONGOING,
+      },
+      include: [
+        {
+          model: MentorshipListing,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+              ],
+            },
+          ],
+        },
+        {
+          model: TaskBucket,
+          include: [
+            {
+              model: Task,
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    return mentorshipContract;
+  }
+
+  //get ALL Active mentorshipContracts of this student
+  public static async getAllActiveMentorships(accountId: string) {
+    const mentorshipContracts = await MentorshipContract.findAll({
+      where: {
+        accountId,
+        progress: CONTRACT_PROGRESS_ENUM.ONGOING,
+      },
+      include: [
+        {
+          model: MentorshipListing,
+          include: [
+            {
+              model: User,
+              attributes: [
+                'accountId',
+                'firstName',
+                'lastName',
+                'profileImgUrl',
+              ],
+            },
+          ],
+        },
+        {
+          model: TaskBucket,
+          include: [
+            {
+              model: Task,
+            },
+          ],
+        },
+      ],
+    });
+
+    return mentorshipContracts;
+  }
+
   // ============================== TESTIMONIAL ==============================
   public static async addTestimonial(
     userId: string,
     accountId: string, //studentId
-    mentorshipListingId: string,
+    mentorshipContractId: string,
     testimonial: {
       body: string;
     }
   ): Promise<Testimonial> {
     const existingTestimonial = await Testimonial.findOne({
       where: {
-        mentorshipListingId,
+        mentorshipContractId,
         accountId,
       },
     });
@@ -526,7 +874,7 @@ export default class MentorshipService {
     //Check if mentorship has been completed before testimonial is created
     const mentorshipContract = await MentorshipContract.findOne({
       where: {
-        mentorshipListingId,
+        mentorshipContractId,
         accountId,
         progress: CONTRACT_PROGRESS_ENUM.COMPLETED,
       },
@@ -536,7 +884,7 @@ export default class MentorshipService {
     }
 
     const mentorshipListing = await MentorshipListing.findByPk(
-      mentorshipListingId,
+      mentorshipContract.mentorshipListingId,
       { paranoid: false }
     );
 
@@ -553,7 +901,7 @@ export default class MentorshipService {
     const { body } = testimonial;
 
     const newTestimonial = new Testimonial({
-      mentorshipListingId,
+      mentorshipContractId,
       accountId,
       body,
     });
@@ -573,9 +921,20 @@ export default class MentorshipService {
     if (!existingTestimonial)
       throw new Error(MENTORSHIP_ERRORS.TESTIMONIAL_MISSING);
 
+    const mentorshipContract = await MentorshipContract.findOne({
+      where: {
+        mentorshipContractId: existingTestimonial.mentorshipContractId,
+      },
+      paranoid: false,
+    });
+
+    if (!mentorshipContract) {
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+    }
+
     const mentorshipListing = await MentorshipListing.findOne({
       where: {
-        mentorshipListingId: existingTestimonial.mentorshipListingId,
+        mentorshipListingId: mentorshipContract.mentorshipListingId,
       },
       paranoid: false,
     });
@@ -596,9 +955,59 @@ export default class MentorshipService {
   //get list of testimonials by filter
   public static async getTestimonialsByFilter(filter: {
     accountId?: string;
-    mentorshipListingId?: string;
+    mentorshipContractId?: string;
   }) {
-    return await Testimonial.findAll({ where: filter });
+    return await Testimonial.findAll({
+      where: filter,
+      include: [
+        {
+          model: MentorshipContract,
+          include: [
+            {
+              model: MentorshipListing,
+              include: [
+                {
+                  model: User,
+                  attributes: [
+                    'firstName',
+                    'lastName',
+                    'profileImgUrl',
+                    'occupation',
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  }
+
+  public static async getAllTestimonials(accountId: string) {
+    const user = await User.findByPk(accountId);
+    if (!user) throw new Error(ERRORS.USER_DOES_NOT_EXIST);
+    const mentorshipListings = await MentorshipListing.findAll({
+      where: {
+        accountId,
+      },
+    });
+
+    const mentorshipListingIds = mentorshipListings.map(
+      (ml) => ml.mentorshipListingId
+    );
+
+    const mentorshipContracts = await MentorshipContract.findAll({
+      where: { mentorshipListingId: { [Op.in]: mentorshipListingIds } },
+    });
+
+    const mentorshipContractIds = mentorshipContracts.map(
+      (mc) => mc.mentorshipContractId
+    );
+
+    return await Testimonial.findAll({
+      where: { mentorshipContractId: { [Op.in]: mentorshipContractIds } },
+      include: [MentorshipContract, User],
+    });
   }
 
   // =========================================== TASKS ====================================================
@@ -657,6 +1066,7 @@ export default class MentorshipService {
       where: {
         taskBucketId,
       },
+      individualHooks: true,
     });
   }
 
@@ -665,11 +1075,24 @@ export default class MentorshipService {
     accountId: string
   ) {
     await MentorshipService.authorizationCheck(mentorshipContractId, accountId);
-    return TaskBucket.findAll({
+    const buckets = await TaskBucket.findAll({
       where: { mentorshipContractId },
-      order: [['updatedAt', 'ASC']],
       include: [Task],
+      order: [['createdAt', 'ASC']],
     });
+
+    await Promise.all(
+      buckets.map(async (bucket) => {
+        bucket.Tasks.sort(function (a, b) {
+          return (
+            bucket.taskOrder.indexOf(a.taskId) -
+            bucket.taskOrder.indexOf(b.taskId)
+          );
+        });
+      })
+    );
+
+    return buckets;
   }
 
   //====================== TASK =======================
@@ -678,7 +1101,6 @@ export default class MentorshipService {
     taskBucketId: string,
     task: {
       body: string;
-      attachmentUrl?: string;
       dueAt?: string;
     }
   ): Promise<Task> {
@@ -690,16 +1112,22 @@ export default class MentorshipService {
       userId
     );
 
-    const { body, attachmentUrl, dueAt } = task;
+    const { body, dueAt } = task;
 
     const newTask = new Task({
       taskBucketId,
       body,
-      attachmentUrl,
       dueAt,
     });
 
     await newTask.save();
+
+    // Push task to end of task order array
+    const updatedTaskOrder = taskBucket.taskOrder;
+    updatedTaskOrder.push(newTask.taskId);
+    await taskBucket.update({
+      taskOrder: updatedTaskOrder,
+    });
 
     return newTask;
   }
@@ -715,10 +1143,69 @@ export default class MentorshipService {
     const taskBucket = await TaskBucket.findByPk(existingTask.taskBucketId);
     if (!taskBucket) throw new Error(MENTORSHIP_ERRORS.TASK_BUCKET_MISSING);
 
+    const mentorshipContract = await MentorshipContract.findByPk(
+      taskBucket.mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
     await MentorshipService.authorizationCheck(
       taskBucket.mentorshipContractId,
       accountId
     );
+
+    //=============UPDATE TASK ACHIEVEMENTS UPON COMPLETION===============
+    if (
+      existingTask.progress === CONTRACT_PROGRESS_ENUM.ONGOING &&
+      editedTask.progress === CONTRACT_PROGRESS_ENUM.COMPLETED
+    ) {
+      const taskAchievement = await Achievement.findOne({
+        where: {
+          title: 'Tasks Completed',
+        },
+      });
+      const existingTaskAchievement = await UserToAchievement.findOne({
+        where: {
+          accountId: mentorshipContract.accountId,
+          achievementId: taskAchievement.achievementId,
+        },
+      });
+      if (!existingTaskAchievement) {
+        const newAchievement = new UserToAchievement({
+          achievementId: taskAchievement.achievementId,
+          accountId: mentorshipContract.accountId,
+          currentCount: 1,
+          title: taskAchievement.title,
+        });
+        await newAchievement.save();
+      } else {
+        const newCount = existingTaskAchievement.currentCount + 1;
+        await existingTaskAchievement.update({
+          currentCount: newCount,
+        });
+        //Check if currentCount is 10/20/50, if it is then update ENUM
+        switch (true) {
+          case newCount >= 10 && newCount < 20:
+            await existingTaskAchievement.update({
+              medal: ACHIEVEMENT_ENUM.BRONZE,
+            });
+            break;
+
+          case newCount >= 20 && newCount < 50:
+            await existingTaskAchievement.update({
+              medal: ACHIEVEMENT_ENUM.SILVER,
+            });
+            break;
+
+          case newCount >= 50:
+            await existingTaskAchievement.update({
+              medal: ACHIEVEMENT_ENUM.GOLD,
+            });
+            break;
+        }
+      }
+    }
+    //=================== END OF ACHIEVEMENT UPDATE ========================
 
     return await existingTask.update(editedTask);
   }
@@ -729,7 +1216,6 @@ export default class MentorshipService {
   ): Promise<void> {
     const existingTask = await Task.findByPk(taskId);
     if (!existingTask) throw new Error(MENTORSHIP_ERRORS.TASK_MISSING);
-
     const taskBucket = await TaskBucket.findByPk(existingTask.taskBucketId);
     if (!taskBucket) throw new Error(MENTORSHIP_ERRORS.TASK_BUCKET_MISSING);
 
@@ -741,6 +1227,14 @@ export default class MentorshipService {
       where: {
         taskId,
       },
+    });
+
+    // Remove task from task order
+    const updatedTaskOrder = taskBucket.taskOrder.filter(
+      (_taskId) => _taskId !== taskId
+    );
+    await taskBucket.update({
+      taskOrder: updatedTaskOrder,
     });
   }
 
@@ -790,6 +1284,96 @@ export default class MentorshipService {
       );
   }
 
+  // ======================================== NOTES ========================================
+  public static async addNoteToMentorship(
+    mentorshipContractId: string,
+    accountId: string,
+    note: {
+      title: string;
+      body: string;
+    }
+  ): Promise<Note> {
+    await MentorshipService.noteAuthorizationCheck(
+      mentorshipContractId,
+      accountId
+    );
+
+    const { title, body } = note;
+
+    const newNote = new Note({
+      mentorshipContractId,
+      title,
+      body,
+    });
+
+    await newNote.save();
+
+    return newNote;
+  }
+
+  public static async editNoteInMentorship(
+    noteId: string,
+    accountId: string,
+    updateNote
+  ): Promise<Note> {
+    const note = await Note.findByPk(noteId);
+    if (!note) throw new Error(MENTORSHIP_ERRORS.NOTE_MISSING);
+
+    await MentorshipService.noteAuthorizationCheck(
+      note.mentorshipContractId,
+      accountId
+    );
+
+    return await note.update(updateNote);
+  }
+
+  public static async getAllNotes(mentorshipContractId, accountId) {
+    const mentorshipContract = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+    if (!mentorshipListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+
+    const user = await User.findByPk(accountId);
+    if (
+      user.accountId !== mentorshipListing.accountId &&
+      user.accountId !== mentorshipContract.accountId
+    )
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+    const notes = Note.findAll({
+      where: {
+        mentorshipContractId,
+      },
+    });
+    return notes;
+  }
+
+  public static async noteAuthorizationCheck(mentorshipContractId, accountId) {
+    const mentorshipContract = await MentorshipContract.findByPk(
+      mentorshipContractId
+    );
+    if (!mentorshipContract)
+      throw new Error(MENTORSHIP_ERRORS.CONTRACT_MISSING);
+
+    const mentorshipListing = await MentorshipListing.findByPk(
+      mentorshipContract.mentorshipListingId
+    );
+    if (!mentorshipListing) throw new Error(MENTORSHIP_ERRORS.LISTING_MISSING);
+
+    const user = await User.findByPk(accountId);
+    if (user.accountId !== mentorshipListing.accountId)
+      throw new Error(
+        httpStatusCodes.getStatusText(httpStatusCodes.UNAUTHORIZED)
+      );
+  }
+
   // ==================================== SENSEI MENTEE ====================================
   public static async getSenseiMenteeList(accountId: string): Promise<User[]> {
     const user = await User.findByPk(accountId);
@@ -804,7 +1388,11 @@ export default class MentorshipService {
       include: [
         {
           model: MentorshipContract,
-          where: { mentorshipListingId: mentorshipListingIds },
+          where: {
+            mentorshipListingId: mentorshipListingIds,
+            senseiApproval: APPROVAL_STATUS.APPROVED,
+          },
+          include: [Testimonial],
         },
       ],
     });

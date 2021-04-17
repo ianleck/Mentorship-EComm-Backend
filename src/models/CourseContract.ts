@@ -29,6 +29,10 @@ export class CourseContract extends BaseEntity {
   @Column(DataType.UUID)
   courseId: string;
 
+  @Default([])
+  @Column(DataType.JSON)
+  lessonProgress: string[];
+
   @Column({
     allowNull: false,
     type: DataType.ENUM,
@@ -49,4 +53,3 @@ export class CourseContract extends BaseEntity {
 }
 
 // one to one mapping for Review
-// has Subscription oto

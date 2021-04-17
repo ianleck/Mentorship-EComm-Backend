@@ -6,12 +6,13 @@ import {
 } from '../../constants/enum';
 
 export default {
-
   createAnnouncement: joi.object({
-    newAnnouncement: joi.object({
-      title: joi.string().required(),
-      description: joi.string().required(),
-    }).required(),
+    newAnnouncement: joi
+      .object({
+        title: joi.string().required(),
+        description: joi.string().required(),
+      })
+      .required(),
   }),
   createCourseB: joi.object({
     newCourse: joi
@@ -40,7 +41,7 @@ export default {
   }),
   announcementIdP: joi.object({
     announcementId: joi.string().required(),
-  }), 
+  }),
   studentIdP: joi.object({
     accountId: joi.string().required(),
   }),
@@ -48,6 +49,10 @@ export default {
   getFilter: joi.object({
     adminVerified: joi.string().valid(...Object.values(ADMIN_VERIFIED_ENUM)),
     visibility: joi.string().valid(...Object.values(VISIBILITY_ENUM)),
+  }),
+  markLessonAsCompletedP: joi.object({
+    courseContractId: joi.string().required(),
+    lessonId: joi.string().required(),
   }),
   updateCourseB: joi.object({
     updatedCourse: joi

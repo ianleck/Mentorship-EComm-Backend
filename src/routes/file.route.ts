@@ -1,9 +1,9 @@
 import express from 'express';
+import passport from 'passport';
 import { FileController } from '../controllers/file.controller';
 import { downloadAuthentication } from '../middlewares/authenticationMiddleware';
 const path = require('path');
 
-const passport = require('passport');
 const router = express.Router();
 const fs = require('fs');
 
@@ -32,5 +32,11 @@ router.get('/course/*', express.static(path.join(__dirname, '../../uploads')));
  * For serving lesson video, assessment video
  */
 router.get('/course/lesson/*', FileController.serveVideo);
+
+// ================================ TASK ATTACHMENT ================================
+router.get(
+  '/mentorship/task/:documentName',
+  express.static(path.join(__dirname, '../../uploads'))
+);
 
 export default router;

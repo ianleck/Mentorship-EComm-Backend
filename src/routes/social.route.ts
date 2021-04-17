@@ -2,7 +2,7 @@ import express from 'express';
 import passport from 'passport';
 import Utility from '../constants/utility';
 import { SocialController } from '../controllers/social.controller';
-import { requireSensei } from '../middlewares/authenticationMiddleware';
+import { requireSameUser } from '../middlewares/authenticationMiddleware';
 import social from './schema/social.schema';
 import user from './schema/user.schema';
 
@@ -14,7 +14,6 @@ const schemaValidator = require('express-joi-validation').createValidator({});
 router.post(
   '/post/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireSensei,
   schemaValidator.params(user.accountIdP),
   schemaValidator.body(social.createPostB),
   Utility.asyncHandler(SocialController.createPost)
@@ -23,7 +22,6 @@ router.post(
 router.put(
   '/post/:postId',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireSensei,
   schemaValidator.params(social.postIdP),
   schemaValidator.body(social.editPostB),
   Utility.asyncHandler(SocialController.editPost)
@@ -32,7 +30,6 @@ router.put(
 router.delete(
   '/post/:postId',
   passport.authenticate('isAuthenticated', { session: false }),
-  requireSensei,
   schemaValidator.params(social.postIdP),
   Utility.asyncHandler(SocialController.deletePost)
 );
@@ -53,21 +50,29 @@ router.delete(
 
 //anyone who is logged in can access this
 router.get(
+  '/post/following/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getFollowingFeed)
+);
+
+//anyone who is logged in can access this
+router.get(
   '/post/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(SocialController.getUserFeed)
 );
 
-//================================== FOLLOWING =============================================
-//Request to Follow a User
-router.post(
-  '/following/request/:accountId',
+//anyone who is logged in can access this
+router.get(
+  '/post/one/:postId',
   passport.authenticate('isAuthenticated', { session: false }),
-  schemaValidator.params(user.accountIdP), //accountId of following
-  Utility.asyncHandler(SocialController.requestFollowing)
+  schemaValidator.params(social.postIdP),
+  Utility.asyncHandler(SocialController.getPostById)
 );
 
+//================================== FOLLOWING =============================================
 //Cancel Request to Follow a User
 router.delete(
   '/following/request/:accountId',
@@ -92,7 +97,7 @@ router.delete(
   Utility.asyncHandler(SocialController.rejectFollowingRequest)
 );
 
-//Follow User (user's account NOT private) - user requesting is the follower
+//Follow User
 router.post(
   '/following/follow/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -100,7 +105,7 @@ router.post(
   Utility.asyncHandler(SocialController.followUser)
 );
 
-//Unfollow User (Done by user who is following)
+//Unfollow User
 router.delete(
   '/following/unfollow/:accountId',
   passport.authenticate('isAuthenticated', { session: false }),
@@ -122,6 +127,54 @@ router.get(
   passport.authenticate('isAuthenticated', { session: false }),
   schemaValidator.params(user.accountIdP),
   Utility.asyncHandler(SocialController.getFollowingList)
+);
+
+//View Follower List
+router.get(
+  '/follower/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getFollowerList)
+);
+
+//View Pending List (the list of users :accountId has requested to follow)
+router.get(
+  '/pending-following/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getPendingFollowingList)
+);
+
+// Block User
+router.post(
+  '/block/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.blockUser)
+);
+
+// Unblock User
+router.delete(
+  '/unblock/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.unblockUser)
+);
+
+//View Follower Requests (Pending Followers of the :accountId)
+router.get(
+  '/pending-followers/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getPendingFollowerList)
+);
+
+router.get(
+  '/blocked/all/:accountId',
+  passport.authenticate('isAuthenticated', { session: false }),
+  requireSameUser,
+  schemaValidator.params(user.accountIdP),
+  Utility.asyncHandler(SocialController.getUsersBlocked)
 );
 
 export default router;

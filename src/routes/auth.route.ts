@@ -1,9 +1,8 @@
 import express from 'express';
-import auth from './schema/auth.schema';
+import passport from 'passport';
 import Utility from '../constants/utility';
 import { AuthController } from '../controllers/auth.controller';
-
-const passport = require('passport');
+import auth from './schema/auth.schema';
 
 const router = express.Router();
 
@@ -34,7 +33,7 @@ router.put(
 
 router.post(
   '/forgot-password/:email',
-  schemaValidator.params(auth.emailQ),
+  schemaValidator.params(auth.emailP),
   Utility.asyncHandler(AuthController.forgotPassword)
 );
 

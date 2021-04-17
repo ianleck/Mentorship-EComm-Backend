@@ -18,9 +18,33 @@ export const AUTH_RESPONSE = {
 
 // ==================== CART RESPONSE MESSAGES ====================
 export const CART_RESPONSE = {
-  ADD_TO_CART: 'Course has been successfully added to cart',
+  ADD_COURSE_TO_CART: 'Course has been successfully added to cart',
+  ADD_MENTORSHIP_TO_CART:
+    'Mentorship Passes have been successfully added to cart',
   DELETE_FROM_CART:
     'The selected item(s) have been successfully removed from cart',
+  UPDATE_QUANTITY: 'Mentorship Quantity has been successfully updated',
+};
+
+// ==================== COMMENT RESPONSE MESSAGES ====================
+export const COMMENT_RESPONSE = {
+  COMMENT_LESSON_CREATE: 'Successfully commented on lesson',
+  COMMENT_DELETE: 'Successfully deleted comment',
+
+  COMMENT_POST_CREATE: 'Successfully commented on post',
+  COMMENT_POST_EDIT: 'Successfully edited comment on post',
+};
+
+// ==================== CONSULTATION RESPONSE MESSAGES ====================
+export const CONSULTATION_RESPONSE = {
+  CONSULTATION_CREATE: 'Consultation has been successfully created',
+  CONSULTATION_EDIT: 'Consultation has been successfully edited',
+  CONSULTATION_DELETE: 'Consultation has been successfully deleted',
+
+  CONSULTATION_REGISTERED:
+    'You have been successfully registered for the selected consultation slot',
+  CONSULTATION_UNREGISTERED:
+    'You have been successfully cancelled your registration for the selected consultation slot',
 };
 
 // ==================== COURSE RESPONSE MESSAGES ====================
@@ -45,6 +69,8 @@ export const COURSE_RESPONSE = {
   ANNOUNCEMENT_CREATE: 'Announcement has been successfully written',
   ANNOUNCEMENT_UPDATE: 'Announcement has been successfully updated',
   ANNOUNCEMENT_DELETE: 'Announcement has been successfully deleted',
+
+  LESSON_COMPLETED: 'Lesson has been marked as completed',
 };
 
 // ==================== MENTORSHIP RESPONSE MESSAGES ====================
@@ -77,17 +103,47 @@ export const MENTORSHIP_RESPONSE = {
   TASK_CREATE: 'Task has been successfully created',
   TASK_EDIT: 'Task has been successfully edited',
   TASK_DELETE: 'Task has been successfully deleted',
+
+  NOTE_CREATE: 'Note has been successfully created',
+  NOTE_UPDATE: 'Note has been successfully updated',
 };
 
-// ==================== PAYPAL RESPONSE MESSAGES ====================
-export const PAYPAL_RESPONSE = {
-  ORDER_CREATE: 'Order has been successfully created',
+// ==================== REFUND RESPONSE MESSAGES ====================
+export const REFUND_RESPONSE = {
+  REQUEST_CREATE: 'Refund has been successfully requested',
+  REQUEST_CANCEL: 'Refund has been successfully cancelled',
+  REQUEST_APPROVE: 'Refund has been successfully approved',
+  REQUEST_REJECT: 'Refund has been successfully rejected',
 };
 
 // ==================== REVIEW RESPONSE MESSAGES ====================
 export const REVIEW_RESPONSE = {
   REVIEW_CREATE: 'Review has been successfully posted',
   REVIEW_UPDATE: 'Review has been successfully updated',
+};
+
+// ==================== SOCIAL RESPONSE MESSAGES ====================
+export const SOCIAL_RESPONSE = {
+  POST_CREATE: 'Post has been successfully created',
+  POST_UPDATE: 'Post has been successfully updated',
+  POST_DELETE: 'Post has been successfully deleted',
+  POST_LIKED: 'Post has been successfully liked',
+  POST_UNLIKED: 'Post has been successfully unliked',
+
+  FOLLOWING_ADDED: 'User has been successfully followed',
+  FOLLOWING_REMOVED: 'User has been successfullly unfollowed',
+
+  FOLLOWING_REQUEST_CREATED:
+    'Request to follow user has been successfully created',
+  FOLLOWING_REQUEST_CANCELLED:
+    'Request to follow user has been successfully cancelled',
+  FOLLOWING_REQUEST_ACCEPTED:
+    'Request to follow user has been successfully accepted',
+  FOLLOWING_REQUEST_REJECTED:
+    'Request to follow user has been successfully rejected',
+
+  USER_BLOCKED: 'User has been successfully blocked',
+  USER_UNBLOCKED: 'User has been successfully unblocked',
 };
 
 // ==================== USER RESPONSE MESSAGES ====================
@@ -112,36 +168,24 @@ export const UPLOAD_RESPONSE = {
   COURSE_PIC_UPLOAD: 'Course image has been uploaded successfully',
   LESSON_FILE_UPLOAD: 'Successfully uploaded file',
   LESSON_VIDEO_UPLOAD: 'Successfully uploaded video',
+  TASK_ATTACHMENT_UPLOAD: 'Successfully uploaded attachment',
 
   FILE_DELETED: 'Successfully deleted file',
+  ATTACHMENT_DELETED: 'Successfully deleted attachment',
 };
 
 // ==================== SOCIAL RESPONSE MESSAGES ====================
-export const SOCIAL_RESPONSE = {
-  POST_CREATE: 'Post has been successfully created',
-  POST_UPDATE: 'Post has been successfully updated',
-  POST_DELETE: 'Post has been successfully deleted',
-  POST_LIKED: 'Post has been successfully liked',
-  POST_UNLIKED: 'Post has been successfully unliked',
-
-  FOLLOWING_ADDED: 'User has been successfully followed',
-  FOLLOWING_REMOVED: 'User has been successfullly unfollowed',
-
-  FOLLOWING_REQUEST_CREATED:
-    'Request to follow user has been successfully created',
-  FOLLOWING_REQUEST_CANCELLED:
-    'Request to follow user has been successfully cancelled',
-  FOLLOWING_REQUEST_ACCEPTED:
-    'Request to follow user has been successfully accepted',
-  FOLLOWING_REQUEST_REJECTED:
-    'Request to follow user has been successfully rejected',
+export const WITHDRAWAL_RESPONSE = {
+  REQUEST_CREATE: 'Withdrawal has been successfully requested',
+  REQUEST_APPROVE: 'Withdrawal has been successfully approved',
+  REQUEST_REJECT: 'Withdrawal has been successfully rejected',
 };
 
-// ==================== COMMENT RESPONSE MESSAGES ====================
-export const COMMENT_RESPONSE = {
-  COMMENT_LESSON_CREATE: 'Successfully commented on lesson',
-  COMMENT_DELETE: 'Successfully deleted comment',
-
-  COMMENT_POST_CREATE: 'Successfully commented on post',
-  COMMENT_POST_EDIT: 'Successfully edited comment on post',
+// ==================== MESSAGE RESPONSE MESSAGES ====================
+export const MESSAGE_RESPONSE = {
+  MESSAGE_CREATE: 'Message has been successfully sent',
+  GROUP_CREATE: 'Chat group has been successfully created',
+  GROUP_DELETED: 'Chat group has been successfully deleted',
+  USER_ADDED: 'User has been successfully added to chat group',
+  USER_REMOVED: 'User has been successfully removed from chat group',
 };
