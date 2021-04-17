@@ -176,7 +176,26 @@ export default class ChatService {
         },
       ],
     });
-    return chats;
+
+    const groupChat = chats.filter((c) => c.isChatGroup);
+    const groupChatIds = groupChat.map((c) => c.chatId);
+    const groupChatUserIds = await Promise.all(
+      groupChatIds.map(async (cId) => {
+        return UserToChat.findAll({ where: { chatId: cId } });
+      })
+    );
+    const expandedChats = chats.map((c) => {
+      const index = groupChatIds.indexOf(c.chatId);
+      if (index != -1) {
+        return {
+          ...c.get({ plain: true }),
+          Users: groupChatUserIds[index],
+        };
+      } else {
+        return c.get({ plain: true });
+      }
+    });
+    return expandedChats;
   }
 
   public static async createChatGroup(
