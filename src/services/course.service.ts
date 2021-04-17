@@ -1,14 +1,7 @@
 import httpStatusCodes from 'http-status-codes';
 import * as _ from 'lodash';
 import { Op } from 'sequelize';
-import {
-  ACHIEVEMENT_ENUM,
-  ADMIN_VERIFIED_ENUM,
-  LEVEL_ENUM,
-  STATUS_ENUM,
-  USER_TYPE_ENUM,
-  VISIBILITY_ENUM,
-} from '../constants/enum';
+import { ACHIEVEMENT_ENUM, ADMIN_VERIFIED_ENUM, LEVEL_ENUM, STATUS_ENUM, USER_TYPE_ENUM, VISIBILITY_ENUM } from '../constants/enum';
 import { AUTH_ERRORS, COURSE_ERRORS, ERRORS } from '../constants/errors';
 import { Achievement } from '../models/Achievement';
 import { Announcement } from '../models/Announcement';
@@ -470,7 +463,10 @@ export default class CourseService {
       const accountIds = contracts.map((aId) => aId.accountId);
 
       const users = await User.findAll({
-        where: { accountId: accountIds },
+        where: {
+          accountId: accountIds,
+          emailNotification: true,
+        },
       });
 
       const listOfEmails = users.map((lom) => lom.email);
