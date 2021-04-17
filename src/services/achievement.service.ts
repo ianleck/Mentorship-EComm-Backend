@@ -51,8 +51,7 @@ export default class AchievementService {
       });
 
     const length = userAchievements.length;
-    const leftColumnLength = length / 2 + (length % 2);
-    const rightColumnLength = length / 2;
+    const leftColumnLength = Math.floor(length / 2) + (length % 2);
 
     let margin = 350;
     let medalType;
@@ -84,7 +83,7 @@ export default class AchievementService {
     }
 
     margin = 350;
-    for (let i = rightColumnLength; i < length; i++) {
+    for (let i = leftColumnLength; i < length; i++) {
       medalType = userAchievements[i].medal
         ? userAchievements[i].medal.toLowerCase()
         : 'nil';
@@ -112,6 +111,7 @@ export default class AchievementService {
     }
     doc.end();
 
+    // return promise to wait on write stream to finish. Else, unable to send back pdf file.
     return new Promise((resolve, reject) => {
       writeStream.on('finish', function () {
         resolve(`${__dirname}/../../uploads/user-achievement/${fileName}`);
