@@ -3,8 +3,6 @@ import passport from 'passport';
 import Utility from '../constants/utility';
 import { AchievementController } from '../controllers/achievement.controller';
 
-const path = require('path');
-
 const router = express.Router();
 
 router.get(
