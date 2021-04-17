@@ -473,18 +473,22 @@ export default class CourseService {
         where: { accountId: accountIds },
       });
 
-      const listOfEmails = users.map((lom) => lom.email);
-
+      const listOfEmails = users.map((user) => {
+        if (user.emailNotification) return user.email;
+      });
+      const filteredEmails = listOfEmails.filter((x) => x !== undefined);
       const courseName = course.title;
       const announcementContent = newAnnouncement.description;
       const announcementTitle = newAnnouncement.title;
       const additional = { courseName, announcementTitle, announcementContent };
 
-      await EmailService.sendMassEmail(
-        listOfEmails,
-        'newAnnouncement',
-        additional
-      );
+      if (filteredEmails.length > 0) {
+        await EmailService.sendMassEmail(
+          listOfEmails,
+          'newAnnouncement',
+          additional
+        );
+      }
     }
 
     return newAnnouncement;
